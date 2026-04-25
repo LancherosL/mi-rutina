@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mi Rutina</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;1,300&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --cream: #F5F0E6;
+    --ink: #1C1810;
+    --terra: #BF6740;
+    --terra-glow: rgba(191,103,64,0.18);
+    --sage: #5E8F68;
+    --muted: #9A8E7D;
+    --card: #FFFFFF;
+    --line: rgba(28,24,16,0.08);
+    --night-bg: #151E28;
+    --night-card: #1E2B3A;
+    --night-text: #E2D9CC;
+    --night-accent: #7BAEC8;
+    --night-glow: rgba(123,174,200,0.15);
+    --r: 20px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    transition: background 0.35s, color 0.35s;
+  }
+
+  body.night {
+    background: var(--night-bg);
+    color: var(--night-text);
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--cream);
+    padding: 14px 20px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.35s;
+  }
+  body.night .topbar { background: var(--night-bg); border-bottom-color: rgba(255,255,255,0.06); }
+
+  .topbar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-right { display: flex; gap: 10px; align-items: center; }
+
+  .icon-btn {
+    background: none; border: none;
+    font-size: 22px; cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 10px;
+    transition: transform 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.82); }
+
+  /* ── TAB BAR ── */
+  .tabs {
+    display: flex; gap: 10px;
+    padding: 14px 20px 0;
+  }
+
+  .tab {
+    flex: 1; padding: 13px 6px;
+    border: none; border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.22s;
+    letter-spacing: 0.01em;
+  }
+
+  .tab.morning {
+    background: var(--terra-glow);
+    color: var(--terra);
+  }
+  .tab.morning.on {
+    background: var(--terra);
+    color: white;
+    box-shadow: 0 8px 22px rgba(191,103,64,0.32);
+    transform: translateY(-2px);
+  }
+
+  .tab.night-tab {
+    background: rgba(21,30,40,0.08);
+    color: #5A7890;
+  }
+  body.night .tab.night-tab {
+    background: rgba(255,255,255,0.06);
+    color: var(--night-accent);
+  }
+  .tab.night-tab.on {
+    background: var(--night-bg);
+    color: var(--night-accent);
+    box-shadow: 0 8px 22px rgba(21,30,40,0.35);
+    transform: translateY(-2px);
+  }
+  body.night .tab.night-tab.on {
+    background: var(--night-card);
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; padding: 16px 20px 40px; animation: up 0.28s ease; }
+  .panel.on { display: block; }
+  @keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── WEEK BAR ── */
+  .week-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .week-label {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .week-input {
+    flex: 1;
+    background: var(--card); border: none;
+    border-radius: 12px; padding: 8px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 600;
+    color: inherit; outline: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  body.night .week-input { background: var(--night-card); }
+
+  /* ── DAY PILLS (selector) ── */
+  .day-pills {
+    display: flex; gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .day-pills::-webkit-scrollbar { display: none; }
+
+  .day-pill {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--line);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    color: var(--muted);
+  }
+  body.night .day-pill { background: var(--night-card); border-color: rgba(255,255,255,0.08); }
+
+  .day-pill.selected {
+    background: var(--terra);
+    border-color: var(--terra);
+    color: white;
+    box-shadow: 0 4px 14px rgba(191,103,64,0.28);
+  }
+  .night .day-pill.selected {
+    background: var(--night-accent);
+    border-color: var(--night-accent);
+    color: var(--night-bg);
+    box-shadow: 0 4px 14px rgba(123,174,200,0.28);
+  }
+
+  /* ── HABIT CARDS ── */
+  .habit-card {
+    background: var(--card);
+    border-radius: var(--r);
+    padding: 0;
+    margin-bottom: 10px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.12s;
+    -webkit-user-select: none;
+  }
+  body.night .habit-card { background: var(--night-card); }
+  .habit-card:active { transform: scale(0.975); }
+
+  .habit-inner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+  }
+
+  .habit-check {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(28,24,16,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: transparent;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  body.night .habit-check { border-color: rgba(255,255,255,0.18); }
+
+  .habit-card.done .habit-check {
+    background: var(--terra);
+    border-color: var(--terra);
+    color: white;
+  }
+  body.night .habit-card.done .habit-check {
+    background: var(--night-accent);
+    border-color: var(--night-accent);
+    color: var(--night-bg);
+  }
+
+  .habit-card.done {
+    background: linear-gradient(135deg, rgba(191,103,64,0.06) 0%, var(--card) 60%);
+  }
+  body.night .habit-card.done {
+    background: linear-gradient(135deg, rgba(123,174,200,0.08) 0%, var(--night-card) 60%);
+  }
+
+  .habit-icon { font-size: 22px; }
+
+  .habit-text { flex: 1; }
+
+  .habit-name {
+    font-size: 16px; font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .habit-tap {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .habit-card.done .habit-tap {
+    color: var(--terra);
+    font-weight: 600;
+  }
+  body.night .habit-card.done .habit-tap { color: var(--night-accent); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-section {
+    margin-bottom: 20px;
+  }
+
+  .progress-header {
+    display: flex; justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+
+  .progress-bar-track {
+    height: 6px; border-radius: 3px;
+    background: rgba(28,24,16,0.08);
+    overflow: hidden;
+  }
+  body.night .progress-bar-track { background: rgba(255,255,255,0.08); }
+
+  .progress-bar-fill {
+    height: 100%; border-radius: 3px;
+    background: var(--terra);
+    transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  body.night .progress-bar-fill { background: var(--night-accent); }
+
+  /* ── WEEK OVERVIEW ── */
+  .week-overview {
+    background: var(--card);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    margin-top: 20px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.07);
+  }
+  body.night .week-overview { background: var(--night-card); }
+
+  .overview-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: var(--terra);
+  }
+  body.night .overview-title { color: var(--night-accent); }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+
+  .ov-day-label {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .ov-dot {
+    width: 100%; padding-top: 100%;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    position: relative;
+    transition: all 0.2s;
+  }
+  body.night .ov-dot { border-color: rgba(255,255,255,0.1); }
+
+  .ov-dot.full { background: var(--terra); border-color: var(--terra); }
+  .ov-dot.partial { background: rgba(191,103,64,0.35); border-color: var(--terra); }
+  body.night .ov-dot.full { background: var(--night-accent); border-color: var(--night-accent); }
+  body.night .ov-dot.partial { background: rgba(123,174,200,0.3); border-color: var(--night-accent); }
+
+  .ov-label {
+    font-size: 10px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 8px;
+  }
+  .ov-swatch { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  /* ── SAVE ── */
+  .save-area { margin-top: 20px; }
+
+  .save-btn {
+    width: 100%;
+    padding: 16px;
+    border: none; border-radius: var(--r);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .save-btn.m { background: var(--terra); color: white; box-shadow: 0 8px 22px rgba(191,103,64,0.28); }
+  .save-btn.n { background: var(--night-bg); color: var(--night-accent); box-shadow: 0 8px 22px rgba(21,30,40,0.35); }
+  .save-btn:active { transform: scale(0.96); box-shadow: none; }
+
+  .toast {
+    text-align: center; padding: 12px;
+    font-size: 13px; font-weight: 700;
+    color: var(--sage); display: none;
+    animation: up 0.25s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Mi Rutina 🌿</div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="toggleNight()" id="nightBtn">☀️</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab morning on" id="tab-m" onclick="switchTab('m')">☀️ Mañana</button>
+  <button class="tab night-tab" id="tab-n" onclick="switchTab('n')">🌙 Noche</button>
+</div>
+
+<!-- PANEL MAÑANA -->
+<div class="panel on" id="panel-m">
+
+  <div style="height:14px"></div>
+
+  <div class="week-bar">
+    <span class="week-label">Semana del</span>
+    <input class="week-input" type="text" placeholder="ej. 28 abr – 4 may" id="week-m">
+  </div>
+
+  <!-- Selector de día -->
+  <div class="day-pills" id="pills-m"></div>
+
+  <!-- Progreso del día -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span id="prog-label-m">Hoy</span>
+      <span id="prog-count-m">0 / 4</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="prog-bar-m" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Hábitos -->
+  <div id="habits-m"></div>
+
+  <!-- Resumen semanal -->
+  <div class="week-overview">
+    <div class="overview-title">Vista de la semana</div>
+    <div class="ov-day-label" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; margin-bottom:6px;">
+      <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+    </div>
+    <div class="overview-grid" id="ov-m"></div>
+    <div class="ov-label"><div class="ov-swatch" style="background:var(--terra)"></div> Todos los hábitos</div>
+    <div class="ov-label"><div class="ov-swatch" style="background:rgba(191,103,64,0.35); border:1px solid var(--terra)"></div> Algunos hábitos</div>
+  </div>
+
+  <div class="save-area">
+    <button class="save-btn m" onclick="saveAll('m')">💾 Guardar</button>
+    <div class="toast" id="toast-m">✓ Guardado</div>
+  </div>
+
+</div>
+
+<!-- PANEL NOCHE -->
+<div class="panel" id="panel-n">
+
+  <div style="height:14px"></div>
+
+  <div class="week-bar">
+    <span class="week-label">Semana del</span>
+    <input class="week-input" type="text" placeholder="ej. 28 abr – 4 may" id="week-n">
+  </div>
+
+  <div class="day-pills" id="pills-n"></div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span id="prog-label-n">Hoy</span>
+      <span id="prog-count-n">0 / 5</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="prog-bar-n" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="habits-n"></div>
+
+  <div class="week-overview">
+    <div class="overview-title">Vista de la semana</div>
+    <div class="ov-day-label" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; text-align:center; margin-bottom:6px;">
+      <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+    </div>
+    <div class="overview-grid" id="ov-n"></div>
+    <div class="ov-label"><div class="ov-swatch" style="background:var(--night-accent)"></div> Todos los hábitos</div>
+    <div class="ov-label"><div class="ov-swatch" style="background:rgba(123,174,200,0.35); border:1px solid var(--night-accent)"></div> Algunos hábitos</div>
+  </div>
+
+  <div class="save-area">
+    <button class="save-btn n" onclick="saveAll('n')">💾 Guardar</button>
+    <div class="toast" id="toast-n">✓ Guardado</div>
+  </div>
+
+</div>
+
+<script>
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const SHORT = ['L','M','X','J','V','S','D'];
+
+const HABITS = {
+  m: [
+    { icon:'🍳', name:'Desayunar' },
+    { icon:'🛏️', name:'Tender la cama' },
+    { icon:'🧹', name:'Limpiar aventeros' },
+    { icon:'🦷', name:'Cepillarme los dientes' },
+  ],
+  n: [
+    { icon:'💧', name:'Lavarme la cara' },
+    { icon:'🦷', name:'Cepillarme los dientes' },
+    { icon:'🥗', name:'Alistar almuerzo día siguiente' },
+    { icon:'🫙', name:'Lavar tepers' },
+    { icon:'💰', name:'Actualizar excel - gastos' },
+  ]
+};
+
+// State: { m: { 0: [true,false,...], 1: [...] }, n: {...} }
+let state = { m: {}, n: {} };
+let currentDay = { m: 0, n: 0 };
+
+// Try to detect today's day of week (0=Mon)
+const todayIdx = (() => {
+  const d = new Date().getDay(); // 0=Sun
+  return d === 0 ? 6 : d - 1;
+})();
+
+function initState(panel) {
+  for (let d = 0; d < 7; d++) {
+    if (!state[panel][d]) {
+      state[panel][d] = new Array(HABITS[panel].length).fill(false);
+    }
+  }
+}
+
+function buildPills(panel) {
+  const container = document.getElementById(`pills-${panel}`);
+  container.innerHTML = '';
+  DAYS.forEach((day, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-pill' + (i === currentDay[panel] ? ' selected' : '');
+    btn.textContent = day;
+    btn.onclick = () => selectDay(panel, i);
+    container.appendChild(btn);
+  });
+}
+
+function selectDay(panel, idx) {
+  currentDay[panel] = idx;
+  buildPills(panel);
+  buildHabits(panel);
+  updateProgress(panel);
+}
+
+function buildHabits(panel) {
+  const container = document.getElementById(`habits-${panel}`);
+  container.innerHTML = '';
+  const day = currentDay[panel];
+  HABITS[panel].forEach((h, i) => {
+    const done = state[panel][day][i];
+    const card = document.createElement('div');
+    card.className = 'habit-card' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div class="habit-inner">
+        <div class="habit-check">✓</div>
+        <div class="habit-icon">${h.icon}</div>
+        <div class="habit-text">
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-tap">${done ? '¡Listo! ✓' : 'Toca para marcar'}</div>
+        </div>
+      </div>
+    `;
+    card.onclick = () => toggleHabit(panel, day, i);
+    container.appendChild(card);
+  });
+}
+
+function toggleHabit(panel, day, idx) {
+  state[panel][day][idx] = !state[panel][day][idx];
+  buildHabits(panel);
+  updateProgress(panel);
+  buildOverview(panel);
+}
+
+function updateProgress(panel) {
+  const day = currentDay[panel];
+  const habits = HABITS[panel];
+  const done = state[panel][day].filter(Boolean).length;
+  const total = habits.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById(`prog-count-${panel}`).textContent = `${done} / ${total}`;
+  document.getElementById(`prog-bar-${panel}`).style.width = pct + '%';
+  document.getElementById(`prog-label-${panel}`).textContent = DAYS[day];
+}
+
+function buildOverview(panel) {
+  const container = document.getElementById(`ov-${panel}`);
+  container.innerHTML = '';
+  const total = HABITS[panel].length;
+  for (let d = 0; d < 7; d++) {
+    const done = state[panel][d] ? state[panel][d].filter(Boolean).length : 0;
+    const dot = document.createElement('div');
+    dot.className = 'ov-dot' + (done === total && total > 0 ? ' full' : done > 0 ? ' partial' : '');
+    container.appendChild(dot);
+  }
+}
+
+function saveAll(panel) {
+  try {
+    const key = `rutina_${panel}_${new Date().toISOString().slice(0,7)}`;
+    localStorage.setItem(key, JSON.stringify(state[panel]));
+    const wk = document.getElementById(`week-${panel}`).value;
+    if (wk) localStorage.setItem(`week_${panel}`, wk);
+  } catch(e) {}
+  const toast = document.getElementById(`toast-${panel}`);
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2000);
+}
+
+function loadSaved(panel) {
+  try {
+    const key = `rutina_${panel}_${new Date().toISOString().slice(0,7)}`;
+    const saved = JSON.parse(localStorage.getItem(key) || 'null');
+    if (saved) state[panel] = saved;
+    const wk = localStorage.getItem(`week_${panel}`);
+    if (wk) document.getElementById(`week-${panel}`).value = wk;
+  } catch(e) {}
+}
+
+function switchTab(panel) {
+  ['m','n'].forEach(p => {
+    document.getElementById(`panel-${p}`).classList.remove('on');
+    document.getElementById(`tab-${p}`).classList.remove('on');
+  });
+  document.getElementById(`panel-${panel}`).classList.add('on');
+  document.getElementById(`tab-${panel}`).classList.add('on');
+
+  if (panel === 'n') {
+    document.body.classList.add('night');
+    document.getElementById('nightBtn').textContent = '🌙';
+  } else {
+    document.body.classList.remove('night');
+    document.getElementById('nightBtn').textContent = '☀️';
+  }
+}
+
+function toggleNight() {
+  const isNight = document.body.classList.toggle('night');
+  document.getElementById('nightBtn').textContent = isNight ? '🌙' : '☀️';
+}
+
+// INIT
+['m','n'].forEach(panel => {
+  initState(panel);
+  loadSaved(panel);
+  currentDay[panel] = todayIdx;
+  buildPills(panel);
+  buildHabits(panel);
+  updateProgress(panel);
+  buildOverview(panel);
+});
+</script>
+</body>
+</html>
