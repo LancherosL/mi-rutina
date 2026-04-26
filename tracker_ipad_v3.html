@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mi Rutina</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;1,300&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --cream: #F5F0E6;
+    --ink: #1C1810;
+    --terra: #BF6740;
+    --terra-glow: rgba(191,103,64,0.18);
+    --sage: #5E8F68;
+    --muted: #9A8E7D;
+    --card: #FFFFFF;
+    --line: rgba(28,24,16,0.08);
+    --night-bg: #151E28;
+    --night-card: #1E2B3A;
+    --night-text: #E2D9CC;
+    --night-accent: #7BAEC8;
+    --r: 20px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    transition: background 0.35s, color 0.35s;
+  }
+
+  body.night {
+    background: var(--night-bg);
+    color: var(--night-text);
+  }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--cream);
+    padding: 14px 20px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.35s;
+  }
+  body.night .topbar { background: var(--night-bg); border-bottom-color: rgba(255,255,255,0.06); }
+
+  .topbar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px; font-weight: 600;
+  }
+
+  .icon-btn {
+    background: none; border: none;
+    font-size: 22px; cursor: pointer;
+    padding: 4px 6px; border-radius: 10px;
+    transition: transform 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.82); }
+
+  .tabs {
+    display: flex; gap: 8px;
+    padding: 14px 20px 0;
+  }
+
+  .tab {
+    flex: 1; padding: 12px 6px;
+    border: none; border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.22s;
+  }
+
+  .tab.morning { background: var(--terra-glow); color: var(--terra); }
+  .tab.morning.on {
+    background: var(--terra); color: white;
+    box-shadow: 0 8px 22px rgba(191,103,64,0.32);
+    transform: translateY(-2px);
+  }
+  .tab.night-tab { background: rgba(21,30,40,0.08); color: #5A7890; }
+  body.night .tab.night-tab { background: rgba(255,255,255,0.06); color: var(--night-accent); }
+  .tab.night-tab.on {
+    background: var(--night-bg); color: var(--night-accent);
+    box-shadow: 0 8px 22px rgba(21,30,40,0.35);
+    transform: translateY(-2px);
+  }
+  body.night .tab.night-tab.on { background: var(--night-card); }
+  .tab.resumen-tab { background: rgba(94,143,104,0.12); color: var(--sage); font-size: 13px; }
+  .tab.resumen-tab.on {
+    background: var(--sage); color: white;
+    box-shadow: 0 8px 22px rgba(94,143,104,0.32);
+    transform: translateY(-2px);
+  }
+
+  .panel { display: none; padding: 16px 20px 40px; animation: up 0.28s ease; }
+  .panel.on { display: block; }
+  @keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .day-pills {
+    display: flex; gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .day-pills::-webkit-scrollbar { display: none; }
+
+  .day-pill {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--line);
+    background: var(--card);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.18s;
+    color: var(--muted);
+  }
+  body.night .day-pill { background: var(--night-card); border-color: rgba(255,255,255,0.08); }
+  .day-pill.selected { background: var(--terra); border-color: var(--terra); color: white; box-shadow: 0 4px 14px rgba(191,103,64,0.28); }
+  body.night .day-pill.selected { background: var(--night-accent); border-color: var(--night-accent); color: var(--night-bg); }
+
+  .progress-section { margin-bottom: 16px; }
+  .progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+  .progress-bar-track { height: 6px; border-radius: 3px; background: rgba(28,24,16,0.08); overflow: hidden; }
+  body.night .progress-bar-track { background: rgba(255,255,255,0.08); }
+  .progress-bar-fill { height: 100%; border-radius: 3px; background: var(--terra); transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  body.night .progress-bar-fill { background: var(--night-accent); }
+
+  .habit-card {
+    background: var(--card); border-radius: var(--r);
+    margin-bottom: 10px; overflow: hidden;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.07);
+    cursor: pointer; transition: transform 0.12s;
+    -webkit-user-select: none;
+  }
+  body.night .habit-card { background: var(--night-card); }
+  .habit-card:active { transform: scale(0.975); }
+
+  .habit-inner { display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+
+  .habit-check {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid rgba(28,24,16,0.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: transparent; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  body.night .habit-check { border-color: rgba(255,255,255,0.18); }
+  .habit-card.done .habit-check { background: var(--terra); border-color: var(--terra); color: white; }
+  body.night .habit-card.done .habit-check { background: var(--night-accent); border-color: var(--night-accent); color: var(--night-bg); }
+  .habit-card.done { background: linear-gradient(135deg, rgba(191,103,64,0.06) 0%, var(--card) 60%); }
+  body.night .habit-card.done { background: linear-gradient(135deg, rgba(123,174,200,0.08) 0%, var(--night-card) 60%); }
+
+  .habit-icon { font-size: 22px; }
+  .habit-text { flex: 1; }
+  .habit-name { font-size: 16px; font-weight: 700; line-height: 1.2; }
+  .habit-tap { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .habit-card.done .habit-tap { color: var(--terra); font-weight: 600; }
+  body.night .habit-card.done .habit-tap { color: var(--night-accent); }
+
+  /* RESUMEN */
+  .resumen-card {
+    background: var(--card); border-radius: var(--r);
+    padding: 20px; margin-bottom: 14px;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.07);
+  }
+  body.night .resumen-card { background: var(--night-card); }
+
+  .resumen-title {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 17px; margin-bottom: 14px;
+    color: var(--terra);
+  }
+  body.night .resumen-title { color: var(--night-accent); }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+
+  .stat-box {
+    background: rgba(191,103,64,0.06); border-radius: 14px;
+    padding: 14px; text-align: center;
+  }
+  body.night .stat-box { background: rgba(123,174,200,0.08); }
+
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--terra); line-height: 1; }
+  body.night .stat-num { color: var(--night-accent); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .habit-bar-row { margin-bottom: 10px; }
+  .habit-bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .habit-bar-pct { font-weight: 700; color: var(--terra); }
+  body.night .habit-bar-pct { color: var(--night-accent); }
+  .habit-bar-track { height: 8px; border-radius: 4px; background: rgba(28,24,16,0.08); overflow: hidden; }
+  body.night .habit-bar-track { background: rgba(255,255,255,0.08); }
+  .habit-bar-fill { height: 100%; border-radius: 4px; background: var(--terra); transition: width 0.6s ease; }
+  body.night .habit-bar-fill { background: var(--night-accent); }
+
+  .mensaje-motivacion {
+    background: linear-gradient(135deg, rgba(191,103,64,0.1), rgba(94,143,104,0.1));
+    border-radius: 14px; padding: 16px;
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 14px; line-height: 1.6;
+    text-align: center; color: var(--ink);
+    margin-top: 14px;
+  }
+  body.night .mensaje-motivacion { color: var(--night-text); }
+
+  .week-dots { display: flex; gap: 6px; margin-top: 10px; }
+  .week-dot {
+    flex: 1; height: 8px; border-radius: 4px;
+    background: rgba(28,24,16,0.08);
+    transition: background 0.3s;
+  }
+  body.night .week-dot { background: rgba(255,255,255,0.08); }
+  .week-dot.full { background: var(--terra); }
+  .week-dot.partial { background: rgba(191,103,64,0.4); }
+  body.night .week-dot.full { background: var(--night-accent); }
+  body.night .week-dot.partial { background: rgba(123,174,200,0.4); }
+
+  .loading { text-align: center; padding: 30px; color: var(--muted); font-size: 14px; }
+
+  .sync-indicator {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--muted);
+    padding: 8px 0; margin-bottom: 8px;
+  }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); }
+  .sync-dot.syncing { background: var(--terra); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Mi Rutina 🌿</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="sync-indicator">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">listo</span>
+    </div>
+    <button class="icon-btn" onclick="toggleNight()" id="nightBtn">☀️</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab morning on" id="tab-m" onclick="switchTab('m')">☀️ Mañana</button>
+  <button class="tab night-tab" id="tab-n" onclick="switchTab('n')">🌙 Noche</button>
+  <button class="tab resumen-tab" id="tab-r" onclick="switchTab('r')">📊 Semana</button>
+</div>
+
+<!-- PANEL MAÑANA -->
+<div class="panel on" id="panel-m">
+  <div style="height:14px"></div>
+  <div class="day-pills" id="pills-m"></div>
+  <div class="progress-section">
+    <div class="progress-header">
+      <span id="prog-label-m">Hoy</span>
+      <span id="prog-count-m">0 / 4</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="prog-bar-m" style="width:0%"></div>
+    </div>
+  </div>
+  <div id="habits-m"></div>
+</div>
+
+<!-- PANEL NOCHE -->
+<div class="panel" id="panel-n">
+  <div style="height:14px"></div>
+  <div class="day-pills" id="pills-n"></div>
+  <div class="progress-section">
+    <div class="progress-header">
+      <span id="prog-label-n">Hoy</span>
+      <span id="prog-count-n">0 / 5</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="prog-bar-n" style="width:0%"></div>
+    </div>
+  </div>
+  <div id="habits-n"></div>
+</div>
+
+<!-- PANEL RESUMEN -->
+<div class="panel" id="panel-r">
+  <div style="height:14px"></div>
+  <div id="resumen-content"><div class="loading">Cargando tu semana... ✨</div></div>
+</div>
+
+<script>
+// ── CONFIGURACIÓN SUPABASE ──
+const SUPABASE_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+const HABITS = {
+  m: [
+    { icon:'🍳', name:'Desayunar' },
+    { icon:'🛏️', name:'Tender la cama' },
+    { icon:'🧹', name:'Limpiar aventeros' },
+    { icon:'🦷', name:'Cepillarme los dientes' },
+  ],
+  n: [
+    { icon:'💧', name:'Lavarme la cara' },
+    { icon:'🦷', name:'Cepillarme los dientes' },
+    { icon:'🥗', name:'Alistar almuerzo día siguiente' },
+    { icon:'🫙', name:'Lavar tepers' },
+    { icon:'💰', name:'Actualizar excel - gastos' },
+  ]
+};
+
+// Estado local
+let state = { m: {}, n: {} };
+let currentDay = { m: 0, n: 0 };
+
+// Detectar día de hoy (0=Lun)
+const todayIdx = (() => {
+  const d = new Date().getDay();
+  return d === 0 ? 6 : d - 1;
+})();
+
+// Obtener fecha de lunes de esta semana
+function getWeekDates() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  return Array.from({length:7}, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d.toISOString().split('T')[0];
+  });
+}
+
+const weekDates = getWeekDates();
+
+// ── SUPABASE API ──
+function setSyncing(on) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  if (on) { dot.className = 'sync-dot syncing'; label.textContent = 'guardando...'; }
+  else { dot.className = 'sync-dot'; label.textContent = 'sincronizado ✓'; }
+}
+
+async function supabaseFetch(method, body = null, params = '') {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/habitos${params}`, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=minimal' : ''
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if (method === 'GET') return await res.json();
+  return res;
+}
+
+async function cargarSemana() {
+  try {
+    const fechas = weekDates.join(',');
+    const data = await supabaseFetch('GET', null, `?fecha=in.(${fechas})`);
+    // Resetear estado
+    state = { m: {}, n: {} };
+    for (let d = 0; d < 7; d++) {
+      state.m[d] = new Array(HABITS.m.length).fill(false);
+      state.n[d] = new Array(HABITS.n.length).fill(false);
+    }
+    data.forEach(row => {
+      const dayIdx = weekDates.indexOf(row.fecha);
+      if (dayIdx === -1) return;
+      const panel = row.momento;
+      const habits = HABITS[panel];
+      const habitIdx = habits.findIndex(h => h.name === row.habito);
+      if (habitIdx !== -1) state[panel][dayIdx][habitIdx] = row.completado;
+    });
+  } catch(e) {
+    console.error('Error cargando:', e);
+  }
+}
+
+async function guardarHabito(panel, dayIdx, habitIdx, completado) {
+  setSyncing(true);
+  const fecha = weekDates[dayIdx];
+  const habito = HABITS[panel][habitIdx].name;
+  const momento = panel;
+  try {
+    // Upsert: primero buscar si existe
+    const existing = await supabaseFetch('GET', null,
+      `?fecha=eq.${fecha}&momento=eq.${momento}&habito=eq.${encodeURIComponent(habito)}`);
+    if (existing && existing.length > 0) {
+      await supabaseFetch('PATCH', { completado },
+        `?fecha=eq.${fecha}&momento=eq.${momento}&habito=eq.${encodeURIComponent(habito)}`);
+    } else {
+      await supabaseFetch('POST', { fecha, momento, habito, completado });
+    }
+  } catch(e) {
+    console.error('Error guardando:', e);
+  }
+  setSyncing(false);
+}
+
+// ── UI ──
+function buildPills(panel) {
+  const container = document.getElementById(`pills-${panel}`);
+  container.innerHTML = '';
+  DAYS.forEach((day, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-pill' + (i === currentDay[panel] ? ' selected' : '');
+    const isToday = i === todayIdx;
+    btn.textContent = isToday ? `${day} ·hoy` : day;
+    btn.onclick = () => selectDay(panel, i);
+    container.appendChild(btn);
+  });
+}
+
+function selectDay(panel, idx) {
+  currentDay[panel] = idx;
+  buildPills(panel);
+  buildHabits(panel);
+  updateProgress(panel);
+}
+
+function buildHabits(panel) {
+  const container = document.getElementById(`habits-${panel}`);
+  container.innerHTML = '';
+  const day = currentDay[panel];
+  HABITS[panel].forEach((h, i) => {
+    const done = state[panel][day] ? state[panel][day][i] : false;
+    const card = document.createElement('div');
+    card.className = 'habit-card' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div class="habit-inner">
+        <div class="habit-check">✓</div>
+        <div class="habit-icon">${h.icon}</div>
+        <div class="habit-text">
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-tap">${done ? '¡Listo! ✓' : 'Toca para marcar'}</div>
+        </div>
+      </div>
+    `;
+    card.onclick = () => toggleHabit(panel, day, i);
+    container.appendChild(card);
+  });
+}
+
+async function toggleHabit(panel, day, idx) {
+  if (!state[panel][day]) state[panel][day] = new Array(HABITS[panel].length).fill(false);
+  state[panel][day][idx] = !state[panel][day][idx];
+  buildHabits(panel);
+  updateProgress(panel);
+  await guardarHabito(panel, day, idx, state[panel][day][idx]);
+}
+
+function updateProgress(panel) {
+  const day = currentDay[panel];
+  const total = HABITS[panel].length;
+  const done = state[panel][day] ? state[panel][day].filter(Boolean).length : 0;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById(`prog-count-${panel}`).textContent = `${done} / ${total}`;
+  document.getElementById(`prog-bar-${panel}`).style.width = pct + '%';
+  document.getElementById(`prog-label-${panel}`).textContent = DAYS[day] + (day === todayIdx ? ' · hoy' : '');
+}
+
+function buildResumen() {
+  const container = document.getElementById('resumen-content');
+  let totalPosible = 0, totalHecho = 0;
+  let porHabito = {};
+
+  // Calcular stats
+  ['m','n'].forEach(panel => {
+    HABITS[panel].forEach((h, hi) => {
+      if (!porHabito[h.name]) porHabito[h.name] = { done: 0, total: 7 };
+      for (let d = 0; d < 7; d++) {
+        totalPosible++;
+        const done = state[panel][d] && state[panel][d][hi];
+        if (done) { totalHecho++; porHabito[h.name].done++; }
+      }
+    });
+  });
+
+  const pctGlobal = totalPosible ? Math.round(totalHecho/totalPosible*100) : 0;
+
+  // Racha actual
+  let racha = 0;
+  for (let d = todayIdx; d >= 0; d--) {
+    const mDone = state.m[d] && state.m[d].every(Boolean);
+    const nDone = state.n[d] && state.n[d].every(Boolean);
+    if (mDone && nDone) racha++;
+    else break;
+  }
+
+  // Mejor día
+  let mejorDia = 0, mejorPct = 0;
+  for (let d = 0; d < 7; d++) {
+    let done = 0, total = HABITS.m.length + HABITS.n.length;
+    done += (state.m[d] || []).filter(Boolean).length;
+    done += (state.n[d] || []).filter(Boolean).length;
+    const p = Math.round(done/total*100);
+    if (p > mejorPct) { mejorPct = p; mejorDia = d; }
+  }
+
+  // Mensaje motivacional
+  let mensaje = '';
+  if (pctGlobal >= 80) mensaje = '¡Estás construyendo algo real! Tu cerebro ya está formando los caminos neurales de estos hábitos. 🧠✨';
+  else if (pctGlobal >= 50) mensaje = 'Vas bien. La consistencia no es perfección — es mostarte, aunque sea a medias. Cada marca cuenta. 💪';
+  else if (pctGlobal >= 20) mensaje = 'Estás en la fase más difícil: el inicio. Tu cerebro está resistiendo lo nuevo. Es normal. Sigue. 🌱';
+  else mensaje = 'Esta semana fue de aterrizaje. La próxima ya sabes qué esperar. Un hábito a la vez. 🌿';
+
+  // Dots de semana
+  const dots = Array.from({length:7}, (_, d) => {
+    let done = (state.m[d]||[]).filter(Boolean).length + (state.n[d]||[]).filter(Boolean).length;
+    let total = HABITS.m.length + HABITS.n.length;
+    if (done === total) return 'full';
+    if (done > 0) return 'partial';
+    return '';
+  });
+
+  container.innerHTML = `
+    <div class="resumen-card">
+      <div class="resumen-title">Tu semana en números 📊</div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-num">${pctGlobal}%</div>
+          <div class="stat-label">Cumplimiento global</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${racha}</div>
+          <div class="stat-label">Días de racha</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${totalHecho}</div>
+          <div class="stat-label">Hábitos completados</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${DAYS[mejorDia].slice(0,3)}</div>
+          <div class="stat-label">Mejor día</div>
+        </div>
+      </div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px;">Por hábito esta semana</div>
+      ${Object.entries(porHabito).map(([name, {done, total}]) => `
+        <div class="habit-bar-row">
+          <div class="habit-bar-label">
+            <span>${name}</span>
+            <span class="habit-bar-pct">${done}/7</span>
+          </div>
+          <div class="habit-bar-track">
+            <div class="habit-bar-fill" style="width:${Math.round(done/total*100)}%"></div>
+          </div>
+        </div>
+      `).join('')}
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-top:14px;margin-bottom:6px;">Días de la semana</div>
+      <div class="week-dots">
+        ${dots.map((cls, i) => `<div class="week-dot ${cls}" title="${DAYS[i]}"></div>`).join('')}
+      </div>
+      <div class="mensaje-motivacion">"${mensaje}"</div>
+    </div>
+  `;
+}
+
+function switchTab(tab) {
+  ['m','n','r'].forEach(p => {
+    document.getElementById(`panel-${p}`).classList.remove('on');
+    document.getElementById(`tab-${p}`).classList.remove('on');
+  });
+  document.getElementById(`panel-${tab}`).classList.add('on');
+  document.getElementById(`tab-${tab}`).classList.add('on');
+
+  if (tab === 'n') {
+    document.body.classList.add('night');
+    document.getElementById('nightBtn').textContent = '🌙';
+  } else if (tab === 'm') {
+    document.body.classList.remove('night');
+    document.getElementById('nightBtn').textContent = '☀️';
+  }
+
+  if (tab === 'r') buildResumen();
+}
+
+function toggleNight() {
+  const isNight = document.body.classList.toggle('night');
+  document.getElementById('nightBtn').textContent = isNight ? '🌙' : '☀️';
+}
+
+// ── INIT ──
+async function init() {
+  // Init estado vacío
+  for (let d = 0; d < 7; d++) {
+    state.m[d] = new Array(HABITS.m.length).fill(false);
+    state.n[d] = new Array(HABITS.n.length).fill(false);
+  }
+  currentDay.m = todayIdx;
+  currentDay.n = todayIdx;
+
+  buildPills('m');
+  buildPills('n');
+  buildHabits('m');
+  buildHabits('n');
+  updateProgress('m');
+  updateProgress('n');
+
+  // Cargar desde Supabase
+  setSyncing(true);
+  await cargarSemana();
+  setSyncing(false);
+
+  buildHabits('m');
+  buildHabits('n');
+  updateProgress('m');
+  updateProgress('n');
+}
+
+init();
+</script>
+</body>
+</html>
