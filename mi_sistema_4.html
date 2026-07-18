@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Sistema">
+<title>Mi Sistema</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #F2EDE4;
+  --card: #FAFAF7;
+  --ink: #1A1612;
+  --muted: #8C7E6E;
+  --terra: #B85C35;
+  --terra-soft: rgba(184,92,53,0.10);
+  --sage: #5C8A65;
+  --sage-soft: rgba(92,138,101,0.10);
+  --gold: #C49A3C;
+  --gold-soft: rgba(196,154,60,0.10);
+  --lavender: #7B6FA0;
+  --lavender-soft: rgba(123,111,160,0.10);
+  --sky: #4A7FA5;
+  --sky-soft: rgba(74,127,165,0.10);
+  --night-bg: #13191F;
+  --night-card: #1C2530;
+  --night-text: #DDD5C8;
+  --night-accent: #7BAEC8;
+  --line: rgba(26,22,18,0.08);
+  --r: 22px;
+  --r-sm: 14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  transition: background .4s, color .4s;
+}
+
+body.night { background: var(--night-bg); color: var(--night-text); }
+
+/* ── HEADER ── */
+.header {
+  padding: 18px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-left {}
+
+.greeting {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.greeting strong { font-weight: 600; font-style: normal; }
+
+.date-line {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.header-right { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+
+.icon-btn {
+  background: none; border: none;
+  font-size: 20px; cursor: pointer;
+  padding: 6px; border-radius: 10px;
+  transition: transform .15s;
+  line-height: 1;
+}
+.icon-btn:active { transform: scale(0.82); }
+
+/* ── SYNC ── */
+.sync-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--muted);
+  margin: 0 20px 14px;
+  letter-spacing: 0.06em;
+}
+.sync-dot { width:6px; height:6px; border-radius:50%; background:var(--sage); flex-shrink:0; }
+.sync-dot.syncing { background:var(--terra); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── NAV PILLS ── */
+.nav {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+
+.nav-pill {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--muted);
+  white-space: nowrap;
+}
+body.night .nav-pill { background: var(--night-card); border-color: rgba(255,255,255,0.07); }
+.nav-pill.on { color: white; border-color: transparent; }
+.nav-pill.on.p-hoy { background: var(--terra); box-shadow: 0 4px 14px rgba(184,92,53,0.3); }
+.nav-pill.on.p-manana { background: var(--gold); box-shadow: 0 4px 14px rgba(196,154,60,0.3); }
+.nav-pill.on.p-noche { background: var(--night-bg); box-shadow: 0 4px 14px rgba(19,25,31,0.4); }
+.nav-pill.on.p-semana { background: var(--sage); box-shadow: 0 4px 14px rgba(92,138,101,0.3); }
+
+/* ── PANELS ── */
+.panel { display: none; padding: 0 20px 40px; animation: fadeUp .28s ease; }
+.panel.on { display: block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── HOY PANEL ── */
+
+/* Snapshot cards row */
+.snapshot-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.snap-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .15s;
+}
+body.night .snap-card { background: var(--night-card); }
+.snap-card:active { transform: scale(0.97); }
+
+.snap-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--r) var(--r) 0 0;
+}
+.snap-card.c-terra::before { background: var(--terra); }
+.snap-card.c-sage::before { background: var(--sage); }
+.snap-card.c-gold::before { background: var(--gold); }
+.snap-card.c-lavender::before { background: var(--lavender); }
+.snap-card.c-sky::before { background: var(--sky); }
+
+.snap-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.snap-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+}
+body.night .snap-value { color: var(--night-text); }
+.snap-unit { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+.snap-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.snap-empty { font-size: 20px; opacity: 0.3; }
+
+/* Emoción selector */
+.emotion-bar {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .emotion-bar { background: var(--night-card); }
+.emotion-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.emotion-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.emo-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: 'DM Sans', sans-serif;
+}
+body.night .emo-pill { border-color: rgba(255,255,255,0.1); }
+.emo-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
+
+/* Quick log */
+.quick-log {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .quick-log { background: var(--night-card); }
+.ql-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.ql-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ql-row:last-child { margin-bottom: 0; }
+.ql-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+.ql-label { font-size: 13px; font-weight: 500; flex: 1; }
+.ql-stars {
+  display: flex;
+  gap: 4px;
+}
+.ql-star {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+body.night .ql-star { border-color: rgba(255,255,255,0.1); }
+.ql-star.on { background: var(--terra); border-color: var(--terra); color: white; }
+
+.ql-num-input {
+  width: 70px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  padding: 6px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: inherit;
+  outline: none;
+  text-align: center;
+  transition: border-color .2s;
+}
+.ql-num-input:focus { border-color: var(--terra); }
+body.night .ql-num-input { border-color: rgba(255,255,255,0.1); }
+
+/* Progreso hábitos hoy */
+.habitos-hoy {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 10px;
+}
+body.night .habitos-hoy { background: var(--night-card); }
+.hh-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.hh-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+.hh-pct { font-size: 13px; font-weight: 700; color: var(--terra); }
+.hh-bar-track { height: 5px; border-radius: 3px; background: var(--terra-soft); margin-bottom: 12px; }
+.hh-bar-fill { height: 100%; border-radius: 3px; background: var(--terra); transition: width .5s cubic-bezier(0.34,1.56,0.64,1); }
+.hh-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.hh-chip {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--terra-soft);
+  color: var(--terra);
+  cursor: pointer;
+  transition: all .15s;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.hh-chip.done { background: var(--terra); color: white; }
+body.night .hh-chip { background: rgba(184,92,53,0.15); }
+
+/* Nivel pills (agua) */
+.nivel-pills { display: flex; gap: 6px; }
+.nivel-pill {
+  padding: 7px 14px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+}
+body.night .nivel-pill { border-color: rgba(255,255,255,0.1); }
+.nivel-pill.selected { background: var(--sky); border-color: var(--sky); color: white; }
+
+/* Meal / plate tracker */
+.meal-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .meal-card { background: var(--night-card); }
+.plate-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.plate-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  flex-shrink: 0;
+  padding: 0;
+  transition: transform .2s;
+}
+.plate-btn:active { transform: scale(0.9); }
+.plate-btn.filled { color: var(--sage); }
+#plate-fill { transition: stroke-dashoffset .5s cubic-bezier(0.34,1.56,0.64,1), stroke .3s; }
+.plate-text { flex: 1; }
+.plate-status {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.meal-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid var(--line);
+  background: transparent;
+  padding: 6px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+.meal-input:focus { border-color: var(--sage); }
+body.night .meal-input { border-color: rgba(255,255,255,0.12); }
+.meal-input::placeholder { color: var(--muted); opacity: 0.7; }
+
+/* Mis gatos */
+.gatos-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .gatos-card { background: var(--night-card); }
+.gato-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.gato-row:last-child { border-bottom: none; }
+.gato-row:active { opacity: 0.6; }
+body.night .gato-row { border-bottom-color: rgba(255,255,255,0.06); }
+.gato-check {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid rgba(26,22,18,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: transparent; flex-shrink: 0;
+  transition: all .2s;
+}
+body.night .gato-check { border-color: rgba(255,255,255,0.15); }
+.gato-row.done .gato-check { background: var(--lavender); border-color: var(--lavender); color: white; }
+.gato-emoji { font-size: 18px; }
+.gato-text { flex: 1; }
+.gato-name { font-size: 14px; font-weight: 600; }
+.gato-freq { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1px; }
+.gato-row.done .gato-name { color: var(--lavender); }
+
+/* Lectura visual */
+.lectura-bar-wrap {
+  display: flex;
+  gap: 3px;
+  margin-top: 10px;
+  align-items: flex-end;
+  height: 30px;
+}
+.lectura-book {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--line);
+  transition: all .3s;
+  min-height: 6px;
+}
+.lectura-book.on { background: var(--gold); }
+
+/* Cuaderno / pregunta reflexiva */
+.cuaderno-card {
+  background: linear-gradient(135deg, var(--lavender-soft), var(--card));
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-left: 3px solid var(--lavender);
+}
+body.night .cuaderno-card {
+  background: linear-gradient(135deg, rgba(123,111,160,0.15), var(--night-card));
+}
+.cuaderno-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.cuaderno-icon { font-size: 18px; }
+.cuaderno-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.cuaderno-pregunta {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+.cuaderno-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 14px;
+  border: 1.5px solid var(--lavender);
+  background: transparent;
+  color: var(--lavender);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.cuaderno-btn:active { transform: scale(0.97); }
+.cuaderno-btn.done {
+  background: var(--lavender);
+  color: white;
+}
+.cuaderno-nota {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+/* ── ANCLA DEL DÍA ── */
+.ancla-card {
+  background: linear-gradient(135deg, var(--terra) 0%, #9C4A28 100%);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(184,92,53,0.28);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .3s;
+  position: relative;
+  overflow: hidden;
+}
+.ancla-card:active { transform: scale(0.98); }
+.ancla-card.done {
+  background: linear-gradient(135deg, var(--sage) 0%, #47704F 100%);
+  box-shadow: 0 6px 24px rgba(92,138,101,0.28);
+}
+.ancla-badge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.ancla-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.ancla-check {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: transparent; flex-shrink: 0;
+  transition: all .3s;
+}
+.ancla-card.done .ancla-check {
+  background: white;
+  border-color: white;
+  color: var(--sage);
+}
+.ancla-icon { font-size: 26px; }
+.ancla-text { flex: 1; }
+.ancla-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.1;
+}
+.ancla-estado {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+  margin-top: 3px;
+}
+.ancla-razon {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+  line-height: 1.5;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── MICRO RECOMPENSA ── */
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.celebrating { animation: celebrate .45s cubic-bezier(0.34,1.56,0.64,1); }
+
+.toast-reward {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 12px 22px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 999;
+  max-width: 85%;
+  text-align: center;
+}
+.toast-reward.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+body.night .toast-reward { background: var(--night-text); color: var(--night-bg); }
+
+/* ── VER MÁS ── */
+.ver-mas-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--r);
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.ver-mas-btn:active { transform: scale(0.98); }
+body.night .ver-mas-btn { border-color: rgba(255,255,255,0.12); }
+.seccion-extra { display: none; }
+.seccion-extra.abierta { display: block; animation: fadeUp .3s ease; }
+
+.sueno-nota {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+body.night .sueno-nota { border-bottom-color: rgba(255,255,255,0.06); }
+
+/* ── HÁBITOS PANEL ── */
+.day-strip {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.day-strip::-webkit-scrollbar { display: none; }
+.day-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all .18s;
+  font-family: 'DM Sans', sans-serif;
+}
+body.night .day-btn { background: var(--night-card); border-color: rgba(255,255,255,0.07); }
+.day-btn.on { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 4px 12px rgba(196,154,60,0.3); }
+
+.habit-card {
+  background: var(--card);
+  border-radius: var(--r);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform .12s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  -webkit-user-select: none;
+}
+body.night .habit-card { background: var(--night-card); }
+.habit-card:active { transform: scale(0.975); }
+.habit-inner { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+.habit-check {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid rgba(26,22,18,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: transparent; flex-shrink: 0;
+  transition: all .2s;
+}
+body.night .habit-check { border-color: rgba(255,255,255,0.15); }
+.habit-card.done .habit-check { background: var(--gold); border-color: var(--gold); color: white; }
+.habit-card.done { background: linear-gradient(135deg, rgba(196,154,60,0.06), var(--card)); }
+body.night .habit-card.done { background: linear-gradient(135deg, rgba(196,154,60,0.08), var(--night-card)); }
+.habit-emoji { font-size: 20px; }
+.habit-text { flex: 1; }
+.habit-name { font-size: 15px; font-weight: 600; }
+.habit-status { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.habit-card.done .habit-status { color: var(--gold); font-weight: 600; }
+
+.prog-section { margin-bottom: 14px; }
+.prog-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.prog-track { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; transition: width .4s cubic-bezier(0.34,1.56,0.64,1); }
+.prog-fill.morning { background: var(--gold); }
+.prog-fill.night-fill { background: var(--night-accent); }
+
+.section-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+/* ── SEMANA PANEL ── */
+.resumen-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .resumen-card { background: var(--night-card); }
+.res-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 14px;
+  color: var(--terra);
+}
+body.night .res-title { color: var(--night-accent); }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-box { background: var(--terra-soft); border-radius: var(--r-sm); padding: 12px; text-align: center; }
+body.night .stat-box { background: rgba(123,174,200,0.08); }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--terra); line-height: 1; }
+body.night .stat-num { color: var(--night-accent); }
+.stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
+.bar-row { margin-bottom: 8px; }
+.bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
+.bar-pct { font-weight: 700; color: var(--terra); }
+body.night .bar-pct { color: var(--night-accent); }
+.bar-track { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(--terra); transition: width .6s ease; }
+body.night .bar-fill { background: var(--night-accent); }
+.week-dots { display: flex; gap: 5px; margin: 10px 0 4px; }
+.w-dot { flex: 1; height: 7px; border-radius: 4px; background: var(--line); transition: background .3s; }
+.w-dot.full { background: var(--terra); }
+.w-dot.partial { background: rgba(184,92,53,0.35); }
+body.night .w-dot.full { background: var(--night-accent); }
+body.night .w-dot.partial { background: rgba(123,174,200,0.35); }
+.w-dot-labels { display: flex; gap: 5px; }
+.w-dot-label { flex: 1; text-align: center; font-size: 8px; color: var(--muted); text-transform: uppercase; }
+
+.mensaje {
+  background: linear-gradient(135deg, var(--terra-soft), var(--sage-soft));
+  border-radius: var(--r-sm);
+  padding: 14px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Salud semanal */
+.salud-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.salud-box {
+  background: var(--card);
+  border-radius: var(--r-sm);
+  padding: 12px 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+body.night .salud-box { background: var(--night-card); }
+.salud-icon { font-size: 18px; margin-bottom: 4px; }
+.salud-val { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1; }
+body.night .salud-val { color: var(--night-text); }
+.salud-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="greeting" id="greeting">Buenos días, <strong>Laura</strong></div>
+    <div class="date-line" id="dateLine">—</div>
+  </div>
+  <div class="header-right">
+    <div class="sync-bar" style="margin:0;">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">—</span>
+    </div>
+    <button class="icon-btn" onclick="toggleNight()" id="nightBtn">☀️</button>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-pill p-hoy on" onclick="switchPanel('hoy')">🌿 Hoy</button>
+  <button class="nav-pill p-manana" onclick="switchPanel('manana')">☀️ Mañana</button>
+  <button class="nav-pill p-noche" onclick="switchPanel('noche')">🌙 Noche</button>
+  <button class="nav-pill p-semana" onclick="switchPanel('semana')">📊 Semana</button>
+</div>
+
+<!-- ── HOY ── -->
+<div class="panel on" id="panel-hoy">
+
+  <!-- ANCLA DEL DÍA -->
+  <div class="ancla-card" id="ancla-card" onclick="toggleAncla()">
+    <div class="ancla-badge">Tu ancla de hoy</div>
+    <div class="ancla-main">
+      <div class="ancla-check" id="ancla-check">✓</div>
+      <div class="ancla-icon" id="ancla-icon">🛏️</div>
+      <div class="ancla-text">
+        <div class="ancla-titulo" id="ancla-titulo">—</div>
+        <div class="ancla-estado" id="ancla-estado">Si solo haces esto, ganaste el día</div>
+      </div>
+    </div>
+    <div class="ancla-razon" id="ancla-razon">—</div>
+  </div>
+
+  <div class="snapshot-row">
+    <div class="snap-card c-sage" onclick="switchPanel('manana')">
+      <div class="snap-label">Sueño</div>
+      <div class="snap-value" id="snap-sueno"><span class="snap-empty">—</span></div>
+      <div class="snap-sub" id="snap-sueno-sub">Registra en Mañana</div>
+    </div>
+    <div class="snap-card c-sky" onclick="switchPanel('hoy')">
+      <div class="snap-label">Pasos</div>
+      <div class="snap-value" id="snap-pasos"><span class="snap-empty">—</span></div>
+      <div class="snap-sub" id="snap-pasos-sub">Agregar</div>
+    </div>
+    <div class="snap-card c-lavender">
+      <div class="snap-label">Estado</div>
+      <div class="snap-value" id="snap-emocion" style="font-size:28px;"><span class="snap-empty">—</span></div>
+      <div class="snap-sub">Emoción del día</div>
+    </div>
+    <div class="snap-card c-terra" onclick="switchPanel('manana')">
+      <div class="snap-label">Hábitos hoy</div>
+      <div class="snap-value" id="snap-habitos"><span class="snap-empty">—</span></div>
+      <div class="snap-sub" id="snap-habitos-sub">de completados</div>
+    </div>
+  </div>
+
+  <!-- Emoción -->
+  <div class="emotion-bar">
+    <div class="emotion-title">¿Cómo estás hoy?</div>
+    <div class="emotion-pills">
+      <button class="emo-pill" onclick="setEmocion(this,'🌟 Excelente')">🌟 Excelente</button>
+      <button class="emo-pill" onclick="setEmocion(this,'😊 Bien')">😊 Bien</button>
+      <button class="emo-pill" onclick="setEmocion(this,'😐 Regular')">😐 Regular</button>
+      <button class="emo-pill" onclick="setEmocion(this,'😔 Difícil')">😔 Difícil</button>
+      <button class="emo-pill" onclick="setEmocion(this,'🌊 Cargada')">🌊 Cargada</button>
+      <button class="emo-pill" onclick="setEmocion(this,'⚡ Ansiosa')">⚡ Ansiosa</button>
+      <button class="emo-pill" onclick="setEmocion(this,'🌿 En paz')">🌿 En paz</button>
+      <button class="emo-pill" onclick="setEmocion(this,'🔥 Motivada')">🔥 Motivada</button>
+    </div>
+  </div>
+
+  <!-- Quick log salud -->
+  <div class="quick-log">
+    <div class="ql-title">Registro rápido</div>
+    <div class="ql-row">
+      <div class="ql-icon">👟</div>
+      <div class="ql-label">Pasos hoy</div>
+      <input class="ql-num-input" type="number" id="input-pasos" placeholder="0" onchange="saveQuick()">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">💧</div>
+      <div class="ql-label">Agua</div>
+      <div class="nivel-pills" id="nivel-agua">
+        <button class="nivel-pill" onclick="setNivel('agua','Baja',this)">Baja</button>
+        <button class="nivel-pill" onclick="setNivel('agua','Media',this)">Media</button>
+        <button class="nivel-pill" onclick="setNivel('agua','Alta',this)">Alta</button>
+      </div>
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">⚡</div>
+      <div class="ql-label">Energía general</div>
+      <div class="ql-stars" id="stars-energia">
+        <button class="ql-star" onclick="setStars('energia',1)">1</button>
+        <button class="ql-star" onclick="setStars('energia',2)">2</button>
+        <button class="ql-star" onclick="setStars('energia',3)">3</button>
+        <button class="ql-star" onclick="setStars('energia',4)">4</button>
+        <button class="ql-star" onclick="setStars('energia',5)">5</button>
+      </div>
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">❤️</div>
+      <div class="ql-label">Frec. cardíaca</div>
+      <input class="ql-num-input" type="number" id="input-fc" placeholder="bpm" onchange="saveFC()">
+    </div>
+  </div>
+
+  <!-- Comí hoy -->
+  <div class="meal-card">
+    <div class="ql-title">¿Comiste hoy?</div>
+    <div class="plate-row">
+      <button class="plate-btn" id="plate-btn" onclick="togglePlate()">
+        <svg viewBox="0 0 100 100" width="52" height="52">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3" opacity="0.25"/>
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"
+            id="plate-fill" stroke-dasharray="289" stroke-dashoffset="289"
+            stroke-linecap="round" transform="rotate(-90 50 50)"/>
+          <text x="50" y="58" text-anchor="middle" font-size="34" id="plate-emoji">🍽️</text>
+        </svg>
+      </button>
+      <div class="plate-text">
+        <div class="plate-status" id="plate-status">Toca el plato si comiste hoy</div>
+        <input class="meal-input" type="text" id="input-comida" placeholder="¿Qué comiste? (opcional)" onchange="saveComida()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Hábitos rápidos -->
+  <div class="habitos-hoy">
+    <div class="hh-header">
+      <div class="hh-title">Hábitos de hoy</div>
+      <div class="hh-pct" id="hh-pct">0%</div>
+    </div>
+    <div class="hh-bar-track"><div class="hh-bar-fill" id="hh-bar" style="width:0%"></div></div>
+    <div class="hh-chips" id="hh-chips-m"></div>
+    <div style="height:8px"></div>
+    <div class="hh-chips" id="hh-chips-n"></div>
+  </div>
+
+  <!-- Mis gatos -->
+  <div class="gatos-card">
+    <div class="ql-title">Mis gatos 🐱</div>
+    <div id="gatos-list"></div>
+  </div>
+
+  <!-- Lectura -->
+  <div class="quick-log">
+    <div class="ql-title">Lectura 📖</div>
+    <div class="ql-row">
+      <div class="ql-icon">📚</div>
+      <div class="ql-label">Minutos leídos hoy</div>
+      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
+    </div>
+    <div class="lectura-bar-wrap" id="lectura-visual"></div>
+  </div>
+
+  <!-- Pregunta del día para el cuaderno -->
+  <div class="cuaderno-card">
+    <div class="cuaderno-header">
+      <span class="cuaderno-icon">📓</span>
+      <span class="cuaderno-label">Pregunta para tu cuaderno</span>
+    </div>
+    <div class="cuaderno-pregunta" id="pregunta-dia">—</div>
+    <button class="cuaderno-btn" id="cuaderno-btn" onclick="toggleEscribi()">
+      <span id="cuaderno-btn-text">Ya escribí ✍️</span>
+    </button>
+    <div class="cuaderno-nota">La escritura a mano activa procesamiento más profundo que teclear 🧠</div>
+  </div>
+
+  <!-- Botón ver más -->
+  <button class="ver-mas-btn" id="ver-mas-btn" onclick="toggleVerMas()">＋  Ver datos de la banda</button>
+
+  <!-- Datos de la banda -->
+  <div class="quick-log seccion-extra">
+    <div class="ql-title">Datos de la banda 📟</div>
+    <div class="ql-row">
+      <div class="ql-icon">🌬️</div>
+      <div class="ql-label">Oxígeno en sangre</div>
+      <input class="ql-num-input" type="number" id="input-spo2" placeholder="%" onchange="saveBanda('spo2')">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">📈</div>
+      <div class="ql-label">HRV (variabilidad)</div>
+      <input class="ql-num-input" type="number" id="input-hrv" placeholder="ms" onchange="saveBanda('hrv')">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🌡️</div>
+      <div class="ql-label">Estrés</div>
+      <input class="ql-num-input" type="number" id="input-estres" placeholder="0-100" onchange="saveBanda('estres')">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🔋</div>
+      <div class="ql-label">Recuperación</div>
+      <input class="ql-num-input" type="number" id="input-recuperacion" placeholder="0-100" onchange="saveBanda('recuperacion')">
+    </div>
+  </div>
+
+
+</div>
+
+<!-- ── MAÑANA ── -->
+<div class="panel" id="panel-manana">
+  <div class="day-strip" id="strip-m"></div>
+  <div class="prog-section">
+    <div class="prog-header"><span id="prog-label-m">Hoy</span><span id="prog-count-m">0/4</span></div>
+    <div class="prog-track"><div class="prog-fill morning" id="prog-bar-m" style="width:0%"></div></div>
+  </div>
+  <div id="habits-m"></div>
+
+  <div class="section-label">Anoche dormí</div>
+  <div class="quick-log">
+    <div class="sueno-nota" id="sueno-nota">Registrando la noche del —</div>
+    <div class="ql-row">
+      <div class="ql-icon">😴</div>
+      <div class="ql-label">Horas de sueño</div>
+      <input class="ql-num-input" type="number" id="input-sueno" placeholder="—" min="0" max="24" step="0.5" onchange="saveSueno()">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🛌</div>
+      <div class="ql-label">Calidad</div>
+      <div class="ql-stars" id="stars-sueno">
+        <button class="ql-star" onclick="setStars('sueno',1)">1</button>
+        <button class="ql-star" onclick="setStars('sueno',2)">2</button>
+        <button class="ql-star" onclick="setStars('sueno',3)">3</button>
+        <button class="ql-star" onclick="setStars('sueno',4)">4</button>
+        <button class="ql-star" onclick="setStars('sueno',5)">5</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Ciclo menstrual</div>
+  <div class="quick-log">
+    <div class="ql-row">
+      <div class="ql-icon">🌸</div>
+      <div class="ql-label">Día del ciclo</div>
+      <input class="ql-num-input" type="number" id="input-ciclo" placeholder="—" min="1" max="35" onchange="saveCiclo()">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🌊</div>
+      <div class="ql-label">Fase</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;" id="fase-pills">
+        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Menstrual')">Menstrual</button>
+        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Folicular')">Folicular</button>
+        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Ovulatoria')">Ovulatoria</button>
+        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Lútea')">Lútea</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NOCHE ── -->
+<div class="panel" id="panel-noche">
+  <div class="day-strip" id="strip-n"></div>
+  <div class="prog-section">
+    <div class="prog-header"><span id="prog-label-n">Hoy</span><span id="prog-count-n">0/5</span></div>
+    <div class="prog-track"><div class="prog-fill night-fill" id="prog-bar-n" style="width:0%"></div></div>
+  </div>
+  <div id="habits-n"></div>
+
+  <div class="section-label">Cierre del día</div>
+  <div class="quick-log">
+    <div class="ql-row">
+      <div class="ql-icon">🏃</div>
+      <div class="ql-label">Me moví hoy</div>
+      <div class="ql-stars" id="stars-movimiento">
+        <button class="ql-star" onclick="setStars('movimiento',1)" style="width:36px;font-size:10px;">No</button>
+        <button class="ql-star" onclick="setStars('movimiento',2)" style="width:46px;font-size:10px;">Un poco</button>
+        <button class="ql-star" onclick="setStars('movimiento',3)" style="width:36px;font-size:10px;">Sí</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SEMANA ── -->
+<div class="panel" id="panel-semana">
+  <div id="semana-content"><div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">Cargando... ✨</div></div>
+</div>
+
+<!-- Toast de recompensa -->
+<div class="toast-reward" id="toastReward"></div>
+
+<script>
+const SUPABASE_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const SHORT = ['L','M','X','J','V','S','D'];
+
+const HABITS = {
+  m:[
+    {icon:'🛏️',name:'Tiendo mi cama'},
+    {icon:'💧',name:'Lavo mi cara'},
+    {icon:'🦷',name:'Cepillo mis dientes'},
+  ],
+  n:[
+    {icon:'💧',name:'Lavo mi cara'},
+    {icon:'🦷',name:'Cepillo mis dientes'},
+    {icon:'🥗',name:'Alisto mi almuerzo'},
+    {icon:'🫙',name:'Lavo mis tepers'},
+  ]
+};
+
+// Hábitos de los gatos (sección propia)
+const GATOS = [
+  {icon:'🧹', name:'Limpio los areneros', frecuencia:'diario'},
+  {icon:'🪮', name:'Cepillo a mis gatos', frecuencia:'diario'},
+  {icon:'💊', name:'Doy omega 3 a Mía', frecuencia:'diario'},
+  {icon:'✂️', name:'Corto sus uñas', frecuencia:'quincenal'},
+];
+
+// Anclas posibles del día — rotan para que el cerebro no se acostumbre
+const ANCLAS = [
+  {tipo:'habito', panel:'m', idx:0, texto:'Tiendo mi cama', icon:'🛏️', razon:'Empezar el día con una acción completada activa el circuito de logro'},
+  {tipo:'cuaderno', texto:'Escribo en mi cuaderno', icon:'📓', razon:'La escritura a mano consolida memoria y regula el sistema nervioso'},
+  {tipo:'lectura', texto:'Leo 15 minutos', icon:'📖', razon:'La lectura sostenida entrena tu capacidad de atención profunda'},
+  {tipo:'habito', panel:'n', idx:2, texto:'Alisto mi almuerzo', icon:'🥗', razon:'Decidir hoy lo de mañana reduce la carga cognitiva del futuro'},
+  {tipo:'gato', idx:1, texto:'Cepillo a mis gatos', icon:'🪮', razon:'El contacto con animales baja cortisol en minutos'},
+  {tipo:'emocion', texto:'Nombro cómo me siento', icon:'🌊', razon:'Nombrar una emoción reduce su intensidad — "name it to tame it"'},
+  {tipo:'habito', panel:'m', idx:1, texto:'Lavo mi cara', icon:'💧', razon:'El agua fría en la cara activa el nervio vago y calma el sistema'},
+];
+
+// Preguntas reflexivas para el cuaderno (rotan cada día)
+const PREGUNTAS = [
+  '¿Qué emoción se repitió hoy y qué la disparó?',
+  '¿Qué le dirías hoy a la versión de ti de hace un año?',
+  '¿Qué necesitaste hoy que no pediste?',
+  '¿Qué patrón tuyo notaste hoy que ya conoces?',
+  '¿Dónde sentiste tensión en el cuerpo y en qué momento?',
+  '¿Qué hiciste hoy por obligación y qué por deseo?',
+  '¿Qué historia te contaste hoy sobre ti misma?',
+  '¿Qué te dio calma hoy, aunque fuera un segundo?',
+  '¿Qué evitaste hoy y qué sentiste al evitarlo?',
+  '¿Qué parte de tu día repetirías tal cual?',
+  '¿Qué te hizo sentir orgullosa hoy, por pequeño que sea?',
+  '¿Qué conversación te quedó dando vueltas?',
+  '¿Qué límite pusiste o no pusiste hoy?',
+  '¿Cómo cambió tu energía a lo largo del día?',
+  '¿Qué pensamiento apareció hoy más de una vez?',
+  '¿Qué necesita tu cuerpo mañana que hoy no le diste?',
+  '¿Qué te sorprendió de tu reacción hoy?',
+  '¿Qué extrañaste hoy?',
+  '¿Qué hiciste hoy que tu yo del futuro va a agradecer?',
+  '¿Qué te costó soltar hoy?',
+  '¿A quién quisiste llamar y no lo hiciste?',
+  '¿Qué sensación física acompañó tu emoción más fuerte del día?',
+  '¿Qué te hizo reír hoy?',
+  '¿Qué decisión pequeña tomaste hoy que te sorprendió?',
+  '¿Qué te dijiste a ti misma cuando algo salió mal?',
+  '¿Qué momento del día te sentiste más tú?',
+  '¿Qué peso cargaste hoy que no era tuyo?',
+  '¿Qué aprendiste hoy sobre cómo funcionas?',
+  '¿Qué te gustaría hacer distinto mañana?',
+  '¿Qué agradeces de hoy, aunque fue difícil?',
+  '¿Qué señal te dio tu cuerpo que ignoraste?',
+];
+
+let state = {m:{},n:{}};
+let currentDay = {m:0,n:0};
+let todayData = {};
+
+function getLocalDate(date) {
+  const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function getWeekDates() {
+  const now=new Date(), dow=now.getDay(), diff=dow===0?-6:1-dow;
+  const mon=new Date(now); mon.setDate(now.getDate()+diff);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return getLocalDate(d);});
+}
+
+const weekDates = getWeekDates();
+const todayStr = getLocalDate(new Date());
+const todayIdx = Math.max(0, weekDates.indexOf(todayStr));
+
+// ── GREETING ──
+function setGreeting() {
+  const h = new Date().getHours();
+  const greet = h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  document.getElementById('greeting').innerHTML = `${greet}, <strong>Laura</strong>`;
+  const days=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const now=new Date();
+  document.getElementById('dateLine').textContent=`${days[now.getDay()]} ${now.getDate()} de ${months[now.getMonth()]}`;
+  if(h>=19||h<6) document.body.classList.add('night'), document.getElementById('nightBtn').textContent='🌙';
+}
+
+// ── SYNC ──
+function setSyncing(on) {
+  document.getElementById('syncDot').className=on?'sync-dot syncing':'sync-dot';
+  document.getElementById('syncLabel').textContent=on?'guardando...':'sincronizado ✓';
+}
+
+async function sbFetch(method, body=null, params='') {
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/habitos${params}`,{
+    method,
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=minimal':''},
+    body:body?JSON.stringify(body):null
+  });
+  if(method==='GET') return await res.json();
+  return res;
+}
+
+async function cargarSemana() {
+  try {
+    const data=await sbFetch('GET',null,`?fecha=in.(${weekDates.join(',')})`);
+    for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
+    data.forEach(row=>{
+      const di=weekDates.indexOf(row.fecha);
+      if(di===-1||!HABITS[row.momento]) return;
+      const hi=HABITS[row.momento].findIndex(h=>h.name===row.habito);
+      if(hi!==-1) state[row.momento][di][hi]=row.completado;
+    });
+  } catch(e){console.error(e);}
+}
+
+async function guardarHabito(panel,dayIdx,habitIdx,completado) {
+  setSyncing(true);
+  const fecha=weekDates[dayIdx], habito=HABITS[panel][habitIdx].name;
+  try {
+    const ex=await sbFetch('GET',null,`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
+    if(ex&&ex.length>0) await sbFetch('PATCH',{completado},`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
+    else await sbFetch('POST',{fecha,momento:panel,habito,completado});
+  } catch(e){console.error(e);}
+  setSyncing(false);
+}
+
+// ── HOY DATA ──
+function loadTodayLocal() {
+  try { todayData=JSON.parse(localStorage.getItem('today_'+todayStr)||'{}'); } catch(e){todayData={};}
+}
+function saveTodayLocal() {
+  localStorage.setItem('today_'+todayStr, JSON.stringify(todayData));
+}
+
+// ── SUEÑO: pertenece a la NOCHE ANTERIOR ──
+function getAyerStr() {
+  const ayer=new Date();
+  ayer.setDate(ayer.getDate()-1);
+  return getLocalDate(ayer);
+}
+const ayerStr = getAyerStr();
+
+let suenoData = {};
+function loadSuenoData() {
+  try { suenoData=JSON.parse(localStorage.getItem('sueno_'+ayerStr)||'{}'); } catch(e){suenoData={};}
+}
+function saveSuenoData() {
+  localStorage.setItem('sueno_'+ayerStr, JSON.stringify(suenoData));
+}
+
+function setSuenoNota() {
+  const ayer=new Date();
+  ayer.setDate(ayer.getDate()-1);
+  const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const el=document.getElementById('sueno-nota');
+  if(el) el.textContent=`Registrando la noche del ${dias[ayer.getDay()]} ${ayer.getDate()} de ${meses[ayer.getMonth()]}`;
+}
+
+function setEmocion(el, val) {
+  document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  todayData.emocion=val;
+  saveTodayLocal();
+  updateSnaps();
+}
+
+let starState={agua:0,energia:0,sueno:0,movimiento:0};
+
+function setStars(key,val) {
+  starState[key]=val;
+  document.querySelectorAll(`#stars-${key} .ql-star`).forEach((s,i)=>{
+    s.classList.toggle('on', i<val);
+  });
+  if(key==='sueno') {
+    // La calidad del sueño pertenece a la noche anterior
+    suenoData.calidad=val;
+    saveSuenoData();
+    updateSnaps();
+  } else {
+    todayData[key]=val;
+    saveTodayLocal();
+  }
+}
+
+function saveQuick() {
+  todayData.pasos=document.getElementById('input-pasos').value;
+  saveTodayLocal();
+  updateSnaps();
+}
+
+function setNivel(key, val, el) {
+  document.querySelectorAll(`#nivel-${key} .nivel-pill`).forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  todayData[key]=val;
+  saveTodayLocal();
+}
+
+function saveFC() {
+  todayData.fc=document.getElementById('input-fc').value;
+  saveTodayLocal();
+}
+
+function saveBanda(key) {
+  todayData[key]=document.getElementById(`input-${key}`).value;
+  saveTodayLocal();
+}
+
+// ── ANCLA DEL DÍA ──
+function getAnclaHoy() {
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  const dayOfYear=Math.floor((now-start)/(1000*60*60*24));
+  return ANCLAS[dayOfYear % ANCLAS.length];
+}
+
+function buildAncla() {
+  const a=getAnclaHoy();
+  document.getElementById('ancla-icon').textContent=a.icon;
+  document.getElementById('ancla-titulo').textContent=a.texto;
+  document.getElementById('ancla-razon').textContent=a.razon;
+  updateAnclaUI();
+}
+
+function anclaEstaHecha() {
+  const a=getAnclaHoy();
+  if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][a.idx];
+  if(a.tipo==='cuaderno') return !!todayData.escribi;
+  if(a.tipo==='lectura') return parseInt(todayData.lectura||0)>=15;
+  if(a.tipo==='gato') return todayData.gatos && todayData.gatos[a.idx];
+  if(a.tipo==='emocion') return !!todayData.emocion;
+  return false;
+}
+
+function updateAnclaUI() {
+  const card=document.getElementById('ancla-card');
+  const estado=document.getElementById('ancla-estado');
+  if(anclaEstaHecha()) {
+    card.classList.add('done');
+    estado.textContent='Hecho. Ganaste el día ✓';
+  } else {
+    card.classList.remove('done');
+    estado.textContent='Si solo haces esto, ganaste el día';
+  }
+}
+
+async function toggleAncla() {
+  const a=getAnclaHoy();
+  if(a.tipo==='habito') {
+    await toggleHabitQuick(a.panel,todayIdx,a.idx);
+  } else if(a.tipo==='cuaderno') {
+    toggleEscribi();
+  } else if(a.tipo==='gato') {
+    toggleGato(a.idx);
+  } else if(a.tipo==='lectura') {
+    switchPanel('hoy');
+    document.getElementById('input-lectura').focus();
+    return;
+  } else if(a.tipo==='emocion') {
+    document.querySelector('.emotion-bar').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  updateAnclaUI();
+  const card=document.getElementById('ancla-card');
+  if(anclaEstaHecha()) {
+    card.classList.add('celebrating');
+    setTimeout(()=>card.classList.remove('celebrating'),450);
+    mostrarRecompensa('🌿 Ancla completada. Eso es suficiente.');
+  }
+}
+
+// ── MICRO RECOMPENSAS ──
+let toastTimer=null;
+function mostrarRecompensa(texto) {
+  const t=document.getElementById('toastReward');
+  t.textContent=texto;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// Mensajes de identidad, no de tarea
+const MSG_MANANA = [
+  'Eres alguien que empieza el día con intención',
+  'Tu mañana está completa. Eso construye identidad',
+  'Así se ve alguien que se cuida',
+];
+const MSG_NOCHE = [
+  'Cerraste el día bien. Eso es cuidado propio',
+  'Eres alguien que honra su descanso',
+  'Tu noche está completa. Mañana empieza mejor',
+];
+const MSG_PARCIAL = [
+  'Una marca cuenta. Siempre cuenta',
+  'Mostrarte a medias también es mostrarte',
+  'Progreso, no perfección 🌿',
+];
+
+function celebrarSiCompleto(panel) {
+  const total=HABITS[panel].length;
+  const done=state[panel][todayIdx]?state[panel][todayIdx].filter(Boolean).length:0;
+  if(done===total) {
+    const msgs = panel==='m'?MSG_MANANA:MSG_NOCHE;
+    mostrarRecompensa('✨ '+msgs[Math.floor(Math.random()*msgs.length)]);
+  } else if(done>0) {
+    // Solo mostrar mensaje parcial ocasionalmente para no saturar
+    if(Math.random()<0.35) {
+      mostrarRecompensa(MSG_PARCIAL[Math.floor(Math.random()*MSG_PARCIAL.length)]);
+    }
+  }
+}
+
+// ── VER MÁS / VER MENOS ──
+function toggleVerMas() {
+  const secciones=document.querySelectorAll('.seccion-extra');
+  const btn=document.getElementById('ver-mas-btn');
+  const abierto=secciones[0].classList.contains('abierta');
+  secciones.forEach(s=>s.classList.toggle('abierta',!abierto));
+  btn.textContent=abierto?'＋  Ver datos de la banda':'－  Ocultar';
+}
+
+// ── GATOS ──
+function buildGatos() {
+  const c=document.getElementById('gatos-list');
+  c.innerHTML='';
+  if(!todayData.gatos) todayData.gatos={};
+  GATOS.forEach((g,i)=>{
+    const done=todayData.gatos[i];
+    const row=document.createElement('div');
+    row.className='gato-row'+(done?' done':'');
+    row.innerHTML=`
+      <div class="gato-check">✓</div>
+      <div class="gato-emoji">${g.icon}</div>
+      <div class="gato-text">
+        <div class="gato-name">${g.name}</div>
+        <div class="gato-freq">${g.frecuencia}</div>
+      </div>`;
+    row.onclick=()=>toggleGato(i);
+    c.appendChild(row);
+  });
+}
+
+function toggleGato(i) {
+  if(!todayData.gatos) todayData.gatos={};
+  const activando=!todayData.gatos[i];
+  todayData.gatos[i]=activando;
+  buildGatos();
+  updateAnclaUI();
+  saveTodayLocal();
+  if(activando) {
+    const todos=GATOS.every((_,idx)=>todayData.gatos[idx]);
+    if(todos) mostrarRecompensa('🐱 Tus gatos están cuidados. Eso también eres tú');
+  }
+}
+
+// ── LECTURA ──
+function saveLectura() {
+  todayData.lectura=document.getElementById('input-lectura').value;
+  saveTodayLocal();
+  buildLecturaVisual();
+}
+
+function buildLecturaVisual() {
+  const c=document.getElementById('lectura-visual');
+  const min=parseInt(todayData.lectura)||0;
+  // 12 barras, cada una = 5 minutos (meta 60 min)
+  c.innerHTML='';
+  for(let i=0;i<12;i++){
+    const bar=document.createElement('div');
+    const filled=min>=(i+1)*5;
+    bar.className='lectura-book'+(filled?' on':'');
+    bar.style.height=filled?`${8+i*1.8}px`:'6px';
+    c.appendChild(bar);
+  }
+}
+
+// ── PREGUNTA DEL DÍA ──
+function setPreguntaDia() {
+  // Rota según el día del año para que sea consistente todo el día
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  const diff=now-start;
+  const dayOfYear=Math.floor(diff/(1000*60*60*24));
+  const idx=dayOfYear % PREGUNTAS.length;
+  document.getElementById('pregunta-dia').textContent=PREGUNTAS[idx];
+}
+
+function toggleEscribi() {
+  todayData.escribi=!todayData.escribi;
+  updateCuadernoUI();
+  updateAnclaUI();
+  saveTodayLocal();
+  if(todayData.escribi) mostrarRecompensa('📓 Escribiste. Eso es autoconocimiento en acción');
+}
+
+function updateCuadernoUI() {
+  const btn=document.getElementById('cuaderno-btn');
+  const txt=document.getElementById('cuaderno-btn-text');
+  if(todayData.escribi) {
+    btn.classList.add('done');
+    txt.textContent='Escrito ✓ Buen trabajo 🌿';
+  } else {
+    btn.classList.remove('done');
+    txt.textContent='Ya escribí ✍️';
+  }
+}
+
+function togglePlate() {
+  todayData.comi = !todayData.comi;
+  updatePlateUI();
+  saveTodayLocal();
+}
+
+function updatePlateUI() {
+  const btn=document.getElementById('plate-btn');
+  const fill=document.getElementById('plate-fill');
+  const emoji=document.getElementById('plate-emoji');
+  const status=document.getElementById('plate-status');
+  if(todayData.comi) {
+    btn.classList.add('filled');
+    fill.style.strokeDashoffset='0';
+    fill.style.stroke='var(--sage)';
+    emoji.textContent='✅';
+    status.textContent='¡Comiste hoy! 🌿';
+  } else {
+    btn.classList.remove('filled');
+    fill.style.strokeDashoffset='289';
+    emoji.textContent='🍽️';
+    status.textContent='Toca el plato si comiste hoy';
+  }
+}
+
+function saveComida() {
+  todayData.comida_texto=document.getElementById('input-comida').value;
+  saveTodayLocal();
+}
+
+function saveSueno() {
+  // Las horas de sueño pertenecen a la noche anterior
+  suenoData.horas=document.getElementById('input-sueno').value;
+  saveSuenoData();
+  updateSnaps();
+}
+
+function saveCiclo() {
+  todayData.ciclo_dia=document.getElementById('input-ciclo').value;
+  saveTodayLocal();
+}
+
+function setFase(el, val) {
+  document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  todayData.fase=val;
+  saveTodayLocal();
+}
+
+function restoreTodayUI() {
+  if(todayData.emocion) {
+    document.querySelectorAll('.emo-pill').forEach(p=>{if(p.textContent===todayData.emocion)p.classList.add('selected');});
+  }
+  if(todayData.pasos) document.getElementById('input-pasos').value=todayData.pasos;
+  if(todayData.agua) {
+    document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
+  }
+  if(todayData.energia) setStars('energia',todayData.energia);
+  if(todayData.fc) document.getElementById('input-fc').value=todayData.fc;
+  if(todayData.spo2) document.getElementById('input-spo2').value=todayData.spo2;
+  if(todayData.hrv) document.getElementById('input-hrv').value=todayData.hrv;
+  if(todayData.estres) document.getElementById('input-estres').value=todayData.estres;
+  if(todayData.recuperacion) document.getElementById('input-recuperacion').value=todayData.recuperacion;
+  if(todayData.comida_texto) document.getElementById('input-comida').value=todayData.comida_texto;
+  updatePlateUI();
+  if(suenoData.calidad) setStars("sueno",suenoData.calidad);
+  if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
+  if(suenoData.horas) document.getElementById("input-sueno").value=suenoData.horas;
+  if(todayData.ciclo_dia) document.getElementById('input-ciclo').value=todayData.ciclo_dia;
+  if(todayData.fase) {
+    document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>{if(p.textContent===todayData.fase)p.classList.add('selected');});
+  }
+  if(todayData.lectura) document.getElementById('input-lectura').value=todayData.lectura;
+  buildLecturaVisual();
+  buildGatos();
+  setPreguntaDia();
+  updateCuadernoUI();
+}
+
+function updateSnaps() {
+  // Sueño
+  const sh=suenoData.horas;
+  const snapS=document.getElementById('snap-sueno');
+  if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
+  
+  // Pasos
+  const p=todayData.pasos;
+  const snapP=document.getElementById('snap-pasos');
+  if(p) { snapP.innerHTML=`${parseInt(p).toLocaleString()}`; document.getElementById('snap-pasos-sub').textContent='pasos'; }
+  
+  // Emoción
+  const e=todayData.emocion;
+  if(e) document.getElementById('snap-emocion').textContent=e.split(' ')[0];
+  
+  // Hábitos
+  const tm=state.m[todayIdx]?state.m[todayIdx].filter(Boolean).length:0;
+  const tn=state.n[todayIdx]?state.n[todayIdx].filter(Boolean).length:0;
+  const tot=HABITS.m.length+HABITS.n.length;
+  const done=tm+tn;
+  document.getElementById('snap-habitos').innerHTML=`${done}<span class="snap-unit">/${tot}</span>`;
+  document.getElementById('snap-habitos-sub').textContent=done===tot?'¡Todos! 🎉':'completados';
+  
+  // Mini chips hoy
+  buildHoyChips();
+  
+  // Progress bar hoy
+  const pct=Math.round(done/tot*100);
+  document.getElementById('hh-pct').textContent=pct+'%';
+  document.getElementById('hh-bar').style.width=pct+'%';
+}
+
+function buildHoyChips() {
+  ['m','n'].forEach(panel=>{
+    const c=document.getElementById(`hh-chips-${panel}`);
+    c.innerHTML='';
+    HABITS[panel].forEach((h,i)=>{
+      const done=state[panel][todayIdx]&&state[panel][todayIdx][i];
+      const btn=document.createElement('button');
+      btn.className='hh-chip'+(done?' done':'');
+      btn.textContent=h.icon+' '+h.name;
+      btn.onclick=()=>toggleHabitQuick(panel,todayIdx,i);
+      c.appendChild(btn);
+    });
+  });
+}
+
+async function toggleHabitQuick(panel,day,idx) {
+  if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
+  const activando=!state[panel][day][idx];
+  state[panel][day][idx]=activando;
+  buildHabits('m'); buildHabits('n');
+  updateProgress('m'); updateProgress('n');
+  updateSnaps();
+  updateAnclaUI();
+  if(activando && day===todayIdx) celebrarSiCompleto(panel);
+  await guardarHabito(panel,day,idx,state[panel][day][idx]);
+}
+
+// ── STRIPS & HABITS ──
+function buildStrip(panel) {
+  const c=document.getElementById(`strip-${panel}`);
+  c.innerHTML='';
+  DAYS.forEach((day,i)=>{
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(i===currentDay[panel]?' on':'');
+    btn.textContent=i===todayIdx?`${day} · hoy`:day;
+    btn.onclick=()=>selectDay(panel,i);
+    c.appendChild(btn);
+  });
+}
+
+function selectDay(panel,idx) {
+  currentDay[panel]=idx;
+  buildStrip(panel);
+  buildHabits(panel);
+  updateProgress(panel);
+}
+
+function buildHabits(panel) {
+  const c=document.getElementById(`habits-${panel}`);
+  c.innerHTML='';
+  const day=currentDay[panel];
+  HABITS[panel].forEach((h,i)=>{
+    const done=state[panel][day]&&state[panel][day][i];
+    const card=document.createElement('div');
+    card.className='habit-card'+(done?' done':'');
+    card.innerHTML=`<div class="habit-inner">
+      <div class="habit-check">✓</div>
+      <div class="habit-emoji">${h.icon}</div>
+      <div class="habit-text">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-status">${done?'¡Listo! ✓':'Toca para marcar'}</div>
+      </div></div>`;
+    card.onclick=()=>toggleHabit(panel,day,i);
+    c.appendChild(card);
+  });
+}
+
+async function toggleHabit(panel,day,idx) {
+  if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
+  const activando=!state[panel][day][idx];
+  state[panel][day][idx]=activando;
+  buildHabits(panel); updateProgress(panel); updateSnaps(); updateAnclaUI();
+  if(activando && day===todayIdx) celebrarSiCompleto(panel);
+  await guardarHabito(panel,day,idx,state[panel][day][idx]);
+}
+
+function updateProgress(panel) {
+  const day=currentDay[panel], total=HABITS[panel].length;
+  const done=state[panel][day]?state[panel][day].filter(Boolean).length:0;
+  const pct=Math.round(done/total*100);
+  document.getElementById(`prog-count-${panel}`).textContent=`${done}/${total}`;
+  document.getElementById(`prog-bar-${panel}`).style.width=pct+'%';
+  document.getElementById(`prog-label-${panel}`).textContent=DAYS[currentDay[panel]]+(currentDay[panel]===todayIdx?' · hoy':'');
+}
+
+// ── SEMANA ──
+function buildSemana() {
+  const c=document.getElementById('semana-content');
+  let total=0, hecho=0;
+  const porH={};
+  ['m','n'].forEach(panel=>{
+    HABITS[panel].forEach((h,hi)=>{
+      if(!porH[h.name]) porH[h.name]={done:0};
+      for(let d=0;d<7;d++){
+        total++;
+        if(state[panel][d]&&state[panel][d][hi]){hecho++;porH[h.name].done++;}
+      }
+    });
+  });
+  const pct=total?Math.round(hecho/total*100):0;
+  let racha=0;
+  for(let d=todayIdx;d>=0;d--){
+    const ok=state.m[d]&&state.m[d].every(Boolean)&&state.n[d]&&state.n[d].every(Boolean);
+    if(ok) racha++; else break;
+  }
+  let mejorD=0,mejorP=0;
+  for(let d=0;d<7;d++){
+    const tot2=HABITS.m.length+HABITS.n.length;
+    const dn=(state.m[d]||[]).filter(Boolean).length+(state.n[d]||[]).filter(Boolean).length;
+    const p=Math.round(dn/tot2*100);
+    if(p>mejorP){mejorP=p;mejorD=d;}
+  }
+  // Días con al menos un hábito = días que te mostraste
+  let diasActivos=0;
+  for(let d=0;d<7;d++){
+    const dn=(state.m[d]||[]).filter(Boolean).length+(state.n[d]||[]).filter(Boolean).length;
+    if(dn>0) diasActivos++;
+  }
+
+  // Mensaje basado en IDENTIDAD, no en tarea
+  let msg='';
+  if(diasActivos>=6) msg=`Esta semana fuiste alguien que se cuida ${diasActivos} de 7 días. Eso ya es quien eres.`;
+  else if(diasActivos>=4) msg=`Te mostraste ${diasActivos} días. No es perfección — es identidad construyéndose.`;
+  else if(diasActivos>=2) msg=`Apareciste ${diasActivos} días esta semana. Tu cerebro ya sabe que este sistema existe.`;
+  else if(diasActivos===1) msg='Un día cuenta. Es más de lo que había antes.';
+  else msg='Esta semana fue de observación. La próxima ya sabes qué esperar.';
+  
+  const dots=Array.from({length:7},(_,d)=>{
+    const tot2=HABITS.m.length+HABITS.n.length;
+    const dn=(state.m[d]||[]).filter(Boolean).length+(state.n[d]||[]).filter(Boolean).length;
+    return dn===tot2?'full':dn>0?'partial':'';
+  });
+
+  // Promedios semana
+  const avgAgua=todayData.agua||0;
+  const avgEnergia=todayData.energia||0;
+
+  c.innerHTML=`
+    <div class="resumen-card">
+      <div class="res-title">Tu semana 📊</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num">${diasActivos}<span style="font-size:16px">/7</span></div><div class="stat-label">Días que aparecí</div></div>
+        <div class="stat-box"><div class="stat-num">${racha}</div><div class="stat-label">Racha</div></div>
+        <div class="stat-box"><div class="stat-num">${hecho}</div><div class="stat-label">Acciones de cuidado</div></div>
+        <div class="stat-box"><div class="stat-num">${DAYS[mejorD].slice(0,3)}</div><div class="stat-label">Mejor día</div></div>
+      </div>
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;">Por hábito</div>
+      ${Object.entries(porH).map(([name,{done}])=>`
+        <div class="bar-row">
+          <div class="bar-label"><span>${name}</span><span class="bar-pct">${done}/7</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(done/7*100)}%"></div></div>
+        </div>`).join('')}
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin:12px 0 6px;">Días</div>
+      <div class="week-dots">${dots.map(cls=>`<div class="w-dot ${cls}"></div>`).join('')}</div>
+      <div class="w-dot-labels">${SHORT.map(s=>`<div class="w-dot-label">${s}</div>`).join('')}</div>
+      <div class="mensaje">"${msg}"</div>
+    </div>
+    <div class="resumen-card">
+      <div class="res-title">Salud hoy 🌿</div>
+      <div class="salud-grid">
+        <div class="salud-box">
+          <div class="salud-icon">😴</div>
+          <div class="salud-val">${suenoData.horas||'—'}</div>
+          <div class="salud-label">Sueño anoche</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">💧</div>
+          <div class="salud-val" style="font-size:15px">${todayData.agua||'—'}</div>
+          <div class="salud-label">Agua</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">⚡</div>
+          <div class="salud-val">${todayData.energia||'—'}<span style="font-size:12px">/5</span></div>
+          <div class="salud-label">Energía</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">❤️</div>
+          <div class="salud-val" style="font-size:16px">${todayData.fc||'—'}</div>
+          <div class="salud-label">Frec. cardíaca</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">👟</div>
+          <div class="salud-val" style="font-size:16px">${todayData.pasos?parseInt(todayData.pasos).toLocaleString():'—'}</div>
+          <div class="salud-label">Pasos</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">${todayData.comi?'✅':'🍽️'}</div>
+          <div class="salud-val" style="font-size:14px">${todayData.comi?'Sí comí':'—'}</div>
+          <div class="salud-label">Comida</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🌸</div>
+          <div class="salud-val" style="font-size:16px">${todayData.fase||'—'}</div>
+          <div class="salud-label">Fase ciclo</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🌬️</div>
+          <div class="salud-val" style="font-size:16px">${todayData.spo2?todayData.spo2+'%':'—'}</div>
+          <div class="salud-label">SpO2</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">📈</div>
+          <div class="salud-val" style="font-size:16px">${todayData.hrv||'—'}</div>
+          <div class="salud-label">HRV</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🌡️</div>
+          <div class="salud-val" style="font-size:16px">${todayData.estres||'—'}</div>
+          <div class="salud-label">Estrés</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🔋</div>
+          <div class="salud-val" style="font-size:16px">${todayData.recuperacion||'—'}</div>
+          <div class="salud-label">Recuperación</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">📖</div>
+          <div class="salud-val" style="font-size:16px">${todayData.lectura?todayData.lectura+'m':'—'}</div>
+          <div class="salud-label">Lectura</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🐱</div>
+          <div class="salud-val" style="font-size:16px">${todayData.gatos?Object.values(todayData.gatos).filter(Boolean).length:'0'}/4</div>
+          <div class="salud-label">Gatos</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">${todayData.escribi?'✅':'📓'}</div>
+          <div class="salud-val" style="font-size:14px">${todayData.escribi?'Sí':'—'}</div>
+          <div class="salud-label">Escribí</div>
+        </div>
+      </div>
+      ${todayData.comida_texto ? `<div style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--muted); text-align:center;">"${todayData.comida_texto}"</div>` : ''}
+    </div>`;
+}
+
+// ── NAV ──
+function switchPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-pill').forEach(p=>p.classList.remove('on'));
+  document.getElementById(`panel-${panel}`).classList.add('on');
+  document.querySelector(`.nav-pill.p-${panel}`).classList.add('on');
+  if(panel==='semana') buildSemana();
+  if(panel==='noche') { document.body.classList.add('night'); document.getElementById('nightBtn').textContent='🌙'; }
+  else { document.body.classList.remove('night'); document.getElementById('nightBtn').textContent='☀️'; }
+}
+
+function toggleNight() {
+  const n=document.body.classList.toggle('night');
+  document.getElementById('nightBtn').textContent=n?'🌙':'☀️';
+}
+
+// ── AUTO PANEL SEGÚN HORA ──
+// Antes de las 19:00 (7pm) = Mañana, después = Noche
+function getAutoPanel() {
+  const h = new Date().getHours();
+  return h < 19 ? 'manana' : 'noche';
+}
+
+// ── INIT ──
+async function init() {
+  setGreeting();
+  loadTodayLocal();
+  loadSuenoData();
+  setSuenoNota();
+  for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
+  currentDay.m=todayIdx; currentDay.n=todayIdx;
+  buildStrip('m'); buildStrip('n');
+  buildHabits('m'); buildHabits('n');
+  updateProgress('m'); updateProgress('n');
+  restoreTodayUI();
+  buildAncla();
+  updateSnaps();
+  setSyncing(true);
+  await cargarSemana();
+  setSyncing(false);
+  buildHabits('m'); buildHabits('n');
+  updateProgress('m'); updateProgress('n');
+  updateSnaps();
+  updateAnclaUI();
+  setTimeout(()=>{
+    ['m','n'].forEach(p=>{
+      const s=document.getElementById(`strip-${p}`);
+      const sel=s.querySelector('.on');
+      if(sel) sel.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    });
+  },300);
+}
+init();
+</script>
+</body>
+</html>
