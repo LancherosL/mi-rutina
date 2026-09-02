@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Casa">
+<meta name="theme-color" content="#EDEAE3">
+<title>Mi Casa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Karla:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #EDEAE3;
+  --card: #FBFAF7;
+  --ink: #2B2A26;
+  --muted: #8A8578;
+  --clay: #A8714F;
+  --clay-soft: rgba(168,113,79,0.12);
+  --moss: #6B7A5E;
+  --moss-soft: rgba(107,122,94,0.12);
+  --line: rgba(43,42,38,0.09);
+  --blue: #4A6D8C;
+  --brown: #7A5C3E;
+  --slate: #4A4A48;
+  --r: 20px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  font-family: 'Karla', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  padding-top: env(safe-area-inset-top);
+}
+
+.header { padding: 22px 20px 12px; }
+.header-title { font-family:'Fraunces',serif; font-size:26px; font-weight:600; line-height:1.1; }
+.header-date { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:4px; }
+.sync-bar { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); margin-top:8px; }
+.sync-dot { width:6px; height:6px; border-radius:50%; background:var(--moss); }
+.sync-dot.syncing { background:var(--clay); animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── TABS ── */
+.tabs { display:flex; gap:6px; margin:0 20px 18px; background:rgba(43,42,38,0.06); padding:4px; border-radius:14px; }
+.tab { flex:1; text-align:center; padding:9px 0; font-size:13px; font-weight:600; color:var(--muted); border-radius:11px; cursor:pointer; transition:all .18s; }
+.tab.active { background:var(--card); color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,0.07); }
+.view { display:none; }
+.view.active { display:block; animation:fade .25s; }
+@keyframes fade { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+/* ── BASURA ── */
+.basura-card {
+  margin: 0 20px 14px; border-radius: var(--r); padding: 18px 20px;
+  color: white; cursor: pointer; transition: transform .15s;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+.basura-card:active { transform: scale(0.98); }
+.basura-card.ordures      { background: linear-gradient(135deg, #5A5A57 0%, #3B3B39 100%); }
+.basura-card.recuperation { background: linear-gradient(135deg, #4A6D8C 0%, #33506B 100%); }
+.basura-card.organiques   { background: linear-gradient(135deg, #7A5C3E 0%, #59422C 100%); }
+.basura-card.done { opacity: .55; }
+.basura-eyebrow { font-size:10px; text-transform:uppercase; letter-spacing:0.16em; color:rgba(255,255,255,0.7); font-weight:600; margin-bottom:7px; }
+.basura-nombre { font-family:'Fraunces',serif; font-size:23px; font-weight:600; line-height:1.15; margin-bottom:4px; }
+.basura-desc { font-size:12.5px; color:rgba(255,255,255,0.85); }
+.basura-check-row { display:flex; align-items:center; gap:10px; padding-top:13px; margin-top:13px; border-top:1px solid rgba(255,255,255,0.22); }
+.basura-check { width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent; flex-shrink:0; transition:all .25s; }
+.basura-card.done .basura-check { background:white; border-color:white; color:var(--ink); }
+.basura-estado { font-size:12px; color:rgba(255,255,255,0.92); font-weight:600; }
+
+.basura-proxima {
+  margin: 0 20px 14px; background: var(--card); border-radius: 16px;
+  padding: 13px 16px; display:flex; align-items:center; gap:11px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05); font-size:13px;
+}
+.bp-dot { width:11px; height:11px; border-radius:3px; flex-shrink:0; }
+.bp-txt { flex:1; color:var(--muted); }
+.bp-txt b { color:var(--ink); font-weight:600; }
+
+/* ── ZONA DEL DÍA ── */
+.zona-hero {
+  margin: 0 20px 16px;
+  background: linear-gradient(135deg, var(--clay) 0%, #8A5A3C 100%);
+  border-radius: var(--r); padding: 22px;
+  box-shadow: 0 8px 28px rgba(168,113,79,0.3);
+  position: relative; overflow: hidden; cursor: pointer; transition: transform .15s;
+}
+.zona-hero:active { transform: scale(0.98); }
+.zona-hero.done { background: linear-gradient(135deg, var(--moss) 0%, #4E5B44 100%); box-shadow:0 8px 28px rgba(107,122,94,0.3); }
+.zona-eyebrow { font-size:10px; text-transform:uppercase; letter-spacing:0.16em; color:rgba(255,255,255,0.7); margin-bottom:8px; font-weight:600; }
+.zona-nombre { font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:white; line-height:1.1; margin-bottom:6px; }
+.zona-desc { font-size:13px; color:rgba(255,255,255,0.85); margin-bottom:14px; }
+.zona-check-row { display:flex; align-items:center; gap:10px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.2); }
+.zona-check { width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center; font-size:14px; color:transparent; flex-shrink:0; transition:all .25s; }
+.zona-hero.done .zona-check { background:white; border-color:white; color:var(--moss); }
+.zona-estado { font-size:12px; color:rgba(255,255,255,0.9); font-weight:600; }
+
+/* ── SECCIONES ── */
+.section-label {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted);
+  margin: 6px 20px 10px; display:flex; align-items:center; gap:8px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--line); }
+
+.diarias-wrap { padding: 0 20px 16px; }
+.tarea-card { background:var(--card); border-radius:var(--r); margin-bottom:8px; cursor:pointer; transition:transform .12s; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+.tarea-card:active { transform:scale(0.975); }
+.tarea-inner { display:flex; align-items:center; gap:12px; padding:14px 16px; }
+.tarea-check { width:28px; height:28px; border-radius:50%; border:2px solid rgba(43,42,38,0.15); display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent; flex-shrink:0; transition:all .2s; }
+.tarea-card.done .tarea-check { background:var(--moss); border-color:var(--moss); color:white; }
+.tarea-card.done { background:linear-gradient(135deg, rgba(107,122,94,0.06), var(--card)); }
+.tarea-icon { font-size:19px; }
+.tarea-nombre { font-size:15px; font-weight:600; flex:1; }
+.tarea-card.done .tarea-nombre { color:var(--moss); }
+
+/* ── BITÁCORA ── */
+.bitacora { margin:0 20px 18px; background:var(--card); border-radius:var(--r); padding:16px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+.bit-title { font-family:'Fraunces',serif; font-style:italic; font-size:16px; color:var(--clay); margin-bottom:4px; }
+.bit-sub { font-size:11.5px; color:var(--muted); margin-bottom:13px; line-height:1.5; }
+.bit-inputrow { display:flex; gap:8px; }
+.bit-input {
+  flex:1; font-family:'Karla',sans-serif; font-size:15px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:13px;
+  padding:12px 14px; outline:none; min-width:0;
+}
+.bit-input:focus { border-color:var(--clay); }
+.bit-input::placeholder { color:var(--muted); }
+.bit-add {
+  background:var(--clay); color:white; border:none; border-radius:13px;
+  padding:0 17px; font-size:20px; font-weight:600; cursor:pointer; flex-shrink:0;
+  font-family:'Karla',sans-serif; transition:transform .12s;
+}
+.bit-add:active { transform:scale(0.93); }
+.bit-add:disabled { opacity:.35; }
+
+.bit-sugerencias { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
+.sug-chip {
+  font-size:12px; padding:6px 11px; border-radius:20px; cursor:pointer;
+  background:var(--clay-soft); color:var(--clay); font-weight:600;
+  border:1px solid rgba(168,113,79,0.18); transition:transform .12s;
+}
+.sug-chip:active { transform:scale(0.94); }
+
+.bit-lista { margin-top:14px; }
+.bit-item {
+  display:flex; align-items:center; gap:10px; padding:10px 0;
+  border-top:1px solid var(--line); font-size:14px;
+}
+.bit-item-txt { flex:1; }
+.bit-item-hora { font-size:10.5px; color:var(--muted); }
+.bit-del { color:var(--muted); font-size:17px; cursor:pointer; padding:0 4px; opacity:.5; }
+.bit-del:active { opacity:1; }
+.bit-vacio { font-size:12.5px; color:var(--muted); font-style:italic; margin-top:13px; padding-top:12px; border-top:1px solid var(--line); }
+
+/* ── TOCA HACER ── */
+.toca-wrap { margin:0 20px 18px; }
+.toca-card {
+  background:var(--card); border-radius:16px; padding:13px 15px; margin-bottom:8px;
+  display:flex; align-items:center; gap:11px; box-shadow:0 2px 10px rgba(0,0,0,0.05);
+  border-left:3px solid var(--muted);
+}
+.toca-card.vencida { border-left-color:var(--clay); background:linear-gradient(135deg, rgba(168,113,79,0.07), var(--card)); }
+.toca-card.hoy { border-left-color:var(--moss); }
+.toca-info { flex:1; min-width:0; }
+.toca-nombre { font-size:14.5px; font-weight:600; }
+.toca-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.toca-card.vencida .toca-meta { color:var(--clay); font-weight:600; }
+.toca-do {
+  background:var(--moss); color:white; border:none; border-radius:11px;
+  padding:8px 13px; font-size:12px; font-weight:600; cursor:pointer;
+  font-family:'Karla',sans-serif; flex-shrink:0;
+}
+.toca-do:active { transform:scale(0.94); }
+
+/* ── SEMANA ── */
+.semana-zonas { margin:4px 20px 20px; background:var(--card); border-radius:var(--r); padding:18px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+.sz-title { font-family:'Fraunces',serif; font-style:italic; font-size:16px; color:var(--clay); margin-bottom:14px; }
+.sz-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); }
+.sz-row:last-child { border-bottom:none; }
+.sz-row.hoy { font-weight:700; }
+.sz-dia { width:34px; font-size:11px; text-transform:uppercase; color:var(--muted); letter-spacing:0.06em; }
+.sz-row.hoy .sz-dia { color:var(--clay); }
+.sz-zona { flex:1; font-size:13px; }
+.sz-dot { width:8px; height:8px; border-radius:50%; background:var(--line); }
+.sz-dot.done { background:var(--moss); }
+.sz-dot.today-pending { background:var(--clay); }
+
+.mensaje-casa {
+  background:linear-gradient(135deg, var(--clay-soft), var(--moss-soft));
+  border-radius:14px; padding:14px; font-family:'Fraunces',serif; font-style:italic;
+  font-size:14px; line-height:1.6; text-align:center; margin:4px 20px 20px;
+}
+
+/* ── PATRONES ── */
+.pat-card { margin:0 20px 16px; background:var(--card); border-radius:var(--r); padding:18px; box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+.pat-title { font-family:'Fraunces',serif; font-style:italic; font-size:16px; color:var(--clay); margin-bottom:5px; }
+.pat-sub { font-size:11.5px; color:var(--muted); margin-bottom:14px; line-height:1.5; }
+
+.ritmo-row { display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px solid var(--line); }
+.ritmo-row:last-child { border-bottom:none; }
+.ritmo-info { flex:1; min-width:0; }
+.ritmo-nombre { font-size:14px; font-weight:600; }
+.ritmo-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.ritmo-badge {
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+  padding:4px 9px; border-radius:20px; background:var(--moss-soft); color:var(--moss); flex-shrink:0;
+}
+.ritmo-badge.pocas { background:rgba(43,42,38,0.07); color:var(--muted); }
+.ritmo-fijar {
+  background:none; border:1px solid var(--line); color:var(--clay); border-radius:10px;
+  padding:6px 10px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Karla',sans-serif; flex-shrink:0;
+}
+.ritmo-fijar:active { transform:scale(0.94); }
+.ritmo-fijar.fijada { background:var(--moss-soft); border-color:transparent; color:var(--moss); }
+
+/* barras días */
+.dias-grid { display:flex; align-items:flex-end; gap:7px; height:120px; margin-top:6px; }
+.dia-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end; }
+.dia-bar { width:100%; border-radius:7px 7px 3px 3px; background:linear-gradient(180deg, var(--clay) 0%, #8A5A3C 100%); min-height:4px; transition:height .4s; }
+.dia-bar.max { background:linear-gradient(180deg, var(--moss) 0%, #4E5B44 100%); }
+.dia-bar.cero { background:var(--line); }
+.dia-n { font-size:11px; font-weight:700; color:var(--ink); }
+.dia-lbl { font-size:10px; text-transform:uppercase; color:var(--muted); letter-spacing:0.05em; }
+.dias-nota { font-size:12px; color:var(--muted); margin-top:14px; line-height:1.6; padding-top:13px; border-top:1px solid var(--line); }
+.dias-nota b { color:var(--ink); }
+
+/* stats */
+.stats-row { display:flex; gap:10px; }
+.stat { flex:1; background:var(--bg); border-radius:14px; padding:13px 12px; text-align:center; }
+.stat-n { font-family:'Fraunces',serif; font-size:24px; font-weight:600; color:var(--clay); line-height:1; }
+.stat-l { font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--muted); margin-top:6px; line-height:1.3; }
+
+.pat-vacio { font-size:13px; color:var(--muted); font-style:italic; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">Mi Casa 🏡</div>
+  <div class="header-date" id="fechaHoy">—</div>
+  <div class="sync-bar"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">—</span></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tabHoy" onclick="showView('hoy')">Hoy</div>
+  <div class="tab" id="tabPat" onclick="showView('pat')">Patrones</div>
+</div>
+
+<!-- ══════════ VISTA HOY ══════════ -->
+<div class="view active" id="viewHoy">
+
+  <div id="basuraSlot"></div>
+
+  <div class="zona-hero" id="zonaHero" onclick="toggleZona()">
+    <div class="zona-eyebrow">Zona de hoy</div>
+    <div class="zona-nombre" id="zonaNombre">—</div>
+    <div class="zona-desc" id="zonaDesc">—</div>
+    <div class="zona-check-row">
+      <div class="zona-check" id="zonaCheck">✓</div>
+      <div class="zona-estado" id="zonaEstado">Toca cuando la termines</div>
+    </div>
+  </div>
+
+  <div class="section-label">Mantenimiento diario</div>
+  <div class="diarias-wrap" id="diariasWrap"></div>
+
+  <div id="tocaSection" style="display:none">
+    <div class="section-label">Toca hacer</div>
+    <div class="toca-wrap" id="tocaWrap"></div>
+  </div>
+
+  <div class="section-label">Bitácora</div>
+  <div class="bitacora">
+    <div class="bit-title">¿Qué hiciste hoy? ✍🏼</div>
+    <div class="bit-sub">Una cosa por línea. Con el tiempo la app aprende cada cuánto haces cada cosa y te avisa.</div>
+    <div class="bit-inputrow">
+      <input class="bit-input" id="bitInput" list="bitSugerencias" placeholder="Ej: cambié la arena de los gatos" autocomplete="off">
+      <datalist id="bitSugerencias"></datalist>
+      <button class="bit-add" id="bitAdd" onclick="agregarNota()">+</button>
+    </div>
+    <div class="bit-sugerencias" id="bitChips"></div>
+    <div class="bit-lista" id="bitLista"></div>
+  </div>
+
+  <div class="semana-zonas">
+    <div class="sz-title">Tu semana por zonas 🗓️</div>
+    <div id="szList"></div>
+  </div>
+
+  <div class="mensaje-casa" id="mensajeCasa">—</div>
+</div>
+
+<!-- ══════════ VISTA PATRONES ══════════ -->
+<div class="view" id="viewPat">
+
+  <div class="pat-card">
+    <div class="pat-title">Tu semana en números 📊</div>
+    <div class="pat-sub">Últimos 7 días</div>
+    <div class="stats-row" id="statsRow"></div>
+  </div>
+
+  <div class="pat-card">
+    <div class="pat-title">Ritmos que ya se ven 🔁</div>
+    <div class="pat-sub">Sacado de tu bitácora. Cuando un ritmo te convenza, fíjalo y te aparecerá en "Toca hacer".</div>
+    <div id="ritmosList"></div>
+  </div>
+
+  <div class="pat-card">
+    <div class="pat-title">Qué días cargas más 📅</div>
+    <div class="pat-sub">Cosas registradas por día de la semana (histórico completo)</div>
+    <div class="dias-grid" id="diasGrid"></div>
+    <div class="dias-nota" id="diasNota"></div>
+  </div>
+
+  <div class="pat-card">
+    <div class="pat-title">Basura 🗑️</div>
+    <div class="pat-sub">Qué tanto la estás sacando a tiempo</div>
+    <div id="basuraStats"></div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+
+const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+const DIARIAS = [
+  {icon:'🧹', name:'Barro la casa'},
+  {icon:'🍽️', name:'Lavo la loza'},
+];
+
+const ZONAS = {
+  0: {nombre:'Descanso', desc:'Repaso rápido si hace falta, sin exigencia', icon:'🌿'},
+  1: {nombre:'Cocina a fondo', desc:'Estufa, nevera por dentro, alacena', icon:'🍳'},
+  2: {nombre:'Baños', desc:'Ducha, inodoro, espejos, piso', icon:'🚿'},
+  3: {nombre:'Sala y comedor', desc:'Polvo, superficies, orden general', icon:'🛋️'},
+  4: {nombre:'Habitación y closet', desc:'Sábanas, orden de ropa, superficies', icon:'🛏️'},
+  5: {nombre:'Zona de los gatos', desc:'Limpieza profunda de sus espacios', icon:'🐱'},
+  6: {nombre:'Ropa', desc:'Lavar, doblar, organizar', icon:'👕'},
+};
+
+const BASURA = {
+  ordures:      {label:'Ordures · basura',        caneca:'caneca negra / gris', icon:'🗑️', color:'#4A4A48'},
+  recuperation: {label:'Récupération · reciclaje', caneca:'caneca azul',        icon:'♻️', color:'#4A6D8C'},
+  organiques:   {label:'Organiques · compost',     caneca:'caneca café',        icon:'🌱', color:'#7A5C3E'},
+};
+
+/* ─────────── fechas ─────────── */
+function getLocalDate(date) {
+  const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+function parseDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function diffDias(a,b){ return Math.round((parseDate(a)-parseDate(b))/86400000); }
+function addDays(s,n){ const d=parseDate(s); d.setDate(d.getDate()+n); return getLocalDate(d); }
+
+const today = new Date();
+const todayStr = getLocalDate(today);
+const todayDow = today.getDay();
+
+function getWeekDates() {
+  const sun=new Date(today); sun.setDate(today.getDate()-todayDow);
+  return Array.from({length:7},(_,i)=>{ const d=new Date(sun); d.setDate(sun.getDate()+i); return getLocalDate(d); });
+}
+const weekDates = getWeekDates();
+
+/* ─────────── estado ─────────── */
+let hoyData = {};
+let weekData = {};
+let casaHist = [];
+let notas = [];
+let basuras = [];
+let periodicas = [];
+
+/* ─────────── supabase ─────────── */
+function setSyncing(on) {
+  document.getElementById('syncDot').className = on ? 'sync-dot syncing' : 'sync-dot';
+  document.getElementById('syncLabel').textContent = on ? 'guardando...' : 'sincronizado ✓';
+}
+
+async function sb(tabla, method, body=null, params='', prefer=null) {
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+  };
+  if (prefer) headers['Prefer'] = prefer;
+  else if (method === 'POST') headers['Prefer'] = 'resolution=merge-duplicates';
+  else headers['Prefer'] = 'return=minimal';
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}${params}`, {
+    method, headers, body: body ? JSON.stringify(body) : null
+  });
+  if (method === 'GET') return await res.json();
+  return res;
+}
+
+/* ─────────── normalización para patrones ─────────── */
+const STOP = new Set(['el','la','los','las','un','una','unos','unas','de','del','al','a','en','y','con','para','por','mi','mis','su','sus','le','lo','se','que','ya','me','todo','toda']);
+
+function normalizar(txt) {
+  const tokens = txt.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9ñ\s]/g,' ')
+    .split(/\s+/)
+    .filter(t => t && !STOP.has(t))
+    .map(t => t.slice(0,5));
+  return [...new Set(tokens)].sort().join(' ');
+}
+
+/* ─────────── UI base ─────────── */
+function showView(v) {
+  document.getElementById('viewHoy').classList.toggle('active', v==='hoy');
+  document.getElementById('viewPat').classList.toggle('active', v==='pat');
+  document.getElementById('tabHoy').classList.toggle('active', v==='hoy');
+  document.getElementById('tabPat').classList.toggle('active', v==='pat');
+  if (v==='pat') buildPatrones();
+  window.scrollTo(0,0);
+}
+
+function setFecha() {
+  document.getElementById('fechaHoy').textContent = `${DIAS[todayDow]} ${today.getDate()}`;
+}
+
+/* ─────────── zona ─────────── */
+function buildZona() {
+  const z = ZONAS[todayDow];
+  document.getElementById('zonaNombre').innerHTML = `${z.icon} ${z.nombre}`;
+  document.getElementById('zonaDesc').textContent = z.desc;
+  updateZonaUI();
+}
+function updateZonaUI() {
+  const hero=document.getElementById('zonaHero'), estado=document.getElementById('zonaEstado');
+  if (hoyData.zona_hecha) { hero.classList.add('done'); estado.textContent='Hecho. Esta zona ya no te pesa esta semana ✓'; }
+  else { hero.classList.remove('done'); estado.textContent='Toca cuando la termines'; }
+}
+async function toggleZona() {
+  hoyData.zona_hecha = !hoyData.zona_hecha;
+  updateZonaUI();
+  await guardarCasa();
+  buildSemanaZonas();
+}
+
+/* ─────────── diarias ─────────── */
+function buildDiarias() {
+  const c=document.getElementById('diariasWrap'); c.innerHTML='';
+  if(!hoyData.diarias) hoyData.diarias={};
+  DIARIAS.forEach((t,i)=>{
+    const done = hoyData.diarias[i];
+    const card=document.createElement('div');
+    card.className='tarea-card'+(done?' done':'');
+    card.innerHTML=`<div class="tarea-inner">
+      <div class="tarea-check">✓</div><div class="tarea-icon">${t.icon}</div>
+      <div class="tarea-nombre">${t.name}</div></div>`;
+    card.onclick=()=>toggleDiaria(i);
+    c.appendChild(card);
+  });
+}
+async function toggleDiaria(i) {
+  if(!hoyData.diarias) hoyData.diarias={};
+  hoyData.diarias[i]=!hoyData.diarias[i];
+  buildDiarias();
+  await guardarCasa();
+}
+
+async function guardarCasa() {
+  setSyncing(true);
+  try {
+    await sb('tareas_casa','POST',{
+      fecha: todayStr,
+      diarias: hoyData.diarias||{},
+      zona_dia: ZONAS[todayDow].nombre,
+      zona_hecha: !!hoyData.zona_hecha,
+      updated_at: new Date().toISOString()
+    },'?on_conflict=fecha');
+  } catch(e){ console.error(e); }
+  setSyncing(false);
+}
+
+/* ─────────── basura ─────────── */
+function buildBasura() {
+  const slot = document.getElementById('basuraSlot');
+  slot.innerHTML='';
+  const hoyB = basuras.filter(b => b.fecha_recordatorio === todayStr);
+
+  hoyB.forEach(b => {
+    const info = BASURA[b.tipo];
+    const div = document.createElement('div');
+    div.className = `basura-card ${b.tipo}` + (b.sacada ? ' done' : '');
+    div.innerHTML = `
+      <div class="basura-eyebrow">Esta noche · sácala antes de las 7am</div>
+      <div class="basura-nombre">${info.icon} ${info.label}</div>
+      <div class="basura-desc">${info.caneca} · recolección ${DIAS_CORTO[parseDate(b.fecha_recoleccion).getDay()].toLowerCase()} ${parseDate(b.fecha_recoleccion).getDate()}</div>
+      <div class="basura-check-row">
+        <div class="basura-check">✓</div>
+        <div class="basura-estado">${b.sacada ? 'Ya la sacaste ✓' : 'Toca cuando la saques'}</div>
+      </div>`;
+    div.onclick = () => toggleBasura(b.id);
+    slot.appendChild(div);
+  });
+
+  // próxima si hoy no hay ninguna pendiente
+  const pendienteHoy = hoyB.some(b => !b.sacada);
+  if (!pendienteHoy) {
+    const prox = basuras.filter(b => b.fecha_recordatorio > todayStr)
+                        .sort((a,b) => a.fecha_recordatorio < b.fecha_recordatorio ? -1 : 1)[0];
+    if (prox) {
+      const info = BASURA[prox.tipo];
+      const dias = diffDias(prox.fecha_recordatorio, todayStr);
+      const cuando = dias===1 ? 'mañana' : `en ${dias} días (${DIAS_CORTO[parseDate(prox.fecha_recordatorio).getDay()].toLowerCase()} ${parseDate(prox.fecha_recordatorio).getDate()})`;
+      const div = document.createElement('div');
+      div.className='basura-proxima';
+      div.innerHTML = `<div class="bp-dot" style="background:${info.color}"></div>
+        <div class="bp-txt">Próxima basura: <b>${info.icon} ${info.label}</b> — ${cuando}</div>`;
+      slot.appendChild(div);
+    }
+  }
+}
+
+async function toggleBasura(id) {
+  const b = basuras.find(x => x.id === id);
+  if (!b) return;
+  b.sacada = !b.sacada;
+  buildBasura();
+  setSyncing(true);
+  try {
+    await sb('basuras','PATCH',{ sacada: b.sacada, marcada_at: new Date().toISOString() }, `?id=eq.${id}`);
+  } catch(e){ console.error(e); }
+  setSyncing(false);
+}
+
+/* ─────────── bitácora ─────────── */
+function buildBitacora() {
+  const hoyN = notas.filter(n => n.fecha === todayStr);
+  const lista = document.getElementById('bitLista');
+  lista.innerHTML = '';
+
+  if (hoyN.length === 0) {
+    lista.innerHTML = '<div class="bit-vacio">Todavía no has anotado nada hoy.</div>';
+  } else {
+    hoyN.forEach(n => {
+      const hora = n.created_at ? new Date(n.created_at + (n.created_at.endsWith('Z')?'':'Z')).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}) : '';
+      const div = document.createElement('div');
+      div.className = 'bit-item';
+      div.innerHTML = `<div class="bit-item-txt">${escapeHtml(n.texto)}</div>
+        <div class="bit-item-hora">${hora}</div>
+        <div class="bit-del" onclick="borrarNota('${n.id}')">×</div>`;
+      lista.appendChild(div);
+    });
+  }
+
+  // sugerencias: lo más frecuente que NO se ha anotado hoy
+  const hoyNorms = new Set(hoyN.map(n => n.norm));
+  const freq = {};
+  notas.forEach(n => {
+    if (!freq[n.norm]) freq[n.norm] = {n:0, texto:n.texto, ultima:n.fecha};
+    freq[n.norm].n++;
+    if (n.fecha > freq[n.norm].ultima) { freq[n.norm].ultima = n.fecha; freq[n.norm].texto = n.texto; }
+  });
+  const top = Object.entries(freq)
+    .filter(([k]) => !hoyNorms.has(k))
+    .sort((a,b) => b[1].n - a[1].n)
+    .slice(0,6);
+
+  const chips = document.getElementById('bitChips');
+  chips.innerHTML = '';
+  top.forEach(([k,v]) => {
+    const c = document.createElement('div');
+    c.className = 'sug-chip';
+    c.textContent = v.texto;
+    c.onclick = () => agregarNota(v.texto);
+    chips.appendChild(c);
+  });
+
+  // datalist
+  const dl = document.getElementById('bitSugerencias');
+  dl.innerHTML = '';
+  Object.values(freq).sort((a,b)=>b.n-a.n).slice(0,40).forEach(v => {
+    const o = document.createElement('option'); o.value = v.texto; dl.appendChild(o);
+  });
+}
+
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+async function agregarNota(textoDirecto) {
+  const input = document.getElementById('bitInput');
+  const texto = (textoDirecto !== undefined ? textoDirecto : input.value).trim();
+  if (!texto) return;
+  const nueva = {
+    fecha: todayStr, texto, norm: normalizar(texto),
+    zona: ZONAS[todayDow].nombre, created_at: new Date().toISOString()
+  };
+  if (textoDirecto === undefined) input.value = '';
+  setSyncing(true);
+  try {
+    const res = await sb('notas_casa','POST', nueva, '', 'return=representation');
+    const rows = await res.json();
+    notas.unshift(rows[0] || nueva);
+  } catch(e){ console.error(e); notas.unshift(nueva); }
+  setSyncing(false);
+  buildBitacora();
+  buildToca();
+}
+
+async function borrarNota(id) {
+  notas = notas.filter(n => n.id !== id);
+  buildBitacora();
+  setSyncing(true);
+  try { await sb('notas_casa','DELETE',null,`?id=eq.${id}`); } catch(e){ console.error(e); }
+  setSyncing(false);
+}
+
+/* ─────────── motor de patrones ─────────── */
+function analizarRitmos() {
+  const grupos = {};
+  notas.forEach(n => {
+    if (!grupos[n.norm]) grupos[n.norm] = { norm:n.norm, texto:n.texto, fechas:new Set() };
+    grupos[n.norm].fechas.add(n.fecha);
+    if (n.fecha >= (grupos[n.norm].ultimaFecha||'')) { grupos[n.norm].ultimaFecha = n.fecha; grupos[n.norm].texto = n.texto; }
+  });
+
+  return Object.values(grupos).map(g => {
+    const fechas = [...g.fechas].sort();
+    const veces = fechas.length;
+    const intervalos = [];
+    for (let i=1;i<fechas.length;i++) intervalos.push(diffDias(fechas[i], fechas[i-1]));
+    let cada = null;
+    if (intervalos.length) {
+      const s = [...intervalos].sort((a,b)=>a-b);
+      cada = s.length%2 ? s[(s.length-1)/2] : Math.round((s[s.length/2-1]+s[s.length/2])/2);
+    }
+    const ultima = fechas[fechas.length-1];
+    return {
+      norm:g.norm, texto:g.texto, veces, cada, ultima,
+      diasDesde: diffDias(todayStr, ultima),
+      intervalos
+    };
+  }).sort((a,b)=> b.veces - a.veces || (a.texto<b.texto?-1:1));
+}
+
+function etiquetaFrecuencia(cada) {
+  if (cada === null) return null;
+  if (cada <= 1) return 'diario';
+  if (cada <= 2) return 'casi diario';
+  if (cada <= 4) return `cada ${cada} días`;
+  if (cada <= 9) return 'semanal';
+  if (cada <= 18) return 'quincenal';
+  if (cada <= 45) return 'mensual';
+  return `cada ~${cada} días`;
+}
+
+/* ─────────── toca hacer ─────────── */
+function buildToca() {
+  const ritmos = analizarRitmos();
+  const items = [];
+
+  periodicas.filter(p => p.activa).forEach(p => {
+    const r = ritmos.find(x => x.norm === p.norm);
+    const diasDesde = r ? r.diasDesde : null;
+    const restan = diasDesde === null ? null : p.cada_dias - diasDesde;
+    if (restan === null || restan <= 1) {
+      items.push({
+        nombre: p.nombre,
+        meta: diasDesde === null ? 'nunca registrada'
+             : restan < 0 ? `hace ${diasDesde} días · te pasaste ${Math.abs(restan)}`
+             : restan === 0 ? `hace ${diasDesde} días · toca hoy`
+             : `hace ${diasDesde} días · toca mañana`,
+        vencida: restan !== null && restan < 0,
+        hoy: restan === 0,
+        texto: p.nombre,
+        orden: restan === null ? 999 : -restan
+      });
+    }
+  });
+
+  items.sort((a,b)=> b.orden - a.orden);
+
+  const sec = document.getElementById('tocaSection');
+  const wrap = document.getElementById('tocaWrap');
+  wrap.innerHTML = '';
+  if (!items.length) { sec.style.display='none'; return; }
+  sec.style.display='block';
+
+  items.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'toca-card' + (it.vencida?' vencida':'') + (it.hoy?' hoy':'');
+    div.innerHTML = `<div class="toca-info">
+        <div class="toca-nombre">${escapeHtml(it.nombre)}</div>
+        <div class="toca-meta">${it.meta}</div>
+      </div>
+      <button class="toca-do">Hecho</button>`;
+    div.querySelector('.toca-do').onclick = () => agregarNota(it.texto);
+    wrap.appendChild(div);
+  });
+}
+
+/* ─────────── vista patrones ─────────── */
+function buildPatrones() {
+  buildStats();
+  buildRitmos();
+  buildDias();
+  buildBasuraStats();
+}
+
+function buildStats() {
+  const desde = addDays(todayStr, -6);
+  const notas7 = notas.filter(n => n.fecha >= desde).length;
+  const zonas7 = casaHist.filter(r => r.fecha >= desde && r.zona_hecha).length;
+  const diarias7 = casaHist.filter(r => r.fecha >= desde)
+    .reduce((s,r) => s + Object.values(r.diarias||{}).filter(Boolean).length, 0);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="stat-n">${zonas7}</div><div class="stat-l">zonas<br>hechas</div></div>
+    <div class="stat"><div class="stat-n">${diarias7}</div><div class="stat-l">tareas<br>diarias</div></div>
+    <div class="stat"><div class="stat-n">${notas7}</div><div class="stat-l">cosas<br>anotadas</div></div>`;
+}
+
+function buildRitmos() {
+  const ritmos = analizarRitmos().filter(r => r.veces >= 2);
+  const cont = document.getElementById('ritmosList');
+  cont.innerHTML = '';
+
+  if (!ritmos.length) {
+    cont.innerHTML = `<div class="pat-vacio">Todavía no hay suficientes datos. Anota en la bitácora lo que vas haciendo y cuando algo se repita 2 o 3 veces, aquí aparecerá cada cuánto lo haces.</div>`;
+    return;
+  }
+
+  ritmos.slice(0,15).forEach(r => {
+    const fijada = periodicas.find(p => p.norm === r.norm);
+    const et = etiquetaFrecuencia(r.cada);
+    const confiable = r.veces >= 3;
+    const div = document.createElement('div');
+    div.className = 'ritmo-row';
+    div.innerHTML = `
+      <div class="ritmo-info">
+        <div class="ritmo-nombre">${escapeHtml(r.texto)}</div>
+        <div class="ritmo-meta">${r.veces} veces · última hace ${r.diasDesde} ${r.diasDesde===1?'día':'días'}</div>
+      </div>
+      <div class="ritmo-badge${confiable?'':' pocas'}">${et || '—'}</div>`;
+    const btn = document.createElement('button');
+    btn.className = 'ritmo-fijar' + (fijada?' fijada':'');
+    btn.textContent = fijada ? '✓ fija' : 'fijar';
+    btn.onclick = () => toggleFijar(r, fijada);
+    div.appendChild(btn);
+    cont.appendChild(div);
+  });
+}
+
+async function toggleFijar(r, yaFijada) {
+  setSyncing(true);
+  try {
+    if (yaFijada) {
+      await sb('tareas_periodicas','DELETE',null,`?norm=eq.${encodeURIComponent(r.norm)}`);
+      periodicas = periodicas.filter(p => p.norm !== r.norm);
+    } else {
+      const nueva = { nombre:r.texto, norm:r.norm, cada_dias: r.cada || 7, activa:true };
+      await sb('tareas_periodicas','POST',nueva,'?on_conflict=norm');
+      periodicas.push(nueva);
+    }
+  } catch(e){ console.error(e); }
+  setSyncing(false);
+  buildRitmos();
+  buildToca();
+}
+
+function buildDias() {
+  const conteo = [0,0,0,0,0,0,0];
+  notas.forEach(n => conteo[parseDate(n.fecha).getDay()]++);
+  casaHist.forEach(r => {
+    const d = parseDate(r.fecha).getDay();
+    if (r.zona_hecha) conteo[d]++;
+    conteo[d] += Object.values(r.diarias||{}).filter(Boolean).length;
+  });
+
+  const max = Math.max(...conteo, 1);
+  const grid = document.getElementById('diasGrid');
+  grid.innerHTML = '';
+  // orden lunes→domingo
+  const orden = [1,2,3,4,5,6,0];
+  orden.forEach(d => {
+    const h = Math.round((conteo[d]/max)*84);
+    const col = document.createElement('div');
+    col.className = 'dia-col';
+    col.innerHTML = `<div class="dia-n">${conteo[d]}</div>
+      <div class="dia-bar ${conteo[d]===max&&max>0?'max':''} ${conteo[d]===0?'cero':''}" style="height:${Math.max(h,4)}px"></div>
+      <div class="dia-lbl">${DIAS_CORTO[d].slice(0,2)}</div>`;
+    grid.appendChild(col);
+  });
+
+  const total = conteo.reduce((a,b)=>a+b,0);
+  const nota = document.getElementById('diasNota');
+  if (total < 5) {
+    nota.innerHTML = 'Aún hay poco registrado. En unas semanas aquí se va a ver claro qué días cargas más.';
+    return;
+  }
+  const iMax = conteo.indexOf(max);
+  const min = Math.min(...conteo);
+  const iMin = conteo.indexOf(min);
+  nota.innerHTML = `Tu día más cargado es el <b>${DIAS[iMax].toLowerCase()}</b> (${max} cosas) y el más liviano el <b>${DIAS[iMin].toLowerCase()}</b> (${min}). ` +
+    (max > min*2.5 && min >= 0
+      ? 'Hay bastante diferencia — puede valer la pena mover algo del día pesado al liviano.'
+      : 'Está repartido de forma pareja.');
+}
+
+function buildBasuraStats() {
+  const pasadas = basuras.filter(b => b.fecha_recordatorio < todayStr);
+  const cont = document.getElementById('basuraStats');
+  if (!pasadas.length) {
+    cont.innerHTML = '<div class="pat-vacio">Todavía no hay recordatorios pasados para medir.</div>';
+    return;
+  }
+  const html = Object.keys(BASURA).map(tipo => {
+    const t = pasadas.filter(b => b.tipo === tipo);
+    if (!t.length) return '';
+    const ok = t.filter(b => b.sacada).length;
+    const pct = Math.round(ok/t.length*100);
+    return `<div class="ritmo-row">
+      <div class="ritmo-info">
+        <div class="ritmo-nombre">${BASURA[tipo].icon} ${BASURA[tipo].label}</div>
+        <div class="ritmo-meta">${ok} de ${t.length} sacadas a tiempo</div>
+      </div>
+      <div class="ritmo-badge${pct>=80?'':' pocas'}">${pct}%</div>
+    </div>`;
+  }).join('');
+  cont.innerHTML = html;
+}
+
+/* ─────────── semana ─────────── */
+function buildSemanaZonas() {
+  const c=document.getElementById('szList'); c.innerHTML='';
+  let hechas=0;
+  for(let dow=1; dow<=6; dow++){
+    const fecha = weekDates[dow];
+    const z = ZONAS[dow];
+    const esHoy = dow===todayDow;
+    const row = weekData[fecha];
+    const hecha = esHoy ? hoyData.zona_hecha : (row ? row.zona_hecha : false);
+    if(hecha) hechas++;
+    const div=document.createElement('div');
+    div.className='sz-row'+(esHoy?' hoy':'');
+    const dotClass = hecha?'done':(esHoy?'today-pending':'');
+    div.innerHTML=`<div class="sz-dia">${DIAS_CORTO[dow]}</div>
+      <div class="sz-zona">${z.icon} ${z.nombre}${esHoy?' · hoy':''}</div>
+      <div class="sz-dot ${dotClass}"></div>`;
+    c.appendChild(div);
+  }
+  const msg=document.getElementById('mensajeCasa');
+  if(hechas>=5) msg.textContent='"Tu casa está sostenida, no perfecta. Eso es lo que dura."';
+  else if(hechas>=3) msg.textContent='"Vas repartiendo el peso. Ninguna zona se acumula sola."';
+  else if(hechas>=1) msg.textContent='"Una zona a la vez. El sistema no depende de un buen día."';
+  else msg.textContent='"Esta semana empieza. Ninguna zona pesa más que un día."';
+}
+
+/* ─────────── carga ─────────── */
+async function cargarTodo() {
+  const desde120 = addDays(todayStr, -120);
+  const [casaRows, notasRows, basuraRows, perRows] = await Promise.all([
+    sb('tareas_casa','GET',null,`?fecha=gte.${desde120}&order=fecha.desc`),
+    sb('notas_casa','GET',null,`?order=created_at.desc&limit=1000`),
+    sb('basuras','GET',null,`?fecha_recordatorio=gte.${addDays(todayStr,-45)}&order=fecha_recordatorio.asc`),
+    sb('tareas_periodicas','GET',null,'?activa=is.true'),
+  ]);
+
+  casaHist = Array.isArray(casaRows) ? casaRows : [];
+  notas    = Array.isArray(notasRows) ? notasRows : [];
+  basuras  = Array.isArray(basuraRows) ? basuraRows : [];
+  periodicas = Array.isArray(perRows) ? perRows : [];
+
+  const hoyRow = casaHist.find(r => r.fecha === todayStr);
+  if (hoyRow) { hoyData.diarias = hoyRow.diarias||{}; hoyData.zona_hecha = hoyRow.zona_hecha||false; }
+
+  weekData = {};
+  casaHist.filter(r => weekDates.includes(r.fecha)).forEach(r => weekData[r.fecha]=r);
+}
+
+async function init() {
+  setFecha();
+  buildZona();
+  buildDiarias();
+  setSyncing(true);
+  try { await cargarTodo(); } catch(e){ console.error(e); }
+  setSyncing(false);
+  buildBasura();
+  buildZona();
+  buildDiarias();
+  buildBitacora();
+  buildToca();
+  buildSemanaZonas();
+}
+
+document.getElementById('bitInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); agregarNota(); }
+});
+
+init();
+</script>
+</body>
+</html>
