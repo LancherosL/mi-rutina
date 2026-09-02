@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mi Sistema">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Mi Sistema</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -388,6 +391,330 @@ body.night .meal-card { background: var(--night-card); }
 body.night .meal-input { border-color: rgba(255,255,255,0.12); }
 .meal-input::placeholder { color: var(--muted); opacity: 0.7; }
 
+/* Mis gatos */
+.gatos-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .gatos-card { background: var(--night-card); }
+.gato-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.gato-row:last-child { border-bottom: none; }
+.gato-row:active { opacity: 0.6; }
+body.night .gato-row { border-bottom-color: rgba(255,255,255,0.06); }
+.gato-check {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid rgba(26,22,18,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: transparent; flex-shrink: 0;
+  transition: all .2s;
+}
+body.night .gato-check { border-color: rgba(255,255,255,0.15); }
+.gato-row.done .gato-check { background: var(--lavender); border-color: var(--lavender); color: white; }
+.gato-emoji { font-size: 18px; }
+.gato-text { flex: 1; }
+.gato-name { font-size: 14px; font-weight: 600; }
+.gato-freq { font-size: 11px; color: var(--muted); letter-spacing: 0.01em; margin-top: 2px; line-height: 1.35; }
+.gato-row.done .gato-name { color: var(--lavender); }
+
+/* Tarea que no toca hoy: visible pero atenuada y no marcable */
+.gato-row.en-espera {
+  opacity: 0.45;
+  cursor: default;
+}
+.gato-row.en-espera:active { opacity: 0.45; }
+.gato-row.en-espera .gato-check { border-style: dashed; }
+
+/* Lectura visual */
+.lectura-bar-wrap {
+  display: flex;
+  gap: 3px;
+  margin-top: 10px;
+  align-items: flex-end;
+  height: 30px;
+}
+.lectura-book {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--line);
+  transition: all .3s;
+  min-height: 6px;
+}
+.lectura-book.on { background: var(--gold); }
+
+/* Cuaderno / pregunta reflexiva */
+.cuaderno-card {
+  background: linear-gradient(135deg, var(--lavender-soft), var(--card));
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border-left: 3px solid var(--lavender);
+}
+body.night .cuaderno-card {
+  background: linear-gradient(135deg, rgba(123,111,160,0.15), var(--night-card));
+}
+.cuaderno-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.cuaderno-icon { font-size: 18px; }
+.cuaderno-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.cuaderno-pregunta {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+.cuaderno-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 14px;
+  border: 1.5px solid var(--lavender);
+  background: transparent;
+  color: var(--lavender);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.cuaderno-btn:active { transform: scale(0.97); }
+.cuaderno-btn.done {
+  background: var(--lavender);
+  color: white;
+}
+.cuaderno-nota {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+/* ── ANCLA DEL DÍA ── */
+.ancla-card {
+  background: linear-gradient(135deg, var(--terra) 0%, #9C4A28 100%);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(184,92,53,0.28);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .3s;
+  position: relative;
+  overflow: hidden;
+}
+.ancla-card:active { transform: scale(0.98); }
+.ancla-card.done {
+  background: linear-gradient(135deg, var(--sage) 0%, #47704F 100%);
+  box-shadow: 0 6px 24px rgba(92,138,101,0.28);
+}
+.ancla-badge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.ancla-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.ancla-check {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: transparent; flex-shrink: 0;
+  transition: all .3s;
+}
+.ancla-card.done .ancla-check {
+  background: white;
+  border-color: white;
+  color: var(--sage);
+}
+.ancla-icon { font-size: 26px; }
+.ancla-text { flex: 1; }
+.ancla-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.1;
+}
+.ancla-estado {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+  margin-top: 3px;
+}
+.ancla-razon {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+  line-height: 1.5;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+/* ── MICRO RECOMPENSA ── */
+@keyframes celebrate {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.celebrating { animation: celebrate .45s cubic-bezier(0.34,1.56,0.64,1); }
+
+.toast-reward {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--bg);
+  padding: 12px 22px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .35s cubic-bezier(0.34,1.56,0.64,1);
+  z-index: 999;
+  max-width: 85%;
+  text-align: center;
+}
+.toast-reward.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+body.night .toast-reward { background: var(--night-text); color: var(--night-bg); }
+
+/* ── VER MÁS ── */
+.ver-mas-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--r);
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+.ver-mas-btn:active { transform: scale(0.98); }
+body.night .ver-mas-btn { border-color: rgba(255,255,255,0.12); }
+.seccion-extra { display: none; }
+.seccion-extra.abierta { display: block; animation: fadeUp .3s ease; }
+
+.sueno-nota {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+body.night .sueno-nota { border-bottom-color: rgba(255,255,255,0.06); }
+
+/* ── COMIDAS PROGRESIVAS ── */
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.meal-progress {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sage);
+}
+
+.comida-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  transition: opacity .4s, filter .4s;
+}
+.comida-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+body.night .comida-item { border-bottom-color: rgba(255,255,255,0.06); }
+
+.comida-item.bloqueada {
+  opacity: 0.4;
+  filter: grayscale(0.7);
+  pointer-events: none;
+}
+.comida-item.bloqueada .comida-texto { display: none; }
+
+.comida-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.comida-row:active { opacity: 0.6; }
+
+.comida-check {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid rgba(26,22,18,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent; flex-shrink: 0;
+  transition: all .25s cubic-bezier(0.34,1.56,0.64,1);
+}
+body.night .comida-check { border-color: rgba(255,255,255,0.15); }
+.comida-item.hecha .comida-check {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: white;
+}
+
+.comida-icon { font-size: 20px; }
+.comida-info { flex: 1; }
+.comida-nombre { font-size: 15px; font-weight: 600; }
+.comida-estado { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.comida-item.hecha .comida-estado { color: var(--sage); font-weight: 600; }
+.comida-lock { font-size: 14px; opacity: 0.5; }
+.comida-item:not(.bloqueada) .comida-lock { display: none; }
+
+.comida-texto {
+  margin-top: 8px;
+  margin-left: 40px;
+  width: calc(100% - 40px);
+  font-size: 14px;
+}
+
+@keyframes unlock {
+  0% { opacity: 0.4; filter: grayscale(0.7); transform: scale(0.98); }
+  50% { transform: scale(1.02); }
+  100% { opacity: 1; filter: grayscale(0); transform: scale(1); }
+}
+.comida-item.desbloqueando { animation: unlock .6s ease; }
+
 /* ── HÁBITOS PANEL ── */
 .day-strip {
   display: flex;
@@ -529,6 +856,7 @@ body.night .salud-box { background: var(--night-card); }
 body.night .salud-val { color: var(--night-text); }
 .salud-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
 </style>
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAXYklEQVR4nO3dyZEcV7IF0ASNAmCJBYSAJpAA0kECakIhuOCSGqAX7CQKWTnE8Ab35+eYfbNv3Y2qiJdleW94TB8uhPL508cfs7cBoJe//v7nw+xt4F8+iMEEPMBjCsI4FrojYQ9wnlLQh0VtSOAD9KcQtGERTxD4APMpBMdYtJ2EPkBcysB2FmoDoQ+QjzLwnMV5QvAD5KcI3GdRbgh9gHUpAz9ZiP8T/AB1KAIKgOAHKKxyESi744IfgKuKRaDcDgt+AB6pVATK7KjgB2CrCkVg+R0U/AActXIRWHbHBD8AraxYBH6bvQE9CH8AWloxV5ZqNCt+QADEsso0YImdEPwAjJa9CKQ/BSD8AZghe/6kLgDZFx+A3DLnUMrxReYFB2BN2U4JpJsACH8AIsqWT6kKQLbFBaCWTDmVYlyRaUEB4HKJf0og/ARA+AOQUfT8Cl0Aoi8eADwTOcfCFoDIiwYAW0XNs5AFIOpiAcAREXMtXAGIuEgAcFa0fAtzhWK0hQGAXiLcIRBiAiD8AagkQu5NLwARFgEARpudf1MLwOydB4CZZubgtAIg/AFgXh5OPwUAAIw3pQA4+geAn2bk4vACIPwB4L3R+Ti0AAh/AHhsZE4OKwDCHwBeG5WXQwqA8AeA7UbkZvcCIPwBYL/e+ek2QAAoqGsBcPQPAMf1zNFuBUD4A8B5vfK0SwEQ/gDQTo9cdQ0AABTUvAA4+geA9lrna9MCIPwBoJ+WOdusAAh/AOivVd66BgAACmpSABz9A8A4LXLXBAAACjpdABz9A8B4Z/P3VAEQ/gAwz5kcdgoAAAo6XAAc/QPAfEfz2AQAAAo6VAAc/QNAHEdy2QQAAAraXQAc/QNAPHvz2QQAAAraVQAc/QNAXHty2gQAAAraXAAc/QNAfFvz2gQAAAraVAAc/QNAHlty2wQAAAp6WQAc/QNAPq/y2wQAAApSAACgoKcFwPgfAPJ6luMmAABQ0MMC4OgfAPJ7lOcmAABQkAIAAAXdLQDG/wCwjnu5bgIAAAUpAABQ0LsCYPwPAOu5zXcTAAAoSAEAgIIUAAAo6JcC4Pw/AKzrbc6bAABAQQoAABSkAABAQf8VAOf/AWB917w3AQCAghQAAChIAQCAghQAACjow+XiAkAAqMYEAAAKUgAAoCAFAAAKUgAAoCAFAAAKUgAAoCAFAAAK+s0zAACgHhMAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAghQAAChIAQCAgn6fvQFAW9+/ftn9b7798Wfz7QBi+/D508cfszcCOOdI6D+iDEANCgAk1jL4bykCsDYFAJLqGf5vKQKwJgUAkhkV/LcUAViLuwAgkVnhP/t3A+0pAJBEhACOsA1AG04BwARbg/Q6dt8TvHtH9UdD3SkByE0BgEF6Hz23COS926gEQF4KAHSWIfhvHZk4KA+QiwIAnYw4X947RFfYB+A+BQAaWzE0V9wnqE4BgIZWDkoPHoK1uA0QGln9FrlRwbz6OkIU3gYIDbR8A9+zn3X0Fr9sR9Xfv35Jt82QjVMAcFLre/Qf/byz9/efDVSPIIa1mADACXsf6HPU7BBsvZ97yoRpAPShAMBBW0Js1FP5Ztu7n0efHQC04yJAOKBH+Pf+OUe92tcz2/ftjz9PnRYBjjMBgJ16BWLEkGt5QeIzWyYCTgVAWyYA0FDrgIoaeL2269XPjViSICsFAHYYdUQcQdSr/pUAaEMBgI16hv+9nx21UIzYLiUA+lMA4KSoQd3DyH2ttK4wgwIAG4w+4pwdflEmEs9+pykAnKMAwAktQnHVIPv+9ct//3fG7DIEq1IA4IVWj+bNbPZjhI+8NwF4TgEAftEiVO/9DGENsSgA8MSMo/+VJwtnSoApALSlAMBkKwd+a9YK2lEAYCdH/6+NvnrfFAD2UwDggUeh0uLK9ltbX4ozQ7TtirY9kJWXAcGNreH+9n8nlN779sefjswhMBMAeONoYAm6+3pduHfv5/oMYB8FAC5txvo9Tg2soMd0ZOTpGViVAkB5rQNjtQCKtj9btqfVUwhhZQoApfUKCMHzq1aPTD6yrooA3KcAUJZQyKPX0wmhMgWAkvaGwfU2vT2362UNnGgX2LX83Vk/E+hBAaCcFiGwtQwInHM8NAj6UQAo5ciX/6uQr/IMgNEXS/YMaiUAFAD4z5mn8Y1+9G1vWUrNme3M+LlASwoAZTz7wm8ReFlCM4oz6/WqrG0tc0oAlSkAlNcyuFcuAVH27XY7WhQBqEgBoIRHR3rC4bHZa3Mv6I/egbHaKRpoQQFgeaPDf3ZwtrT31sdHejz7v+XPUAKoSAGADlYqATMZ4UM/CgBLmzn6v/6O6gEW6ejaFAB+UgAoZ2QgVw//R2auixIA/1IAgG5GBereQqGYgQLAwu6Fjy9+rh79LZgCUMXvszcA+Knnw4q+f/0SogBF2AbABABeGnFEuOWd9Rnfax897KNvH/SkALCkTOP/bKF+RtTP4Falz4S6FACY6EjQbP0398J2RrC1ephQL1G3C3pTAChhz5f8qEBwlNlOj7X0+bA6BYDlrB4Gjljbs6ZUpADABDPvj49UZoB53AYIG426je7Z/emtfn+UWwKBeUwAWN6RoOv5kJhn7yd49W57tmn1mZuWsDIFAHbKFgqrP/Fulf2A0RQAeKDHS2Nmvp3wHuEJdSkALGVkoLX6XTOvK7hccpeA1g98cpqFSlwESAlHj7y//fHn04Bc5WK66z5m2pdRxWWVzxhuKQAs71WAXy7zgm/k731VZi6X16EqCGEdCgBcnheBLcGZxdl9OfMY4paiXUsBGbkGAN6oECwj9qXXmwtHvBFxpc8anlEAYKNH04GtIk0RRr7v4Ox+X3+G0xPQlgLAMloF7LOfs1LIjNyX1rdNAucpACxhZFBEf73tHhlKwBZH92PrdEERYUUuAqSM25Dwpf6v67qMWI8et9Tt/XmP9tPfA9V8+Pzp44/ZGwFnnD03fPvvex4Vj/xdZ0S50K71ef8z+xX1s4KjTABIrUVQrXSbXytnwm7LWraYBIwMf1iRAgCXuc/iX+3IsuUphXvl7Mh6CX94TwEgLV/qsb0qAlvLz9mC5O8E7nMXAEy2ekCt8iKiTNsKWygApOTL+F9Z1iHq64733tKZZb1hCwWAZWS4N//R9h0Jluu/yRJKLff9rHt/K1v/frKsN7yiAJCOL+D3rMl7Z14BDRUoACxh9nnmt0+UG/HM+qyBPztct/7+vc+OgIwUAFKJ9sX7KPCjbWd01gvGUwBIL+oFZs/0ftBOZKM+r3vn+FvK/jmAAsBy7n3Rt/6ybvWQm3v//5HfO3u0HtV1XawPvKcAkMa98Jvxxb41/Lf87zLcudDDiJL27He1YgpAZgoAZYz+sq4Y7KsQ7FSgAFDK2S/2iMGQtWhk2+5IzzGAFhQAUtg7/p8dLrN//2hbbn/c+nMiq/a5sjYvA6Kca8i0ep3szFCIEEhv12XFtxvCqkwAWNaIh7mMDrsjdw70FP2IvRUPBmJFCgAptQq/jF/cUe4cyFigthjxJEeIQAEgvFkP3Hm1DZWDIGNxAn6lALC8ykHdw7Pwr7LWVfaTtSkAlOALu43Vj/zPTHpWXxvWowCQztEwb1kCKhYK58ZhLW4DpJRvf/z5S5AJrecqHdVW2le4XBQAguvxpZwl9DMF0sw1nVXobsskZKMAQBBZwyRK+Pf4OVnKIhzhGgDYoOcDeFo9RneGFQIy69rDWQoAbNTjATyZwydi+O9dz9a3NGb+PKnHKQBSiRg6R2QOCp8BrEEBYEmRr/TPHDzR1vIotzSCAsCCIgds5G17ZKUw3LL+e/bXnQBkpgDAIEeCYqXwnU1Qw68UABhga/hUC/xooVxt/alNAYDOWo+d6cNnQDUKAHTkYrMcfA5U5DkA0Inw3+/smjz794/+O58DVZkAsLzvX7+E+5KPsD23BSXCNo1UbX/hlgIAHbR+wtwIEYtSa6vvH+zhFAA0liH8o119n5V1JDMFgOVECdlbUbfrrZmBtnd9hC+cowBQwqiwyPJa2Sjbc33BUpTtgUoUAGjEESmQiQJAGbMCOurR7aPtylpkIqxzhG2ArRQAUjn7SN1e4ZZl9H8r+vY9krWkQCQKAOUID1q493fkb4tMPAeAZT17Veu9/7z10XCWo2uvtIWaTADg/46G4IrhGXmfRpQ3qEABILSez4bvKXsgRd3+yMXkKsM2wuWiAMApvuznm1FWfO6sQAEgnb1fvqMDIurR8zMZtlnoQlsuAqQEF7q9FrkERPrsIm0LnGECQBmvHjnb4ln0kUM0qwwvV7qlJJCBCQDhtT56jxoavBct/AU7KzEBICVfxGv7/vVLms9YoSQrEwA4wPi/regXdl4ur6cRWQoLXCkAkNjR0HkVoJHD7Gj4f//65dS/hdU4BUAK9764K38pnx2RZ127swF+ZL+PXoeQdY2pQwGABkaNpEecG18tuG73Z8/+RbsIEVpSAGCnWQG5WjDPtKVIWW9W5xoA0rh3odWZ87qZCKN/Xdeh1Wfe8hoKFwKSjQkABNcjVFo+EGkGQQvnKQCkt3IYzNq3lUpA633JsDawhVMApBJxzDo7EHr9/tn7Fe1zvlzmrwm0ZALAEiKGxVmv9unVuw2y27J/I6cAK681NSkApPPoi3ilErAl/KuIUAIqrTd1OAUAO8wuGVWDqNWpn+v6zbp+ACIxASCllacAK+xDDy2fuvfs9ML1vxP+rM4EgOWs+myAFfdpL6+GhnZMAEhrxeewP9puQfXTytMfGEkBgOCE/3vWBM5TAEhtpSlAtu2NyBrCdgoA6b0qAZlDwZHuY9YGzlEAKCFzCWCfM5919sIIeygALGHL0WDkL/Z72+YI97VeaxT5bwVaUQBYxtYS4Mude87+Xfi7IhsFgKVsPSJUBNZx7zP32cJrCgDL2TMWvhYBgQFU40mALOnIE+MilQDn//PzGRKdCQDL8gVch88a9lMAWJpgALhPAWB53uxGb5FOH8FWrgGgjL3vgue8kc83OPOmQH8TVKQAUE70ItBzWtFjn/du73Ubeu6niQ+89uHzp48/Zm8EzHY2GFsEzvevX1I+2e7M63mjBPXZScXtv4+yX/CMCQBctoVY78lBxvA/q2fp2bMNt86EP2ShAMATs8PprAzhFKEEQEXuAoBFzQ7/DKE+e41gJgUAdhJs7c3Y3ke/8+z4P8PfB1wuTgFAE5HG2KPCdMv+3v5vohSTKNsBMykAsJDoV96fuVe/BcEPPzkFAEVEeSLimdsGz2hdjoz/yU4BgAMivoP+2e+PFkyjtyf6ZARmUABgcYKtvdllD1pQAKChWcHQ4or2ylqsk7UmGwUADvKFf06U9Tv6LgPITgGARUUJ2MharZG1JiMFABobfYToiPS124A+ekeEtWYlCgCcMOuWtlcckb53Df2ja+M6C1ajAADTvA1PQQpjffj86eOP2RsB2c08OvQu+v4c/bMiEwDoKMLT7TjHGrMqBQAaeHYkKEDyyvR0RdhLAQC4Q/izOgUAGnk1BTAJyMNnRQUKADT06siwd7A4Mj1nS1GzxqxCAYDBTANi8sZAqnEbIHQg4Ncj/FmNCQB0ICzW4vNkRQoAdCI01uBzZFUKAHQkPHLz+bEyBQA6EyI5+dxYnYsAYSAXB8Yn+KlCAYAJFIF4BD/VKACwsF5vscv6drys2w09uAYAFtYr2LIG5r3tzrovcJYCAAAFKQCwuHtHuL2uQYh+bUP07YORFAAo6mwYGp1DbgoAABSkAEABj47We4zEo47Z722XKQaVKQBQ3JnAFqCQlwIARTwL66hH7UA/v8/eACCG71+/NDui3/qzWhSPo7/H9ILqTACgkFehdySQjwZpq6mD6QUcowBAMT1KQGSr7Q+0ogAA73z/+uV0cEYOXuN/UACgpK0BeC0Cr8I8aqBGLiEwmwIARe0N7Wxh6s1/8JwCAIX1DsNspQEqUQCguD0l4Fmg7y0TrcrHnpcdOfqHnzwHAPgvGEcfsfcIZFMH2MYEAPjP2UAe+erhe1pOKGB1CgDwi29//JkyLB35wz4KAHDXyDcInpX1NkWYSQEAHjoSnCNPA2R+RgHM5iJAIJ2thUL4w2MmAMBTkUJ0zyOKI203RPTh86ePP2ZvBBDbkdfpzrxWQPjDayYAwFKEP2yjAADLEP6wnQIAvNTqboCehD/sowAAh0R5HkDWBxfBbG4DBFIS+nCOCQDQTY+QdsQPbbgNENis1e2AAhzmMwEAgIIUAKCr2a8IBu5TAACgIAUA2MzRPKxDAQC6UxwgHgUAAApSAIBd3MIHa1AAgNO2jPOdBoBYFAAAKEgBAICCFABgt6PXATgNAHEoAEATghxyUQAAoCBvAwQOaX3E7/ZCGMsEADhEYENuCgAAFKQAAEBBCgAAFKQAAIe5DgDyUgCA6RQJGM9tgABQkAkAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQQoAABT0219///Nh9kYAAGOZAABAQQoAABSkAABAQQoAABSkAABAQQoAABSkAABAQb9dLpeLZwEAQB1//f3PBxMAAChIAQCAghQAAChIAQCAgv4rAC4EBID1XfPeBAAAClIAAKAgBQAACvqlALgOAADW9TbnTQAAoCAFAAAKUgAAoKB3BcB1AACwntt8NwEAgIIUAAAo6G4BcBoAANZxL9dNAACgIAUAAAp6WACcBgCA/B7luQkAABT0tACYAgBAXs9y3AQAAApSAACgoJcFwGkAAMjnVX6bAABAQZsKgCkAAOSxJbdNAACgoM0FwBQAAOLbmtcmAABQ0K4CYAoAAHHtyWkTAAAoaHcBMAUAgHj25rMJAAAUdKgAmAIAQBxHctkEAAAKOlwATAEAYL6jeWwCAAAFnSoApgAAMM+ZHD49AVACAGC8s/nrFAAAFNSkAJgCAMA4LXLXBAAACmpWAEwBAKC/VnnbdAKgBABAPy1ztvkpACUAANprna+uAQCAgroUAFMAAGinR652mwAoAQBwXq887XoKQAkAgON65qhrAACgoO4FwBQAAPbrnZ9DJgBKAABsNyI3h50CUAIA4LVReTn0GgAlAAAeG5mTwy8CVAIA4L3R+TjlLgAlAAB+mpGLbgMEgIKmFQBTAACYl4dTJwBKAACVzczB6acAlAAAKpqdf9MLwOUyfxEAYKQIuTd9A259/vTxx+xtAIAeIgT/VYgJwFuRFgcAWomWb+EKwOUSb5EA4IyIuRayAFwuMRcLAPaKmmdhC8DlEnfRAGCLyDkWugBcLrEXDwAeiZ5foTfuljsEAIguevBfhZ8AvJVlUQGoKVNOpSoAl0uuxQWgjmz5lGpjbzklAMBs2YL/Kt0E4K2siw7AGjLnUOoCcLnkXnwA8sqeP6k3/pZTAgD0lj34r5bYiVuKAACtrRL8V+lPAdyz2ocEwFwr5spyO3TLNACAo1YM/qtld+yWIgDAVisH/9XyO3hLEQDgkQrBf1VmR28pAgBcVQr+q3I7fEsRAKirYvBfld3xW4oAQB2Vg/+q/ALcUgQA1iX4f7IQTygDAPkJ/fssygaKAEA+gv85i7OTMgAQl9DfzkKdoAwAzCf0j7FoDSkEAP0J/DYsYkcKAcB5Ar8PizqYUgDwmLAf53/njiDEBG9DhQAAAABJRU5ErkJggg==">
 </head>
 <body>
 
@@ -556,11 +884,25 @@ body.night .salud-val { color: var(--night-text); }
 <!-- ── HOY ── -->
 <div class="panel on" id="panel-hoy">
 
+  <!-- ANCLA DEL DÍA -->
+  <div class="ancla-card" id="ancla-card" onclick="toggleAncla()">
+    <div class="ancla-badge">Tu ancla de hoy</div>
+    <div class="ancla-main">
+      <div class="ancla-check" id="ancla-check">✓</div>
+      <div class="ancla-icon" id="ancla-icon">🛏️</div>
+      <div class="ancla-text">
+        <div class="ancla-titulo" id="ancla-titulo">—</div>
+        <div class="ancla-estado" id="ancla-estado">Si solo haces esto, ganaste el día</div>
+      </div>
+    </div>
+    <div class="ancla-razon" id="ancla-razon">—</div>
+  </div>
+
   <div class="snapshot-row">
-    <div class="snap-card c-sage" onclick="switchPanel('noche')">
+    <div class="snap-card c-sage" onclick="switchPanel('manana')">
       <div class="snap-label">Sueño</div>
       <div class="snap-value" id="snap-sueno"><span class="snap-empty">—</span></div>
-      <div class="snap-sub" id="snap-sueno-sub">Registra esta noche</div>
+      <div class="snap-sub" id="snap-sueno-sub">Registra en Mañana</div>
     </div>
     <div class="snap-card c-sky" onclick="switchPanel('hoy')">
       <div class="snap-label">Pasos</div>
@@ -629,8 +971,102 @@ body.night .salud-val { color: var(--night-text); }
     </div>
   </div>
 
-  <!-- Datos de la banda -->
+  <!-- Mis comidas -->
+  <div class="meal-card">
+    <div class="meal-header">
+      <div class="ql-title" style="margin:0;">Mis comidas 🍽️</div>
+      <div class="meal-progress" id="meal-progress">0 / 3</div>
+    </div>
+
+    <!-- Desayuno -->
+    <div class="comida-item" id="comida-0">
+      <div class="comida-row" onclick="toggleComida(0)">
+        <div class="comida-check">✓</div>
+        <div class="comida-icon">🌅</div>
+        <div class="comida-info">
+          <div class="comida-nombre">Desayuno</div>
+          <div class="comida-estado">Toca cuando desayunes</div>
+        </div>
+      </div>
+      <input class="meal-input comida-texto" type="text" id="texto-0" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)">
+    </div>
+
+    <!-- Almuerzo -->
+    <div class="comida-item bloqueada" id="comida-1">
+      <div class="comida-row" onclick="toggleComida(1)">
+        <div class="comida-check">✓</div>
+        <div class="comida-icon">☀️</div>
+        <div class="comida-info">
+          <div class="comida-nombre">Almuerzo</div>
+          <div class="comida-estado">Se abre con el desayuno</div>
+        </div>
+        <div class="comida-lock">🔒</div>
+      </div>
+      <input class="meal-input comida-texto" type="text" id="texto-1" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)">
+    </div>
+
+    <!-- Cena -->
+    <div class="comida-item bloqueada" id="comida-2">
+      <div class="comida-row" onclick="toggleComida(2)">
+        <div class="comida-check">✓</div>
+        <div class="comida-icon">🌙</div>
+        <div class="comida-info">
+          <div class="comida-nombre">Cena</div>
+          <div class="comida-estado">Se abre con el almuerzo</div>
+        </div>
+        <div class="comida-lock">🔒</div>
+      </div>
+      <input class="meal-input comida-texto" type="text" id="texto-2" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)">
+    </div>
+  </div>
+
+  <!-- Hábitos rápidos -->
+  <div class="habitos-hoy">
+    <div class="hh-header">
+      <div class="hh-title">Hábitos de hoy</div>
+      <div class="hh-pct" id="hh-pct">0%</div>
+    </div>
+    <div class="hh-bar-track"><div class="hh-bar-fill" id="hh-bar" style="width:0%"></div></div>
+    <div class="hh-chips" id="hh-chips-m"></div>
+    <div style="height:8px"></div>
+    <div class="hh-chips" id="hh-chips-n"></div>
+  </div>
+
+  <!-- Mis gatos -->
+  <div class="gatos-card">
+    <div class="ql-title">Mis gatos 🐱</div>
+    <div id="gatos-list"></div>
+  </div>
+
+  <!-- Lectura -->
   <div class="quick-log">
+    <div class="ql-title">Lectura 📖</div>
+    <div class="ql-row">
+      <div class="ql-icon">📚</div>
+      <div class="ql-label">Minutos leídos hoy</div>
+      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
+    </div>
+    <div class="lectura-bar-wrap" id="lectura-visual"></div>
+  </div>
+
+  <!-- Pregunta del día para el cuaderno -->
+  <div class="cuaderno-card">
+    <div class="cuaderno-header">
+      <span class="cuaderno-icon">📓</span>
+      <span class="cuaderno-label">Pregunta para tu cuaderno</span>
+    </div>
+    <div class="cuaderno-pregunta" id="pregunta-dia">—</div>
+    <button class="cuaderno-btn" id="cuaderno-btn" onclick="toggleEscribi()">
+      <span id="cuaderno-btn-text">Ya escribí ✍️</span>
+    </button>
+    <div class="cuaderno-nota">La escritura a mano activa procesamiento más profundo que teclear 🧠</div>
+  </div>
+
+  <!-- Botón ver más -->
+  <button class="ver-mas-btn" id="ver-mas-btn" onclick="toggleVerMas()">＋  Ver datos de la banda</button>
+
+  <!-- Datos de la banda -->
+  <div class="quick-log seccion-extra">
     <div class="ql-title">Datos de la banda 📟</div>
     <div class="ql-row">
       <div class="ql-icon">🌬️</div>
@@ -654,37 +1090,6 @@ body.night .salud-val { color: var(--night-text); }
     </div>
   </div>
 
-  <!-- Comí hoy -->
-  <div class="meal-card">
-    <div class="ql-title">¿Comiste hoy?</div>
-    <div class="plate-row">
-      <button class="plate-btn" id="plate-btn" onclick="togglePlate()">
-        <svg viewBox="0 0 100 100" width="52" height="52">
-          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3" opacity="0.25"/>
-          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3"
-            id="plate-fill" stroke-dasharray="289" stroke-dashoffset="289"
-            stroke-linecap="round" transform="rotate(-90 50 50)"/>
-          <text x="50" y="58" text-anchor="middle" font-size="34" id="plate-emoji">🍽️</text>
-        </svg>
-      </button>
-      <div class="plate-text">
-        <div class="plate-status" id="plate-status">Toca el plato si comiste hoy</div>
-        <input class="meal-input" type="text" id="input-comida" placeholder="¿Qué comiste? (opcional)" onchange="saveComida()">
-      </div>
-    </div>
-  </div>
-
-  <!-- Hábitos rápidos -->
-  <div class="habitos-hoy">
-    <div class="hh-header">
-      <div class="hh-title">Hábitos de hoy</div>
-      <div class="hh-pct" id="hh-pct">0%</div>
-    </div>
-    <div class="hh-bar-track"><div class="hh-bar-fill" id="hh-bar" style="width:0%"></div></div>
-    <div class="hh-chips" id="hh-chips-m"></div>
-    <div style="height:8px"></div>
-    <div class="hh-chips" id="hh-chips-n"></div>
-  </div>
 
 </div>
 
@@ -696,6 +1101,27 @@ body.night .salud-val { color: var(--night-text); }
     <div class="prog-track"><div class="prog-fill morning" id="prog-bar-m" style="width:0%"></div></div>
   </div>
   <div id="habits-m"></div>
+
+  <div class="section-label">Anoche dormí</div>
+  <div class="quick-log">
+    <div class="sueno-nota" id="sueno-nota">Registrando la noche del —</div>
+    <div class="ql-row">
+      <div class="ql-icon">😴</div>
+      <div class="ql-label">Horas de sueño</div>
+      <input class="ql-num-input" type="number" id="input-sueno" placeholder="—" min="0" max="24" onchange="saveSueno()">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🛌</div>
+      <div class="ql-label">Calidad</div>
+      <div class="ql-stars" id="stars-sueno">
+        <button class="ql-star" onclick="setStars('sueno',1)">1</button>
+        <button class="ql-star" onclick="setStars('sueno',2)">2</button>
+        <button class="ql-star" onclick="setStars('sueno',3)">3</button>
+        <button class="ql-star" onclick="setStars('sueno',4)">4</button>
+        <button class="ql-star" onclick="setStars('sueno',5)">5</button>
+      </div>
+    </div>
+  </div>
 
   <div class="section-label">Ciclo menstrual</div>
   <div class="quick-log">
@@ -729,22 +1155,6 @@ body.night .salud-val { color: var(--night-text); }
   <div class="section-label">Cierre del día</div>
   <div class="quick-log">
     <div class="ql-row">
-      <div class="ql-icon">😴</div>
-      <div class="ql-label">Horas de sueño</div>
-      <input class="ql-num-input" type="number" id="input-sueno" placeholder="—" min="0" max="24" step="0.5" onchange="saveSueno()">
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">🛌</div>
-      <div class="ql-label">Calidad del sueño</div>
-      <div class="ql-stars" id="stars-sueno">
-        <button class="ql-star" onclick="setStars('sueno',1)">1</button>
-        <button class="ql-star" onclick="setStars('sueno',2)">2</button>
-        <button class="ql-star" onclick="setStars('sueno',3)">3</button>
-        <button class="ql-star" onclick="setStars('sueno',4)">4</button>
-        <button class="ql-star" onclick="setStars('sueno',5)">5</button>
-      </div>
-    </div>
-    <div class="ql-row">
       <div class="ql-icon">🏃</div>
       <div class="ql-label">Me moví hoy</div>
       <div class="ql-stars" id="stars-movimiento">
@@ -761,6 +1171,9 @@ body.night .salud-val { color: var(--night-text); }
   <div id="semana-content"><div style="text-align:center;padding:30px;color:var(--muted);font-size:13px;">Cargando... ✨</div></div>
 </div>
 
+<!-- Toast de recompensa -->
+<div class="toast-reward" id="toastReward"></div>
+
 <script>
 const SUPABASE_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
@@ -770,23 +1183,145 @@ const SHORT = ['L','M','X','J','V','S','D'];
 
 const HABITS = {
   m:[
-    {icon:'🍳',name:'Desayunar'},
-    {icon:'🛏️',name:'Tender la cama'},
-    {icon:'🧹',name:'Limpiar aventeros'},
-    {icon:'🦷',name:'Cepillarme los dientes'},
+    {icon:'🛏️',name:'Tiendo mi cama'},
+    {icon:'💧',name:'Lavo mi cara'},
+    {icon:'🦷',name:'Cepillo mis dientes'},
   ],
   n:[
-    {icon:'💧',name:'Lavarme la cara'},
-    {icon:'🦷',name:'Cepillarme los dientes'},
-    {icon:'🥗',name:'Alistar almuerzo día siguiente'},
-    {icon:'🫙',name:'Lavar tepers'},
-    {icon:'💰',name:'Actualizar excel - gastos'},
+    {icon:'💧',name:'Lavo mi cara'},
+    {icon:'🦷',name:'Cepillo mis dientes'},
+    {icon:'🥗',name:'Alisto mi almuerzo'},
+    {icon:'🫙',name:'Lavo mis tepers'},
   ]
 };
 
+// Hábitos de los gatos (sección propia)
+const GATOS = [
+  {icon:'🧹', name:'Limpio los areneros', frecuencia:'cada 2 días', frecuencia_dias:2},
+  {icon:'🪮', name:'Cepillo a mis gatos', frecuencia:'cada 2 días', frecuencia_dias:2},
+  {icon:'💊', name:'Doy omega 3 a Mía', frecuencia:'diario', frecuencia_dias:1},
+  {icon:'✂️', name:'Corto las uñas de Mía', frecuencia:'cada 8 días', frecuencia_dias:8},
+  {icon:'✂️', name:'Corto las uñas de Dorito', frecuencia:'cada 8 días', frecuencia_dias:8},
+];
+
+// Cache de la última vez que se hizo cada tarea no-diaria (índice -> fecha string | null | undefined=cargando)
+let ultimaVezGatos = {};
+
+function diasDesde(fechaStr) {
+  if(!fechaStr) return Infinity;
+  const a=new Date(fechaStr+'T12:00:00');
+  const b=new Date(todayStr+'T12:00:00');
+  return Math.round((b-a)/86400000);
+}
+
+function gatoEstaDebido(i) {
+  const g=GATOS[i];
+  if(!g.frecuencia_dias || g.frecuencia_dias<=1) return true; // diario, siempre visible
+  const ultima=ultimaVezGatos[i];
+  if(ultima===undefined) return true; // aún cargando, mostrar por defecto
+  if(ultima===todayStr) return true; // ya se hizo hoy: se queda visible marcada hasta que cambie el día
+  return diasDesde(ultima) >= g.frecuencia_dias;
+}
+
+function formatFechaCorta(fechaStr) {
+  const d=new Date(fechaStr+'T12:00:00');
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d.getDate()} ${meses[d.getMonth()]}`;
+}
+
+function gatoSubtitulo(i) {
+  const g=GATOS[i];
+  const ultima=ultimaVezGatos[i];
+  if(ultima===undefined) return 'Cargando…';
+  if(ultima===null) return `${g.frecuencia} · aún no registrado`;
+  if(ultima===todayStr) return `${g.frecuencia} · hecho hoy ✓`;
+  const dias=diasDesde(ultima);
+  const cuando = dias===1 ? 'ayer' : `hace ${dias} días`;
+  const base = `última vez ${formatFechaCorta(ultima)} (${cuando})`;
+  if(!gatoEstaDebido(i)) {
+    const faltan = g.frecuencia_dias - dias;
+    return `${base} · vuelve ${faltan===1?'mañana':`en ${faltan} días`}`;
+  }
+  return `${g.frecuencia} · ${base}`;
+}
+
+async function cargarUltimaVezGatos(indices) {
+  // En vez de una consulta JSONB filtrada (frágil con claves numéricas en PostgREST),
+  // traemos el historial reciente y calculamos en el cliente. Más confiable.
+  try {
+    const data = await sbRegistro('GET', null, `?select=fecha,gatos&order=fecha.desc&limit=120`);
+    if(!data || !Array.isArray(data)) return;
+
+    const objetivo = indices || GATOS.map((g,idx)=>idx);
+    objetivo.forEach(i => {
+      // data ya viene ordenado de más reciente a más antiguo
+      const encontrado = data.find(row => {
+        const g = row.gatos;
+        if(!g) return false;
+        const v = g[i] !== undefined ? g[i] : g[String(i)];
+        return v === true || v === 'true';
+      });
+      ultimaVezGatos[i] = encontrado ? encontrado.fecha : null;
+    });
+  } catch(e) {
+    console.error('Error cargando historial de gatos:', e);
+    (indices || GATOS.map((g,idx)=>idx)).forEach(i => {
+      if(ultimaVezGatos[i]===undefined) ultimaVezGatos[i]=null;
+    });
+  }
+  buildGatos();
+}
+
+// Anclas posibles del día — rotan para que el cerebro no se acostumbre
+const ANCLAS = [
+  {tipo:'habito', panel:'m', idx:0, texto:'Tiendo mi cama', icon:'🛏️', razon:'Empezar el día con una acción completada activa el circuito de logro'},
+  {tipo:'cuaderno', texto:'Escribo en mi cuaderno', icon:'📓', razon:'La escritura a mano consolida memoria y regula el sistema nervioso'},
+  {tipo:'lectura', texto:'Leo 15 minutos', icon:'📖', razon:'La lectura sostenida entrena tu capacidad de atención profunda'},
+  {tipo:'habito', panel:'n', idx:2, texto:'Alisto mi almuerzo', icon:'🥗', razon:'Decidir hoy lo de mañana reduce la carga cognitiva del futuro'},
+  {tipo:'gato', idx:1, texto:'Cepillo a mis gatos', icon:'🪮', razon:'El contacto con animales baja cortisol en minutos'},
+  {tipo:'emocion', texto:'Nombro cómo me siento', icon:'🌊', razon:'Nombrar una emoción reduce su intensidad — "name it to tame it"'},
+  {tipo:'comida', idx:0, texto:'Desayuno', icon:'🌅', razon:'Comer en la primera hora estabiliza cortisol y regula el hambre del día'},
+  {tipo:'habito', panel:'m', idx:1, texto:'Lavo mi cara', icon:'💧', razon:'El agua fría en la cara activa el nervio vago y calma el sistema'},
+];
+
+// Preguntas reflexivas para el cuaderno (rotan cada día)
+const PREGUNTAS = [
+  '¿Qué emoción se repitió hoy y qué la disparó?',
+  '¿Qué le dirías hoy a la versión de ti de hace un año?',
+  '¿Qué necesitaste hoy que no pediste?',
+  '¿Qué patrón tuyo notaste hoy que ya conoces?',
+  '¿Dónde sentiste tensión en el cuerpo y en qué momento?',
+  '¿Qué hiciste hoy por obligación y qué por deseo?',
+  '¿Qué historia te contaste hoy sobre ti misma?',
+  '¿Qué te dio calma hoy, aunque fuera un segundo?',
+  '¿Qué evitaste hoy y qué sentiste al evitarlo?',
+  '¿Qué parte de tu día repetirías tal cual?',
+  '¿Qué te hizo sentir orgullosa hoy, por pequeño que sea?',
+  '¿Qué conversación te quedó dando vueltas?',
+  '¿Qué límite pusiste o no pusiste hoy?',
+  '¿Cómo cambió tu energía a lo largo del día?',
+  '¿Qué pensamiento apareció hoy más de una vez?',
+  '¿Qué necesita tu cuerpo mañana que hoy no le diste?',
+  '¿Qué te sorprendió de tu reacción hoy?',
+  '¿Qué extrañaste hoy?',
+  '¿Qué hiciste hoy que tu yo del futuro va a agradecer?',
+  '¿Qué te costó soltar hoy?',
+  '¿A quién quisiste llamar y no lo hiciste?',
+  '¿Qué sensación física acompañó tu emoción más fuerte del día?',
+  '¿Qué te hizo reír hoy?',
+  '¿Qué decisión pequeña tomaste hoy que te sorprendió?',
+  '¿Qué te dijiste a ti misma cuando algo salió mal?',
+  '¿Qué momento del día te sentiste más tú?',
+  '¿Qué peso cargaste hoy que no era tuyo?',
+  '¿Qué aprendiste hoy sobre cómo funcionas?',
+  '¿Qué te gustaría hacer distinto mañana?',
+  '¿Qué agradeces de hoy, aunque fue difícil?',
+  '¿Qué señal te dio tu cuerpo que ignoraste?',
+];
+
 let state = {m:{},n:{}};
 let currentDay = {m:0,n:0};
-let todayData = {};
+// todayData ya no se declara aquí — es un getter/setter dinámico definido más abajo (Object.defineProperty)
 
 function getLocalDate(date) {
   const y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
@@ -806,7 +1341,6 @@ const todayIdx = Math.max(0, weekDates.indexOf(todayStr));
 // ── GREETING ──
 function setGreeting() {
   const h = new Date().getHours();
-  const g = h<12?'Buenos días':'h<18?Buenas tardes':'Buenas noches';
   const greet = h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
   document.getElementById('greeting').innerHTML = `${greet}, <strong>Laura</strong>`;
   const days=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -822,9 +1356,26 @@ function setSyncing(on) {
   document.getElementById('syncLabel').textContent=on?'guardando...':'sincronizado ✓';
 }
 
+function setSyncError() {
+  const dot=document.getElementById('syncDot');
+  const label=document.getElementById('syncLabel');
+  dot.className='sync-dot';
+  dot.style.background='#C0392B';
+  label.textContent='sin conexión ⚠️';
+  label.style.color='#C0392B';
+}
+
+function clearSyncError() {
+  const dot=document.getElementById('syncDot');
+  const label=document.getElementById('syncLabel');
+  dot.style.background='';
+  label.style.color='';
+}
+
 async function sbFetch(method, body=null, params='') {
   const res=await fetch(`${SUPABASE_URL}/rest/v1/habitos${params}`,{
     method,
+    keepalive: true,
     headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':method==='POST'?'return=minimal':''},
     body:body?JSON.stringify(body):null
   });
@@ -852,16 +1403,225 @@ async function guardarHabito(panel,dayIdx,habitIdx,completado) {
     const ex=await sbFetch('GET',null,`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
     if(ex&&ex.length>0) await sbFetch('PATCH',{completado},`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
     else await sbFetch('POST',{fecha,momento:panel,habito,completado});
-  } catch(e){console.error(e);}
-  setSyncing(false);
+    setSyncing(false);
+    clearSyncError();
+  } catch(e){
+    console.error(e);
+    setSyncError();
+  }
 }
 
-// ── HOY DATA ──
-function loadTodayLocal() {
-  try { todayData=JSON.parse(localStorage.getItem('today_'+todayStr)||'{}'); } catch(e){todayData={};}
+// ── DATOS POR FECHA (ya no fijo a "hoy") ──
+// registroCache: fecha -> objeto de datos (emocion, sueño, ciclo, etc)
+let registroCache = {};
+let fechaActiva = todayStr; // la fecha que se está viendo/editando actualmente
+
+function getFechaSeleccionadaManana() {
+  // El panel Mañana controla qué fecha se está editando (sueño, ciclo, comidas)
+  return weekDates[currentDay.m] || todayStr;
 }
+
+function loadRegistroFecha(fecha) {
+  if(registroCache[fecha]) return registroCache[fecha];
+  try {
+    const d = JSON.parse(localStorage.getItem('registro_'+fecha)||'{}');
+    registroCache[fecha]=d;
+    return d;
+  } catch(e){
+    registroCache[fecha]={};
+    return registroCache[fecha];
+  }
+}
+
+// todayData ahora es un getter dinámico sobre la fecha activa (compatibilidad con resto del código)
+Object.defineProperty(window, 'todayData', {
+  get(){ return loadRegistroFecha(fechaActiva); },
+  set(v){ registroCache[fechaActiva]=v; }
+});
+
+let saveTimer=null;
 function saveTodayLocal() {
-  localStorage.setItem('today_'+todayStr, JSON.stringify(todayData));
+  const fecha = fechaActiva;
+  localStorage.setItem('registro_'+fecha, JSON.stringify(registroCache[fecha]||{}));
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>guardarRegistroDiario(fecha), 800);
+}
+
+function loadTodayLocal() {
+  fechaActiva = todayStr;
+  loadRegistroFecha(todayStr);
+}
+
+// ── SUPABASE: registro_diario ──
+async function sbRegistro(method, body=null, params='') {
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/registro_diario${params}`,{
+    method,
+    keepalive: true, // permite que la petición termine aunque se cierre la pestaña/app
+    headers:{
+      'apikey':SUPABASE_KEY,
+      'Authorization':`Bearer ${SUPABASE_KEY}`,
+      'Content-Type':'application/json',
+      'Prefer': method==='POST' ? 'resolution=merge-duplicates' : 'return=minimal'
+    },
+    body: body?JSON.stringify(body):null
+  });
+  if(method==='GET') return await res.json();
+  return res;
+}
+
+async function guardarRegistroDiario(fecha) {
+  setSyncing(true);
+  const d = loadRegistroFecha(fecha);
+  const payload = {
+    fecha: fecha,
+    emocion: d.emocion || null,
+    energia: d.energia ? parseInt(d.energia) : null,
+    agua: d.agua || null,
+    pasos: d.pasos ? parseInt(d.pasos) : null,
+    fc: d.fc ? parseInt(d.fc) : null,
+    spo2: d.spo2 ? parseInt(d.spo2) : null,
+    hrv: d.hrv ? parseInt(d.hrv) : null,
+    estres: d.estres ? parseInt(d.estres) : null,
+    recuperacion: d.recuperacion ? parseInt(d.recuperacion) : null,
+    movimiento: d.movimiento ? parseInt(d.movimiento) : null,
+    ciclo_dia: d.ciclo_dia ? parseInt(d.ciclo_dia) : null,
+    ciclo_fase: d.fase || null,
+    lectura_min: d.lectura ? parseInt(d.lectura) : null,
+    escribi: !!d.escribi,
+    comidas: d.comidas || {},
+    comidas_texto: d.comidas_texto || {},
+    gatos: d.gatos || {},
+    updated_at: new Date().toISOString()
+  };
+  // Si ya existe sueño guardado para esa fecha (desde el flujo de "anoche"), lo preservamos
+  if(suenoCache[fecha]) {
+    if(suenoCache[fecha].horas) payload.sueno_horas = parseFloat(suenoCache[fecha].horas);
+    if(suenoCache[fecha].calidad) payload.sueno_calidad = parseInt(suenoCache[fecha].calidad);
+  }
+  try {
+    const res = await sbRegistro('POST', payload, '?on_conflict=fecha');
+    if(res && !res.ok) throw new Error('HTTP '+res.status);
+    setSyncing(false);
+    clearSyncError();
+  } catch(e){
+    console.error('Error guardando registro:',e);
+    setSyncError();
+  }
+}
+
+// ── SUEÑO: pertenece a la NOCHE ANTERIOR a la fecha que se está viendo ──
+function getAyerStr() {
+  const ayer=new Date();
+  ayer.setDate(ayer.getDate()-1);
+  return getLocalDate(ayer);
+}
+const ayerStr = getAyerStr();
+
+function getFechaAnteriorA(fecha) {
+  const d = new Date(fecha+'T12:00:00');
+  d.setDate(d.getDate()-1);
+  return getLocalDate(d);
+}
+
+// suenoCache: fecha_de_la_noche -> {horas, calidad}
+let suenoCache = {};
+let suenoData = {}; // compatibilidad: apunta a la noche relevante para fechaActiva
+
+function loadSuenoData() {
+  const nocheFecha = getFechaAnteriorA(fechaActiva);
+  if(!suenoCache[nocheFecha]) {
+    try { suenoCache[nocheFecha]=JSON.parse(localStorage.getItem('sueno_'+nocheFecha)||'{}'); }
+    catch(e){ suenoCache[nocheFecha]={}; }
+  }
+  suenoData = suenoCache[nocheFecha];
+}
+
+let suenoTimer=null;
+function saveSuenoData() {
+  const nocheFecha = getFechaAnteriorA(fechaActiva);
+  suenoCache[nocheFecha]=suenoData;
+  localStorage.setItem('sueno_'+nocheFecha, JSON.stringify(suenoData));
+  clearTimeout(suenoTimer);
+  suenoTimer=setTimeout(()=>guardarSuenoSupabase(nocheFecha), 800);
+}
+
+async function guardarSuenoSupabase(nocheFecha) {
+  setSyncing(true);
+  const sd = suenoCache[nocheFecha] || {};
+  try {
+    const ex=await sbRegistro('GET', null, `?fecha=eq.${nocheFecha}&select=fecha`);
+    const datos={
+      sueno_horas: sd.horas ? parseFloat(sd.horas) : null,
+      sueno_calidad: sd.calidad ? parseInt(sd.calidad) : null,
+      updated_at: new Date().toISOString()
+    };
+    if(ex && ex.length>0){
+      await sbRegistro('PATCH', datos, `?fecha=eq.${nocheFecha}`);
+    } else {
+      await sbRegistro('POST', {fecha:nocheFecha, ...datos}, '?on_conflict=fecha');
+    }
+    setSyncing(false);
+    clearSyncError();
+  } catch(e){
+    console.error('Error guardando sueño:',e);
+    setSyncError();
+  }
+}
+
+async function cargarRegistroDesdeSupabase() {
+  try {
+    // Cargar toda la semana + un día extra atrás (para sueño del lunes)
+    const extraDia = getFechaAnteriorA(weekDates[0]);
+    const fechasBuscar = [extraDia, ...weekDates];
+    const data=await sbRegistro('GET', null, `?fecha=in.(${fechasBuscar.join(',')})`);
+    if(!data || !data.length) return;
+
+    data.forEach(row => {
+      // Cachear datos de registro para esa fecha (si no hay ya algo local)
+      const existente = registroCache[row.fecha];
+      if(!existente || Object.keys(existente).length===0){
+        const d = {};
+        if(row.emocion) d.emocion=row.emocion;
+        if(row.energia) d.energia=row.energia;
+        if(row.agua) d.agua=row.agua;
+        if(row.pasos) d.pasos=String(row.pasos);
+        if(row.fc) d.fc=String(row.fc);
+        if(row.spo2) d.spo2=String(row.spo2);
+        if(row.hrv) d.hrv=String(row.hrv);
+        if(row.estres) d.estres=String(row.estres);
+        if(row.recuperacion) d.recuperacion=String(row.recuperacion);
+        if(row.movimiento) d.movimiento=row.movimiento;
+        if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
+        if(row.ciclo_fase) d.fase=row.ciclo_fase;
+        if(row.lectura_min) d.lectura=String(row.lectura_min);
+        d.escribi=!!row.escribi;
+        if(row.comidas) d.comidas=row.comidas;
+        if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
+        if(row.gatos) d.gatos=row.gatos;
+        registroCache[row.fecha]=d;
+        localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
+      }
+      // Cachear sueño (pertenece a la fecha de esa noche)
+      if((row.sueno_horas || row.sueno_calidad) && !suenoCache[row.fecha]){
+        const sd={};
+        if(row.sueno_horas) sd.horas=String(row.sueno_horas);
+        if(row.sueno_calidad) sd.calidad=row.sueno_calidad;
+        suenoCache[row.fecha]=sd;
+        localStorage.setItem('sueno_'+row.fecha, JSON.stringify(sd));
+      }
+    });
+  } catch(e){ console.error('Error cargando registro:',e); }
+}
+
+function setSuenoNota() {
+  const nocheFecha = getFechaAnteriorA(fechaActiva);
+  const noche=new Date(nocheFecha+'T12:00:00');
+  const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const el=document.getElementById('sueno-nota');
+  const esHoy = fechaActiva===todayStr;
+  const sufijo = esHoy ? '' : ' · editando este día';
+  if(el) el.textContent=`Registrando la noche del ${dias[noche.getDay()]} ${noche.getDate()} de ${meses[noche.getMonth()]}${sufijo}`;
 }
 
 function setEmocion(el, val) {
@@ -879,9 +1639,15 @@ function setStars(key,val) {
   document.querySelectorAll(`#stars-${key} .ql-star`).forEach((s,i)=>{
     s.classList.toggle('on', i<val);
   });
-  todayData[key]=val;
-  saveTodayLocal();
-  if(key==='sueno') updateSnaps();
+  if(key==='sueno') {
+    // La calidad del sueño pertenece a la noche anterior
+    suenoData.calidad=val;
+    saveSuenoData();
+    updateSnaps();
+  } else {
+    todayData[key]=val;
+    saveTodayLocal();
+  }
 }
 
 function saveQuick() {
@@ -907,39 +1673,303 @@ function saveBanda(key) {
   saveTodayLocal();
 }
 
-function togglePlate() {
-  todayData.comi = !todayData.comi;
-  updatePlateUI();
-  saveTodayLocal();
+// ── ANCLA DEL DÍA ──
+function getAnclaHoy() {
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  const dayOfYear=Math.floor((now-start)/(1000*60*60*24));
+  return ANCLAS[dayOfYear % ANCLAS.length];
 }
 
-function updatePlateUI() {
-  const btn=document.getElementById('plate-btn');
-  const fill=document.getElementById('plate-fill');
-  const emoji=document.getElementById('plate-emoji');
-  const status=document.getElementById('plate-status');
-  if(todayData.comi) {
-    btn.classList.add('filled');
-    fill.style.strokeDashoffset='0';
-    fill.style.stroke='var(--sage)';
-    emoji.textContent='✅';
-    status.textContent='¡Comiste hoy! 🌿';
+function buildAncla() {
+  const a=getAnclaHoy();
+  document.getElementById('ancla-icon').textContent=a.icon;
+  document.getElementById('ancla-titulo').textContent=a.texto;
+  document.getElementById('ancla-razon').textContent=a.razon;
+  updateAnclaUI();
+}
+
+function anclaEstaHecha() {
+  const a=getAnclaHoy();
+  if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][a.idx];
+  if(a.tipo==='cuaderno') return !!todayData.escribi;
+  if(a.tipo==='lectura') return parseInt(todayData.lectura||0)>=15;
+  if(a.tipo==='gato') return todayData.gatos && todayData.gatos[a.idx];
+  if(a.tipo==='emocion') return !!todayData.emocion;
+  if(a.tipo==='comida') return todayData.comidas && todayData.comidas[a.idx];
+  return false;
+}
+
+function updateAnclaUI() {
+  const card=document.getElementById('ancla-card');
+  const estado=document.getElementById('ancla-estado');
+  if(anclaEstaHecha()) {
+    card.classList.add('done');
+    estado.textContent='Hecho. Ganaste el día ✓';
   } else {
-    btn.classList.remove('filled');
-    fill.style.strokeDashoffset='289';
-    emoji.textContent='🍽️';
-    status.textContent='Toca el plato si comiste hoy';
+    card.classList.remove('done');
+    estado.textContent='Si solo haces esto, ganaste el día';
   }
 }
 
-function saveComida() {
-  todayData.comida_texto=document.getElementById('input-comida').value;
+async function toggleAncla() {
+  const a=getAnclaHoy();
+  if(a.tipo==='habito') {
+    await toggleHabitQuick(a.panel,todayIdx,a.idx);
+  } else if(a.tipo==='cuaderno') {
+    toggleEscribi();
+  } else if(a.tipo==='gato') {
+    toggleGato(a.idx);
+  } else if(a.tipo==='lectura') {
+    switchPanel('hoy');
+    document.getElementById('input-lectura').focus();
+    return;
+  } else if(a.tipo==='comida') {
+    toggleComida(a.idx);
+  } else if(a.tipo==='emocion') {
+    document.querySelector('.emotion-bar').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  updateAnclaUI();
+  const card=document.getElementById('ancla-card');
+  if(anclaEstaHecha()) {
+    card.classList.add('celebrating');
+    setTimeout(()=>card.classList.remove('celebrating'),450);
+    mostrarRecompensa('🌿 Ancla completada. Eso es suficiente.');
+  }
+}
+
+// ── MICRO RECOMPENSAS ──
+let toastTimer=null;
+function mostrarRecompensa(texto) {
+  const t=document.getElementById('toastReward');
+  t.textContent=texto;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// Mensajes de identidad, no de tarea
+const MSG_MANANA = [
+  'Eres alguien que empieza el día con intención',
+  'Tu mañana está completa. Eso construye identidad',
+  'Así se ve alguien que se cuida',
+];
+const MSG_NOCHE = [
+  'Cerraste el día bien. Eso es cuidado propio',
+  'Eres alguien que honra su descanso',
+  'Tu noche está completa. Mañana empieza mejor',
+];
+const MSG_PARCIAL = [
+  'Una marca cuenta. Siempre cuenta',
+  'Mostrarte a medias también es mostrarte',
+  'Progreso, no perfección 🌿',
+];
+
+function celebrarSiCompleto(panel) {
+  const total=HABITS[panel].length;
+  const done=state[panel][todayIdx]?state[panel][todayIdx].filter(Boolean).length:0;
+  if(done===total) {
+    const msgs = panel==='m'?MSG_MANANA:MSG_NOCHE;
+    mostrarRecompensa('✨ '+msgs[Math.floor(Math.random()*msgs.length)]);
+  } else if(done>0) {
+    // Solo mostrar mensaje parcial ocasionalmente para no saturar
+    if(Math.random()<0.35) {
+      mostrarRecompensa(MSG_PARCIAL[Math.floor(Math.random()*MSG_PARCIAL.length)]);
+    }
+  }
+}
+
+// ── VER MÁS / VER MENOS ──
+function toggleVerMas() {
+  const secciones=document.querySelectorAll('.seccion-extra');
+  const btn=document.getElementById('ver-mas-btn');
+  const abierto=secciones[0].classList.contains('abierta');
+  secciones.forEach(s=>s.classList.toggle('abierta',!abierto));
+  btn.textContent=abierto?'＋  Ver datos de la banda':'－  Ocultar';
+}
+
+// ── GATOS ──
+function buildGatos() {
+  const c=document.getElementById('gatos-list');
+  c.innerHTML='';
+  if(!todayData.gatos) todayData.gatos={};
+  GATOS.forEach((g,i)=>{
+    const debido = gatoEstaDebido(i);
+    const done=todayData.gatos[i];
+    const row=document.createElement('div');
+    row.className='gato-row'+(done?' done':'')+(debido?'':' en-espera');
+    row.innerHTML=`
+      <div class="gato-check">✓</div>
+      <div class="gato-emoji">${g.icon}</div>
+      <div class="gato-text">
+        <div class="gato-name">${g.name}</div>
+        <div class="gato-freq">${gatoSubtitulo(i)}</div>
+      </div>`;
+    // Solo se puede marcar si toca hoy
+    if(debido) row.onclick=()=>toggleGato(i);
+    c.appendChild(row);
+  });
+}
+
+function toggleGato(i) {
+  if(!todayData.gatos) todayData.gatos={};
+  const activando=!todayData.gatos[i];
+  todayData.gatos[i]=activando;
+
+  // Registrar la fecha de "última vez" para TODAS las tareas (diarias y no diarias)
+  if(activando) {
+    ultimaVezGatos[i]=todayStr;
+  } else {
+    ultimaVezGatos[i]=undefined; // deshacer: recalcular la fecha real desde Supabase
+    cargarUltimaVezGatos([i]);
+  }
+
+  buildGatos();
+  updateAnclaUI();
+  saveTodayLocal();
+
+  if(activando) {
+    const esNoDiario = GATOS[i].frecuencia_dias>1;
+    if(esNoDiario) {
+      mostrarRecompensa(`${GATOS[i].icon} ${GATOS[i].name}. Vuelve a tocar en ${GATOS[i].frecuencia_dias} días`);
+    } else {
+      const dueIdx = GATOS.map((g,idx)=>idx).filter(idx=>gatoEstaDebido(idx));
+      const todos = dueIdx.every(idx=>todayData.gatos[idx]);
+      if(todos) mostrarRecompensa('🐱 Tus gatos están cuidados. Eso también eres tú');
+    }
+  }
+}
+
+// ── LECTURA ──
+function saveLectura() {
+  todayData.lectura=document.getElementById('input-lectura').value;
+  saveTodayLocal();
+  buildLecturaVisual();
+}
+
+function buildLecturaVisual() {
+  const c=document.getElementById('lectura-visual');
+  const min=parseInt(todayData.lectura)||0;
+  // 12 barras, cada una = 5 minutos (meta 60 min)
+  c.innerHTML='';
+  for(let i=0;i<12;i++){
+    const bar=document.createElement('div');
+    const filled=min>=(i+1)*5;
+    bar.className='lectura-book'+(filled?' on':'');
+    bar.style.height=filled?`${8+i*1.8}px`:'6px';
+    c.appendChild(bar);
+  }
+}
+
+// ── PREGUNTA DEL DÍA ──
+function setPreguntaDia() {
+  // Rota según el día del año para que sea consistente todo el día
+  const now=new Date();
+  const start=new Date(now.getFullYear(),0,0);
+  const diff=now-start;
+  const dayOfYear=Math.floor(diff/(1000*60*60*24));
+  const idx=dayOfYear % PREGUNTAS.length;
+  document.getElementById('pregunta-dia').textContent=PREGUNTAS[idx];
+}
+
+function toggleEscribi() {
+  todayData.escribi=!todayData.escribi;
+  updateCuadernoUI();
+  updateAnclaUI();
+  saveTodayLocal();
+  if(todayData.escribi) mostrarRecompensa('📓 Escribiste. Eso es autoconocimiento en acción');
+}
+
+function updateCuadernoUI() {
+  const btn=document.getElementById('cuaderno-btn');
+  const txt=document.getElementById('cuaderno-btn-text');
+  if(todayData.escribi) {
+    btn.classList.add('done');
+    txt.textContent='Escrito ✓ Buen trabajo 🌿';
+  } else {
+    btn.classList.remove('done');
+    txt.textContent='Ya escribí ✍️';
+  }
+}
+
+// ── COMIDAS PROGRESIVAS ──
+const COMIDAS = [
+  {nombre:'Desayuno', mensajeHecho:'Desayunaste ✓', mensajePendiente:'Toca cuando desayunes'},
+  {nombre:'Almuerzo', mensajeHecho:'Almorzaste ✓', mensajePendiente:'Toca cuando almuerces'},
+  {nombre:'Cena', mensajeHecho:'Cenaste ✓', mensajePendiente:'Toca cuando cenes'},
+];
+
+function toggleComida(i) {
+  if(!todayData.comidas) todayData.comidas={};
+  const activando=!todayData.comidas[i];
+  todayData.comidas[i]=activando;
+  saveTodayLocal();
+  updateComidasUI(activando ? i : -1);
+  updateAnclaUI();
+
+  if(activando) {
+    if(i<2) {
+      mostrarRecompensa(`🍽️ ${COMIDAS[i].nombre} registrado. ${COMIDAS[i+1].nombre} desbloqueado`);
+    } else {
+      mostrarRecompensa('🌿 Tres comidas hoy. Eso es cuidarte de verdad');
+    }
+  }
+}
+
+function updateComidasUI(recienDesbloqueada=-1) {
+  if(!todayData.comidas) todayData.comidas={};
+  let hechas=0;
+
+  for(let i=0;i<3;i++){
+    const el=document.getElementById(`comida-${i}`);
+    if(!el) continue;
+    const hecha=todayData.comidas[i];
+    if(hecha) hechas++;
+
+    // Desbloqueada si es la primera, o si la anterior está hecha
+    const desbloqueada = i===0 || todayData.comidas[i-1];
+
+    el.classList.toggle('hecha', !!hecha);
+    el.classList.toggle('bloqueada', !desbloqueada);
+
+    const estado=el.querySelector('.comida-estado');
+    if(estado) {
+      if(hecha) estado.textContent=COMIDAS[i].mensajeHecho;
+      else if(desbloqueada) estado.textContent=COMIDAS[i].mensajePendiente;
+      else estado.textContent=`Se abre con el ${COMIDAS[i-1].nombre.toLowerCase()}`;
+    }
+
+    // Animación de desbloqueo
+    if(recienDesbloqueada>=0 && i===recienDesbloqueada+1 && desbloqueada) {
+      el.classList.add('desbloqueando');
+      setTimeout(()=>el.classList.remove('desbloqueando'),600);
+    }
+  }
+
+  const prog=document.getElementById('meal-progress');
+  if(prog) prog.textContent=`${hechas} / 3`;
+}
+
+function saveComidaTexto(i) {
+  if(!todayData.comidas_texto) todayData.comidas_texto={};
+  todayData.comidas_texto[i]=document.getElementById(`texto-${i}`).value;
   saveTodayLocal();
 }
 
+function restoreComidas() {
+  if(!todayData.comidas_texto) todayData.comidas_texto={};
+  for(let i=0;i<3;i++){
+    const input=document.getElementById(`texto-${i}`);
+    if(input && todayData.comidas_texto[i]) input.value=todayData.comidas_texto[i];
+  }
+  updateComidasUI();
+}
+
 function saveSueno() {
-  todayData.sueno_h=document.getElementById('input-sueno').value;
-  saveTodayLocal();
+  // Las horas de sueño pertenecen a la noche anterior
+  suenoData.horas=document.getElementById('input-sueno').value;
+  saveSuenoData();
   updateSnaps();
 }
 
@@ -956,6 +1986,23 @@ function setFase(el, val) {
 }
 
 function restoreTodayUI() {
+  // Limpiar todo primero para que no queden datos del día anterior visibles
+  document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
+  document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
+  document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
+  document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
+  document.getElementById('input-pasos').value='';
+  document.getElementById('input-fc').value='';
+  document.getElementById('input-spo2').value='';
+  document.getElementById('input-hrv').value='';
+  document.getElementById('input-estres').value='';
+  document.getElementById('input-recuperacion').value='';
+  document.getElementById('input-sueno').value='';
+  document.getElementById('input-ciclo').value='';
+  document.getElementById('input-lectura').value='';
+  starState={agua:0,energia:0,sueno:0,movimiento:0};
+
+  // Ahora restaurar solo lo que existe para esta fecha
   if(todayData.emocion) {
     document.querySelectorAll('.emo-pill').forEach(p=>{if(p.textContent===todayData.emocion)p.classList.add('selected');});
   }
@@ -969,22 +2016,26 @@ function restoreTodayUI() {
   if(todayData.hrv) document.getElementById('input-hrv').value=todayData.hrv;
   if(todayData.estres) document.getElementById('input-estres').value=todayData.estres;
   if(todayData.recuperacion) document.getElementById('input-recuperacion').value=todayData.recuperacion;
-  if(todayData.comida_texto) document.getElementById('input-comida').value=todayData.comida_texto;
-  updatePlateUI();
-  if(todayData.sueno) setStars('sueno',todayData.sueno);
+  restoreComidas();
+  if(suenoData.calidad) setStars("sueno",suenoData.calidad);
   if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
-  if(todayData.sueno_h) document.getElementById('input-sueno').value=todayData.sueno_h;
+  if(suenoData.horas) document.getElementById("input-sueno").value=suenoData.horas;
   if(todayData.ciclo_dia) document.getElementById('input-ciclo').value=todayData.ciclo_dia;
   if(todayData.fase) {
     document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>{if(p.textContent===todayData.fase)p.classList.add('selected');});
   }
+  if(todayData.lectura) document.getElementById('input-lectura').value=todayData.lectura;
+  buildLecturaVisual();
+  buildGatos();
+  setPreguntaDia();
+  updateCuadernoUI();
 }
 
 function updateSnaps() {
   // Sueño
-  const sh=todayData.sueno_h;
+  const sh=suenoData.horas;
   const snapS=document.getElementById('snap-sueno');
-  if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Horas de sueño'; }
+  if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
   
   // Pasos
   const p=todayData.pasos;
@@ -1029,10 +2080,13 @@ function buildHoyChips() {
 
 async function toggleHabitQuick(panel,day,idx) {
   if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
-  state[panel][day][idx]=!state[panel][day][idx];
+  const activando=!state[panel][day][idx];
+  state[panel][day][idx]=activando;
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   updateSnaps();
+  updateAnclaUI();
+  if(activando && day===todayIdx) celebrarSiCompleto(panel);
   await guardarHabito(panel,day,idx,state[panel][day][idx]);
 }
 
@@ -1054,6 +2108,16 @@ function selectDay(panel,idx) {
   buildStrip(panel);
   buildHabits(panel);
   updateProgress(panel);
+  if(panel==='m') {
+    cambiarFechaActiva(weekDates[idx]);
+  }
+}
+
+function cambiarFechaActiva(fecha) {
+  fechaActiva = fecha;
+  loadSuenoData();
+  setSuenoNota();
+  restoreTodayUI();
 }
 
 function buildHabits(panel) {
@@ -1078,8 +2142,10 @@ function buildHabits(panel) {
 
 async function toggleHabit(panel,day,idx) {
   if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
-  state[panel][day][idx]=!state[panel][day][idx];
-  buildHabits(panel); updateProgress(panel); updateSnaps();
+  const activando=!state[panel][day][idx];
+  state[panel][day][idx]=activando;
+  buildHabits(panel); updateProgress(panel); updateSnaps(); updateAnclaUI();
+  if(activando && day===todayIdx) celebrarSiCompleto(panel);
   await guardarHabito(panel,day,idx,state[panel][day][idx]);
 }
 
@@ -1119,11 +2185,20 @@ function buildSemana() {
     const p=Math.round(dn/tot2*100);
     if(p>mejorP){mejorP=p;mejorD=d;}
   }
+  // Días con al menos un hábito = días que te mostraste
+  let diasActivos=0;
+  for(let d=0;d<7;d++){
+    const dn=(state.m[d]||[]).filter(Boolean).length+(state.n[d]||[]).filter(Boolean).length;
+    if(dn>0) diasActivos++;
+  }
+
+  // Mensaje basado en IDENTIDAD, no en tarea
   let msg='';
-  if(pct>=80) msg='¡Estás construyendo algo real! Tu cerebro ya está formando los caminos neurales de estos hábitos. 🧠✨';
-  else if(pct>=50) msg='Vas bien. La consistencia no es perfección — es mostrarte, aunque sea a medias. Cada marca cuenta. 💪';
-  else if(pct>=20) msg='Estás en la fase más difícil: el inicio. Tu cerebro está resistiendo lo nuevo. Es normal. Sigue. 🌱';
-  else msg='Esta semana fue de aterrizaje. La próxima ya sabes qué esperar. Un hábito a la vez. 🌿';
+  if(diasActivos>=6) msg=`Esta semana fuiste alguien que se cuida ${diasActivos} de 7 días. Eso ya es quien eres.`;
+  else if(diasActivos>=4) msg=`Te mostraste ${diasActivos} días. No es perfección — es identidad construyéndose.`;
+  else if(diasActivos>=2) msg=`Apareciste ${diasActivos} días esta semana. Tu cerebro ya sabe que este sistema existe.`;
+  else if(diasActivos===1) msg='Un día cuenta. Es más de lo que había antes.';
+  else msg='Esta semana fue de observación. La próxima ya sabes qué esperar.';
   
   const dots=Array.from({length:7},(_,d)=>{
     const tot2=HABITS.m.length+HABITS.n.length;
@@ -1139,9 +2214,9 @@ function buildSemana() {
     <div class="resumen-card">
       <div class="res-title">Tu semana 📊</div>
       <div class="stat-grid">
-        <div class="stat-box"><div class="stat-num">${pct}%</div><div class="stat-label">Hábitos</div></div>
+        <div class="stat-box"><div class="stat-num">${diasActivos}<span style="font-size:16px">/7</span></div><div class="stat-label">Días que aparecí</div></div>
         <div class="stat-box"><div class="stat-num">${racha}</div><div class="stat-label">Racha</div></div>
-        <div class="stat-box"><div class="stat-num">${hecho}</div><div class="stat-label">Completados</div></div>
+        <div class="stat-box"><div class="stat-num">${hecho}</div><div class="stat-label">Acciones de cuidado</div></div>
         <div class="stat-box"><div class="stat-num">${DAYS[mejorD].slice(0,3)}</div><div class="stat-label">Mejor día</div></div>
       </div>
       <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;">Por hábito</div>
@@ -1160,8 +2235,8 @@ function buildSemana() {
       <div class="salud-grid">
         <div class="salud-box">
           <div class="salud-icon">😴</div>
-          <div class="salud-val">${todayData.sueno_h||'—'}</div>
-          <div class="salud-label">Horas sueño</div>
+          <div class="salud-val">${suenoData.horas||'—'}</div>
+          <div class="salud-label">Sueño anoche</div>
         </div>
         <div class="salud-box">
           <div class="salud-icon">💧</div>
@@ -1184,9 +2259,9 @@ function buildSemana() {
           <div class="salud-label">Pasos</div>
         </div>
         <div class="salud-box">
-          <div class="salud-icon">${todayData.comi?'✅':'🍽️'}</div>
-          <div class="salud-val" style="font-size:14px">${todayData.comi?'Sí comí':'—'}</div>
-          <div class="salud-label">Comida</div>
+          <div class="salud-icon">🍽️</div>
+          <div class="salud-val" style="font-size:18px">${todayData.comidas?Object.values(todayData.comidas).filter(Boolean).length:0}<span style="font-size:12px">/3</span></div>
+          <div class="salud-label">Comidas</div>
         </div>
         <div class="salud-box">
           <div class="salud-icon">🌸</div>
@@ -1213,8 +2288,28 @@ function buildSemana() {
           <div class="salud-val" style="font-size:16px">${todayData.recuperacion||'—'}</div>
           <div class="salud-label">Recuperación</div>
         </div>
+        <div class="salud-box">
+          <div class="salud-icon">📖</div>
+          <div class="salud-val" style="font-size:16px">${todayData.lectura?todayData.lectura+'m':'—'}</div>
+          <div class="salud-label">Lectura</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">🐱</div>
+          <div class="salud-val" style="font-size:16px">${(()=>{const due=GATOS.map((g,i)=>i).filter(i=>gatoEstaDebido(i));const hechas=due.filter(i=>todayData.gatos&&todayData.gatos[i]).length;return `${hechas}/${due.length}`;})()}</div>
+          <div class="salud-label">Gatos</div>
+        </div>
+        <div class="salud-box">
+          <div class="salud-icon">${todayData.escribi?'✅':'📓'}</div>
+          <div class="salud-val" style="font-size:14px">${todayData.escribi?'Sí':'—'}</div>
+          <div class="salud-label">Escribí</div>
+        </div>
       </div>
-      ${todayData.comida_texto ? `<div style="margin-top:12px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px; color:var(--muted); text-align:center;">"${todayData.comida_texto}"</div>` : ''}
+      ${(() => {
+        const ct=todayData.comidas_texto||{};
+        const nombres=['Desayuno','Almuerzo','Cena'];
+        const items=[0,1,2].filter(i=>ct[i]).map(i=>`<div style="margin-bottom:4px;"><span style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">${nombres[i]}</span> · ${ct[i]}</div>`);
+        return items.length ? `<div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--line); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;">${items.join('')}</div>` : '';
+      })()}
     </div>`;
 }
 
@@ -1242,22 +2337,167 @@ function getAutoPanel() {
 }
 
 // ── INIT ──
+// ── AUTO-REFRESCO ENTRE DISPOSITIVOS ──
+let ultimoRefresco = Date.now();
+let usuarioEscribiendo = false;
+
+// Detectar si el usuario está activamente escribiendo/interactuando
+function marcarActividad() {
+  usuarioEscribiendo = true;
+  clearTimeout(window._actividadTimer);
+  window._actividadTimer = setTimeout(()=>{ usuarioEscribiendo=false; }, 2500);
+}
+document.addEventListener('input', marcarActividad);
+document.addEventListener('focus', marcarActividad, true);
+
+async function refrescoAutomatico() {
+  // No refrescar si el usuario está escribiendo activamente o si la pestaña no está visible
+  if(usuarioEscribiendo || document.hidden) return;
+
+  try {
+    const antes = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
+
+    // Releer solo la fecha activa + hoy desde Supabase (fuente de verdad)
+    const fechasBuscar = [...new Set([fechaActiva, todayStr, getFechaAnteriorA(fechaActiva)])];
+    const dataRegistro = await sbRegistro('GET', null, `?fecha=in.(${fechasBuscar.join(',')})`);
+
+    if(dataRegistro && dataRegistro.length){
+      dataRegistro.forEach(row => {
+        const d = {};
+        if(row.emocion) d.emocion=row.emocion;
+        if(row.energia) d.energia=row.energia;
+        if(row.agua) d.agua=row.agua;
+        if(row.pasos) d.pasos=String(row.pasos);
+        if(row.fc) d.fc=String(row.fc);
+        if(row.spo2) d.spo2=String(row.spo2);
+        if(row.hrv) d.hrv=String(row.hrv);
+        if(row.estres) d.estres=String(row.estres);
+        if(row.recuperacion) d.recuperacion=String(row.recuperacion);
+        if(row.movimiento) d.movimiento=row.movimiento;
+        if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
+        if(row.ciclo_fase) d.fase=row.ciclo_fase;
+        if(row.lectura_min) d.lectura=String(row.lectura_min);
+        d.escribi=!!row.escribi;
+        if(row.comidas) d.comidas=row.comidas;
+        if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
+        if(row.gatos) d.gatos=row.gatos;
+        registroCache[row.fecha]=d;
+        localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
+
+        if(row.sueno_horas || row.sueno_calidad){
+          const sd={};
+          if(row.sueno_horas) sd.horas=String(row.sueno_horas);
+          if(row.sueno_calidad) sd.calidad=row.sueno_calidad;
+          suenoCache[row.fecha]=sd;
+          localStorage.setItem('sueno_'+row.fecha, JSON.stringify(sd));
+        }
+      });
+    }
+
+    // Releer hábitos de la semana
+    const dataHabitos = await sbFetch('GET', null, `?fecha=in.(${weekDates.join(',')})`);
+    if(dataHabitos){
+      for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
+      dataHabitos.forEach(row=>{
+        const di=weekDates.indexOf(row.fecha);
+        if(di===-1||!HABITS[row.momento]) return;
+        const hi=HABITS[row.momento].findIndex(h=>h.name===row.habito);
+        if(hi!==-1) state[row.momento][di][hi]=row.completado;
+      });
+    }
+
+    // Cargar sueño para fechaActiva
+    loadSuenoData();
+    await cargarUltimaVezGatos();
+
+    const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
+
+    // Solo redibujar si algo realmente cambió (evita parpadeos innecesarios)
+    if(antes !== despues){
+      restoreTodayUI();
+      buildHabits('m'); buildHabits('n');
+      updateProgress('m'); updateProgress('n');
+      updateSnaps();
+      updateAnclaUI();
+      if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
+    }
+  } catch(e){
+    console.error('Error en refresco automático:', e);
+  }
+}
+
+// Detecta si cambió el día mientras la app estaba abierta o suspendida en memoria.
+// En iPhone, las apps ancladas a pantalla de inicio suelen reanudarse sin recargar,
+// así que la fecha calculada al abrir queda vieja y la app se ve "pegada" en el día anterior.
+function verificarCambioDeDia() {
+  const ahora = getLocalDate(new Date());
+  if(ahora !== todayStr) {
+    forzarGuardadoPendiente();   // no perder nada de lo del día anterior
+    setTimeout(()=>location.reload(), 400); // recargar para recalcular fecha, semana y datos
+    return true;
+  }
+  return false;
+}
+
+function iniciarAutoRefresco() {
+  setInterval(() => {
+    if(verificarCambioDeDia()) return;
+    refrescoAutomatico();
+  }, 45000);
+  // También refrescar cuando la pestaña vuelve a estar visible
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden) {
+      if(verificarCambioDeDia()) return;
+      refrescoAutomatico();
+    }
+    else forzarGuardadoPendiente(); // se va a background: guardar ya, sin esperar el debounce
+  });
+  // iOS: al reanudar una web app desde memoria dispara 'pageshow' en vez de recargar
+  window.addEventListener('pageshow', () => { verificarCambioDeDia(); });
+  window.addEventListener('focus', () => { verificarCambioDeDia(); });
+  // Última red de seguridad: si la página se cierra/descarga, forzar guardado inmediato
+  window.addEventListener('pagehide', forzarGuardadoPendiente);
+}
+
+// Si hay un guardado pendiente (esperando el debounce), lo ejecuta de inmediato.
+// Esto evita perder datos cuando se cambia de pestaña, se apaga la pantalla,
+// o se cierra la app justo antes de que el temporizador normal dispare.
+function forzarGuardadoPendiente() {
+  if(saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer=null;
+    guardarRegistroDiario(fechaActiva);
+  }
+  if(suenoTimer) {
+    clearTimeout(suenoTimer);
+    suenoTimer=null;
+    guardarSuenoSupabase(getFechaAnteriorA(fechaActiva));
+  }
+}
+
 async function init() {
   setGreeting();
   loadTodayLocal();
+  loadSuenoData();
+  setSuenoNota();
   for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
   currentDay.m=todayIdx; currentDay.n=todayIdx;
   buildStrip('m'); buildStrip('n');
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   restoreTodayUI();
+  buildAncla();
   updateSnaps();
   setSyncing(true);
+  await cargarRegistroDesdeSupabase();
+  await cargarUltimaVezGatos();
   await cargarSemana();
   setSyncing(false);
+  restoreTodayUI();
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   updateSnaps();
+  updateAnclaUI();
   setTimeout(()=>{
     ['m','n'].forEach(p=>{
       const s=document.getElementById(`strip-${p}`);
@@ -1265,8 +2505,7 @@ async function init() {
       if(sel) sel.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
     });
   },300);
-  // Abrir automáticamente el panel de mañana o noche según la hora
-  switchPanel(getAutoPanel());
+  iniciarAutoRefresco();
 }
 init();
 </script>
