@@ -1693,7 +1693,8 @@ async function cargarRegistroDesdeSupabase() {
         localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
       }
       // Cachear sueño (pertenece a la fecha de esa noche)
-      if((row.sueno_horas || row.sueno_calidad) && !suenoCache[row.fecha]){
+      const suenoExistente = suenoCache[row.fecha];
+      if((row.sueno_horas || row.sueno_calidad) && (!suenoExistente || Object.keys(suenoExistente).length===0)){
         const sd={};
         if(row.sueno_horas) sd.horas=String(row.sueno_horas);
         if(row.sueno_calidad) sd.calidad=row.sueno_calidad;
