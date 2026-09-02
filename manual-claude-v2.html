@@ -1,0 +1,700 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual para construir cosas con Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --papel:#F1F3EE;
+    --tinta:#16211C;
+    --tinta-suave:#4A5751;
+    --verde:#2E6B4F;
+    --verde-claro:#E3EDE6;
+    --mostaza:#9E7318;
+    --mostaza-claro:#F5EDDA;
+    --linea:#D3DACF;
+    --blanco:#FCFDFB;
+    --radio:6px;
+  }
+
+  *{box-sizing:border-box}
+
+  html{scroll-behavior:smooth; scroll-padding-top:70px}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{transition:none !important} }
+
+  body{
+    margin:0;
+    background-color:var(--papel);
+    background-image:
+      linear-gradient(var(--linea) 1px, transparent 1px),
+      linear-gradient(90deg, var(--linea) 1px, transparent 1px);
+    background-size:26px 26px;
+    background-position:-1px -1px;
+    color:var(--tinta);
+    font-family:"Source Serif 4", Georgia, serif;
+    font-size:17px;
+    line-height:1.62;
+  }
+
+  .lienzo{max-width:1180px; margin:0 auto; padding:0 18px 90px}
+
+  /* ---------- navegación ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(241,243,238,.94);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--linea);
+    margin:0 -18px 0; padding:9px 18px;
+    overflow-x:auto; white-space:nowrap;
+    -webkit-overflow-scrolling:touch;
+  }
+  nav::-webkit-scrollbar{display:none}
+  nav a{
+    font-family:"Bricolage Grotesque", system-ui, sans-serif;
+    font-size:13px; font-weight:600;
+    color:var(--tinta-suave); text-decoration:none;
+    padding:5px 11px; margin-right:2px;
+    border:1px solid transparent; border-radius:100px;
+    display:inline-block;
+  }
+  nav a:hover, nav a:focus-visible{color:var(--verde); border-color:var(--verde); background:var(--verde-claro)}
+
+  /* ---------- portada ---------- */
+  header{padding:54px 0 40px; max-width:760px}
+  .marca{
+    font-family:"Bricolage Grotesque", sans-serif; font-size:13px; font-weight:600;
+    color:var(--verde); margin-bottom:20px;
+  }
+  h1{
+    font-family:"Bricolage Grotesque", sans-serif;
+    font-size:clamp(38px, 8vw, 68px);
+    font-weight:800; line-height:.98; letter-spacing:-.025em;
+    margin:0 0 22px;
+  }
+  header p{font-size:19px; color:var(--tinta-suave); margin:0 0 14px; max-width:60ch}
+
+  /* ---------- secciones ---------- */
+  section{padding:46px 0 8px; border-top:1px solid var(--linea); margin-top:34px}
+  h2{
+    font-family:"Bricolage Grotesque", sans-serif;
+    font-size:clamp(26px, 4.6vw, 38px); font-weight:800; line-height:1.08;
+    letter-spacing:-.02em; margin:0 0 8px; max-width:22ch;
+  }
+  .bajada{color:var(--tinta-suave); font-size:18px; margin:0 0 30px; max-width:64ch}
+  h3{
+    font-family:"Bricolage Grotesque", sans-serif;
+    font-size:20px; font-weight:600; margin:34px 0 8px; letter-spacing:-.01em;
+  }
+  p, li{max-width:68ch}
+  ul{padding-left:20px}
+  li{margin-bottom:7px}
+  strong{font-weight:600}
+  .destacado{background:var(--mostaza-claro); padding:1px 4px; border-radius:3px}
+
+  /* ---------- tarjetas ---------- */
+  .tarjeta{
+    background:var(--blanco); border:1px solid var(--linea);
+    border-radius:var(--radio); padding:22px 24px; margin:18px 0;
+  }
+  .tarjeta h3{margin-top:0}
+
+  .rejilla{display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); margin:22px 0}
+  .rejilla .tarjeta{margin:0}
+
+  /* ---------- comparador del inicio ---------- */
+  .comparador{
+    background:var(--blanco); border:1px solid var(--tinta);
+    border-radius:var(--radio); overflow:hidden; margin:34px 0 10px; max-width:820px;
+  }
+  .pestanas{display:flex; border-bottom:1px solid var(--linea)}
+  .pestanas button{
+    flex:1; font-family:"Bricolage Grotesque",sans-serif; font-size:14px; font-weight:600;
+    padding:13px 10px; border:0; background:transparent; color:var(--tinta-suave);
+    cursor:pointer; border-bottom:3px solid transparent;
+  }
+  .pestanas button[aria-selected="true"]{color:var(--tinta); border-bottom-color:var(--verde); background:var(--verde-claro)}
+  .panel{padding:22px 24px; display:none}
+  .panel[data-activo="si"]{display:block}
+  .dicho{font-size:17px; line-height:1.65}
+  .veredicto{
+    margin-top:16px; padding-top:14px; border-top:1px dashed var(--linea);
+    font-size:15px; color:var(--tinta-suave);
+  }
+  .pieza{border-bottom:2px solid var(--verde); padding-bottom:1px}
+  .etiqueta-pieza{
+    font-family:"Bricolage Grotesque",sans-serif; font-size:11px; font-weight:600;
+    color:var(--verde); background:var(--verde-claro);
+    padding:1px 6px; border-radius:100px; margin-left:5px; white-space:nowrap;
+  }
+
+  /* ---------- bloques copiables ---------- */
+  .plantilla{
+    background:var(--verde-claro); border-left:3px solid var(--verde);
+    border-radius:0 var(--radio) var(--radio) 0;
+    padding:18px 20px; margin:16px 0; position:relative;
+  }
+  .plantilla p{margin:0 0 10px; font-size:16px}
+  .plantilla p:last-of-type{margin-bottom:0}
+  .copiar{
+    font-family:"Bricolage Grotesque",sans-serif; font-size:13px; font-weight:600;
+    background:var(--verde); color:#fff; border:0; border-radius:100px;
+    padding:7px 16px; cursor:pointer; margin-top:14px;
+  }
+  .copiar:hover{background:#255740}
+  .copiar[data-listo="si"]{background:var(--tinta)}
+
+  /* ---------- alertas ---------- */
+  .ojo{
+    background:var(--mostaza-claro); border-left:3px solid var(--mostaza);
+    padding:16px 20px; margin:18px 0; border-radius:0 var(--radio) var(--radio) 0;
+  }
+  .ojo strong{color:var(--mostaza)}
+
+  /* ---------- constructor ---------- */
+  .constructor{background:var(--blanco); border:1px solid var(--tinta); border-radius:var(--radio); padding:24px; margin:24px 0}
+  .campo{margin-bottom:16px}
+  .campo label{
+    display:block; font-family:"Bricolage Grotesque",sans-serif;
+    font-size:14px; font-weight:600; margin-bottom:5px;
+  }
+  .campo small{display:block; color:var(--tinta-suave); font-size:14px; margin-bottom:7px; line-height:1.45}
+  .campo textarea{
+    width:100%; font-family:"Source Serif 4",Georgia,serif; font-size:16px;
+    padding:10px 12px; border:1px solid var(--linea); border-radius:var(--radio);
+    background:var(--papel); color:var(--tinta); resize:vertical; min-height:62px; line-height:1.5;
+  }
+  .campo textarea:focus{outline:2px solid var(--verde); outline-offset:1px; border-color:var(--verde)}
+  .armar{
+    font-family:"Bricolage Grotesque",sans-serif; font-size:15px; font-weight:600;
+    background:var(--tinta); color:var(--papel); border:0; border-radius:100px;
+    padding:11px 24px; cursor:pointer;
+  }
+  .armar:hover{background:var(--verde)}
+  #resultado{margin-top:22px; display:none}
+
+  /* ---------- decisor ---------- */
+  .decisor{display:grid; gap:10px; margin:20px 0}
+  .decisor button{
+    text-align:left; font-family:"Source Serif 4",Georgia,serif; font-size:16px;
+    background:var(--blanco); border:1px solid var(--linea); border-radius:var(--radio);
+    padding:14px 18px; cursor:pointer; color:var(--tinta);
+  }
+  .decisor button:hover{border-color:var(--verde); background:var(--verde-claro)}
+  .decisor button[aria-pressed="true"]{border-color:var(--verde); border-width:2px; background:var(--verde-claro)}
+  #respuesta-decisor{display:none; margin-top:6px}
+
+  /* ---------- semana ---------- */
+  .dia{
+    display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--linea);
+    align-items:flex-start;
+  }
+  .dia:last-child{border-bottom:0}
+  .dia-num{
+    font-family:"Bricolage Grotesque",sans-serif; font-weight:800; font-size:15px;
+    color:var(--verde); min-width:62px; padding-top:2px;
+  }
+  .dia-texto{flex:1}
+  .dia-texto b{font-family:"Bricolage Grotesque",sans-serif; font-weight:600; display:block; margin-bottom:2px}
+  .dia-texto span{color:var(--tinta-suave); font-size:16px}
+  .marca-check{
+    appearance:none; width:20px; height:20px; border:1.5px solid var(--linea);
+    border-radius:4px; cursor:pointer; margin-top:4px; flex-shrink:0; background:var(--blanco);
+  }
+  .marca-check:checked{background:var(--verde); border-color:var(--verde)}
+  .marca-check:checked::after{content:"✓"; color:#fff; font-size:14px; display:block; text-align:center; line-height:17px}
+
+  /* ---------- glosario ---------- */
+  details{border-bottom:1px solid var(--linea); padding:13px 0}
+  summary{
+    font-family:"Bricolage Grotesque",sans-serif; font-weight:600; font-size:17px;
+    cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:12px;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+"; color:var(--verde); font-weight:800; flex-shrink:0}
+  details[open] summary::after{content:"–"}
+  details p{margin:9px 0 0; color:var(--tinta-suave)}
+
+  footer{
+    margin-top:60px; padding-top:26px; border-top:1px solid var(--linea);
+    color:var(--tinta-suave); font-size:15px;
+  }
+
+  @media (max-width:640px){
+    body{font-size:16px}
+    .tarjeta, .constructor{padding:18px}
+    .panel{padding:18px}
+    .dia-num{min-width:52px; font-size:13px}
+  }
+</style>
+
+<div class="lienzo">
+
+<nav aria-label="Índice">
+  <a href="#que-soy">Qué soy</a>
+  <a href="#piezas">Las 4 piezas</a>
+  <a href="#armar">Arma tu petición</a>
+  <a href="#metodo">El método</a>
+  <a href="#donde">Dónde vivo</a>
+  <a href="#proyectos">3 proyectos</a>
+  <a href="#errores">Cuando se daña</a>
+  <a href="#glosario">Glosario</a>
+  <a href="#semana">Tu primera semana</a>
+</nav>
+
+<header>
+  <div class="marca">Manual de taller · versión 1 · septiembre 2026</div>
+  <h1>Cómo construir cosas conmigo sin saber programar</h1>
+  <p>Laura: no necesitas aprender a programar. Necesitas aprender a <em>pedir</em>. Esa es toda la habilidad, y se aprende en una semana.</p>
+  <p>Este manual va de menos a más: primero qué soy realmente y en qué me equivoco, después cómo se escribe un buen pedido, y al final tres proyectos completos con el texto exacto que puedes copiar y pegar.</p>
+</header>
+
+<div class="comparador">
+  <div class="pestanas" role="tablist">
+    <button role="tab" aria-selected="true" data-panel="flojo">Pedido flojo</button>
+    <button role="tab" aria-selected="false" data-panel="bueno">El mismo pedido, bien hecho</button>
+  </div>
+  <div class="panel" data-activo="si" id="flojo">
+    <p class="dicho">"Hazme algo para acordarme de sacar la basura."</p>
+    <div class="veredicto">Te voy a hacer algo. Probablemente no sea lo que querías, porque tuve que adivinar cinco cosas: en qué ciudad vives, qué días pasa el camión, si lo quieres en el celular o en el computador, si quieres marcarlo o solo verlo, y qué haces con eso después.</div>
+  </div>
+  <div class="panel" id="bueno">
+    <p class="dicho">
+      "Vivo en Saint-Eustache, Quebec. La basura pasa los martes y el reciclaje los jueves cada quince días.<span class="etiqueta-pieza">contexto</span><br><br>
+      Quiero <span class="pieza">dejar de olvidarme de sacarla</span>.<span class="etiqueta-pieza">objetivo</span><br><br>
+      Hazme <span class="pieza">un solo archivo HTML</span> que abra desde el celular, me muestre qué toca esta noche y me deje marcarlo como hecho.<span class="etiqueta-pieza">formato</span><br><br>
+      No uses base de datos todavía, no me mandes a instalar nada, y explícame cada paso como si nunca hubiera hecho esto.<span class="etiqueta-pieza">límites</span>"
+    </p>
+    <div class="veredicto">Con esto no adivino nada. Te entrego algo usable a la primera, y si algo falla ya sabes exactamente qué frase cambiar.</div>
+  </div>
+</div>
+<p style="color:var(--tinta-suave); max-width:60ch; margin-top:8px">Esa es la diferencia completa. El resto del manual es explicarte por qué.</p>
+
+<!-- ============ 1 ============ -->
+<section id="que-soy">
+  <h2>Qué soy, en cristiano</h2>
+  <p class="bajada">Antes de usarme bien conviene saber cómo funciono por dentro. No es complicado, y explica casi todos mis errores.</p>
+
+  <h3>No soy un buscador ni una base de datos</h3>
+  <p>Un buscador tiene guardadas las páginas y te las muestra. Yo no tengo nada guardado. Lo que hago es <strong>predecir cuál es la siguiente palabra más probable</strong>, una y otra vez, hasta armar una respuesta completa. Leí una cantidad enorme de texto y de ahí saqué patrones: cómo se escribe un correo, cómo se estructura una página web, cómo se explica una receta.</p>
+  <p>Eso tiene una consecuencia importante: soy buenísimo con lo que es <em>patrón</em> (estructura, forma, lenguaje, código) y frágil con lo que es <em>dato puntual</em> (una fecha exacta, un precio de hoy, cuánto cobra tal empresa).</p>
+
+  <div class="ojo">
+    <p><strong>Ojo con esto:</strong> cuando no sé algo, no siempre me doy cuenta. Puedo inventarme un dato con toda la seguridad del mundo. A eso le dicen "alucinar". Es mi defecto más peligroso porque suena igual de convencido que cuando acierto.</p>
+    <p style="margin-bottom:0"><strong>Cómo te proteges:</strong> si es un número, una fecha, una ley, un precio o una dirección, pídeme que lo busque en internet y te ponga el link. Si no cité una fuente, trátalo como "esto habría que verificarlo".</p>
+  </div>
+
+  <h3>Mi mesa de trabajo se llena</h3>
+  <p>Todo lo que hablamos en una conversación lo tengo sobre una mesa imaginaria: tus mensajes, mis respuestas, los archivos que subiste. Esa mesa es grande pero <strong>no es infinita</strong>. En conversaciones muy largas, lo que dijimos al principio empieza a quedar apretado y respondo peor: se me olvidan decisiones, repito cosas, me contradigo.</p>
+  <p>La solución no es pelear conmigo. Es abrir un chat nuevo y arrancarlo con un resumen: <em>"Vengo de otro chat. Estoy construyendo X, ya decidimos A, B y C, aquí está el archivo. Sigamos desde ahí."</em> Un chat fresco con buen resumen rinde muchísimo más que uno viejo y cansado.</p>
+
+  <h3>Qué recuerdo entre conversaciones</h3>
+  <p>Tengo una memoria donde guardo cosas estables tuyas: cómo te gusta que te responda, en qué proyectos andas, decisiones que ya tomamos. No guardo cada conversación entera ni todos los detalles. Si algo es importante que no se pierda, dímelo explícito: <em>"acuérdate de esto"</em>. Y lo que quieras que borre, también se borra pidiéndolo.</p>
+
+  <h3>No tengo ojos ni manos por defecto</h3>
+  <p>Yo no veo tu pantalla, no entro a tus archivos ni sé qué pasó ayer, <strong>a menos que me des la herramienta</strong>. Cuando te digo "no puedo ver eso", casi siempre la salida es: mándame la captura, pega el texto, o conéctame la herramienta que corresponde.</p>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="piezas">
+  <h2>Las cuatro piezas de un buen pedido</h2>
+  <p class="bajada">Esto es el 90% de la habilidad. Un pedido que tiene estas cuatro piezas casi nunca sale mal.</p>
+
+  <div class="rejilla">
+    <div class="tarjeta">
+      <h3>1 · Contexto</h3>
+      <p style="margin-bottom:0">Quién eres y cuál es la situación real. Dónde vives, qué negocio tienes, en qué dispositivo lo vas a usar, qué sabes y qué no. <strong>Yo no sé nada que no me digas.</strong></p>
+    </div>
+    <div class="tarjeta">
+      <h3>2 · Objetivo</h3>
+      <p style="margin-bottom:0">Qué problema real quieres resolver, no qué herramienta quieres. "Que no se me pase la basura" es mejor que "hazme una app". Con el problema puedo proponerte una solución mejor que la que tenías en mente.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>3 · Formato</h3>
+      <p style="margin-bottom:0">Qué quieres recibir exactamente. ¿Un archivo? ¿Una lista? ¿Un correo? ¿Un solo archivo o varios? ¿Largo o corto? Si no lo dices, elijo yo y muchas veces elijo mal.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>4 · Límites</h3>
+      <p style="margin-bottom:0">Qué <em>no</em> quieres. "No me mandes a instalar programas", "no toques los otros archivos", "explícame como si fuera la primera vez". Los límites son la pieza que más gente olvida y la que más problemas evita.</p>
+    </div>
+  </div>
+
+  <h3>Una quinta pieza opcional, que es magia</h3>
+  <p>Cuando el pedido es grande o no tienes claro lo que quieres, agrégale esta frase al final:</p>
+
+  <div class="plantilla">
+    <p>Antes de empezar a hacerlo, hazme las preguntas que necesites para no tener que adivinar. Una a la vez.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+
+  <p>Eso cambia todo. En vez de que yo produzca algo a ciegas y tú lo corrijas cinco veces, yo te pregunto tres cosas y salgo bien a la primera. Úsala especialmente cuando el proyecto es nuevo.</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="armar">
+  <h2>Arma tu petición aquí</h2>
+  <p class="bajada">Llena las casillas con lo que se te ocurra, así sea desordenado. Abajo te queda el texto listo para copiar y pegarme en el chat.</p>
+
+  <div class="constructor">
+    <div class="campo">
+      <label for="c1">Contexto — ¿cuál es tu situación?</label>
+      <small>Ejemplo: "Vendo arepas a domicilio en Montreal. Manejo los pedidos por WhatsApp y se me enredan las rutas."</small>
+      <textarea id="c1"></textarea>
+    </div>
+    <div class="campo">
+      <label for="c2">Objetivo — ¿qué problema quieres resolver?</label>
+      <small>Ejemplo: "Perder menos tiempo organizando en qué orden entregar."</small>
+      <textarea id="c2"></textarea>
+    </div>
+    <div class="campo">
+      <label for="c3">Formato — ¿qué quieres recibir?</label>
+      <small>Ejemplo: "Un solo archivo HTML que abra desde el celular."</small>
+      <textarea id="c3"></textarea>
+    </div>
+    <div class="campo">
+      <label for="c4">Límites — ¿qué no quieres?</label>
+      <small>Ejemplo: "Sin instalar nada, sin cuentas nuevas, y explicándome cada paso."</small>
+      <textarea id="c4"></textarea>
+    </div>
+    <button class="armar" id="btn-armar">Armar la petición</button>
+
+    <div id="resultado">
+      <div class="plantilla">
+        <p id="texto-armado" style="white-space:pre-wrap"></p>
+        <button class="copiar">Copiar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="metodo">
+  <h2>El método: chiquito, probar, corregir</h2>
+  <p class="bajada">La forma más rápida de terminar un proyecto es no intentar terminarlo de una.</p>
+
+  <h3>Vuelta 1 — lo más chiquito que sirva</h3>
+  <p>No pidas la app completa. Pide la versión más simple que ya te resuelva algo. Un archivo, una pantalla, una función. Si eso funciona, tienes una base real. Si pides todo de una, cuando algo falle no vas a saber qué parte falló.</p>
+
+  <h3>Vuelta 2 — úsalo de verdad, dos o tres días</h3>
+  <p>Aquí es donde descubres lo que ningún plan te decía: que el botón queda incómodo con el pulgar, que faltaba un campo, que en realidad querías verlo de otra forma. Anota lo que te estorbe. Esas notas son el mejor pedido siguiente que puedes escribir.</p>
+
+  <h3>Vuelta 3 — pide un cambio a la vez</h3>
+  <p>"Cámbiame estas ocho cosas" sale peor que ocho pedidos cortos. Un cambio, lo pruebas, sigue el siguiente. Es más lento en el papel y mucho más rápido en la práctica.</p>
+
+  <div class="ojo">
+    <p style="margin-bottom:0"><strong>Regla que ya te funciona:</strong> pide siempre un <em>archivo nuevo con nombre nuevo</em>, no que te modifique el que ya tienes. Si la versión nueva sale mal, la vieja sigue viva y no perdiste nada. Es la red de seguridad más barata que existe.</p>
+  </div>
+
+  <h3>Cuando no entiendas algo, párame</h3>
+  <p>Si te suelto una palabra rara o un paso que no cuadra, no sigas. Estas tres frases valen oro y las puedes usar siempre:</p>
+
+  <div class="plantilla">
+    <p>Explícame eso como si nunca hubiera hecho esto, con una comparación de la vida diaria.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+  <div class="plantilla">
+    <p>Antes de seguir: ¿qué va a pasar exactamente cuando yo haga esto? ¿Se puede deshacer?</p>
+    <button class="copiar">Copiar</button>
+  </div>
+  <div class="plantilla">
+    <p>Dame el paso a paso desde el celular, uno por uno, y espera mi confirmación antes de pasar al siguiente.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="donde">
+  <h2>Dónde vivo y cuál me sirve</h2>
+  <p class="bajada">Soy el mismo modelo en todas partes. Lo que cambia son las manos que tengo en cada lugar.</p>
+
+  <div class="rejilla">
+    <div class="tarjeta">
+      <h3>Chat (esto)</h3>
+      <p style="margin-bottom:0">Conversar, pensar, escribir, y que te entregue archivos sueltos. Es donde vas a vivir el 80% del tiempo. Perfecto para un HTML, un texto, una explicación, un análisis.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Claude Code</h3>
+      <p style="margin-bottom:0">Aquí no te entrego un archivo: <strong>trabajo directo sobre tus carpetas</strong>, leo lo que ya tienes, edito varios archivos y corro comandos. Vive en la terminal, en el editor de código, en la app de escritorio y en el navegador. Es el salto para cuando tu proyecto ya tiene varios archivos.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Cowork</h3>
+      <p style="margin-bottom:0">La versión de Claude Code para quien no programa. Le sueltas una tarea larga —revisar cuarenta archivos, armar un informe, cruzar datos— y trabaja solo mientras tú haces otra cosa.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Claude en Chrome</h3>
+      <p style="margin-bottom:0">Ve la página que tienes abierta y puede hacer clics y llenar formularios por ti. Sirve para trámites repetitivos. Contraseñas y pagos no: eso lo haces tú.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Excel, Word, PowerPoint</h3>
+      <p style="margin-bottom:0">Trabajo dentro de tu propio archivo, sin que tengas que copiar y pegar de un lado a otro. Fórmulas, limpieza de datos, presentaciones.</p>
+    </div>
+    <div class="tarjeta">
+      <h3>Conectores</h3>
+      <p style="margin-bottom:0">Tú me das acceso a Gmail, Calendario, Drive o tu base de datos, y ahí sí puedo leer y actuar sobre lo tuyo. Sin conector, no veo nada de eso.</p>
+    </div>
+  </div>
+
+  <h3>¿Cuál necesito hoy?</h3>
+  <p>Elige la frase que más se parezca a lo que quieres hacer:</p>
+  <div class="decisor" id="decisor">
+    <button data-r="Chat normal. Pídeme el archivo completo y lo guardas. Empieza siempre por aquí: si el proyecto crece, ya después mudamos.">Quiero una herramienta chiquita para mí: un tracker, un recordatorio, una calculadora.</button>
+    <button data-r="Chat normal, y súbeme la foto o el archivo. Puedo leer imágenes, PDF y documentos que me pases.">Tengo un documento o una foto y necesito que me la leas, resuma o traduzca.</button>
+    <button data-r="Chat normal con memoria. Dime que quieres un plan que dure semanas y que lo retomemos cada vez; y pídeme que guarde en memoria en qué punto quedamos.">Quiero aprender algo con acompañamiento largo: francés, un tema, un examen.</button>
+    <button data-r="Claude Code, en la app de escritorio. Tu proyecto ya tiene varios archivos y copiar y pegar se volvió el cuello de botella.">Ya tengo varios archivos de un proyecto y quiero que los edites tú directamente.</button>
+    <button data-r="Cowork. Descríbele la tarea completa y déjalo trabajar; vuelves cuando termine.">Tengo una tarea larga y repetitiva, de muchos pasos, y no quiero estar encima.</button>
+    <button data-r="Un conector. Conecta Gmail, Calendario o Drive desde la configuración, y ahí ya puedo leer y actuar sobre eso.">Necesito que veas mi correo, mi calendario o mis archivos de Drive.</button>
+  </div>
+  <div id="respuesta-decisor" class="tarjeta"><p id="texto-decisor" style="margin:0"></p></div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="proyectos">
+  <h2>Tres proyectos, de menor a mayor</h2>
+  <p class="bajada">Los tres son reales y los tres se pueden empezar hoy. El texto de arranque está listo para copiar.</p>
+
+  <h3>Nivel 1 · Una tarde — el recordatorio de basuras</h3>
+  <p><strong>Qué aprendes:</strong> que un archivo HTML es una sola cosa que abre en cualquier lado, que la puedes poner en la pantalla de inicio del celular como si fuera una app, y que no necesitas permiso de nadie para hacerte una herramienta.</p>
+  <div class="plantilla">
+    <p>Vivo en Saint-Eustache, Quebec. La basura pasa [día] y el reciclaje [día]. Quiero dejar de olvidarme de sacarla.</p>
+    <p>Hazme un solo archivo HTML, sin base de datos y sin instalar nada, que al abrirlo me diga qué toca sacar esta noche y me deje marcarlo como hecho. Que se vea bien en celular.</p>
+    <p>Después explícame paso a paso cómo lo guardo y cómo lo pongo en la pantalla de inicio de mi celular.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+
+  <h3>Nivel 2 · Un fin de semana — el tracker que guarda</h3>
+  <p><strong>Qué aprendes:</strong> la diferencia entre un archivo que olvida todo al cerrarse y uno que <em>guarda</em>. Aquí entra la base de datos, que suena grave y es simplemente un cuaderno en internet donde tu archivo escribe y lee.</p>
+  <p>Este es el salto conceptual más importante de todos. Una vez lo entiendas, ya puedes hacer casi cualquier herramienta personal que se te ocurra.</p>
+  <div class="plantilla">
+    <p>Quiero un tracker de [lo que sea: hábitos, gastos, pedidos] que sí guarde lo que registro, para poder abrirlo desde el celular, el computador y el iPad y ver lo mismo.</p>
+    <p>Antes de escribir nada: explícame primero, en palabras simples, qué es una base de datos y por qué la necesito aquí. Después dime qué información vamos a guardar y cómo la vamos a organizar, y espera que yo apruebe antes de hacer el archivo.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+
+  <h3>Nivel 3 · Un proyecto que crece — tu profesor de francés</h3>
+  <p><strong>Qué aprendes:</strong> que no todo proyecto es un archivo. Este es un <em>sistema</em>: parte conversación conmigo, parte herramienta, parte rutina tuya. Y es el que más te va a devolver.</p>
+  <p>La clave aquí es que no me pidas "enséñame francés". Pídeme un método con estructura, evaluación y registro, y que se acomode a lo que ya sabes de neurociencia del aprendizaje: repetición espaciada, contexto real, poco y frecuente en vez de mucho y de golpe.</p>
+  <div class="plantilla">
+    <p>Quiero que seas mi profesor de francés, con método, no con clases sueltas. Vivo en Quebec, mi lengua es el español, ya presenté el TEF y mi objetivo real es [hablar en el trabajo / entender a la gente en la calle / pasar un examen].</p>
+    <p>Antes de empezar: evalúame con unas preguntas para saber en qué nivel estoy de verdad. Después propóneme un plan de 8 semanas con sesiones cortas diarias, repetición espaciada y vocabulario de Quebec, no de Francia.</p>
+    <p>Cada sesión: me corriges, me explicas el porqué del error, y al final me dejas un registro de lo que fallé para repasarlo después. Guarda en memoria en qué sesión vamos.</p>
+    <button class="copiar">Copiar</button>
+  </div>
+  <p>Cuando ya lleves tres semanas con eso, el siguiente paso natural es pedirme una herramienta que guarde tus errores y te los devuelva —y ahí acabas de juntar el nivel 2 con el nivel 3. Así se construyen las cosas grandes: pegando cosas chiquitas que ya funcionan.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="errores">
+  <h2>Cuando algo se daña</h2>
+  <p class="bajada">Se va a dañar. No es que lo estés haciendo mal, es cómo funciona esto.</p>
+
+  <div class="tarjeta">
+    <h3>Te entregué algo que no era lo que querías</h3>
+    <p style="margin-bottom:0">No me digas "está mal". Dime <strong>qué esperabas y qué recibiste</strong>: "esperaba que se viera en una sola pantalla y me diste tres pestañas". Con eso corrijo bien. Con "está mal" adivino otra vez.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Me estoy repitiendo o contradiciendo</h3>
+    <p style="margin-bottom:0">La mesa se llenó. Chat nuevo, y arráncalo con: "vengo de otro chat, esto es lo que llevamos, este es el archivo, sigamos". Es la solución, no un rodeo.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Te di un dato y resultó falso</h3>
+    <p style="margin-bottom:0">Pasa, y es mi peor defecto. Para datos duros —fechas, precios, leyes, trámites— pídeme siempre que busque y te ponga el link. Y desconfía sanamente de cualquier cifra mía que no venga con fuente.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Rompí algo que ya funcionaba</h3>
+    <p style="margin-bottom:0">Por eso la regla del archivo nuevo con nombre nuevo. Vuelve al anterior, y dime qué se dañó exactamente. Si ya se perdió: cuéntame qué hacía la versión buena y la reconstruimos.</p>
+  </div>
+
+  <div class="tarjeta">
+    <h3>Estoy siendo demasiado complicado</h3>
+    <p style="margin-bottom:0">Dímelo directo: "esto se complicó, hagamos la versión más simple posible aunque haga menos". Tiendo a construir de más cuando no me ponen freno. El freno lo pones tú.</p>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="glosario">
+  <h2>Palabras raras, traducidas</h2>
+  <p class="bajada">Ninguna de estas es tan complicada como suena.</p>
+
+  <details>
+    <summary>HTML</summary>
+    <p>Un archivo de texto que el navegador sabe convertir en una página. Es una sola cosa: la abres en el celular, en el computador o en el iPad y se ve igual. Es el material más simple para hacerte herramientas propias.</p>
+  </details>
+  <details>
+    <summary>Base de datos</summary>
+    <p>Un cuaderno organizado que vive en internet. Tu archivo escribe ahí y lee de ahí. Por eso, cuando abres desde otro aparato, ves lo mismo: los dos están leyendo el mismo cuaderno.</p>
+  </details>
+  <details>
+    <summary>Supabase</summary>
+    <p>Una empresa que te presta ese cuaderno gratis (hasta cierto uso). Tú creas un proyecto ahí y te da una dirección y una clave para que tu archivo se conecte.</p>
+  </details>
+  <details>
+    <summary>Repositorio (repo) y GitHub</summary>
+    <p>Un repositorio es una carpeta de proyecto. GitHub es donde vive esa carpeta en internet, gratis. Y GitHub Pages es la función que convierte esa carpeta en una página web con dirección propia, para poder abrirla desde el celular.</p>
+  </details>
+  <details>
+    <summary>Prompt</summary>
+    <p>El texto que me escribes. Nada más. Todo este manual va de escribir mejores prompts.</p>
+  </details>
+  <details>
+    <summary>Token y ventana de contexto</summary>
+    <p>Un token es más o menos un pedacito de palabra: la unidad en la que yo leo y escribo. La ventana de contexto es cuántos tokens caben en mi mesa de trabajo a la vez. Cuando se llena, empiezo a rendir peor.</p>
+  </details>
+  <details>
+    <summary>API</summary>
+    <p>Una puerta para que un programa hable con otro sin persona en el medio. Tu archivo HTML habla con Supabase por una API; una app puede hablar conmigo por la API de Anthropic.</p>
+  </details>
+  <details>
+    <summary>Artifact</summary>
+    <p>Cuando en el chat te entrego algo que se ve y se usa ahí mismo —una página, una calculadora, un documento— eso es un artifact. Lo puedes descargar y guardar.</p>
+  </details>
+  <details>
+    <summary>Conector / MCP</summary>
+    <p>La forma estándar de conectarme a un servicio externo (tu correo, tu calendario, tu base de datos) para que pueda leerlo y actuar ahí. MCP es el nombre técnico del enchufe.</p>
+  </details>
+  <details>
+    <summary>Alucinar</summary>
+    <p>Cuando invento un dato con toda seguridad. No es que mienta a propósito: es que estoy prediciendo lo que "suena correcto" y a veces lo que suena correcto no es cierto.</p>
+  </details>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="semana">
+  <h2>Tu primera semana</h2>
+  <p class="bajada">Siete días, poco cada día. Márcalos a medida que los hagas — tu progreso se guarda solo, puedes cerrar esto y seguir después. <span id="estado-sync" style="font-size:14px"></span></p>
+
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="1" aria-label="Día 1"><div class="dia-num">Día 1</div><div class="dia-texto"><b>Hazme hablar de algo que sí sabes</b><span>Pregúntame algo de arepas, de Quebec, de tu negocio. Compara lo que digo con lo que sabes. Es la mejor forma de calibrar dónde soy bueno y dónde me toca verificar.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="2" aria-label="Día 2"><div class="dia-num">Día 2</div><div class="dia-texto"><b>Escribe el mismo pedido dos veces</b><span>Uno flojo y uno con las cuatro piezas. Compara las dos respuestas. Vas a ver la diferencia con tus propios ojos y ya no se te olvida.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="3" aria-label="Día 3"><div class="dia-num">Día 3</div><div class="dia-texto"><b>Haz el nivel 1</b><span>El recordatorio de basuras. Un archivo, una tarde. Que quede en la pantalla de inicio de tu celular hoy mismo.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="4" aria-label="Día 4"><div class="dia-num">Día 4</div><div class="dia-texto"><b>Úsalo y anota lo que te estorbe</b><span>No pidas cambios todavía. Solo úsalo y anota. Las molestias reales son mejores que las ideas.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="5" aria-label="Día 5"><div class="dia-num">Día 5</div><div class="dia-texto"><b>Pide un solo cambio</b><span>El que más te estorbó. Uno. Archivo nuevo, nombre nuevo. Y verifica que la versión vieja sigue ahí.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="6" aria-label="Día 6"><div class="dia-num">Día 6</div><div class="dia-texto"><b>Rómpelo a propósito</b><span>Pídeme algo imposible o mal explicado. Mira cómo fallo. Perderle el miedo al error es la mitad del aprendizaje.</span></div></div>
+  <div class="dia"><input type="checkbox" class="marca-check" data-dia="7" aria-label="Día 7"><div class="dia-num">Día 7</div><div class="dia-texto"><b>Arranca el francés</b><span>Copia el pedido del nivel 3 y déjalo andando. Ese es el que va a durar meses.</span></div></div>
+</section>
+
+<footer>
+  <p>Si algo de este manual no te quedó claro, esa es exactamente la pregunta que vale la pena hacerme. Pregúntame por la parte que no entendiste y la volvemos a explicar de otra forma.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  // progreso de "tu primera semana" — guardado en Supabase
+  var SB_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNud25xamx0ZnlxbHd5ZXlmamJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjE3MTksImV4cCI6MjA5MjY5NzcxOX0.akmp_It22EkD2Ppc_nvtHvVJsIu6W8gH8M3I-jUD2dw';
+  var estado = document.getElementById('estado-sync');
+
+  function marcarEstado(txt, ok){
+    if (!estado) return;
+    estado.textContent = txt;
+    estado.style.color = ok === false ? '#B23A3A' : 'var(--verde)';
+    if (txt) setTimeout(function(){ estado.textContent=''; }, 2200);
+  }
+
+  async function cargarProgreso(){
+    try{
+      var resp = await fetch(SB_URL + '/rest/v1/manual_progreso?select=dia,hecho', {
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }
+      });
+      if (!resp.ok) return;
+      var filas = await resp.json();
+      filas.forEach(function(f){
+        var cb = document.querySelector('.marca-check[data-dia="' + f.dia + '"]');
+        if (cb) cb.checked = !!f.hecho;
+      });
+    }catch(e){ /* sin internet: el manual sigue usándose, solo no sincroniza */ }
+  }
+
+  async function guardarProgreso(dia, hecho){
+    try{
+      marcarEstado('Guardando…');
+      var resp = await fetch(SB_URL + '/rest/v1/manual_progreso?on_conflict=dia', {
+        method: 'POST',
+        headers: {
+          apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify([{ dia: dia, hecho: hecho }])
+      });
+      marcarEstado(resp.ok ? 'Guardado' : 'No se pudo guardar', resp.ok);
+    }catch(e){ marcarEstado('Sin conexión, no se guardó', false); }
+  }
+
+  document.querySelectorAll('.marca-check[data-dia]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      guardarProgreso(parseInt(cb.dataset.dia, 10), cb.checked);
+    });
+  });
+
+  cargarProgreso();
+
+  // pestañas del comparador
+  document.querySelectorAll('.pestanas button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.pestanas button').forEach(function(o){ o.setAttribute('aria-selected','false'); });
+      b.setAttribute('aria-selected','true');
+      document.querySelectorAll('.panel').forEach(function(p){ p.removeAttribute('data-activo'); });
+      document.getElementById(b.dataset.panel).setAttribute('data-activo','si');
+    });
+  });
+
+  // copiar
+  function copiar(texto, boton){
+    var ok = function(){
+      var antes = boton.textContent;
+      boton.textContent = 'Copiado';
+      boton.setAttribute('data-listo','si');
+      setTimeout(function(){ boton.textContent = antes; boton.removeAttribute('data-listo'); }, 1800);
+    };
+    if (navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(texto).then(ok).catch(function(){ respaldo(texto, ok); });
+    } else { respaldo(texto, ok); }
+  }
+  function respaldo(texto, ok){
+    var t = document.createElement('textarea');
+    t.value = texto; t.style.position='fixed'; t.style.opacity='0';
+    document.body.appendChild(t); t.select();
+    try{ document.execCommand('copy'); ok(); }catch(e){}
+    document.body.removeChild(t);
+  }
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click', function(){
+      var caja = b.closest('.plantilla');
+      var texto = Array.prototype.map.call(caja.querySelectorAll('p'), function(p){ return p.innerText.trim(); }).join('\n\n');
+      copiar(texto, b);
+    });
+  });
+
+  // constructor
+  document.getElementById('btn-armar').addEventListener('click', function(){
+    var v = function(id){ return document.getElementById(id).value.trim(); };
+    var partes = [];
+    if (v('c1')) partes.push(v('c1'));
+    if (v('c2')) partes.push('Lo que quiero lograr: ' + v('c2'));
+    if (v('c3')) partes.push('Lo que necesito que me entregues: ' + v('c3'));
+    if (v('c4')) partes.push('Condiciones: ' + v('c4'));
+    if (!partes.length){
+      partes.push('Llena al menos una casilla arriba y vuelve a darle a "Armar la petición".');
+    } else {
+      partes.push('Antes de empezar, hazme las preguntas que necesites para no tener que adivinar. Una a la vez.');
+    }
+    document.getElementById('texto-armado').textContent = partes.join('\n\n');
+    document.getElementById('resultado').style.display = 'block';
+  });
+
+  // decisor
+  document.querySelectorAll('#decisor button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#decisor button').forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      document.getElementById('texto-decisor').textContent = b.dataset.r;
+      document.getElementById('respuesta-decisor').style.display = 'block';
+    });
+  });
+})();
+</script>
