@@ -1578,7 +1578,7 @@ async function cargarRegistroDesdeSupabase() {
 
     data.forEach(row => {
       // Cachear datos de registro para esa fecha (si no hay ya algo local)
-      const existente = registroCache[row.fecha];
+      const existente = loadRegistroFecha(row.fecha);
       if(!existente || Object.keys(existente).length===0){
         const d = {};
         if(row.emocion) d.emocion=row.emocion;
@@ -2363,31 +2363,42 @@ async function refrescoAutomatico() {
 
     if(dataRegistro && dataRegistro.length){
       dataRegistro.forEach(row => {
-        const d = {};
-        if(row.emocion) d.emocion=row.emocion;
-        if(row.energia) d.energia=row.energia;
-        if(row.agua) d.agua=row.agua;
-        if(row.pasos) d.pasos=String(row.pasos);
-        if(row.fc) d.fc=String(row.fc);
-        if(row.spo2) d.spo2=String(row.spo2);
-        if(row.hrv) d.hrv=String(row.hrv);
-        if(row.estres) d.estres=String(row.estres);
-        if(row.recuperacion) d.recuperacion=String(row.recuperacion);
-        if(row.movimiento) d.movimiento=row.movimiento;
-        if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
-        if(row.ciclo_fase) d.fase=row.ciclo_fase;
-        if(row.lectura_min) d.lectura=String(row.lectura_min);
-        d.escribi=!!row.escribi;
-        if(row.comidas) d.comidas=row.comidas;
-        if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
-        if(row.gatos) d.gatos=row.gatos;
-        registroCache[row.fecha]=d;
-        localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
+        // NO reemplazar lo local: solo rellenar lo que falte.
+        // Si hay un guardado pendiente para esta fecha, no tocar nada.
+        const hayGuardadoPendiente = (saveTimer && row.fecha===fechaActiva);
+        if(hayGuardadoPendiente) return;
+
+        const local = registroCache[row.fecha] || {};
+        const merge = (clave, valor) => {
+          if(valor===null || valor===undefined || valor==='') return;
+          if(local[clave]===undefined || local[clave]===null || local[clave]==='') local[clave]=valor;
+        };
+        merge('emocion', row.emocion);
+        merge('energia', row.energia);
+        merge('agua', row.agua);
+        merge('pasos', row.pasos!=null?String(row.pasos):null);
+        merge('fc', row.fc!=null?String(row.fc):null);
+        merge('spo2', row.spo2!=null?String(row.spo2):null);
+        merge('hrv', row.hrv!=null?String(row.hrv):null);
+        merge('estres', row.estres!=null?String(row.estres):null);
+        merge('recuperacion', row.recuperacion!=null?String(row.recuperacion):null);
+        merge('movimiento', row.movimiento);
+        merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
+        merge('fase', row.ciclo_fase);
+        merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
+        if(local.escribi===undefined) local.escribi=!!row.escribi;
+        // Objetos: combinar, sin borrar marcas locales
+        if(row.comidas) local.comidas = Object.assign({}, row.comidas, local.comidas||{});
+        if(row.comidas_texto) local.comidas_texto = Object.assign({}, row.comidas_texto, local.comidas_texto||{});
+        if(row.gatos) local.gatos = Object.assign({}, row.gatos, local.gatos||{});
+
+        registroCache[row.fecha]=local;
+        localStorage.setItem('registro_'+row.fecha, JSON.stringify(local));
 
         if(row.sueno_horas || row.sueno_calidad){
-          const sd={};
-          if(row.sueno_horas) sd.horas=String(row.sueno_horas);
-          if(row.sueno_calidad) sd.calidad=row.sueno_calidad;
+          const sd = suenoCache[row.fecha] || {};
+          if((sd.horas===undefined || sd.horas==='') && row.sueno_horas) sd.horas=String(row.sueno_horas);
+          if((sd.calidad===undefined || sd.calidad==='') && row.sueno_calidad) sd.calidad=row.sueno_calidad;
           suenoCache[row.fecha]=sd;
           localStorage.setItem('sueno_'+row.fecha, JSON.stringify(sd));
         }
