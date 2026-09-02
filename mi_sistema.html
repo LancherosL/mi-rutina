@@ -631,15 +631,6 @@ body.night .ver-mas-btn { border-color: rgba(255,255,255,0.12); }
 .seccion-extra { display: none; }
 .seccion-extra.abierta { display: block; animation: fadeUp .3s ease; }
 
-.sueno-nota {
-  font-size: 10px;
-  color: var(--muted);
-  font-style: italic;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-}
-body.night .sueno-nota { border-bottom-color: rgba(255,255,255,0.06); }
 
 /* ── COMIDAS PROGRESIVAS ── */
 .meal-header {
@@ -1104,7 +1095,6 @@ body.night .salud-val { color: var(--night-text); }
 
   <div class="section-label">Anoche dormí</div>
   <div class="quick-log">
-    <div class="sueno-nota" id="sueno-nota">Registrando la noche del —</div>
     <div class="ql-row">
       <div class="ql-icon">😴</div>
       <div class="ql-label">Horas de sueño</div>
@@ -1568,13 +1558,10 @@ async function guardarRegistroDiario(fecha) {
     comidas: d.comidas || {},
     comidas_texto: d.comidas_texto || {},
     gatos: d.gatos || {},
+    sueno_horas: d.sueno_horas ? parseFloat(d.sueno_horas) : null,
+    sueno_calidad: d.sueno_calidad ? parseInt(d.sueno_calidad) : null,
     updated_at: new Date().toISOString()
   };
-  // Si ya existe sueño guardado para esa fecha (desde el flujo de "anoche"), lo preservamos
-  if(suenoCache[fecha]) {
-    if(suenoCache[fecha].horas) payload.sueno_horas = parseFloat(suenoCache[fecha].horas);
-    if(suenoCache[fecha].calidad) payload.sueno_calidad = parseInt(suenoCache[fecha].calidad);
-  }
   try {
     const res = await sbRegistro('POST', payload, '?on_conflict=fecha');
     if(res && !res.ok) throw new Error('HTTP '+res.status);
@@ -1586,85 +1573,9 @@ async function guardarRegistroDiario(fecha) {
   }
 }
 
-// ── SUEÑO: pertenece a la NOCHE ANTERIOR a la fecha que se está viendo ──
-function getAyerStr() {
-  const ayer=new Date();
-  ayer.setDate(ayer.getDate()-1);
-  return getLocalDate(ayer);
-}
-const ayerStr = getAyerStr();
-
-function getFechaAnteriorA(fecha) {
-  const d = new Date(fecha+'T12:00:00');
-  d.setDate(d.getDate()-1);
-  return getLocalDate(d);
-}
-
-// suenoCache: fecha_de_la_noche -> {horas, calidad}
-let suenoCache = {};
-// suenoData ahora es dinámico: siempre lee el dato vivo de la noche correspondiente
-// a la fecha activa. Antes era una referencia fija que quedaba desactualizada cuando
-// llegaban datos de Supabase, causando que una parte de la app viera un valor y otra parte otro.
-Object.defineProperty(window, 'suenoData', {
-  get(){
-    const noche = getFechaAnteriorA(fechaActiva);
-    if(!suenoCache[noche]){
-      try { suenoCache[noche]=JSON.parse(localStorage.getItem('sueno_'+noche)||'{}'); }
-      catch(e){ suenoCache[noche]={}; }
-    }
-    return suenoCache[noche];
-  },
-  set(v){
-    suenoCache[getFechaAnteriorA(fechaActiva)] = v;
-  }
-});
-
-function loadSuenoData() {
-  const nocheFecha = getFechaAnteriorA(fechaActiva);
-  if(!suenoCache[nocheFecha]) {
-    try { suenoCache[nocheFecha]=JSON.parse(localStorage.getItem('sueno_'+nocheFecha)||'{}'); }
-    catch(e){ suenoCache[nocheFecha]={}; }
-  }
-}
-
-let suenoTimer=null;
-function saveSuenoData() {
-  const nocheFecha = getFechaAnteriorA(fechaActiva);
-  suenoCache[nocheFecha]=suenoData;
-  localStorage.setItem('sueno_'+nocheFecha, JSON.stringify(suenoData));
-  clearTimeout(suenoTimer);
-  suenoTimer=setTimeout(()=>guardarSuenoSupabase(nocheFecha), 800);
-}
-
-async function guardarSuenoSupabase(nocheFecha) {
-  setSyncing(true);
-  const sd = suenoCache[nocheFecha] || {};
-  try {
-    const ex=await sbRegistro('GET', null, `?fecha=eq.${nocheFecha}&select=fecha`);
-    const datos={
-      sueno_horas: sd.horas ? parseFloat(sd.horas) : null,
-      sueno_calidad: sd.calidad ? parseInt(sd.calidad) : null,
-      updated_at: new Date().toISOString()
-    };
-    if(ex && ex.length>0){
-      await sbRegistro('PATCH', datos, `?fecha=eq.${nocheFecha}`);
-    } else {
-      await sbRegistro('POST', {fecha:nocheFecha, ...datos}, '?on_conflict=fecha');
-    }
-    setSyncing(false);
-    clearSyncError();
-  } catch(e){
-    console.error('Error guardando sueño:',e);
-    setSyncError();
-  }
-}
-
 async function cargarRegistroDesdeSupabase() {
   try {
-    // Cargar toda la semana + un día extra atrás (para sueño del lunes)
-    const extraDia = getFechaAnteriorA(weekDates[0]);
-    const fechasBuscar = [extraDia, ...weekDates];
-    const data=await sbRegistro('GET', null, `?fecha=in.(${fechasBuscar.join(',')})`);
+    const data=await sbRegistro('GET', null, `?fecha=in.(${weekDates.join(',')})`);
     if(!data || !data.length) return;
 
     data.forEach(row => {
@@ -1689,31 +1600,13 @@ async function cargarRegistroDesdeSupabase() {
         if(row.comidas) d.comidas=row.comidas;
         if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
         if(row.gatos) d.gatos=row.gatos;
+        if(row.sueno_horas) d.sueno_horas=String(row.sueno_horas);
+        if(row.sueno_calidad) d.sueno_calidad=row.sueno_calidad;
         registroCache[row.fecha]=d;
         localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
       }
-      // Cachear sueño (pertenece a la fecha de esa noche)
-      const suenoExistente = suenoCache[row.fecha];
-      if((row.sueno_horas || row.sueno_calidad) && (!suenoExistente || Object.keys(suenoExistente).length===0)){
-        const sd={};
-        if(row.sueno_horas) sd.horas=String(row.sueno_horas);
-        if(row.sueno_calidad) sd.calidad=row.sueno_calidad;
-        suenoCache[row.fecha]=sd;
-        localStorage.setItem('sueno_'+row.fecha, JSON.stringify(sd));
-      }
     });
   } catch(e){ console.error('Error cargando registro:',e); }
-}
-
-function setSuenoNota() {
-  const nocheFecha = getFechaAnteriorA(fechaActiva);
-  const noche=new Date(nocheFecha+'T12:00:00');
-  const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-  const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const el=document.getElementById('sueno-nota');
-  const esHoy = fechaActiva===todayStr;
-  const sufijo = esHoy ? '' : ' · editando este día';
-  if(el) el.textContent=`Registrando la noche del ${dias[noche.getDay()]} ${noche.getDate()} de ${meses[noche.getMonth()]}${sufijo}`;
 }
 
 function setEmocion(el, val) {
@@ -1732,9 +1625,8 @@ function setStars(key,val) {
     s.classList.toggle('on', i<val);
   });
   if(key==='sueno') {
-    // La calidad del sueño pertenece a la noche anterior
-    suenoData.calidad=val;
-    saveSuenoData();
+    todayData.sueno_calidad=val;
+    saveTodayLocal();
     updateSnaps();
   } else {
     todayData[key]=val;
@@ -2063,9 +1955,8 @@ function restoreComidas() {
 }
 
 function saveSueno() {
-  // Las horas de sueño pertenecen a la noche anterior
-  suenoData.horas=document.getElementById('input-sueno').value;
-  saveSuenoData();
+  todayData.sueno_horas=document.getElementById('input-sueno').value;
+  saveTodayLocal();
   updateSnaps();
 }
 
@@ -2111,9 +2002,9 @@ function restoreTodayUI() {
   if(todayData.estres) document.getElementById('input-estres').value=todayData.estres;
   if(todayData.recuperacion) document.getElementById('input-recuperacion').value=todayData.recuperacion;
   restoreComidas();
-  if(suenoData.calidad) setStars("sueno",suenoData.calidad);
+  if(todayData.sueno_calidad) setStars("sueno",todayData.sueno_calidad);
   if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
-  if(suenoData.horas) document.getElementById("input-sueno").value=suenoData.horas;
+  if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
   if(todayData.ciclo_dia) document.getElementById('input-ciclo').value=todayData.ciclo_dia;
   if(todayData.fase) {
     document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>{if(p.textContent===todayData.fase)p.classList.add('selected');});
@@ -2127,7 +2018,7 @@ function restoreTodayUI() {
 
 function updateSnaps() {
   // Sueño
-  const sh=suenoData.horas;
+  const sh=todayData.sueno_horas;
   const snapS=document.getElementById('snap-sueno');
   if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
   else { snapS.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-sueno-sub').textContent='Registra en Mañana'; }
@@ -2214,8 +2105,6 @@ function selectDay(panel,idx) {
 
 function cambiarFechaActiva(fecha) {
   fechaActiva = fecha;
-  loadSuenoData();
-  setSuenoNota();
   restoreTodayUI();
 }
 
@@ -2334,7 +2223,7 @@ function buildSemana() {
       <div class="salud-grid">
         <div class="salud-box">
           <div class="salud-icon">😴</div>
-          <div class="salud-val">${suenoData.horas||'—'}</div>
+          <div class="salud-val">${todayData.sueno_horas||'—'}</div>
           <div class="salud-label">Sueño anoche</div>
         </div>
         <div class="salud-box">
@@ -2454,11 +2343,10 @@ async function refrescoAutomatico() {
   if(usuarioEscribiendo || document.hidden) return;
 
   try {
-    const nocheAct = getFechaAnteriorA(fechaActiva);
-    const antes = JSON.stringify({r: registroCache[fechaActiva], z: suenoCache[nocheAct], s: state.m[todayIdx], n: state.n[todayIdx]});
+    const antes = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
 
     // Releer solo la fecha activa + hoy desde Supabase (fuente de verdad)
-    const fechasBuscar = [...new Set([fechaActiva, todayStr, getFechaAnteriorA(fechaActiva)])];
+    const fechasBuscar = [...new Set([fechaActiva, todayStr])];
     const dataRegistro = await sbRegistro('GET', null, `?fecha=in.(${fechasBuscar.join(',')})`);
 
     if(dataRegistro && dataRegistro.length){
@@ -2486,6 +2374,8 @@ async function refrescoAutomatico() {
         merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
         merge('fase', row.ciclo_fase);
         merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
+        merge('sueno_horas', row.sueno_horas!=null?String(row.sueno_horas):null);
+        merge('sueno_calidad', row.sueno_calidad!=null?row.sueno_calidad:null);
         if(local.escribi===undefined) local.escribi=!!row.escribi;
         // Objetos: combinar, sin borrar marcas locales
         if(row.comidas) local.comidas = Object.assign({}, row.comidas, local.comidas||{});
@@ -2494,14 +2384,6 @@ async function refrescoAutomatico() {
 
         registroCache[row.fecha]=local;
         localStorage.setItem('registro_'+row.fecha, JSON.stringify(local));
-
-        if(row.sueno_horas || row.sueno_calidad){
-          const sd = suenoCache[row.fecha] || {};
-          if((sd.horas===undefined || sd.horas==='') && row.sueno_horas) sd.horas=String(row.sueno_horas);
-          if((sd.calidad===undefined || sd.calidad==='') && row.sueno_calidad) sd.calidad=row.sueno_calidad;
-          suenoCache[row.fecha]=sd;
-          localStorage.setItem('sueno_'+row.fecha, JSON.stringify(sd));
-        }
       });
     }
 
@@ -2517,12 +2399,10 @@ async function refrescoAutomatico() {
       });
     }
 
-    // Cargar sueño para fechaActiva
-    loadSuenoData();
     await cargarUltimaVezGatos();
     await cargarUltimaVezHabitos();
 
-    const despues = JSON.stringify({r: registroCache[fechaActiva], z: suenoCache[nocheAct], s: state.m[todayIdx], n: state.n[todayIdx]});
+    const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
 
     // Solo redibujar si algo realmente cambió (evita parpadeos innecesarios)
     if(antes !== despues){
@@ -2580,18 +2460,11 @@ function forzarGuardadoPendiente() {
     saveTimer=null;
     guardarRegistroDiario(fechaActiva);
   }
-  if(suenoTimer) {
-    clearTimeout(suenoTimer);
-    suenoTimer=null;
-    guardarSuenoSupabase(getFechaAnteriorA(fechaActiva));
-  }
 }
 
 async function init() {
   setGreeting();
   loadTodayLocal();
-  loadSuenoData();
-  setSuenoNota();
   for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
   currentDay.m=todayIdx; currentDay.n=todayIdx;
   buildStrip('m'); buildStrip('n');
