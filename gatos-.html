@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mia y Dorito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#fbfaf8;--ink:#17191c;--muted:#8d8d88;--line:#eae7e1;--mia:#1f513f;--dorito:#9c4221;--acc:#17191c}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:88px}
+  .wrap{max-width:520px;margin:0 auto;padding:0 18px 24px}
+  .top{padding:24px 0 6px}
+  .kick{font-size:11.5px;color:var(--muted);font-weight:500}
+  h1{font-size:28px;font-weight:700;margin:3px 0 0;letter-spacing:-.025em}
+  .banda{margin:0 0 20px;padding:26px 18px 22px;color:#fff}
+  .banda .in{max-width:520px;margin:0 auto}
+  .banda h1{color:#fff;font-size:30px}
+  .banda .kick{color:rgba(255,255,255,.75)}
+  .banda .datos{font-size:13px;color:rgba(255,255,255,.85);line-height:1.6;margin-top:12px}
+  h2{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:30px 0 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  h2 .add{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--acc);cursor:pointer;background:none;border:none;font-family:'DM Sans';white-space:nowrap}
+  .next{display:flex;gap:14px;padding:16px 0;border-top:1px solid var(--line);align-items:flex-start}
+  .next:last-of-type{border-bottom:1px solid var(--line)}
+  .next .rail{width:3px;align-self:stretch;border-radius:3px;flex-shrink:0;min-height:44px}
+  .next .b{flex:1;min-width:0}
+  .next .w{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  .next .t{font-size:17px;font-weight:600;margin-top:4px;letter-spacing:-.01em;line-height:1.3}
+  .next .d{font-size:13px;color:var(--muted);margin-top:3px}
+  .go{background:none;border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;font-family:'DM Sans';cursor:pointer;color:var(--ink);white-space:nowrap}
+  .box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:8px}
+  .box.pausado{background:#f6f5f2;opacity:.72}
+  .box .t{font-size:15px;font-weight:600;line-height:1.35}
+  .box .d{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.55}
+  .box .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:0}
+  .acts{display:flex;gap:6px;flex-direction:column;align-items:flex-end}
+  .pend{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:8px;cursor:pointer}
+  .pend .bx{width:21px;height:21px;border-radius:50%;border:1.8px solid #d8d4cc;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+  .pend.on{opacity:.45}.pend.on .bx{background:var(--acc);border-color:var(--acc)}.pend.on .t{text-decoration:line-through}
+  .pend.urg{border-left:3px solid var(--acc)}
+  .pend .t{font-size:14.5px;font-weight:600;line-height:1.35}
+  .pend .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+  .chk{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-bottom:8px;cursor:pointer}
+  .chk .bx{width:21px;height:21px;border-radius:7px;border:1.8px solid #d8d4cc;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .chk.on{opacity:.5}.chk.on .bx{background:var(--acc);border-color:var(--acc)}.chk.on .t{text-decoration:line-through}
+  .chk .t{font-size:14.5px;font-weight:600}
+  .chk .d{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .aviso{background:#fdf5e6;border-radius:14px;padding:15px 16px;font-size:13px;line-height:1.6;color:#6d5215;margin-bottom:8px}
+  .li{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:12px}
+  .li .b{flex:1;min-width:0}
+  .li .t{font-size:14.5px;font-weight:600}
+  .li .d{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.55}
+  .li img{max-width:74px;border-radius:9px;margin-top:8px;cursor:pointer}
+  .li .amt{font-size:14.5px;font-weight:700;white-space:nowrap}
+  .del{background:none;border:none;color:#d3cfc7;font-size:19px;cursor:pointer;padding:0 2px;align-self:flex-start;font-family:'DM Sans';line-height:1}
+  .empty{color:var(--muted);font-size:13.5px;line-height:1.6;padding:2px 0 12px}
+  .stat{display:flex;gap:26px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stat .n{font-size:26px;font-weight:700;letter-spacing:-.03em}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .lab{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .lab .rg{font-size:11.5px;color:var(--muted)}
+  .lab .vl{font-weight:600;white-space:nowrap}
+  .lab.out .vl{color:#b3801a}
+  .fold{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden}
+  .fold .hd{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .fold .bd{padding:0 16px 15px;font-size:12.5px;color:var(--muted);line-height:1.6;display:none}
+  .fold.open .bd{display:block}
+  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+  nav button{flex:1;background:none;border:none;padding:11px 4px 13px;font-family:'DM Sans';font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+  nav button.on{font-weight:700}
+  nav .pt{width:9px;height:9px;border-radius:50%}
+  nav .badge{position:absolute;top:6px;right:50%;margin-right:-22px;background:#c0392b;color:#fff;font-size:9px;font-weight:700;border-radius:999px;padding:1px 5px}
+  .fab{background:var(--acc);color:#fff;border:none;padding:14px;border-radius:13px;font-family:'DM Sans';font-weight:700;font-size:14.5px;cursor:pointer;margin-bottom:12px;display:block;width:100%}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;display:none}
+  .panel.open{display:block}
+  .panel h3{font-size:16.5px;margin:0 0 15px;font-weight:700}
+  .f{margin-bottom:13px}
+  .f label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:500}
+  .f input,.f textarea,.f select{width:100%;border:1.5px solid var(--line);background:var(--bg);padding:10px 12px;font-family:'DM Sans';font-size:15px;color:var(--ink);border-radius:10px}
+  .f input:focus,.f textarea:focus,.f select:focus{outline:none;border-color:var(--acc);background:#fff}
+  .f textarea{resize:vertical;min-height:46px}
+  .r2{display:flex;gap:10px}.r2>.f{flex:1}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12.5px;color:var(--muted);cursor:pointer;font-family:'DM Sans'}
+  .chip.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  .chip.sm{padding:6px 12px;font-size:12px;flex-shrink:0}
+  .btns{display:flex;gap:8px;margin-top:10px}
+  .save{background:var(--acc);color:#fff;border:none;padding:12px 24px;border-radius:11px;font-weight:700;font-size:14.5px;cursor:pointer;font-family:'DM Sans'}
+  .ghost{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:12px 6px;font-family:'DM Sans'}
+  .thumb{max-width:110px;border-radius:10px;margin-top:9px;display:block}
+  .loading{color:var(--muted);font-size:14px;text-align:center;padding:60px 0}
+  .lightbox{position:fixed;inset:0;background:rgba(20,18,14,.93);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+  .lightbox.on{display:flex}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:10px}
+</style>
+</head>
+<body>
+<div id="head"></div>
+<div class="wrap"><div id="view"><div class="loading">Cargando…</div></div></div>
+<nav id="nav"></nav>
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('on')"><img id="lightboxImg" src="" alt=""></div>
+
+<script>
+const SB='https://snwnqjltfyqlwyeyfjba.supabase.co';
+const KEY='sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+const H={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'};
+let gatos=[],trat=[],vac=[],sint=[],gastos=[],log=[],pend=[],visitas=[],labs=[],docs=[],estados=[];
+let vista='inicio',form=null,folds={};
+
+async function api(p,o={}){const r=await fetch(SB+'/rest/v1/'+p,{headers:H,...o});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):null;}
+const hoy=()=>new Date().toISOString().slice(0,10);
+function fmt(i){return i?new Date(i+'T00:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'}):'—';}
+function fmtL(i){return i?new Date(i+'T00:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'}):'—';}
+function fmtD(i){return i?new Date(i+'T00:00:00').toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}):'—';}
+function dias(i){const d=new Date(i+'T00:00:00'),t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/864e5);}
+function suma(i,n){const d=new Date(i+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
+function plata(n){return n==null?'—':new Intl.NumberFormat('es-CA',{style:'currency',currency:'CAD',maximumFractionDigits:2}).format(n);}
+function G(id){return gatos.find(g=>g.id===id)||{nombre:'Los dos'};}
+function esc(s){return(s||'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+function hex(g){return g&&g.nombre==='Dorito'?'#9c4221':'#1f513f';}
+function edad(f){if(!f)return'';const n=new Date(f+'T00:00:00'),h=new Date();let m=(h.getFullYear()-n.getFullYear())*12+(h.getMonth()-n.getMonth());if(h.getDate()<n.getDate())m--;if(m<24)return m+' meses';const a=Math.floor(m/12);return a+(a===1?' año':' años');}
+function cuando(d){return d<0?`Hace ${Math.abs(d)} día${Math.abs(d)===1?'':'s'}`:(d===0?'Hoy':(d===1?'Mañana':`En ${d} días`));}
+function urg(d){return d<0?'#c0392b':(d<=7?'#b3801a':'var(--muted)');}
+const pausado=(gid,prod)=>estados.some(e=>e.gato_id===gid&&e.producto===prod&&e.suspendido);
+
+async function cargar(){
+  const r=await Promise.all([
+    api('gatos?select=*&order=orden'),api('gatos_tratamientos?select=*&order=fecha.desc'),
+    api('gatos_vacunas?select=*&order=fecha.desc'),api('gatos_sintomas?select=*&order=fecha.desc,hora.desc'),
+    api('gatos_gastos?select=*&order=fecha.desc'),api('gatos_dosis_log?select=*&fecha=gte.'+suma(hoy(),-60)),
+    api('gatos_pendientes?select=*&order=prioridad,created_at'),api('gatos_visitas?select=*&order=fecha.desc'),
+    api('gatos_labs?select=*&order=fecha.desc'),api('gatos_documentos?select=*&order=fecha.desc'),
+    api('gatos_plan_estado?select=*')]);
+  [gatos,trat,vac,sint,gastos,log,pend,visitas,labs,docs,estados]=r;
+}
+
+function proximas(gid){
+  const out=[],gr={};
+  trat.filter(t=>t.frecuencia==='periodico'&&t.activo!==false&&(!gid||t.gato_id===gid)).forEach(t=>{
+    const k=t.gato_id+'|'+(t.producto||t.tipo);if(!gr[k]||gr[k].fecha<t.fecha)gr[k]=t;});
+  Object.values(gr).forEach(t=>{
+    if(pausado(t.gato_id,t.producto||t.tipo))return;
+    const p=suma(t.fecha,t.intervalo_dias||30);
+    out.push({que:t.producto||t.tipo,gato_id:t.gato_id,fecha:p,d:dias(p),kind:'trat',ref:t});});
+  vac.filter(v=>v.proxima_fecha&&(!gid||v.gato_id===gid)).forEach(v=>
+    out.push({que:'Refuerzo: '+v.vacuna.split(' - ')[0].split('(')[0].trim(),gato_id:v.gato_id,fecha:v.proxima_fecha,d:dias(v.proxima_fecha),kind:'vac'}));
+  return out.sort((a,b)=>a.d-b.d);
+}
+const diarios=gid=>trat.filter(t=>t.frecuencia==='diario'&&t.activo!==false&&(!gid||t.gato_id===gid));
+const hechoHoy=id=>log.some(l=>l.tratamiento_id===id&&l.fecha===hoy());
+const abiertos=gid=>pend.filter(p=>!p.hecho&&(!gid||p.gato_id===gid));
+const tick=()=>'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>';
+
+function patron(gid){
+  const s=sint.filter(x=>x.gato_id===gid&&x.fecha>=suma(hoy(),-21));
+  if(s.length<3)return null;
+  const t={};s.forEach(x=>t[x.tipo]=(t[x.tipo]||0)+1);
+  const top=Object.entries(t).sort((a,b)=>b[1]-a[1])[0];
+  const c={};s.forEach(x=>{if(x.contenido)c[x.contenido]=(c[x.contenido]||0)+1;});
+  const tc=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];
+  return `<b>${esc(G(gid).nombre)} lleva ${s.length} episodios en 3 semanas</b> (${top[1]} de ${esc(top[0])}${tc&&tc[1]>1?', '+tc[1]+' con '+esc(tc[0]):''}). Vale la pena mencionárselo a la vet.`;
+}
+
+function go(v){vista=v;form=null;folds={};render();}
+window.go=go;
+window.fold=function(k){folds[k]=!folds[k];render();};
+
+function pintarNav(){
+  document.getElementById('nav').innerHTML=
+    `<button class="${vista==='inicio'?'on':''}" onclick="go('inicio')" style="color:${vista==='inicio'?'#17191c':''}">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>`
+   +gatos.map(g=>{const a=abiertos(g.id).length;
+      return `<button class="${vista===g.id?'on':''}" onclick="go('${g.id}')" style="color:${vista===g.id?hex(g):''}">
+        <span class="pt" style="background:${hex(g)};opacity:${vista===g.id?1:.4}"></span>
+        ${a?`<span class="badge">${a}</span>`:''}${esc(g.nombre)}</button>`;}).join('')
+   +`<button class="${vista==='gastos'?'on':''}" onclick="go('gastos')" style="color:${vista==='gastos'?'#17191c':''}">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 11h18M7 15h3"/></svg>Gastos</button>`;
+}
+
+function render(){
+  const g=gatos.find(x=>x.id===vista);
+  document.documentElement.style.setProperty('--acc',g?hex(g):'#17191c');
+  const hd=document.getElementById('head');
+  if(g){
+    hd.innerHTML=`<div class="banda" style="background:${hex(g)}"><div class="in">
+      <div class="kick">${g.sexo==='hembra'?'Gata':'Gato'} · ${edad(g.fecha_nacimiento)} · ${g.peso_kg} kg</div>
+      <h1>${esc(g.nombre)}</h1>
+      <div class="datos">Nació el ${fmtL(g.fecha_nacimiento)} · ${g.esterilizado?'esterilizada':'sin esterilizar'}<br>
+        Último peso el ${fmtL(g.peso_actualizado)} · ${esc(g.veterinaria||'')}</div></div></div>`;
+  }else{
+    const t=vista==='inicio'?[new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}),'Lo que sigue']:['Comida, arena y veterinario','Gastos'];
+    hd.innerHTML=`<div class="wrap"><div class="top"><div class="kick">${t[0].charAt(0).toUpperCase()+t[0].slice(1)}</div><h1>${t[1]}</h1></div></div>`;
+  }
+  document.getElementById('view').innerHTML=g?vGato(g):(vista==='inicio'?vInicio():vGastos());
+  pintarNav();window.scrollTo(0,0);
+}
+
+/* ===== INICIO ===== */
+function vInicio(){
+  let h='';
+  const p=proximas(null).filter(x=>x.d<=60);
+  h+='<h2>Próximas dosis y refuerzos</h2>';
+  if(!p.length)h+='<div class="empty">Nada en los próximos dos meses.</div>';
+  p.forEach(x=>{const g=G(x.gato_id);
+    h+=`<div class="next"><div class="rail" style="background:${hex(g)}"></div><div class="b">
+      <div class="w" style="color:${urg(x.d)}">${cuando(x.d)}</div><div class="t">${esc(x.que)}</div>
+      <div class="d">${esc(g.nombre)} · ${fmtD(x.fecha)}</div></div>
+      ${x.kind==='trat'?`<button class="go" onclick="marcar('${x.ref.id}')">Ya está</button>`:''}</div>`;});
+
+  const dd=diarios(null);
+  if(dd.length){const ok=dd.filter(t=>hechoHoy(t.id)).length;
+    h+=`<h2>Hoy <span style="letter-spacing:0;text-transform:none;font-weight:500">${ok} de ${dd.length}</span></h2>`;
+    h+=dd.map(t=>{const g=G(t.gato_id),d=hechoHoy(t.id);
+      return `<div class="chk${d?' on':''}" style="--acc:${hex(g)}" onclick="toggleDiario('${t.id}',${d})">
+        <div class="bx">${d?tick():''}</div><div><div class="t">${esc(t.producto)}</div>
+        <div class="d">${esc(g.nombre)} · ${esc(t.indicacion||'todos los días')}</div></div></div>`;}).join('');}
+
+  const ab=abiertos(null).filter(x=>x.prioridad===1);
+  if(ab.length){h+='<h2>Para resolver</h2>'+ab.map(x=>{const g=G(x.gato_id);
+    return `<div class="box" style="border-left:3px solid ${hex(g)}"><div class="t">${esc(x.titulo)}</div>
+      <div class="d">${esc(g.nombre)}${x.notas?' · '+esc(x.notas):''}</div></div>`;}).join('');}
+
+  const pt=gatos.map(g=>patron(g.id)).filter(Boolean);
+  if(pt.length)h+='<h2>Lo que estoy viendo</h2>'+pt.map(x=>`<div class="aviso">${x}</div>`).join('');
+
+  h+='<h2>Perfiles</h2>'+gatos.map(g=>{
+    const a=abiertos(g.id).length,s=sint.filter(x=>x.gato_id===g.id&&x.fecha>=suma(hoy(),-30)).length;
+    return `<div class="box" onclick="go('${g.id}')" style="border-left:3px solid ${hex(g)};cursor:pointer">
+      <div class="top"><div><div class="t">${esc(g.nombre)}</div><div class="d">${edad(g.fecha_nacimiento)} · ${g.peso_kg} kg<br>
+      ${s} episodio${s===1?'':'s'} en 30 días · ${a} pendiente${a===1?'':'s'}</div></div>
+      <span style="color:${hex(g)};font-size:20px">›</span></div></div>`;}).join('');
+  return h;
+}
+
+/* ===== PERFIL ===== */
+function vGato(g){
+  const id=g.id;let h='';
+
+  /* 1. lo que sigue */
+  const p=proximas(id);
+  h+='<h2>Lo que sigue</h2>';
+  if(!p.length)h+='<div class="empty">Nada programado. Si tienes tratamientos pausados, están más abajo.</div>';
+  p.slice(0,4).forEach(x=>{
+    h+=`<div class="next"><div class="rail" style="background:${hex(g)}"></div><div class="b">
+      <div class="w" style="color:${urg(x.d)}">${cuando(x.d)}</div><div class="t">${esc(x.que)}</div>
+      <div class="d">${fmtD(x.fecha)}</div></div>
+      ${x.kind==='trat'?`<button class="go" onclick="marcar('${x.ref.id}')">Ya está</button>`:''}</div>`;});
+
+  const dd=diarios(id);
+  if(dd.length)h+='<h2>Todos los días</h2>'+dd.map(t=>{const d=hechoHoy(t.id);
+    return `<div class="chk${d?' on':''}" onclick="toggleDiario('${t.id}',${d})"><div class="bx">${d?tick():''}</div>
+      <div><div class="t">${esc(t.producto)}</div><div class="d">${esc(t.indicacion||'')}</div></div></div>`;}).join('');
+
+  /* 2. SÍNTOMAS — ahora arriba */
+  const ss=sint.filter(x=>x.gato_id===id);
+  const m30=ss.filter(x=>x.fecha>=suma(hoy(),-30)).length;
+  h+=`<h2>Síntomas <button class="add" onclick="abrir('s')">+ anotar</button></h2>`;
+  h+=`<div class="stat"><div><div class="n">${m30}</div><div class="l">en 30 días</div></div>
+    <div><div class="n">${ss.length}</div><div class="l">en total</div></div>
+    <div><div class="n" style="font-size:19px;padding-top:5px">${ss.length?fmt(ss[0].fecha):'—'}</div><div class="l">último episodio</div></div></div>`;
+  const pa=patron(id);if(pa)h+=`<div class="aviso" style="margin-top:10px">${pa}</div>`;
+  h+=`<div class="panel${form==='s'?' open':''}" style="margin-top:12px"><h3>¿Qué pasó?</h3>
+    <div class="r2"><div class="f"><label>Fecha</label><input type="date" id="s-fecha" value="${hoy()}"></div>
+      <div class="f"><label>Hora</label><input type="time" id="s-hora"></div></div>
+    <div class="f"><label>Qué pasó</label><input type="text" id="s-tipo" value="vómito">
+      <div class="chips">${['vómito','diarrea','no comió','rascado','tos','cojera','otro'].map(t=>`<button class="chip sm" onclick="sv('s-tipo','${t}',this)">${t}</button>`).join('')}</div></div>
+    <div class="f"><label>Contenido</label><input type="text" id="s-contenido" placeholder="pasto, comida, pelo...">
+      <div class="chips">${['pasto','comida','pelo','líquido','espuma','bilis','otro'].map(t=>`<button class="chip sm" onclick="sv('s-contenido','${t}',this)">${t}</button>`).join('')}</div></div>
+    <div class="f"><label>¿Había comido hace poco?</label><input type="text" id="s-comio">
+      <div class="chips">${['Sí, hace poco','Hace rato','No'].map(t=>`<button class="chip sm" onclick="sv('s-comio','${t}',this)">${t}</button>`).join('')}</div></div>
+    <div class="f"><label>Foto (opcional)</label><input type="file" id="s-foto" accept="image/*" onchange="prev(this)"><img class="thumb" id="s-prev" style="display:none"></div>
+    <div class="f"><label>Notas</label><textarea id="s-notas"></textarea></div>
+    <div class="btns"><button class="save" onclick="gSint(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  h+=ss.length?ss.slice(0,8).map(x=>`<div class="li"><div class="b"><div class="t">${esc(x.tipo)}${x.contenido?' · '+esc(x.contenido):''}</div>
+    <div class="d">${fmtL(x.fecha)}${x.hora?' · '+x.hora.slice(0,5):''}${x.comio_antes?'<br>Comió antes: '+esc(x.comio_antes):''}${x.notas?'<br>'+esc(x.notas):''}</div>
+    ${x.foto_url?`<img src="${esc(x.foto_url)}" onclick="verFoto('${esc(x.foto_url)}')">`:''}</div>
+    <button class="del" onclick="borrar('gatos_sintomas','${x.id}')">×</button></div>`).join('')
+    :'<div class="empty">Nada anotado todavía.</div>';
+
+  /* 3. pendientes */
+  const ab=pend.filter(x=>x.gato_id===id);
+  h+=`<h2>Pendientes <button class="add" onclick="abrir('p')">+ agregar</button></h2>
+  <div class="panel${form==='p'?' open':''}"><h3>Nuevo pendiente</h3>
+    <div class="f"><label>Qué hay que hacer</label><input type="text" id="p-tit"></div>
+    <div class="f"><label>Detalles</label><textarea id="p-notas"></textarea></div>
+    <div class="r2"><div class="f"><label>Fecha objetivo</label><input type="date" id="p-fecha"></div>
+      <div class="f"><label>Importancia</label><select id="p-pri"><option value="1">Alta</option><option value="2" selected>Normal</option></select></div></div>
+    <div class="btns"><button class="save" onclick="gPend(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  h+=ab.length?ab.map(x=>`<div class="pend${x.hecho?' on':''}${!x.hecho&&x.prioridad===1?' urg':''}" onclick="togglePend('${x.id}',${!!x.hecho})">
+      <div class="bx">${x.hecho?tick():''}</div><div style="flex:1"><div class="t">${esc(x.titulo)}</div>
+      ${x.notas||x.fecha_objetivo?`<div class="d">${x.fecha_objetivo?'Para el '+fmtL(x.fecha_objetivo)+'<br>':''}${esc(x.notas||'')}</div>`:''}</div>
+      <button class="del" onclick="event.stopPropagation();borrar('gatos_pendientes','${x.id}')">×</button></div>`).join('')
+    :'<div class="empty">Nada pendiente.</div>';
+
+  /* 4. tratamientos */
+  const act=trat.filter(t=>t.gato_id===id&&t.activo!==false),gr={};
+  act.forEach(t=>{const k=t.producto||t.tipo;if(!gr[k]||gr[k].fecha<t.fecha)gr[k]=t;});
+  h+=`<h2>Tratamientos <button class="add" onclick="abrir('t')">+ agregar</button></h2>
+  <div class="panel${form==='t'?' open':''}"><h3>Tratamiento o dosis</h3>
+    <div class="f"><label>Producto</label><input type="text" id="t-producto"></div>
+    <div class="f"><label>Tipo</label><input type="text" id="t-tipo" value="antipulgas">
+      <div class="chips">${['antipulgas','articular','antiparasitario','otico','suplemento','otro'].map(c=>`<button class="chip sm" onclick="sv('t-tipo','${c}',this)">${c}</button>`).join('')}</div></div>
+    <div class="f"><label>Para qué es</label><input type="text" id="t-ind"></div>
+    <div class="f"><label>Cada cuánto</label><select id="t-frec" onchange="frecUI()">
+      <option value="periodico">Se repite cada X días</option><option value="diario">Todos los días</option>
+      <option value="ocasional">Solo cuando haga falta</option><option value="curso">Curso con inicio y fin</option></select></div>
+    <div class="r2"><div class="f"><label id="lbl-f">Fecha de la dosis</label><input type="date" id="t-fecha" value="${hoy()}"></div>
+      <div class="f" id="w-int"><label>Cada cuántos días</label><input type="number" id="t-int" value="30"></div>
+      <div class="f" id="w-fin" style="display:none"><label>Fecha fin</label><input type="date" id="t-fin"></div></div>
+    <div class="r2"><div class="f"><label>Lote</label><input type="text" id="t-lote"></div>
+      <div class="f"><label>Precio (CAD)</label><input type="number" step="0.01" id="t-precio"></div></div>
+    <div class="f"><label>Notas</label><textarea id="t-notas"></textarea></div>
+    <div class="btns"><button class="save" onclick="gTrat(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  h+=Object.values(gr).map(t=>{
+    const prod=t.producto||t.tipo,pz=pausado(id,prod);
+    let s;
+    if(t.frecuencia==='diario')s='Todos los días desde el '+fmt(t.fecha);
+    else if(pz)s='En pausa. La última dosis fue el '+fmt(t.fecha)+'.';
+    else{const px=suma(t.fecha,t.intervalo_dias||30);s='Próxima el '+fmtL(px)+' · '+cuando(dias(px)).toLowerCase();}
+    const n=act.filter(x=>(x.producto||x.tipo)===prod).length;
+    return `<div class="box${pz?' pausado':''}"><div class="top"><div>
+      <div class="t">${esc(prod)}${pz?' <span style="font-size:11px;font-weight:600;color:var(--muted)">· EN PAUSA</span>':''}</div>
+      <div class="d">${esc(t.tipo)}${t.indicacion?' · '+esc(t.indicacion):''}<br>${s}<br>${n} dosis registrada${n===1?'':'s'}${t.dosis?' · '+esc(t.dosis):''}</div></div>
+      <div class="acts">${t.frecuencia!=='diario'?`<button class="chip sm" onclick="marcar('${t.id}')">Ya está</button>`:''}
+      ${t.frecuencia!=='diario'?`<button class="chip sm" onclick="pausar('${id}','${esc(prod).replace(/'/g,"\\'")}',${pz})">${pz?'Retomar':'Pausar'}</button>`:''}</div></div></div>`;
+  }).join('')||'<div class="empty">Sin tratamientos.</div>';
+
+  const cu=trat.filter(t=>t.gato_id===id&&t.activo===false);
+  if(cu.length)h+='<h2>Tratamientos terminados</h2>'+cu.map(t=>`<div class="li"><div class="b">
+    <div class="t">${esc(t.producto)}</div><div class="d">${esc(t.indicacion||'')} · del ${fmt(t.fecha)}${t.fecha_fin?' al '+fmt(t.fecha_fin):''}</div></div>
+    <button class="del" onclick="borrar('gatos_tratamientos','${t.id}')">×</button></div>`).join('');
+
+  /* 5. vacunas */
+  const vv=vac.filter(v=>v.gato_id===id);
+  h+=`<h2>Vacunas <button class="add" onclick="abrir('v')">+ agregar</button></h2>
+  <div class="panel${form==='v'?' open':''}"><h3>Vacuna</h3>
+    <div class="f"><label>Vacuna</label><input type="text" id="v-nombre"></div>
+    <div class="r2"><div class="f"><label>Fecha</label><input type="date" id="v-fecha" value="${hoy()}"></div>
+      <div class="f"><label>Refuerzo</label><input type="date" id="v-prox"></div></div>
+    <div class="r2"><div class="f"><label>Serie</label><input type="text" id="v-lote"></div>
+      <div class="f"><label>Precio (CAD)</label><input type="number" step="0.01" id="v-precio"></div></div>
+    <div class="f"><label>Veterinaria</label><input type="text" id="v-vet" value="Clinique vétérinaire du Vieux-Saint-Eustache"></div>
+    <div class="f"><label>Notas</label><textarea id="v-notas"></textarea></div>
+    <div class="btns"><button class="save" onclick="gVac(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  h+=vv.length?vv.map(v=>`<div class="box"><div class="top"><div><div class="t">${esc(v.vacuna)}</div>
+    <div class="d">Puesta el ${fmtL(v.fecha)}${v.lote?' · serie '+esc(v.lote):''}${v.proxima_fecha?'<br><b style="color:var(--ink)">Refuerzo el '+fmtL(v.proxima_fecha)+'</b> · '+cuando(dias(v.proxima_fecha)).toLowerCase():'<br>Sin refuerzo programado'}</div></div>
+    <button class="del" onclick="borrar('gatos_vacunas','${v.id}')">×</button></div></div>`).join(''):'<div class="empty">Sin vacunas registradas.</div>';
+
+  /* 6. historia clínica */
+  const vs=visitas.filter(x=>x.gato_id===id);
+  if(vs.length){h+='<h2>Historia clínica</h2>'+vs.map((x,i)=>{const k='v'+i;
+    return `<div class="fold${folds[k]?' open':''}"><div class="hd" onclick="fold('${k}')">
+      <div><div class="t" style="font-size:14.5px;font-weight:600">${esc(x.motivo||'Visita')}</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:3px">${fmtL(x.fecha)}${x.peso_kg?' · '+x.peso_kg+' kg':''}${x.profesional?' · '+esc(x.profesional):''}</div></div>
+      <span style="color:var(--muted)">${folds[k]?'−':'+'}</span></div>
+      <div class="bd">${x.hallazgos?'<b>Hallazgos.</b> '+esc(x.hallazgos):''}${x.plan?'<br><br><b>Plan.</b> '+esc(x.plan):''}</div></div>`;}).join('');}
+
+  /* 7. laboratorios */
+  const lf=[...new Set(labs.filter(x=>x.gato_id===id).map(x=>x.fecha))];
+  if(lf.length){h+='<h2>Análisis de sangre</h2>'+lf.map((f,i)=>{
+    const ll=labs.filter(x=>x.gato_id===id&&x.fecha===f);
+    const out=ll.filter(x=>x.bandera);const k='l'+i;
+    return `<div class="fold${folds[k]?' open':''}"><div class="hd" onclick="fold('${k}')">
+      <div><div style="font-size:14.5px;font-weight:600">${fmtL(f)}</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:3px">${ll.length} valores · ${out.length?out.length+' fuera de rango':'todo normal'}</div></div>
+      <span style="color:var(--muted)">${folds[k]?'−':'+'}</span></div>
+      <div class="bd" style="color:var(--ink)">${['CBC','CHEM'].map(pn=>{
+        const g2=ll.filter(x=>x.panel===pn);if(!g2.length)return'';
+        return `<div style="font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;margin:10px 0 4px">${pn==='CBC'?'HEMOGRAMA':'BIOQUÍMICA'}</div>`
+          +g2.map(x=>`<div class="lab${x.bandera?' out':''}"><div>${esc(x.analito)}<div class="rg">${x.ref_min!=null?x.ref_min+' – '+x.ref_max:''} ${esc(x.unidad||'')}</div></div>
+            <div class="vl">${x.valor}${x.bandera?' ↑↓'.charAt(x.bandera==='alto'?1:2):''}</div></div>`).join('');}).join('')}</div></div>`;}).join('');}
+
+  /* 8. documentos */
+  const dc=docs.filter(x=>x.gato_id===id);
+  if(dc.length)h+='<h2>Documentos</h2>'+dc.map(x=>`<div class="box"><div class="t">${esc(x.titulo)}</div>
+    <div class="d">${fmtL(x.fecha)} · ${esc(x.tipo||'')}<br>${esc(x.resumen||'')}</div></div>`).join('');
+  return h;
+}
+window.frecUI=function(){const f=document.getElementById('t-frec').value;
+  document.getElementById('w-int').style.display=(f==='periodico'||f==='ocasional')?'block':'none';
+  document.getElementById('w-fin').style.display=f==='curso'?'block':'none';
+  document.getElementById('lbl-f').textContent=f==='curso'?'Fecha de inicio':(f==='diario'?'Desde cuándo':'Fecha de la dosis');};
+
+/* ===== GASTOS ===== */
+function vGastos(){
+  const mes=hoy().slice(0,7),dm=gastos.filter(x=>x.fecha.startsWith(mes));
+  const tot=dm.reduce((a,b)=>a+(+b.monto||0),0),pc={};
+  dm.forEach(x=>pc[x.categoria]=(pc[x.categoria]||0)+(+x.monto||0));
+  let h=`<div class="stat"><div><div class="n">${dm.length?plata(tot):'—'}</div><div class="l">este mes</div></div>
+    <div><div class="n">${gastos.length?plata(gastos.reduce((a,b)=>a+(+b.monto||0),0)):'—'}</div><div class="l">en total</div></div></div>`;
+  if(Object.keys(pc).length)h+=`<div class="empty" style="padding-top:10px">${Object.entries(pc).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+plata(v)).join(' · ')}</div>`;
+  h+=`<h2>Anotar <button class="add" onclick="abrir('x')">+ nuevo</button></h2>
+  <div class="panel${form==='x'?' open':''}"><h3>Nuevo gasto</h3>
+    <div class="f"><label>Categoría</label><input type="text" id="x-cat" value="comida">
+      <div class="chips">${['comida','arena','veterinario','tratamiento','vacuna','juguetes','otro'].map(c=>`<button class="chip sm" onclick="sv('x-cat','${c}',this);cons()">${c}</button>`).join('')}</div></div>
+    <div class="r2"><div class="f"><label>Fecha</label><input type="date" id="x-fecha" value="${hoy()}"></div>
+      <div class="f"><label>Precio (CAD)</label><input type="number" step="0.01" id="x-monto"></div></div>
+    <div class="f"><label>Qué fue</label><input type="text" id="x-desc"></div>
+    <div class="r2"><div class="f"><label>Tamaño</label><input type="text" id="x-tam"></div>
+      <div class="f"><label>Dónde</label><input type="text" id="x-tienda"></div></div>
+    <div class="f"><label>¿Para cuál?</label><select id="x-gato"><option value="">Los dos</option>${gatos.map(g=>`<option value="${g.id}">${esc(g.nombre)}</option>`).join('')}</select></div>
+    <div class="f" id="x-abre"><label>¿Cuándo lo abriste?</label><input type="date" id="x-apertura"></div>
+    <div class="f"><label>Notas</label><textarea id="x-notas"></textarea></div>
+    <div class="btns"><button class="save" onclick="gGasto(this)">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  const cons=gastos.filter(x=>['comida','arena'].includes(x.categoria));
+  if(cons.length){h+='<h2>Comida y arena</h2>';
+    cons.filter(x=>x.fecha_apertura&&!x.fecha_terminado).forEach(x=>{
+      h+=`<div class="box"><div class="top"><div><div class="t">${esc(x.descripcion||x.categoria)}</div>
+        <div class="d">Abierto hace ${-dias(x.fecha_apertura)} días${x.tamano?' · '+esc(x.tamano):''}</div></div>
+        <button class="chip sm" onclick="terminar('${x.id}')">Se acabó</button></div></div>`;});
+    ['comida','arena'].forEach(c=>{const hi=cons.filter(x=>x.categoria===c&&x.fecha_apertura&&x.fecha_terminado);if(!hi.length)return;
+      const pr=Math.round(hi.reduce((a,b)=>a+(-dias(b.fecha_apertura)+dias(b.fecha_terminado)),0)/hi.length);
+      const cp=hi.filter(x=>x.monto),co=cp.length?cp.reduce((a,b)=>a+(+b.monto),0)/cp.length:0;
+      h+=`<div class="box"><div class="t">${c}: dura ${pr} días</div><div class="d">Promedio de ${hi.length} paquete${hi.length===1?'':'s'}${co?' · unos '+plata(co)+' cada uno, cerca de '+plata(co/pr*30)+' al mes':''}</div></div>`;});}
+  h+='<h2>Historial</h2>';
+  h+=gastos.length?gastos.map(x=>{const g=x.gato_id?G(x.gato_id):null;let d='';
+    if(x.fecha_apertura&&x.fecha_terminado)d=` · duró ${-dias(x.fecha_apertura)+dias(x.fecha_terminado)} días`;
+    return `<div class="li"><div class="b"><div class="t">${esc(x.descripcion||x.categoria)}</div>
+      <div class="d">${esc(x.categoria)} · ${fmtL(x.fecha)}${g?' · '+esc(g.nombre):''}${d}</div></div>
+      <div class="amt">${plata(x.monto)}</div><button class="del" onclick="borrar('gatos_gastos','${x.id}')">×</button></div>`;}).join('')
+    :'<div class="empty">Todavía no hay nada anotado.</div>';
+  return h;
+}
+
+/* ===== acciones ===== */
+window.sv=function(id,v,b){document.getElementById(id).value=v;b.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));b.classList.add('on');};
+window.abrir=function(f){form=f;render();setTimeout(()=>{const p=document.querySelector('.panel.open');if(p)p.scrollIntoView({behavior:'smooth',block:'center'});},60);};
+window.cerrar=function(){form=null;render();};
+window.cons=function(){const c=document.getElementById('x-cat').value;document.getElementById('x-abre').style.display=['comida','arena'].includes(c)?'block':'none';};
+window.verFoto=function(u){document.getElementById('lightboxImg').src=u;document.getElementById('lightbox').classList.add('on');};
+window.prev=function(i){const f=i.files[0];if(!f)return;const m=document.getElementById('s-prev');m.src=URL.createObjectURL(f);m.style.display='block';};
+async function comprimir(f){try{const b=await createImageBitmap(f);const e=Math.min(1,1400/Math.max(b.width,b.height));const c=document.createElement('canvas');c.width=Math.round(b.width*e);c.height=Math.round(b.height*e);c.getContext('2d').drawImage(b,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,'image/jpeg',.72));}catch(e){return f;}}
+async function subir(f){const b=await comprimir(f);const p=`sintomas/${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
+  const r=await fetch(`${SB}/storage/v1/object/gatos-fotos/${p}`,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'image/jpeg'},body:b});
+  if(!r.ok)throw new Error('foto');return `${SB}/storage/v1/object/public/gatos-fotos/${p}`;}
+function v(id){const e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():null;}
+function n(id){const x=v(id);return x?Number(x):null;}
+async function post(t,b,btn){btn.disabled=true;btn.textContent='Guardando…';
+  try{await api(t,{method:'POST',body:JSON.stringify(b)});await cargar();form=null;render();}
+  catch(e){alert('No se pudo guardar. Revisa la conexión.');btn.disabled=false;btn.textContent='Guardar';}}
+window.gSint=async function(btn,gid){const f=document.getElementById('s-foto').files[0];let u=null;
+  if(f){btn.disabled=true;btn.textContent='Subiendo foto…';try{u=await subir(f);}catch(e){alert('La foto no subió, pero guardo el resto.');}}
+  await post('gatos_sintomas',{gato_id:gid,fecha:v('s-fecha'),hora:v('s-hora'),tipo:v('s-tipo')||'vómito',contenido:v('s-contenido'),comio_antes:v('s-comio'),foto_url:u,notas:v('s-notas')},btn);};
+window.gTrat=async function(btn,gid){if(!v('t-producto')){alert('Ponle nombre al producto.');return;}
+  const fr=v('t-frec')||'periodico';
+  await post('gatos_tratamientos',{gato_id:gid,tipo:v('t-tipo')||'otro',producto:v('t-producto'),fecha:v('t-fecha'),
+    fecha_fin:fr==='curso'?v('t-fin'):null,frecuencia:fr==='ocasional'?'periodico':fr,activo:fr!=='curso',
+    intervalo_dias:(fr==='periodico'||fr==='ocasional')?(n('t-int')||30):(fr==='diario'?1:null),
+    indicacion:v('t-ind'),lote:v('t-lote'),precio:n('t-precio'),notas:v('t-notas')},btn);
+  if(fr==='ocasional')await pausarDirecto(gid,v('t-producto'),true);};
+window.gVac=async function(btn,gid){if(!v('v-nombre')){alert('Ponle nombre a la vacuna.');return;}
+  await post('gatos_vacunas',{gato_id:gid,vacuna:v('v-nombre'),fecha:v('v-fecha'),proxima_fecha:v('v-prox'),lote:v('v-lote'),veterinaria:v('v-vet'),precio:n('v-precio'),notas:v('v-notas')},btn);};
+window.gPend=async function(btn,gid){if(!v('p-tit')){alert('Escribe qué hay que hacer.');return;}
+  await post('gatos_pendientes',{gato_id:gid,titulo:v('p-tit'),notas:v('p-notas'),fecha_objetivo:v('p-fecha'),prioridad:n('p-pri')||2},btn);};
+window.gGasto=async function(btn){await post('gatos_gastos',{gato_id:v('x-gato'),fecha:v('x-fecha'),categoria:v('x-cat')||'otro',descripcion:v('x-desc'),monto:n('x-monto'),tienda:v('x-tienda'),tamano:v('x-tam'),fecha_apertura:v('x-apertura'),notas:v('x-notas')},btn);};
+
+async function pausarDirecto(gid,prod,susp){
+  const ex=estados.find(e=>e.gato_id===gid&&e.producto===prod);
+  if(ex)await api('gatos_plan_estado?id=eq.'+ex.id,{method:'PATCH',body:JSON.stringify({suspendido:susp,desde:hoy()})});
+  else await api('gatos_plan_estado',{method:'POST',body:JSON.stringify({gato_id:gid,producto:prod,suspendido:susp,desde:hoy()})});
+}
+window.pausar=async function(gid,prod,estaPausado){
+  if(!estaPausado&&!confirm(`¿Poner ${prod} en pausa?\n\nDeja de aparecer en "lo que sigue", pero se queda guardado con todo su historial. Cuando lo vuelvas a usar le das "Retomar" o simplemente registras la dosis nueva.`))return;
+  try{await pausarDirecto(gid,prod,!estaPausado);await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+
+window.marcar=async function(id){const b=trat.find(t=>t.id===id);if(!b)return;
+  if(!confirm(`¿Anotar que hoy le diste ${b.producto} a ${G(b.gato_id).nombre}?`))return;
+  try{await api('gatos_tratamientos',{method:'POST',body:JSON.stringify({gato_id:b.gato_id,tipo:b.tipo,producto:b.producto,fecha:hoy(),intervalo_dias:b.intervalo_dias,frecuencia:'periodico',activo:true,indicacion:b.indicacion,lote:b.lote,dosis:b.dosis})});
+  await pausarDirecto(b.gato_id,b.producto,false); // registrar una dosis lo reactiva solo
+  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.toggleDiario=async function(id,ok){try{
+  if(ok)await api(`gatos_dosis_log?tratamiento_id=eq.${id}&fecha=eq.${hoy()}`,{method:'DELETE'});
+  else await api('gatos_dosis_log',{method:'POST',body:JSON.stringify({tratamiento_id:id,fecha:hoy()})});
+  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.togglePend=async function(id,ok){try{
+  await api('gatos_pendientes?id=eq.'+id,{method:'PATCH',body:JSON.stringify({hecho:!ok,hecho_fecha:ok?null:hoy()})});
+  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.terminar=async function(id){if(!confirm('¿Marcar que se acabó hoy?'))return;
+  try{await api('gatos_gastos?id=eq.'+id,{method:'PATCH',body:JSON.stringify({fecha_terminado:hoy()})});await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.borrar=async function(t,id){if(!confirm('¿Eliminar este registro?'))return;
+  try{await api(`${t}?id=eq.${id}`,{method:'DELETE'});await cargar();render();}catch(e){alert('No se pudo eliminar.');}};
+
+(async function(){try{await cargar();render();}catch(e){document.getElementById('view').innerHTML='<div class="empty">No se pudo conectar. Revisa tu internet y recarga.</div>';}})();
+</script>
+</body>
+</html>
