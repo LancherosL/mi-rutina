@@ -988,7 +988,7 @@ body.night .salud-val { color: var(--night-text); }
           <div class="comida-estado">Toca cuando desayunes</div>
         </div>
       </div>
-      <input class="meal-input comida-texto" type="text" id="texto-0" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)">
+      <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0)" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)">
     </div>
 
     <!-- Almuerzo -->
@@ -1002,7 +1002,7 @@ body.night .salud-val { color: var(--night-text); }
         </div>
         <div class="comida-lock">🔒</div>
       </div>
-      <input class="meal-input comida-texto" type="text" id="texto-1" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)">
+      <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1)" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)">
     </div>
 
     <!-- Cena -->
@@ -1016,7 +1016,7 @@ body.night .salud-val { color: var(--night-text); }
         </div>
         <div class="comida-lock">🔒</div>
       </div>
-      <input class="meal-input comida-texto" type="text" id="texto-2" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)">
+      <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2)" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)">
     </div>
   </div>
 
@@ -1396,19 +1396,96 @@ async function cargarSemana() {
   } catch(e){console.error(e);}
 }
 
+// Guarda la hora en que se marcó el hábito. Si la columna 'hora' aún no existe
+// en Supabase, reintenta sin ella para que el hábito se guarde igual.
+let columnaHoraDisponible = true;
+
 async function guardarHabito(panel,dayIdx,habitIdx,completado) {
   setSyncing(true);
   const fecha=weekDates[dayIdx], habito=HABITS[panel][habitIdx].name;
-  try {
+  const ahora = new Date();
+  const hora = completado
+    ? String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0')
+    : null;
+
+  const intentar = async (conHora) => {
     const ex=await sbFetch('GET',null,`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
-    if(ex&&ex.length>0) await sbFetch('PATCH',{completado},`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
-    else await sbFetch('POST',{fecha,momento:panel,habito,completado});
+    const cuerpo = conHora ? {completado, hora} : {completado};
+    if(ex&&ex.length>0) {
+      const r = await sbFetch('PATCH',cuerpo,`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
+      if(r && !r.ok) throw new Error('HTTP '+r.status);
+    } else {
+      const nuevo = conHora ? {fecha,momento:panel,habito,completado,hora} : {fecha,momento:panel,habito,completado};
+      const r = await sbFetch('POST',nuevo);
+      if(r && !r.ok) throw new Error('HTTP '+r.status);
+    }
+  };
+
+  try {
+    if(columnaHoraDisponible){
+      try {
+        await intentar(true);
+        if(completado) horaHabitos[`${fecha}|${panel}|${habito}`]=hora;
+      } catch(e) {
+        // Probablemente la columna 'hora' no existe todavía: seguir sin ella
+        columnaHoraDisponible = false;
+        await intentar(false);
+      }
+    } else {
+      await intentar(false);
+    }
     setSyncing(false);
     clearSyncError();
   } catch(e){
     console.error(e);
     setSyncError();
   }
+}
+
+// Última vez que se hizo cada hábito: "fecha|momento|nombre" -> "HH:MM"
+let horaHabitos = {};
+let ultimaVezHabitos = {}; // "momento|nombre" -> {fecha, hora}
+
+async function cargarUltimaVezHabitos() {
+  try {
+    const data = await sbFetch('GET', null, `?completado=eq.true&order=fecha.desc&limit=400`);
+    if(!data || !Array.isArray(data)) return;
+    const encontrado = {};
+    data.forEach(row => {
+      const clave = `${row.momento}|${row.habito}`;
+      // data viene de más reciente a más antiguo; nos quedamos con el primero
+      if(!encontrado[clave]) encontrado[clave] = {fecha: row.fecha, hora: row.hora || null};
+      horaHabitos[`${row.fecha}|${row.momento}|${row.habito}`] = row.hora || null;
+    });
+    ultimaVezHabitos = encontrado;
+  } catch(e){ console.error('Error cargando última vez de hábitos:', e); }
+}
+
+function formatHora12(hhmm) {
+  if(!hhmm) return null;
+  const [h,m] = hhmm.split(':').map(Number);
+  const suf = h>=12 ? 'pm' : 'am';
+  let h12 = h % 12; if(h12===0) h12=12;
+  return `${h12}:${String(m).padStart(2,'0')} ${suf}`;
+}
+
+function habitoSubtitulo(panel, habitIdx, day, done) {
+  const nombre = HABITS[panel][habitIdx].name;
+  const fecha = weekDates[day];
+  if(done) {
+    const h = horaHabitos[`${fecha}|${panel}|${nombre}`];
+    const hf = formatHora12(h);
+    return hf ? `¡Listo! ✓ · ${hf}` : '¡Listo! ✓';
+  }
+  const ult = ultimaVezHabitos[`${panel}|${nombre}`];
+  if(!ult) return 'Toca para marcar';
+  const hf = formatHora12(ult.hora);
+  const dias = diasDesde(ult.fecha);
+  let cuando;
+  if(dias===0) cuando='hoy';
+  else if(dias===1) cuando='ayer';
+  else cuando=`hace ${dias} días`;
+  return hf ? `Última vez ${cuando} · ${hf}` : `Última vez ${cuando}`;
 }
 
 // ── DATOS POR FECHA (ya no fijo a "hoy") ──
@@ -1525,7 +1602,22 @@ function getFechaAnteriorA(fecha) {
 
 // suenoCache: fecha_de_la_noche -> {horas, calidad}
 let suenoCache = {};
-let suenoData = {}; // compatibilidad: apunta a la noche relevante para fechaActiva
+// suenoData ahora es dinámico: siempre lee el dato vivo de la noche correspondiente
+// a la fecha activa. Antes era una referencia fija que quedaba desactualizada cuando
+// llegaban datos de Supabase, causando que una parte de la app viera un valor y otra parte otro.
+Object.defineProperty(window, 'suenoData', {
+  get(){
+    const noche = getFechaAnteriorA(fechaActiva);
+    if(!suenoCache[noche]){
+      try { suenoCache[noche]=JSON.parse(localStorage.getItem('sueno_'+noche)||'{}'); }
+      catch(e){ suenoCache[noche]={}; }
+    }
+    return suenoCache[noche];
+  },
+  set(v){
+    suenoCache[getFechaAnteriorA(fechaActiva)] = v;
+  }
+});
 
 function loadSuenoData() {
   const nocheFecha = getFechaAnteriorA(fechaActiva);
@@ -1533,7 +1625,6 @@ function loadSuenoData() {
     try { suenoCache[nocheFecha]=JSON.parse(localStorage.getItem('sueno_'+nocheFecha)||'{}'); }
     catch(e){ suenoCache[nocheFecha]={}; }
   }
-  suenoData = suenoCache[nocheFecha];
 }
 
 let suenoTimer=null;
@@ -1961,7 +2052,11 @@ function restoreComidas() {
   if(!todayData.comidas_texto) todayData.comidas_texto={};
   for(let i=0;i<3;i++){
     const input=document.getElementById(`texto-${i}`);
-    if(input && todayData.comidas_texto[i]) input.value=todayData.comidas_texto[i];
+    if(!input) continue;
+    // Nunca dejar texto de otro día: si esta fecha no tiene nada, el campo queda vacío.
+    // Si el campo está enfocado (lo estás escribiendo), no se toca.
+    if(document.activeElement===input) continue;
+    input.value = todayData.comidas_texto[i] || '';
   }
   updateComidasUI();
 }
@@ -1986,20 +2081,18 @@ function setFase(el, val) {
 }
 
 function restoreTodayUI() {
-  // Limpiar todo primero para que no queden datos del día anterior visibles
+  // Limpiar todo primero para que no queden datos del día anterior visibles.
+  // Nunca se toca el campo que estás escribiendo en ese momento.
+  const limpiar = (id) => {
+    const el = document.getElementById(id);
+    if(el && document.activeElement !== el) el.value='';
+  };
   document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-  document.getElementById('input-pasos').value='';
-  document.getElementById('input-fc').value='';
-  document.getElementById('input-spo2').value='';
-  document.getElementById('input-hrv').value='';
-  document.getElementById('input-estres').value='';
-  document.getElementById('input-recuperacion').value='';
-  document.getElementById('input-sueno').value='';
-  document.getElementById('input-ciclo').value='';
-  document.getElementById('input-lectura').value='';
+  ['input-pasos','input-fc','input-spo2','input-hrv','input-estres',
+   'input-recuperacion','input-sueno','input-ciclo','input-lectura'].forEach(limpiar);
   starState={agua:0,energia:0,sueno:0,movimiento:0};
 
   // Ahora restaurar solo lo que existe para esta fecha
@@ -2036,15 +2129,19 @@ function updateSnaps() {
   const sh=suenoData.horas;
   const snapS=document.getElementById('snap-sueno');
   if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
+  else { snapS.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-sueno-sub').textContent='Registra en Mañana'; }
   
   // Pasos
   const p=todayData.pasos;
   const snapP=document.getElementById('snap-pasos');
   if(p) { snapP.innerHTML=`${parseInt(p).toLocaleString()}`; document.getElementById('snap-pasos-sub').textContent='pasos'; }
+  else { snapP.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-pasos-sub').textContent='Agregar'; }
   
   // Emoción
   const e=todayData.emocion;
-  if(e) document.getElementById('snap-emocion').textContent=e.split(' ')[0];
+  const snapE=document.getElementById('snap-emocion');
+  if(e) snapE.textContent=e.split(' ')[0];
+  else snapE.innerHTML='<span class="snap-empty">—</span>';
   
   // Hábitos
   const tm=state.m[todayIdx]?state.m[todayIdx].filter(Boolean).length:0;
@@ -2104,13 +2201,14 @@ function buildStrip(panel) {
 }
 
 function selectDay(panel,idx) {
-  currentDay[panel]=idx;
-  buildStrip(panel);
-  buildHabits(panel);
-  updateProgress(panel);
-  if(panel==='m') {
-    cambiarFechaActiva(weekDates[idx]);
-  }
+  // Ambos paneles comparten el mismo día seleccionado. Antes solo Mañana movía
+  // la fecha activa, así que "me moví" en Noche se guardaba en el día equivocado.
+  currentDay.m = idx;
+  currentDay.n = idx;
+  buildStrip('m'); buildStrip('n');
+  buildHabits('m'); buildHabits('n');
+  updateProgress('m'); updateProgress('n');
+  cambiarFechaActiva(weekDates[idx]);
 }
 
 function cambiarFechaActiva(fecha) {
@@ -2133,7 +2231,7 @@ function buildHabits(panel) {
       <div class="habit-emoji">${h.icon}</div>
       <div class="habit-text">
         <div class="habit-name">${h.name}</div>
-        <div class="habit-status">${done?'¡Listo! ✓':'Toca para marcar'}</div>
+        <div class="habit-status">${habitoSubtitulo(panel,i,day,done)}</div>
       </div></div>`;
     card.onclick=()=>toggleHabit(panel,day,i);
     c.appendChild(card);
@@ -2355,7 +2453,8 @@ async function refrescoAutomatico() {
   if(usuarioEscribiendo || document.hidden) return;
 
   try {
-    const antes = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
+    const nocheAct = getFechaAnteriorA(fechaActiva);
+    const antes = JSON.stringify({r: registroCache[fechaActiva], z: suenoCache[nocheAct], s: state.m[todayIdx], n: state.n[todayIdx]});
 
     // Releer solo la fecha activa + hoy desde Supabase (fuente de verdad)
     const fechasBuscar = [...new Set([fechaActiva, todayStr, getFechaAnteriorA(fechaActiva)])];
@@ -2420,8 +2519,9 @@ async function refrescoAutomatico() {
     // Cargar sueño para fechaActiva
     loadSuenoData();
     await cargarUltimaVezGatos();
+    await cargarUltimaVezHabitos();
 
-    const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
+    const despues = JSON.stringify({r: registroCache[fechaActiva], z: suenoCache[nocheAct], s: state.m[todayIdx], n: state.n[todayIdx]});
 
     // Solo redibujar si algo realmente cambió (evita parpadeos innecesarios)
     if(antes !== despues){
@@ -2502,6 +2602,7 @@ async function init() {
   setSyncing(true);
   await cargarRegistroDesdeSupabase();
   await cargarUltimaVezGatos();
+  await cargarUltimaVezHabitos();
   await cargarSemana();
   setSyncing(false);
   restoreTodayUI();
