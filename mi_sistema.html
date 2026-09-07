@@ -216,6 +216,20 @@ body.night .emotion-bar { background: var(--night-card); }
   gap: 6px;
   flex-wrap: wrap;
 }
+.emotion-energia-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.emotion-energia-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
 .emo-pill {
   padding: 6px 12px;
   border-radius: 20px;
@@ -453,6 +467,63 @@ body.night .log-card { background: var(--night-card); }
   margin-bottom: 12px;
 }
 .log-total { font-size: 12px; font-weight: 700; color: var(--terra); }
+
+/* Algo de más (extras de comida) */
+.extras-block {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+.extras-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.extras-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 600;
+}
+.extras-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.extras-input-row {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  gap: 8px;
+  align-items: center;
+}
+.extras-input { width: 100%; margin: 0; }
+.extras-add { background: var(--gold); }
+.extras-list { margin-top: 8px; }
+.extra-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.extra-item:last-child { border-bottom: none; }
+.extra-hora {
+  font-size: 11px;
+  color: var(--muted);
+  min-width: 58px;
+}
+.extra-texto { flex: 1; color: var(--ink); }
+body.night .extra-texto { color: var(--night-text); }
+.extras-nota {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 10px;
+  text-align: center;
+}
 
 /* Cronómetro de fumado */
 .crono-box {
@@ -1206,28 +1277,8 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="emo-pill" onclick="setEmocion(this,'🌿 En paz')">🌿 En paz</button>
       <button class="emo-pill" onclick="setEmocion(this,'🔥 Motivada')">🔥 Motivada</button>
     </div>
-  </div>
-
-  <!-- Quick log salud -->
-  <div class="quick-log">
-    <div class="ql-title">Registro rápido</div>
-    <div class="ql-row">
-      <div class="ql-icon">👟</div>
-      <div class="ql-label">Pasos hoy</div>
-      <input class="ql-num-input" type="number" id="input-pasos" placeholder="0" onchange="saveQuick()">
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">💧</div>
-      <div class="ql-label">Agua</div>
-      <div class="nivel-pills" id="nivel-agua">
-        <button class="nivel-pill" onclick="setNivel('agua','Baja',this)">Baja</button>
-        <button class="nivel-pill" onclick="setNivel('agua','Media',this)">Media</button>
-        <button class="nivel-pill" onclick="setNivel('agua','Alta',this)">Alta</button>
-      </div>
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">⚡</div>
-      <div class="ql-label">Energía general</div>
+    <div class="emotion-energia-row">
+      <span class="emotion-energia-label">Energía general</span>
       <div class="ql-stars" id="stars-energia">
         <button class="ql-star" onclick="setStars('energia',1)">1</button>
         <button class="ql-star" onclick="setStars('energia',2)">2</button>
@@ -1235,11 +1286,6 @@ body.night .habito-count { color: var(--night-accent); }
         <button class="ql-star" onclick="setStars('energia',4)">4</button>
         <button class="ql-star" onclick="setStars('energia',5)">5</button>
       </div>
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">❤️</div>
-      <div class="ql-label">Frec. cardíaca</div>
-      <input class="ql-num-input" type="number" id="input-fc" placeholder="bpm" onchange="saveFC()">
     </div>
   </div>
 
@@ -1289,6 +1335,20 @@ body.night .habito-count { color: var(--night-accent); }
         <div class="comida-lock">🔒</div>
       </div>
       <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2)" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)">
+    </div>
+
+    <!-- Algo de más (fuera de las comidas principales) -->
+    <div class="extras-block">
+      <div class="extras-header">
+        <span class="extras-title">Algo de más 🍪</span>
+        <span class="extras-count" id="extras-count"></span>
+      </div>
+      <div class="extras-input-row">
+        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" onkeydown="if(event.key==='Enter')agregarExtra()">
+        <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
+      </div>
+      <div class="extras-list" id="extras-list"></div>
+      <div class="extras-nota">Sin juicio. Solo información sobre tus patrones 🌿</div>
     </div>
   </div>
 
@@ -1350,29 +1410,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="log-list" id="gastos-list"></div>
   </div>
 
-  <!-- Lectura -->
-  <div class="quick-log">
-    <div class="ql-title">Lectura 📖</div>
-    <div class="ql-row">
-      <div class="ql-icon">📚</div>
-      <div class="ql-label">Minutos leídos hoy</div>
-      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
-    </div>
-    <div class="lectura-bar-wrap" id="lectura-visual"></div>
-  </div>
-
-  <!-- Pregunta del día para el cuaderno -->
-  <div class="cuaderno-card">
-    <div class="cuaderno-header">
-      <span class="cuaderno-icon">📓</span>
-      <span class="cuaderno-label">Pregunta para tu cuaderno</span>
-    </div>
-    <div class="cuaderno-pregunta" id="pregunta-dia">—</div>
-    <button class="cuaderno-btn" id="cuaderno-btn" onclick="toggleEscribi()">
-      <span id="cuaderno-btn-text">Ya escribí ✍️</span>
-    </button>
-    <div class="cuaderno-nota">La escritura a mano activa procesamiento más profundo que teclear 🧠</div>
-  </div>
+  <!-- Pregunta del día para el cuaderno se movió a Noche por consolidación en el sueño -->
 
 
 </div>
@@ -1385,6 +1423,17 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="prog-track"><div class="prog-fill morning" id="prog-bar-m" style="width:0%"></div></div>
   </div>
   <div id="habits-m"></div>
+
+  <!-- Lectura: la mañana es mejor momento para retener información nueva -->
+  <div class="quick-log">
+    <div class="ql-title">Lectura 📖</div>
+    <div class="ql-row">
+      <div class="ql-icon">📚</div>
+      <div class="ql-label">Minutos leídos hoy</div>
+      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
+    </div>
+    <div class="lectura-bar-wrap" id="lectura-visual"></div>
+  </div>
 
   <div class="section-label">Anoche dormí</div>
   <div class="quick-log">
@@ -1438,14 +1487,57 @@ body.night .habito-count { color: var(--night-accent); }
   <div class="section-label">Cierre del día</div>
   <div class="quick-log">
     <div class="ql-row">
+      <div class="ql-icon">💧</div>
+      <div class="ql-label">Agua</div>
+      <div class="nivel-pills" id="nivel-agua">
+        <button class="nivel-pill" onclick="setNivel('agua','Baja',this)">Baja</button>
+        <button class="nivel-pill" onclick="setNivel('agua','Media',this)">Media</button>
+        <button class="nivel-pill" onclick="setNivel('agua','Alta',this)">Alta</button>
+      </div>
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">👟</div>
+      <div class="ql-label">Pasos hoy</div>
+      <input class="ql-num-input" type="number" id="input-pasos" placeholder="0" onchange="saveQuick()">
+    </div>
+  </div>
+
+  <div class="quick-log">
+    <div class="ql-title">Me moví hoy 🏃</div>
+    <div class="ql-row">
       <div class="ql-icon">🏃</div>
-      <div class="ql-label">Me moví hoy</div>
+      <div class="ql-label">¿Te moviste?</div>
       <div class="ql-stars" id="stars-movimiento">
         <button class="ql-star" onclick="setStars('movimiento',1)" style="width:36px;font-size:10px;">No</button>
         <button class="ql-star" onclick="setStars('movimiento',2)" style="width:46px;font-size:10px;">Un poco</button>
         <button class="ql-star" onclick="setStars('movimiento',3)" style="width:36px;font-size:10px;">Sí</button>
       </div>
     </div>
+    <div class="ql-row">
+      <div class="ql-icon">📏</div>
+      <div class="ql-label">Kilómetros</div>
+      <input class="ql-num-input" type="number" step="0.1" id="input-km" placeholder="km" onchange="saveMovimiento()">
+    </div>
+    <div class="ql-row">
+      <div class="ql-icon">🚲</div>
+      <div class="ql-label">Hice bici</div>
+      <div class="nivel-pills" id="nivel-bici">
+        <button class="nivel-pill" id="bici-btn" onclick="toggleBici()">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pregunta del día para el cuaderno: escribir de noche ayuda a que el sueño consolide lo procesado -->
+  <div class="cuaderno-card">
+    <div class="cuaderno-header">
+      <span class="cuaderno-icon">📓</span>
+      <span class="cuaderno-label">Pregunta para tu cuaderno</span>
+    </div>
+    <div class="cuaderno-pregunta" id="pregunta-dia">—</div>
+    <button class="cuaderno-btn" id="cuaderno-btn" onclick="toggleEscribi()">
+      <span id="cuaderno-btn-text">Ya escribí ✍️</span>
+    </button>
+    <div class="cuaderno-nota">La escritura a mano activa procesamiento más profundo que teclear 🧠</div>
   </div>
 </div>
 
@@ -1474,7 +1566,7 @@ const HABITS = {
     {icon:'💧',name:'Lavo mi cara'},
     {icon:'🦷',name:'Cepillo mis dientes'},
     {icon:'🥗',name:'Alisto mi almuerzo'},
-    {icon:'🫙',name:'Lavo mis tepers'},
+    {icon:'🫙',name:'Lavo mis tápers'},
   ]
 };
 
@@ -2163,6 +2255,9 @@ async function guardarRegistroDiario(fecha) {
     estres: d.estres ? parseInt(d.estres) : null,
     recuperacion: d.recuperacion ? parseInt(d.recuperacion) : null,
     movimiento: d.movimiento ? parseInt(d.movimiento) : null,
+    km: d.km ? parseFloat(d.km) : null,
+    bici: !!d.bici,
+    extras: Array.isArray(d.extras) ? d.extras : [],
     ciclo_dia: d.ciclo_dia ? parseInt(d.ciclo_dia) : null,
     ciclo_fase: d.fase || null,
     lectura_min: d.lectura ? parseInt(d.lectura) : null,
@@ -2205,6 +2300,9 @@ async function cargarRegistroDesdeSupabase() {
         if(row.estres) d.estres=String(row.estres);
         if(row.recuperacion) d.recuperacion=String(row.recuperacion);
         if(row.movimiento) d.movimiento=row.movimiento;
+        if(row.km!=null) d.km=String(row.km);
+        d.bici=!!row.bici;
+        if(Array.isArray(row.extras)) d.extras=row.extras;
         if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
         if(row.ciclo_fase) d.fase=row.ciclo_fase;
         if(row.lectura_min) d.lectura=String(row.lectura_min);
@@ -2259,9 +2357,55 @@ function setNivel(key, val, el) {
   saveTodayLocal();
 }
 
-function saveFC() {
-  todayData.fc=document.getElementById('input-fc').value;
+// Movimiento del cierre del día: kilómetros y bici
+function saveMovimiento() {
+  todayData.km=document.getElementById('input-km').value;
   saveTodayLocal();
+}
+
+function toggleBici() {
+  todayData.bici=!todayData.bici;
+  const btn=document.getElementById('bici-btn');
+  if(btn) {
+    btn.textContent = todayData.bici ? '🚲 Sí' : 'No';
+    btn.classList.toggle('selected', !!todayData.bici);
+  }
+  saveTodayLocal();
+}
+
+// ── ALGO DE MÁS (fuera de las comidas principales) ──
+function agregarExtra() {
+  const input=document.getElementById('input-extra');
+  const texto=(input.value||'').trim();
+  if(!texto) return;
+  if(!Array.isArray(todayData.extras)) todayData.extras=[];
+  todayData.extras.push({hora:horaActualHHMM(), texto});
+  input.value='';
+  buildExtras();
+  saveTodayLocal();
+  input.focus();
+}
+
+function borrarExtra(i) {
+  if(!Array.isArray(todayData.extras)) return;
+  todayData.extras.splice(i,1);
+  buildExtras();
+  saveTodayLocal();
+}
+
+function buildExtras() {
+  const lista=document.getElementById('extras-list');
+  const contador=document.getElementById('extras-count');
+  if(!lista) return;
+  const extras=Array.isArray(todayData.extras)?todayData.extras:[];
+  if(contador) contador.textContent = extras.length ? `${extras.length}` : '';
+  if(!extras.length) { lista.innerHTML=''; return; }
+  lista.innerHTML=extras.map((x,i)=>`
+    <div class="extra-item">
+      <span class="extra-hora">${formatHora12(x.hora)||''}</span>
+      <span class="extra-texto">${escapeHtml(x.texto||'')}</span>
+      <button class="log-del" onclick="borrarExtra(${i})">✕</button>
+    </div>`).join('');
 }
 
 // ── ANCLA DEL DÍA ──
@@ -2592,8 +2736,10 @@ function restoreTodayUI() {
   document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-  ['input-pasos','input-fc','input-sueno','input-ciclo','input-lectura'].forEach(limpiar);
+  ['input-pasos','input-km','input-sueno','input-ciclo','input-lectura'].forEach(limpiar);
   starState={agua:0,energia:0,sueno:0,movimiento:0};
+  const biciBtn=document.getElementById('bici-btn');
+  if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
 
   // Ahora restaurar solo lo que existe para esta fecha
   if(todayData.emocion) {
@@ -2604,10 +2750,12 @@ function restoreTodayUI() {
     document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
   }
   if(todayData.energia) setStars('energia',todayData.energia);
-  if(todayData.fc) document.getElementById('input-fc').value=todayData.fc;
   restoreComidas();
+  buildExtras();
   if(todayData.sueno_calidad) setStars("sueno",todayData.sueno_calidad);
   if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
+  if(todayData.km) document.getElementById('input-km').value=todayData.km;
+  if(todayData.bici && biciBtn){ biciBtn.textContent='🚲 Sí'; biciBtn.classList.add('selected'); }
   if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
   if(todayData.ciclo_dia) document.getElementById('input-ciclo').value=todayData.ciclo_dia;
   if(todayData.fase) {
@@ -3005,12 +3153,18 @@ async function refrescoAutomatico() {
         merge('estres', row.estres!=null?String(row.estres):null);
         merge('recuperacion', row.recuperacion!=null?String(row.recuperacion):null);
         merge('movimiento', row.movimiento);
+        merge('km', row.km!=null?String(row.km):null);
         merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
         merge('fase', row.ciclo_fase);
         merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
         merge('sueno_horas', row.sueno_horas!=null?String(row.sueno_horas):null);
         merge('sueno_calidad', row.sueno_calidad!=null?row.sueno_calidad:null);
         if(local.escribi===undefined) local.escribi=!!row.escribi;
+        if(local.bici===undefined) local.bici=!!row.bici;
+        // Extras: la lista más larga gana (no queremos perder lo agregado en otro dispositivo)
+        if(Array.isArray(row.extras) && (!Array.isArray(local.extras) || row.extras.length > local.extras.length)) {
+          local.extras = row.extras;
+        }
         // Objetos: combinar, sin borrar marcas locales
         if(row.comidas) local.comidas = Object.assign({}, row.comidas, local.comidas||{});
         if(row.comidas_texto) local.comidas_texto = Object.assign({}, row.comidas_texto, local.comidas_texto||{});
