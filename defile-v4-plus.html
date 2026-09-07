@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#060E16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Défile — dopamina limpia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nuit:#060E16;--encre:#0C1822;
+  --craie:#F3F0EA;--craie-d:rgba(243,240,234,.7);--craie-f:rgba(243,240,234,.38);
+  --linha:rgba(243,240,234,.13);
+  --juste:#5FBF9B;--faux:#E2705C;
+  --teinte:#E0A33E;--fondo-grado:linear-gradient(135deg,#E0A33E,#1C1005);
+  --serif:'Fraunces',Georgia,serif;--sans:'Karla',system-ui,sans-serif;
+  --m:24px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;background:var(--nuit);font-family:var(--sans);color:var(--craie);}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+button:focus-visible{outline:2px solid var(--teinte);outline-offset:3px;border-radius:6px;}
+
+/* ── ANIMACIONES ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes confeti{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(-80px) rotate(360deg)}}
+@keyframes ripple{0%{box-shadow:0 0 0 0 rgba(224,163,62,.7)}100%{box-shadow:0 0 0 10px rgba(224,163,62,0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse-badge{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+.pulse{animation:pulse 2s infinite;}
+.confetto{animation:confeti 1.2s ease-out forwards;position:fixed;font-size:20px;pointer-events:none;}
+.ripple{animation:ripple 600ms;}
+
+/* ── layout ── */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+header{
+  position:absolute;top:0;left:0;right:0;z-index:30;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) var(--m) 12px;
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(to bottom,rgba(6,14,22,.95) 40%,transparent);
+  pointer-events:none;
+}
+header>*{pointer-events:auto;}
+.jauge{flex:1;min-width:0;}
+.jauge-haut{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--craie-d);margin-bottom:6px;}
+#faseNom{font-weight:700;letter-spacing:.01em;transition:color .4s;}
+.mini-stat{font-size:10px;color:var(--craie-f);margin-left:8px;}
+.jauge-pista{height:3px;background:rgba(243,240,234,.12);border-radius:2px;overflow:hidden;}
+#faseBarre{height:100%;width:0;background:var(--teinte);border-radius:2px;transition:width .7s cubic-bezier(.2,.8,.2,1);}
+.btn-rondo{width:40px;height:40px;flex:0 0 40px;border-radius:50%;border:1px solid var(--linha);
+  display:grid;place-items:center;background:rgba(12,24,34,.8);backdrop-filter:blur(8px);font-size:16px;transition:all .2s;}
+.btn-rondo:hover{border-color:var(--teinte);background:rgba(12,24,34,1);}
+
+/* ── feed ── */
+#feed{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;}
+#feed::-webkit-scrollbar{display:none;}
+
+/* ── carta con gradiente ── */
+.carte{
+  height:100dvh;min-height:100dvh;
+  scroll-snap-align:start;scroll-snap-stop:always;
+  position:relative;
+  display:flex;flex-direction:column;
+  background:var(--fondo-grado);
+  overflow:hidden;
+  animation:slideUp 300ms ease-out;
+}
+
+.card-overlay{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(135deg, rgba(6,14,22,.82) 0%, rgba(6,14,22,.70) 50%, rgba(6,14,22,.78) 100%),
+    radial-gradient(ellipse at 0% 50%, rgba(6,14,22,.65) 0%, rgba(6,14,22,.85) 100%);
+  backdrop-filter:blur(0.5px);
+  pointer-events:none;
+  z-index:1;
+}
+
+.card-inner{
+  flex:1;overflow-y:auto;scrollbar-width:none;
+  padding:calc(env(safe-area-inset-top,0px) + 68px) calc(var(--m) + 46px) 16px var(--m);
+  display:flex;flex-direction:column;gap:20px;
+  position:relative;
+  z-index:2;
+}
+.card-inner::-webkit-scrollbar{display:none;}
+
+/* ── PARTE 1: gancho ── */
+.cat-tag{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.08em;
+  color:var(--teinte);text-transform:uppercase;margin-bottom:10px;
+  background:rgba(6,14,22,.6);backdrop-filter:blur(8px);
+  padding:8px 12px;border-radius:8px;width:fit-content;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.cat-emo{font-size:16px;}
+.fr-pct{margin-left:auto;font-weight:400;color:var(--craie-f);letter-spacing:.02em;text-transform:none;font-size:11px;}
+.gancho-es{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(26px,6.8vw,38px);line-height:1.08;letter-spacing:-.022em;
+  color:var(--craie);
+  font-variation-settings:'SOFT' 50,'WONK' 1;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+  animation:slideUp 400ms ease-out 100ms both;
+}
+.gancho-fr{font-size:13.5px;color:var(--craie-f);margin-top:7px;font-style:italic;letter-spacing:.01em;animation:slideUp 400ms ease-out 200ms both;}
+
+/* ── PARTE 2: dato ── */
+.viñetas{list-style:none;display:flex;flex-direction:column;gap:11px;animation:slideUp 400ms ease-out 150ms both;}
+.viñeta{font-size:16px;line-height:1.55;color:var(--craie-d);padding-left:4px;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+.viñeta b{color:var(--craie);font-weight:700;}
+
+/* bloque francés */
+.fr-chispa{border-left:3px solid var(--teinte);padding:12px 12px;position:relative;margin-top:8px;
+  background:rgba(6,14,22,.5);backdrop-filter:blur(6px);border-radius:8px;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);animation:slideUp 400ms ease-out 250ms both;}
+.chispa-small .fr-texto{font-family:var(--serif);font-size:17px;color:var(--teinte);line-height:1.3;display:block;}
+.chispa-small .fr-trad-s{font-size:12.5px;color:var(--craie-f);margin-top:5px;display:block;}
+.chispa-big .fr-grande{font-family:var(--serif);font-size:clamp(19px,5vw,26px);color:var(--teinte);line-height:1.25;display:block;}
+.fr-desp{margin-top:6px;}
+.fr-desp summary{font-size:12px;color:var(--craie-f);cursor:pointer;list-style:none;}
+.mini-son{position:absolute;right:10px;top:10px;font-size:14px;opacity:.5;
+  padding:4px;border-radius:50%;transition:opacity .2s,transform .2s;}
+.mini-son:hover,.mini-son.parle{opacity:1;transform:scale(1.1);}
+
+/* ── PARTE 3: cierre ── */
+.card-cierre{border-top:1px solid var(--linha);padding:16px;
+  background:rgba(6,14,22,.4);backdrop-filter:blur(6px);padding:16px;border-radius:8px;margin-top:10px;
+  animation:slideUp 400ms ease-out 300ms both;}
+.cierre-q{font-family:var(--serif);font-size:17.5px;line-height:1.35;margin-bottom:12px;text-shadow:0 1px 4px rgba(0,0,0,.3);}
+.cierre-opts{display:flex;flex-direction:column;gap:9px;}
+.c-opt{
+  display:flex;align-items:center;gap:10px;text-align:left;padding:13px 15px;
+  border:1px solid rgba(243,240,234,.2);border-radius:11px;font-size:15px;line-height:1.4;
+  background:rgba(243,240,234,.07);backdrop-filter:blur(4px);
+  transition:border-color .18s,background .18s,transform .12s,box-shadow .18s;
+  cursor:pointer;
+}
+.c-opt:active{transform:scale(.98);}
+.c-opt:hover:not(.disabled){background:rgba(243,240,234,.13);border-color:rgba(243,240,234,.3);}
+.c-opt.disabled{opacity:.5;cursor:default;}
+.c-letra{font-weight:700;font-size:12px;color:var(--craie-f);flex:0 0 auto;}
+.c-opt.elegida{border-color:var(--teinte);background:color-mix(in srgb,var(--teinte) 18%,transparent);box-shadow:0 0 12px rgba(224,163,62,.3);}
+.reac-txt{display:block;margin-top:10px;font-size:13px;color:var(--juste);font-weight:700;animation:fadeIn 300ms;}
+.cierre-hint{font-size:14px;color:var(--craie-f);margin-bottom:10px;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,.3);}
+.btn-sig{
+  width:100%;padding:14px 18px;border-radius:100px;
+  background:rgba(243,240,234,.12);backdrop-filter:blur(6px);border:1.5px solid rgba(243,240,234,.25);
+  color:var(--craie-d);font-weight:700;font-size:15px;text-align:center;
+  transition:background .2s,border-color .2s,box-shadow .2s;
+  cursor:pointer;
+}
+.btn-sig:hover{background:rgba(243,240,234,.18);border-color:rgba(243,240,234,.35);box-shadow:0 4px 12px rgba(224,163,62,.15);}
+.btn-sig:active{animation:ripple 600ms;}
+
+/* ── acciones laterales ── */
+.acciones{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:14px;z-index:12;
+}
+.act{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:16px;
+  border:1px solid var(--linha);background:rgba(6,14,22,.65);backdrop-filter:blur(8px);
+  transition:opacity .2s,border-color .2s,background .2s,transform .2s;
+  cursor:pointer;
+}
+.act:hover{background:rgba(6,14,22,.8);border-color:rgba(243,240,234,.3);}
+.act.actif{color:var(--teinte);border-color:color-mix(in srgb,var(--teinte) 60%,transparent);box-shadow:0 0 12px rgba(224,163,62,.25);}
+.act.parle{color:var(--teinte);animation:pulse 800ms infinite;}
+
+/* ── confetti burst ── */
+.confetti-burst{pointer-events:none;z-index:999;}
+
+/* ── panel ── */
+.fond-pann{position:fixed;inset:0;background:rgba(3,8,14,.75);backdrop-filter:blur(3px);z-index:40;
+  opacity:0;pointer-events:none;transition:opacity .25s;}
+.fond-pann.on{opacity:1;pointer-events:auto;}
+.pann{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--encre);
+  border-top:1px solid var(--linha);border-radius:22px 22px 0 0;
+  padding:10px var(--m) calc(env(safe-area-inset-bottom,0px) + 24px);
+  max-height:90dvh;overflow-y:auto;
+  transform:translateY(101%);transition:transform .32s cubic-bezier(.22,1,.3,1);}
+.pann.on{transform:none;}
+.poign{width:36px;height:4px;border-radius:2px;background:var(--linha);margin:6px auto 20px;}
+.pann h2{font-family:var(--serif);font-size:24px;font-weight:600;margin-bottom:4px;}
+.sous{font-size:13px;color:var(--craie-f);line-height:1.6;margin-bottom:20px;}
+.cifras{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:20px;}
+.cifra b{display:block;font-family:var(--serif);font-size:28px;font-weight:700;line-height:1;animation:pulse-badge 1s ease-in-out infinite;}
+.cifra span{font-size:11.5px;color:var(--craie-f);}
+.theme{margin-bottom:15px;}
+.theme-haut{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.theme-nom{font-size:14px;font-weight:700;}
+.theme-niv{font-size:12px;color:var(--craie-f);}
+.theme-pista{height:4px;border-radius:2px;background:rgba(243,240,234,.08);overflow:hidden;}
+.theme-barra{height:100%;border-radius:2px;transition:width .5s;}
+
+/* badges */
+.badge{
+  display:inline-block;padding:7px 12px;border-radius:20px;
+  background:rgba(224,163,62,.15);border:1px solid rgba(224,163,62,.4);
+  color:var(--teinte);font-size:12px;font-weight:700;
+  margin:5px 5px 5px 0;animation:pulse-badge 1.5s ease-in-out infinite;
+}
+.muted{font-size:13px;color:var(--craie-f);}
+
+/* ── toast ── */
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);
+  transform:translate(-50%,10px);z-index:50;background:var(--craie);color:#0A1420;
+  font-weight:700;font-size:14px;line-height:1.4;text-align:center;
+  padding:12px 20px;border-radius:16px;opacity:0;pointer-events:none;
+  transition:opacity .22s,transform .22s;max-width:84vw;box-shadow:0 6px 20px rgba(0,0,0,.4);}
+#toast.on{opacity:1;transform:translate(-50%,0);}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important;}}
+@media(min-width:700px){
+  .card-inner{padding-left:max(var(--m),calc(50vw - 280px));padding-right:max(calc(var(--m)+46px),calc(50vw - 280px));}
+  header{max-width:700px;margin:0 auto;left:0;right:0;}
+  .acciones{right:max(12px,calc(50vw - 314px));}
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="jauge">
+      <div class="jauge-haut">
+        <span id="faseNom">Fase 1 · Línea Base</span>
+        <span id="facePct" class="mini-stat">20% FR</span>
+        <span id="hoyN" class="mini-stat">0 hoy</span>
+        <span id="rachaN" class="mini-stat">🔥 0d</span>
+      </div>
+      <div class="jauge-pista"><div id="faseBarre"></div></div>
+    </div>
+    <button class="btn-rondo" id="btnPanneau" aria-label="Mi progreso">📊</button>
+  </header>
+  <div id="feed"></div>
+</div>
+
+<div class="fond-pann" id="fondPanneau"></div>
+<section class="pann" id="panneau" role="dialog" aria-label="Mi progreso">
+  <div class="poign"></div>
+  <h2 id="pFase">Fase 1 · Línea Base</h2>
+  <p class="sous" id="pSig"></p>
+  <div class="cifras">
+    <div class="cifra"><b id="pAsim">0</b><span>asimiladas</span></div>
+    <div class="cifra"><b id="pHoy">0</b><span>hoy</span></div>
+    <div class="cifra"><b id="pRacha">0</b><span>racha</span></div>
+    <div class="cifra"><b id="pPct">20%</b><span>FR</span></div>
+  </div>
+  <div id="lCats"></div>
+  <div class="bloque">
+    <h3>Badges Desbloqueados</h3>
+    <div id="lBadges"></div>
+  </div>
+  <div class="bloque">
+    <h3>En la nube</h3>
+    <p>Tu fase y progreso viven en Supabase. Entre aparatos siempre gana el más adelantado.</p>
+    <div class="etat" id="estadoNube">Conectando...</div>
+    <button class="vacío" id="btnSync">Sincronizar ahora</button>
+  </div>
+  <div class="bloque">
+    <h3>Píldoras nuevas con IA</h3>
+    <p>Claude escribe píldoras de tu categoría más floja. Necesita clave de API de Anthropic.</p>
+    <input class="campo" id="clave" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+    <button class="lleno" id="btnGenerar">Generar 5 píldoras nuevas</button>
+    <button class="vacío" id="btnBorrarClave">Borrar la clave</button>
+    <div class="etat" id="estadoIA"></div>
+  </div>
+  <div class="bloque">
+    <h3>Empezar de cero</h3>
+    <p>Borra fase, progreso e historial. No se puede deshacer.</p>
+    <button class="vacío" id="btnReset">Empezar de cero</button>
+  </div>
+</section>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const PILULES = [
+
+/* ══════════════ 🇫🇷 FRANÇAIS VIVANT & QUÉBÉCOIS ══════════════ */
+{id:'fr1',c:'francais',niv:1,
+ gancho:"El maullido que inventaron para ti",
+ gancho_fr:"Le miaulement qu'ils ont inventé pour toi",
+ viñetas:["🐱 Los gatos adultos <b>casi no se maúllan entre ellos</b>. Se comunican con cola, orejas y olor.","🎭 El maullido lo desarrollaron <b>específicamente para hablar con humanos</b>.","🧬 Es un idioma de 10,000 años diseñado para una sola audiencia: <b>nosotros</b>."],
+ fr_chispa:"Ils miaulent pour nous, pas entre eux.",
+ fr_trad:"Maullan para nosotros, no entre ellos.",
+ cierre:{tipo:'opinion',txt:"¿Te sorprende que seas la razón de existir del maullido?",opts:["😱 No lo sabía","😏 Ya lo sospechaba"]}
+},
+{id:'fr2',c:'francais',niv:1,
+ gancho:"La palabra que embarazó a mil hispanohablantes",
+ gancho_fr:"Le mot qui a gêné mille hispanophones",
+ viñetas:["🚨 <b>Embarrassée ≠ embarazada</b>. Significa incómoda, apenada.","🤰 Si estás esperando bebé en Quebec, la palabra es <b>enceinte</b>.","💀 Este error lo ha cometido casi cada colombiana que llega a Montreal."],
+ fr_chispa:"Je suis enceinte — pas embarrassée!",
+ fr_trad:"¡Estoy embarazada — no apenada!",
+ cierre:{tipo:'opinion',txt:"¿Alguna vez usaste mal una palabra en otro idioma?",opts:["😅 Sí, con vergüenza","😎 Nunca"]}
+},
+{id:'fr3',c:'francais',niv:1,
+ gancho:"El -tu que no es tú",
+ gancho_fr:"Le -tu qui n'est pas toi",
+ viñetas:["🤔 En Quebec meten un <b>-tu</b> después del verbo para preguntar.","🗣️ «Ça se peut-tu?» = ¿Será posible? (no tiene nada que ver con «tú»)","💡 Es como el ¿cierto? o ¿no? que ponemos los colombianos al final."],
+ fr_chispa:"Je peux-tu vous aider?",
+ fr_trad:"¿Le puedo ayudar?",
+ cierre:{tipo:'siguiente',txt:"Desliza y te cuento otro secreto del francés de aquí 🍁"}
+},
+{id:'fr4',c:'francais',niv:1,
+ gancho:"La palabra que significa asqueroso Y espectacular",
+ gancho_fr:"Le mot qui veut dire dégoûtant ET excellent",
+ viñetas:["🤯 <b>Écœurant</b> literalmente es 'lo que revuelve el corazón' = asqueroso.","😍 Pero con tono entusiasta en Quebec significa <b>espectacular, brutal, increíble</b>.","🎭 El tono lo decide todo. Mismo sonido, planeta opuesto de significado."],
+ fr_chispa:"Ton gateau était écœurant!",
+ fr_trad:"¡Tu pastel estaba espectacular!",
+ cierre:{tipo:'ab',txt:"Si alguien te dice «t'es écœurante!» sonriendo… ¿qué haces?",opts:["A 🙏 Les agradezco","B 😡 Me ofendo"]}
+},
+{id:'fr5',c:'francais',niv:2,
+ gancho:"El ne que nadie pronuncia",
+ gancho_fr:"Le ne que personne ne prononce",
+ viñetas:["📝 En el papel: <b>Je ne sais pas</b>.","🗣️ En la calle: <b>j'sais pas</b>. Suena como 'chépa'.","👂 Entender esto destapa el oído. Sin esto, el francés oral suena como otro idioma."],
+ fr_chispa:"J'sais pas, j'ai pas vu ça.",
+ fr_trad:"No sé, no vi eso.",
+ cierre:{tipo:'opinion',txt:"¿Qué te cuesta más del francés?",opts:["👂 Entender a la gente","🗣️ Atreverme a hablar"]}
+},
+{id:'fr6',c:'francais',niv:2,
+ gancho:"Bienvenue no es bienvenida",
+ gancho_fr:"Bienvenue ne veut pas dire bienvenue",
+ viñetas:["🤷 En France: <b>bienvenue</b> = welcome (al llegar a un lugar).","🍁 En Quebec: <b>bienvenue</b> = de nada (respuesta al merci).","💬 Le dices merci al cajero y él dice bienvenue. Es calcado del inglés «you're welcome»."],
+ fr_chispa:"Merci! — Bienvenue!",
+ fr_trad:"¡Gracias! — ¡De nada!",
+ cierre:{tipo:'siguiente',txt:"¿Sabías esto? Desliza para el próximo 🔄"}
+},
+
+/* ══════════════ 🧠 NEUROSCIENCES & PÉDAGOGIE ══════════════ */
+{id:'ce1',c:'cerveau',niv:1,
+ gancho:"Tu cerebro libera dopamina ANTES de la recompensa",
+ gancho_fr:"Ton cerveau libère de la dopamine AVANT la récompense",
+ viñetas:["🎰 La dopamina no es el placer. Es la <b>anticipación del placer</b>.","📱 El scroll funciona como tragamonedas: nunca sabes si el próximo post vale.","🧠 Esa incertidumbre es el gancho real. No el contenido — <b>la ruleta</b>."],
+ fr_chispa:"Ce n'est pas la récompense qui accroche — c'est l'attente.",
+ fr_trad:"No es la recompensa lo que engancha — es la espera.",
+ cierre:{tipo:'opinion',txt:"¿Crees que podrías reemplazar el scroll vacío por algo que valga?",opts:["✅ Sí, solo necesito el sistema","🤷 Quizás, pero cuesta"]}
+},
+{id:'ce2',c:'cerveau',niv:1,
+ gancho:"Aprender es abrir trochas en el bosque",
+ gancho_fr:"Apprendre, c'est ouvrir des sentiers dans la forêt",
+ viñetas:["🌿 La primera vez que haces algo, es como romper maleza.","🛤️ La décima vez, ya es un camino. La centésima, <b>una autopista neuronal</b>.","🔁 Regla de Hebb: «Las neuronas que se disparan juntas, se conectan juntas»."],
+ fr_chispa:"Les neurones qui s'activent ensemble se connectent ensemble.",
+ fr_trad:"Las neuronas que se activan juntas se conectan juntas.",
+ cierre:{tipo:'siguiente',txt:"Cada píldora que abres abre una trocha nueva 🌿"}
+},
+{id:'ce3',c:'cerveau',niv:2,
+ gancho:"El olvido NO es el enemigo del aprendizaje",
+ gancho_fr:"L'oubli n'est pas l'ennemi de l'apprentissage",
+ viñetas:["😮 Ebbinghaus descubrió que olvidamos el 50% de lo nuevo en 24h.","✨ Pero <b>recuperar algo justo antes de olvidarlo</b> graba la huella mucho más profundo.","💡 Por eso este feed te regresa lo que fallaste. El error <b>no es castigo — es la dosis</b>."],
+ fr_chispa:"Se tromper, c'est apprendre à double dose.",
+ fr_trad:"Equivocarse es aprender al doble de dosis.",
+ cierre:{tipo:'ab',txt:"¿Cómo reaccionas ante tus errores?",opts:["A 😤 Me frustro","B 🧪 Los veo como datos"]}
+},
+{id:'ce4',c:'cerveau',niv:2,
+ gancho:"Tu memoria de trabajo tiene solo 4 cajones",
+ gancho_fr:"Ta mémoire de travail n'a que 4 tiroirs",
+ viñetas:["🧺 La memoria de trabajo aguanta ~4 cosas nuevas a la vez. Nada más.","💥 Meter 10 conceptos de golpe los hace caer todos al suelo.","⚡ Por eso las píldoras cortas ganan siempre contra la maratón de estudio."],
+ fr_chispa:"Apprendre en petites doses, c'est respecter les limites du cerveau.",
+ fr_trad:"Aprender en dosis pequeñas es respetar los límites del cerebro.",
+ cierre:{tipo:'siguiente',txt:"Otro cajón abierto 🗂️ Desliza"}
+},
+{id:'ce5',c:'cerveau',niv:3,
+ gancho:"Por qué los niños aprenden idiomas fácil (no es lo que crees)",
+ gancho_fr:"Pourquoi les enfants apprennent les langues facilement",
+ viñetas:["🙃 No es que su cerebro sea mejor. Es que <b>no les da pena sonar ridículos</b>.","🧱 Krashen lo llamó «filtro afectivo»: la ansiedad levanta un muro que bloquea el idioma.","🔓 Menos miedo al juicio = más adquisición. Es neurobiología, no fuerza de voluntad."],
+ fr_chispa:"Moins de peur, plus de langue.",
+ fr_trad:"Menos miedo, más idioma.",
+ cierre:{tipo:'opinion',txt:"¿Cuánto te bloquea el miedo a sonar ridícula en francés?",opts:["😬 Mucho, siempre","😌 Poco, ya me suelto"]}
+},
+{id:'ce6',c:'cerveau',niv:3,
+ gancho:"Dormir es darle guardar al cerebro",
+ gancho_fr:"Dormir, c'est appuyer sur sauvegarder",
+ viñetas:["🌙 Mientras duermes, el hipocampo traslada lo del día a la corteza (memoria a largo plazo).","⚡ En sueño profundo se reproducen los mismos patrones neuronales, a mayor velocidad.","🚫 Estudiar sin dormir es grabar sin darle a guardar."],
+ fr_chispa:"Dormir, c'est consolider.",
+ fr_trad:"Dormir es consolidar.",
+ cierre:{tipo:'siguiente',txt:"Esta noche tienes tarea: dormir 😴"}
+},
+
+/* ══════════════ 🐈 FAITS INSOLITES SUR LES CHATS ══════════════ */
+{id:'ch1',c:'chats',niv:1,
+ gancho:"El ronroneo que cura huesos",
+ gancho_fr:"Le ronronnement qui guérit les os",
+ viñetas:["🦴 El ronroneo vibra entre 25 y 150 Hz — el rango que <b>estimula la regeneración ósea</b>.","😿 Los gatos ronronean también cuando están heridos o estresados, no solo felices.","🔧 Es autocuidado con vibración incorporada. Llevan el fisioterapeuta encima."],
+ fr_chispa:"Le ronronnement est une thérapie.",
+ fr_trad:"El ronroneo es una terapia.",
+ cierre:{tipo:'opinion',txt:"¿Sabías que tu gata se autorrepara cuando ronronea?",opts:["😮 No tenía idea","🐱 Ya lo intuía"]}
+},
+{id:'ch2',c:'chats',niv:1,
+ gancho:"El parpadeo lento: el apretón de manos felino",
+ gancho_fr:"Le clignement lent : la poignée de main féline",
+ viñetas:["😌 Cerrar los ojos despacio frente a un gato = «no te voy a atacar».","🔬 Un estudio de Sussex: los gatos se acercaban más a quien les devolvía el parpadeo.","🤝 Es el saludo de su especie. Y funciona con gatos desconocidos también."],
+ fr_chispa:"Cligne lentement — c'est bonjour en chat.",
+ fr_trad:"Parpadea despacio — eso es hola en gato.",
+ cierre:{tipo:'ab',txt:"Con un gato desconfiado, ¿qué harías?",opts:["A 👁️ Lo miro fijo para que confíe","B 😌 Parpadeo lento y desvío la vista"]}
+},
+{id:'ch3',c:'chats',niv:2,
+ gancho:"Por qué caen de pie (la física gatuna)",
+ gancho_fr:"Pourquoi ils atterrissent toujours sur leurs pattes",
+ viñetas:["🌀 El gato no tiene clavícula rígida y su columna gira como una toalla que se retuerce.","⚡ Gira primero la mitad delantera, después la trasera. Se llama reflejo de enderezamiento.","📏 Necesita solo 30 cm de caída para lograrlo. Caída muy corta = <b>no alcanza a girar</b>."],
+ fr_chispa:"Trop court pour tourner — c'est là le danger.",
+ fr_trad:"Demasiado corto para girar — ahí está el peligro.",
+ cierre:{tipo:'opinion',txt:"¿Lo sabías?",opts:["🤯 Alucinante","😺 Los gatos me siguen sorprendiendo"]}
+},
+{id:'ch4',c:'chats',niv:2,
+ gancho:"Tu gato tiene un mapa completo de tu cara",
+ gancho_fr:"Ton chat a une carte complète de ton visage",
+ viñetas:["🗺️ Los gatos reconocen el nombre de sus humanos y el de otros gatos de la casa.","🧪 En un estudio japonés, se sorprendían cuando la cara mostrada no correspondía al nombre.","📸 Te tienen fichada: nombre, cara y horario. Saben exactamente quién eres."],
+ fr_chispa:"Ton chat te connaît mieux que tu chien.",
+ fr_trad:"Tu gato te conoce mejor que tu perro.",
+ cierre:{tipo:'siguiente',txt:"Dorito y Mía ya saben exactamente quién eres 🐱"}
+},
+{id:'ch5',c:'chats',niv:3,
+ gancho:"Los gatos no sienten lo dulce",
+ gancho_fr:"Les chats ne sentent pas le sucré",
+ viñetas:["🍬 Perdieron el gen del receptor del sabor dulce. Fue descartado por la evolución.","🥩 Son carnívoros estrictos: el azúcar nunca les sirvió, así que el gusto desapareció.","🍦 Si tu gata persigue tu helado, le atrae <b>la grasa o la textura</b> — nunca lo dulce."],
+ fr_chispa:"Le sucré n'existe pas pour eux.",
+ fr_trad:"Lo dulce no existe para ellos.",
+ cierre:{tipo:'ab',txt:"¿Le darías a tu gata un poco de helado de vez en cuando?",opts:["A 😬 No, para nada","B 🙈 A veces sí, lo sé"]}
+},
+{id:'ch6',c:'chats',niv:3,
+ gancho:"El maullido es un idioma que inventaron para ti",
+ gancho_fr:"Le miaulement est une langue inventée pour toi",
+ viñetas:["🧬 Los gatos salvajes adultos no se maúllan entre ellos. Cero.","🤝 Lo desarrollaron hace miles de años específicamente para <b>manipular a los humanos</b>.","🎙️ Cada gato afina su maullido particular según qué le funciona con <i>su</i> humano."],
+ fr_chispa:"Chaque chat a son propre dialecte humain.",
+ fr_trad:"Cada gato tiene su propio dialecto humano.",
+ cierre:{tipo:'siguiente',txt:"Dorito y Mía tienen su propio idioma contigo 🐾"}
+},
+
+/* ══════════════ 🍁 CULTURE QUÉBÉCOISE & LOCALE ══════════════ */
+{id:'qc1',c:'quebec',niv:1,
+ gancho:"El 1 de julio no es fiesta — es caos nacional",
+ gancho_fr:"Le 1er juillet n'est pas une fête — c'est le chaos",
+ viñetas:["📦 En Quebec, el 1 de julio TODA la provincia cambia de casa el mismo día.","📜 Los contratos de arriendo terminan todos ahí, por una vieja ley que nunca cambiaron.","🚛 Conseguir camión ese día es misión imposible. Es el día más estresante del año."],
+ fr_chispa:"Le 1er juillet, tout le monde déménage en même temps.",
+ fr_trad:"El 1 de julio, todo el mundo se muda al mismo tiempo.",
+ cierre:{tipo:'opinion',txt:"¿Viviste alguna vez el caos del 1 de julio?",opts:["😅 Sí, fue una pesadilla","😌 No, me salvé"]}
+},
+{id:'qc2',c:'quebec',niv:1,
+ gancho:"Tu iglesia tiene huecos de bala de 1837",
+ gancho_fr:"Ton église a des trous de balles de 1837",
+ viñetas:["⛪ La fachada de la iglesia de Saint-Eustache todavía tiene <b>marcas de los cañonazos de 1837</b>.","⚔️ Ahí se atrincheraron los Patriotes contra el ejército británico en la rebelión.","🪨 Uno de los pocos edificios en América donde la historia quedó perforada en la piedra."],
+ fr_chispa:"L'histoire est encore dans les murs.",
+ fr_trad:"La historia todavía está en las paredes.",
+ cierre:{tipo:'siguiente',txt:"Vives al lado de un monumento a la rebeldía 🍁"}
+},
+{id:'qc3',c:'quebec',niv:2,
+ gancho:"Las escaleras de afuera nacieron de la tacañería",
+ gancho_fr:"Les escaliers extérieurs sont nés de l'avarice",
+ viñetas:["🏘️ Las escaleras exteriores del Plateau no son estética — son <b>ahorro de espacio e impuestos</b>.","💸 Sacarlas al exterior dejaba más metros adentro y evitaba pagar por escalera interna.","📸 Hoy son la postal más icónica de Montreal. Nacieron de pura math capitalista."],
+ fr_chispa:"Ce qui semble beau était d'abord rentable.",
+ fr_trad:"Lo que parece bello fue primero rentable.",
+ cierre:{tipo:'opinion',txt:"¿Eso las hace menos bonitas?",opts:["😍 No, me encantan igual","🤔 Un poco sí"]}
+},
+{id:'qc4',c:'quebec',niv:2,
+ gancho:"El sirope de maple necesita 40 litros de savia para un litro",
+ gancho_fr:"Il faut 40 litres de sève pour un litre de sirop",
+ viñetas:["🍁 La savia solo sube cuando hay <b>helada de noche y deshielo de día</b>.","📅 Esa ventana dura unas pocas semanas en primavera. Sin frío nocturno, no hay sirope.","⚗️ 40 litros de savia → 1 litro de jarabe. Por eso cuesta lo que cuesta."],
+ fr_chispa:"Le sirop d'érable ne pardonne pas le calendrier.",
+ fr_trad:"El sirope de maple no le perdona al calendario.",
+ cierre:{tipo:'siguiente',txt:"El oro líquido de Quebec tiene lógica 🍁"}
+},
+{id:'qc5',c:'quebec',niv:3,
+ gancho:"Quebec cambió de sociedad en 10 años sin un solo disparo",
+ gancho_fr:"Le Québec a changé de société en 10 ans sans un seul coup de feu",
+ viñetas:["📚 Los años 60: la Iglesia controlaba salud, educación y moral en Quebec.","⚡ En una década: estado laico, hidroeléctrica nacionalizada, ministerio de educación creado.","🕊️ Todo sin violencia. Por eso se llama la <b>Révolution tranquille</b> — la revolución tranquila."],
+ fr_chispa:"Tranquille ne veut pas dire lente.",
+ fr_trad:"Tranquila no quiere decir lenta.",
+ cierre:{tipo:'opinion',txt:"¿Hay algo que te admire de Quebec como sociedad?",opts:["🍁 Sí, varias cosas","🤔 Todavía lo estoy descubriendo"]}
+},
+{id:'qc6',c:'quebec',niv:3,
+ gancho:"Dépanneur = la tienda que te saca del apuro",
+ gancho_fr:"Dépanneur = le magasin qui te tire d'affaire",
+ viñetas:["🏪 <b>Dépanner</b> significa sacar a alguien de un mal momento, de un apuro.","💡 La tienda de la esquina no se llama así por lo que vende — sino por lo que <b>resuelve</b>.","🌙 Es la que te salva a las 11pm cuando todo cierra. El nombre lo dice todo."],
+ fr_chispa:"Tu peux me dépanner?",
+ fr_trad:"¿Me puedes sacar del apuro?",
+ cierre:{tipo:'ab',txt:"¿Cuántas veces por semana visitas el dépanneur?",opts:["A 🏃 Casi todos los días","B 🛒 Solo a veces"]}
+},
+
+/* ══════════════ 📚🎬🎭 CULTURE GÉNÉRALE & POP ══════════════ */
+{id:'cu1',c:'culture',niv:1,
+ gancho:"García Márquez escribía como hablaba su abuela",
+ gancho_fr:"García Márquez écrivait comme sa grand-mère parlait",
+ viñetas:["👵 Su abuela contaba lo fantástico con cara de póker, como si fuera el reporte del clima.","📖 Ese tono — <b>lo imposible narrado sin sorpresa</b> — es la clave del realismo mágico.","💡 Si el narrador se sorprendiera, el hechizo se rompería. La frialdad hace la magia."],
+ fr_chispa:"Le ton neutre rend la magie réelle.",
+ fr_trad:"El tono neutro hace real la magia.",
+ cierre:{tipo:'siguiente',txt:"Magia explicada. Desliza 🔄"}
+},
+{id:'cu2',c:'culture',niv:1,
+ gancho:"El corte perfecto es el que no notas",
+ gancho_fr:"Le meilleur montage est celui qu'on ne remarque pas",
+ viñetas:["✂️ Walter Murch (editor de El Padrino): un corte funciona si respeta la emoción, aunque rompa el espacio.","🎬 Por eso una película bien montada <b>se siente</b>, no se analiza.","👁️ El ojo no pregunta ¿dónde estoy? — pregunta ¿qué siento?"],
+ fr_chispa:"Un bon montage est invisible.",
+ fr_trad:"Un buen montaje es invisible.",
+ cierre:{tipo:'opinion',txt:"¿Piensas en el montaje cuando ves una peli?",opts:["🎬 Ahora sí voy a notar","🍿 No, me pierdo en la historia"]}
+},
+{id:'cu3',c:'culture',niv:2,
+ gancho:"La fotografía mató la pintura realista (y la salvó)",
+ gancho_fr:"La photographie a tué la peinture réaliste (et l'a sauvée)",
+ viñetas:["📷 Cuando llegó la cámara, pintar parecido perdió todo valor comercial.","🎨 Los pintores buscaron lo que la cámara no podía: <b>emoción, idea, forma pura</b>.","✨ Picasso y Monet no eran raros — eran una respuesta al iPhone de su época."],
+ fr_chispa:"L'appareil photo a libéré la peinture.",
+ fr_trad:"La cámara liberó la pintura.",
+ cierre:{tipo:'ab',txt:"Arte moderno: ¿qué te parece más honesto?",opts:["A 🎨 El que cualquiera podría hacer","B 🖌️ El que requiere técnica"]}
+},
+{id:'cu4',c:'culture',niv:2,
+ gancho:"La democracia ateniense excluía al 85% de la gente",
+ gancho_fr:"La démocratie athénienne excluait 85 % des gens",
+ viñetas:["🏛️ En la Atenas de Pericles votaba menos del 15% de la población.","🚫 Afuera: mujeres, esclavos y extranjeros — aunque hubieran nacido allí.","💭 La palabra es la misma; el contenido, otro planeta. Ojo con las palabras antiguas."],
+ fr_chispa:"Les mots durent, leur contenu change.",
+ fr_trad:"Las palabras duran, su contenido cambia.",
+ cierre:{tipo:'siguiente',txt:"Dato que cambia cómo ves la historia 🤯"}
+},
+{id:'cu5',c:'culture',niv:3,
+ gancho:"Una canción te gusta más solo por haberla oído",
+ gancho_fr:"Une chanson te plaît plus juste parce que tu l'as entendue",
+ viñetas:["🎧 Zajonc lo demostró con palabras inventadas: la <b>familiaridad sola genera preferencia</b>.","📻 No mejoró la canción — tú te acostumbraste a ella y llamaste eso 'me gusta'.","🎵 La industria musical vive de esto. La repetición fabrica el gusto desde cero."],
+ fr_chispa:"La familiarité crée la préférence.",
+ fr_trad:"La familiaridad crea la preferencia.",
+ cierre:{tipo:'opinion',txt:"¿Reconoces ese patrón en tus gustos musicales?",opts:["🎵 Totalmente, sí","🤔 No creo, tengo criterio"]}
+},
+{id:'cu6',c:'culture',niv:3,
+ gancho:"Star Wars copió una fórmula de 5.000 años",
+ gancho_fr:"Star Wars a copié une formule de 5 000 ans",
+ viñetas:["🗿 Campbell notó que <b>todos los mitos del mundo</b> cuentan la misma historia.","⚔️ Llamado, rechazo, mentor, prueba, regreso transformado. Luke Skywalker = Gilgamesh.","🎬 Lucas lo usó a propósito. Y desde ahí, medio Hollywood no ha parado."],
+ fr_chispa:"Le héros est toujours le même.",
+ fr_trad:"El héroe siempre es el mismo.",
+ cierre:{tipo:'ab',txt:"¿Cuál es tu viaje del héroe favorito?",opts:["A 🪐 Star Wars","B 🧙 El Señor de los Anillos"]}
+},
+
+/* ══════════════ 🧬🧪 BIOLOGIE & CHIMIE ══════════════ */
+{id:'bi1',c:'bio',niv:1,
+ gancho:"Tus mitocondrias fueron bacterias libres",
+ gancho_fr:"Tes mitochondries étaient des bactéries libres",
+ viñetas:["🦠 Hace 2,000 millones de años, una célula se tragó una bacteria y <b>no la digirió</b>.","🤝 Se quedaron juntas para siempre. Esa bacteria es hoy la mitocondria de cada célula tuya.","🧬 Todavía tiene su <b>propio ADN</b>, separado del tuyo. Eres literalmente una simbiosis."],
+ fr_chispa:"Nous sommes tous une association d'organismes.",
+ fr_trad:"Todos somos una asociación de organismos.",
+ cierre:{tipo:'siguiente',txt:"Eres más que un ser — eres un ecosistema 🦠"}
+},
+{id:'bi2',c:'bio',niv:1,
+ gancho:"El jabón destruye virus literalmente rompiéndoles la piel",
+ gancho_fr:"Le savon détruit les virus en leur arrachant la peau",
+ viñetas:["🧼 La molécula de jabón tiene una punta que ama el agua y otra que ama la grasa.","💥 Esa punta grasosa se clava en la envoltura del virus y la <b>rompe</b>. Game over.","🚿 Por eso 20 segundos de jabón gana contra cualquier gel antiséptico básico."],
+ fr_chispa:"Le savon est une arme chimique contre les virus.",
+ fr_trad:"El jabón es un arma química contra los virus.",
+ cierre:{tipo:'opinion',txt:"¿Le dabas importancia al jabón antes de saber esto?",opts:["🤦 La verdad no","✋ Siempre fui de lavarme bien"]}
+},
+{id:'bi3',c:'bio',niv:2,
+ gancho:"El ADN de una sola célula tuya mide 2 metros",
+ gancho_fr:"L'ADN d'une seule cellule fait 2 mètres",
+ viñetas:["🧬 Estirado, el ADN de una célula mide ~2 metros. Y tienes 37 billones de células.","🔬 Está enrollado dentro de un núcleo <b>mil veces más pequeño que un punto</b> de esta frase.","📦 Todo tu ADN junto, comprimido, cabría en dos cucharaditas de café."],
+ fr_chispa:"L'ADN de tout ton corps tiendrait dans une cuillère.",
+ fr_trad:"El ADN de todo tu cuerpo cabría en una cucharadita.",
+ cierre:{tipo:'siguiente',txt:"La ingeniería más sofisticada del universo vive en ti 🧬"}
+},
+{id:'bi4',c:'bio',niv:2,
+ gancho:"El oxígeno que respiras es basura de planta",
+ gancho_fr:"L'oxygène que tu respires est un déchet de plante",
+ viñetas:["🌿 La planta usa luz solar para robarle electrones al agua.","⚗️ Con esos electrones construye azúcar del CO₂. El oxígeno es el <b>sobrante</b> de ese proceso.","💨 Literalmente respiramos el desecho de las plantas. Y ese desecho nos mantiene vivos."],
+ fr_chispa:"Notre survie dépend des déchets des plantes.",
+ fr_trad:"Nuestra supervivencia depende de los desechos de las plantas.",
+ cierre:{tipo:'opinion',txt:"¿Ves las plantas diferente después de esto?",opts:["🌿 Totalmente, sí","😂 Las veía igual de importantes"]}
+},
+{id:'bi5',c:'bio',niv:3,
+ gancho:"Los virus no están vivos",
+ gancho_fr:"Les virus ne sont pas vivants",
+ viñetas:["🦠 Un virus no come, no crece, no se reproduce solo. No cumple ningún criterio de vida.","📋 Es una <b>instrucción envuelta en proteína</b>, esperando una máquina que la ejecute.","⏸️ Afuera de una célula, es solo un paquete inerte. Adentro, toma el control total."],
+ fr_chispa:"Un virus est une instruction, pas un être vivant.",
+ fr_trad:"Un virus es una instrucción, no un ser vivo.",
+ cierre:{tipo:'ab',txt:"¿Cómo clasificarías a los virus?",opts:["A 🧬 Semi-vivos","B 📋 Información con empaque"]}
+},
+{id:'bi6',c:'bio',niv:3,
+ gancho:"El pH 4 no es 'un poco más ácido' que el pH 5",
+ gancho_fr:"Le pH 4 n'est pas un peu plus acide que le pH 5",
+ viñetas:["⚗️ La escala del pH es logarítmica. Cada unidad multiplica la acidez por <b>diez</b>.","🔢 pH 5 a pH 3 = cien veces más ácido. No dos veces — cien.","🩸 Por eso un cambio pequeño en el pH de la sangre puede ser mortal."],
+ fr_chispa:"Le pH ne se lit pas comme une règle — comme une fusée.",
+ fr_trad:"El pH no se lee como una regla — como un cohete.",
+ cierre:{tipo:'siguiente',txt:"La química cotidiana es más extrema de lo que parece 🧪"}
+},
+
+/* ══════════════ 🧮⚡ MATHÉMATIQUES & PHYSIQUE ══════════════ */
+{id:'ma1',c:'math',niv:1,
+ gancho:"En 23 personas hay 50% de chance de cumpleaños compartido",
+ gancho_fr:"Avec 23 personnes, il y a 50 % de chance d'un anniversaire partagé",
+ viñetas:["🎂 Parece imposible, pero es matemática: no comparas TÚ con los demás.","🔢 Comparas <b>todas las parejas posibles</b>. 23 personas = 253 pares.","💡 La intuición falla porque contamos «conmigo». La realidad cuenta todo el tablero."],
+ fr_chispa:"L'intuition ment. Les maths gagnent.",
+ fr_trad:"La intuición miente. Las matemáticas ganan.",
+ cierre:{tipo:'ab',txt:"¿Lo hubieras apostado antes de saberlo?",opts:["A 🎲 Sí, lo hubiera apostado","B 🙅 Nunca lo hubiera creído"]}
+},
+{id:'ma2',c:'math',niv:1,
+ gancho:"Un barco de acero flota porque es casi todo aire",
+ gancho_fr:"Un bateau en acier flotte parce qu'il est presque tout en air",
+ viñetas:["⚓ No importa el peso — importa cuánta agua desplazas.","🌊 Un barco es metal con forma de burbuja gigante. Empuja más agua de lo que pesa.","💡 Aplástalo hasta un cubo macizo de acero → mismo peso, <b>se hunde al fondo</b>."],
+ fr_chispa:"Ce n'est pas le poids qui flotte — c'est le volume.",
+ fr_trad:"No flota el peso — flota el volumen.",
+ cierre:{tipo:'siguiente',txt:"Arquímedes lo entendió en una bañera 🛁"}
+},
+{id:'ma3',c:'math',niv:2,
+ gancho:"1% diario no es 365% al año — es 3.700%",
+ gancho_fr:"1 % par jour ne donne pas 365 % par an — c'est 3 700 %",
+ viñetas:["📈 El interés compuesto no suma — <b>multiplica sobre lo ya multiplicado</b>.","🚀 1% diario durante 365 días: el dinero inicial se vuelve 37 veces más grande.","🧠 La misma matemática aplica al aprendizaje: cada día construyes sobre lo ya construido."],
+ fr_chispa:"L'effet composé est la huitième merveille du monde.",
+ fr_trad:"El efecto compuesto es la octava maravilla del mundo.",
+ cierre:{tipo:'opinion',txt:"¿Aplicas el efecto compuesto en algún área de tu vida?",opts:["💪 Sí, conscientemente","🌱 Quiero empezar"]}
+},
+{id:'ma4',c:'math',niv:2,
+ gancho:"El cielo es azul porque el azul choca con todo",
+ gancho_fr:"Le ciel est bleu parce que le bleu se cogne partout",
+ viñetas:["🌤️ La luz solar trae todos los colores. Pero el azul tiene onda corta y <b>rebota más</b>.","↗️ El azul se dispersa en todas direcciones antes de llegar a ti. Por eso llena el cielo.","🌅 Al atardecer, la luz atraviesa más atmósfera. El azul se pierde en el camino. Queda el rojo."],
+ fr_chispa:"Le bleu voyage partout. Le rouge va tout droit.",
+ fr_trad:"El azul viaja a todos lados. El rojo va derecho.",
+ cierre:{tipo:'siguiente',txt:"Ahora el atardecer tiene otra dimensión 🌅"}
+},
+{id:'ma5',c:'math',niv:3,
+ gancho:"Hay infinitos más grandes que otros",
+ gancho_fr:"Il existe des infinis plus grands que d'autres",
+ viñetas:["♾️ Cantor lo demostró: hay más números entre 0 y 1 que números enteros en total.","🤯 No es metáfora — es matemática rigurosa. Algunos infinitos son <b>literalmente más grandes</b>.","💔 A sus colegas les pareció una locura. Le costó la carrera y parte de su salud mental."],
+ fr_chispa:"L'infini n'est pas une, mais plusieurs choses.",
+ fr_trad:"El infinito no es una sola cosa — son varias.",
+ cierre:{tipo:'opinion',txt:"¿Te parece bello o perturbador que existan infinitos de diferentes tamaños?",opts:["✨ Bello, me abre la mente","😰 Me desestabiliza un poco"]}
+},
+{id:'ma6',c:'math',niv:3,
+ gancho:"El tiempo corre más rápido en la montaña que a nivel del mar",
+ gancho_fr:"Le temps passe plus vite en montagne qu'au niveau de la mer",
+ viñetas:["⏱️ Un reloj en altura adelanta frente a uno al nivel del mar. Medido con relojes atómicos reales.","🌍 Menos gravedad = tiempo más rápido. Es relatividad general, no ciencia ficción.","📡 El GPS corrige este desfase cada día — si no, te mandaría a la cuadra equivocada."],
+ fr_chispa:"Le temps n'est pas universel — il dépend de l'endroit.",
+ fr_trad:"El tiempo no es universal — depende del lugar.",
+ cierre:{tipo:'ab',txt:"¿Prefieres vivir donde el tiempo pasa más rápido o más lento?",opts:["A ⛰️ Montaña (más rápido)","B 🌊 Costa (más lento)"]}
+}
+
+]; // fin PILULES
+
+const CATS = {
+  francais: {nom:"Français Vivant",     emo:"🇫🇷", teinte:'#E0A33E', fond:'#1C1005', grado:'linear-gradient(135deg, #E0A33E 0%, #D97E2A 50%, #1C1005 100%)'},
+  cerveau:  {nom:"Neurosciences",       emo:"🧠", teinte:'#8B7BC7', fond:'#120E25', grado:'linear-gradient(135deg, #8B7BC7 0%, #6B4AA0 50%, #120E25 100%)'},
+  chats:    {nom:"Faits sur les chats", emo:"🐈", teinte:'#D98E6A', fond:'#1E100A', grado:'linear-gradient(135deg, #D98E6A 0%, #B86E52 50%, #1E100A 100%)'},
+  quebec:   {nom:"Culture d'ici",       emo:"🍁", teinte:'#4A90C2', fond:'#071422', grado:'linear-gradient(135deg, #4A90C2 0%, #2A6FA0 50%, #071422 100%)'},
+  culture:  {nom:"Culture générale",    emo:"🎬", teinte:'#C77BA6', fond:'#1E0D17', grado:'linear-gradient(135deg, #C77BA6 0%, #9B5F85 50%, #1E0D17 100%)'},
+  bio:      {nom:"Bio & Chimie",        emo:"🧬", teinte:'#4FA88B', fond:'#051A15', grado:'linear-gradient(135deg, #4FA88B 0%, #3A8070 50%, #051A15 100%)'},
+  math:     {nom:"Maths & Physique",    emo:"⚡", teinte:'#9AB0C4', fond:'#0D141A', grado:'linear-gradient(135deg, #9AB0C4 0%, #7A95A8 50%, #0D141A 100%)'}
+};
+
+const FASES = [
+  {n:1, nom:'Línea Base',    umbral:0,  pctMin:20, pctMax:32},
+  {n:2, nom:'Incremento',   umbral:20, pctMin:38, pctMax:62},
+  {n:3, nom:'Consolidación',umbral:55, pctMin:66, pctMax:90}
+];
+
+/* ─── storage ─── */
+const mem = {};
+const G = {
+  r(k,d){ try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return k in mem?mem[k]:d;} },
+  w(k,v){ mem[k]=v; try{localStorage.setItem(k,JSON.stringify(v));}catch(e){} },
+  del(k){ delete mem[k]; try{localStorage.removeItem(k);}catch(e){} }
+};
+
+/* ─── nube ─── */
+const SUPA_URL='https://snwnqjltfyqlwyeyfjba.supabase.co';
+const SUPA_KEY='sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+const PERFIL='laura';
+const cS={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
+let online=navigator.onLine, syncing=false, pending=false;
+
+/* ─── estado ─── */
+let E = G.r('df4_e',{fase:1,intens:0,asim:0,meseta:0,cats:{}});
+let vistas   = G.r('df4_v',[]);
+let guard    = G.r('df4_g',[]);
+let fall     = G.r('df4_f',[]);
+let gen      = G.r('df4_gen',[]);
+let diario   = G.r('df4_d',{fecha:'',n:0});
+let racha    = G.r('df4_racha',{fecha:'',dias:0});
+let milestones = G.r('df4_milestones',[]);
+Object.keys(CATS).forEach(c=>{if(!(c in E.cats))E.cats[c]=0;});
+const hoy=()=>new Date().toISOString().slice(0,10);
+if(diario.fecha!==hoy()){diario={fecha:hoy(),n:0};actualizarRacha();}
+
+const feed=document.getElementById('feed');
+const toast=document.getElementById('toast');
+let cnt=0;
+
+/* ─── utils ─── */
+function msg(txt,ms=2000){toast.innerHTML=txt;toast.classList.add('on');clearTimeout(msg._t);msg._t=setTimeout(()=>toast.classList.remove('on'),ms);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function todas(){return PILULES.concat(gen);}
+function faseActual(){return FASES[E.fase-1];}
+function pctFr(){const f=faseActual();return Math.round(f.pctMin+(f.pctMax-f.pctMin)*(E.intens/100));}
+function modoIdioma(){const p=pctFr();return p<38?'chispa':p<66?'doble':'inmersion';}
+
+/* ─── racha ─── */
+function actualizarRacha(){
+  const ayer=new Date();ayer.setDate(ayer.getDate()-1);const ayerStr=ayer.toISOString().slice(0,10);
+  if(racha.fecha===ayerStr&&diario.n>0){racha.dias++;racha.fecha=hoy();}
+  else if(racha.fecha!==hoy()){racha={fecha:hoy(),dias:diario.n>0?1:0};}
+  G.w('df4_racha',racha);
+}
+
+function chequearMilestone(tipo){
+  if(milestones.includes(tipo))return;
+  milestones.push(tipo);
+  G.w('df4_milestones',milestones);
+  mostrarMilestone(tipo);
+}
+
+function mostrarMilestone(tipo){
+  const msgs={
+    'fase_2':'🎉 ¡FASE 2 DESBLOQUEADA! Más francés, más reto.',
+    'fase_3':'🏆 ¡FASE 3 CONSOLIDACIÓN! Inmersión total.',
+    'pilulas_50':'👑 50 píldoras asimiladas',
+    'pilulas_100':'🌟 100 píldoras asimiladas',
+    'racha_7':'🔥 7 días de racha — Eres consistente',
+    'racha_14':'⚡ 14 días de racha — Leyenda'
+  };
+  if(msgs[tipo]){msg(msgs[tipo],3000);confetti();}
+}
+
+function confetti(){
+  const c=document.createElement('div');c.className='confetti-burst';
+  for(let i=0;i<20;i++){
+    const p=document.createElement('div');
+    p.className='confetto';
+    p.textContent='✨';
+    p.style.left=Math.random()*100+'%';
+    p.style.top=Math.random()*50+'%';
+    c.appendChild(p);
+  }
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),1200);
+}
+
+/* ─── motor de ritmo ─── */
+function pulso(ms, cat, id, interactuado){
+  E.asim++;
+  E.cats[cat]=(E.cats[cat]||0)+1;
+  diario.n++;
+  const fi=fall.indexOf(id); if(fi>=0)fall.splice(fi,1);
+
+  let delta=0;
+  if(E.meseta>0){E.meseta--;delta=0;}
+  else if(ms<6000){delta=8;}
+  else if(ms<20000){delta=4;}
+  else{delta=1;}
+
+  E.intens=Math.min(100,E.intens+delta);
+  const sub=checkFase();
+
+  G.w('df4_e',E);G.w('df4_f',fall);G.w('df4_d',diario);
+  guardarPronto();
+  registrar(id,cat,ms);
+  pintarBarra();
+  return sub;
+}
+
+function checkFase(){
+  if(E.fase>=3)return false;
+  const sig=FASES[E.fase];
+  if(E.asim>=sig.umbral&&E.intens>=70){
+    E.fase++;E.intens=20;E.meseta=2;
+    const mtipo='fase_'+E.fase;
+    chequearMilestone(mtipo);
+    return true;
+  }
+  return false;
+}
+
+/* ─── selección ─── */
+function siguiente(){
+  const pool=todas().filter(p=>(p.niv||1)<=E.fase);
+  if(fall.length&&cnt%5===4){
+    const c=pool.find(p=>p.id===fall[Math.floor(Math.random()*fall.length)]);
+    if(c)return c;
+  }
+  const fr=pool.filter(p=>!vistas.includes(p.id));
+  const src=fr.length?fr:pool;
+  const ords=Object.keys(CATS).sort((a,b)=>(E.cats[a]||0)-(E.cats[b]||0));
+  const orden=Math.random()<.45?ords:ords.sort(()=>Math.random()-.5);
+  for(const c of orden){
+    const cand=src.filter(p=>p.c===c);
+    if(cand.length&&Math.random()<.6)return cand[Math.floor(Math.random()*cand.length)];
+  }
+  return src[Math.floor(Math.random()*src.length)];
+}
+
+/* ─── render ─── */
+function renderViñetas(arr){
+  return arr.map(v=>'<li class="viñeta">'+v+'</li>').join('');
+}
+
+function renderCierre(p, cierre){
+  if(!cierre||cierre.tipo==='siguiente'){
+    return '<div class="cierre-sig"><p class="cierre-hint">'+(cierre?esc(cierre.txt):'Desliza para seguir')+'</p>' +
+           '<button class="btn-sig">Siguiente 🔄</button></div>';
+  }
+  if(cierre.tipo==='opinion'||cierre.tipo==='ab'){
+    const letras=cierre.tipo==='ab'?['A','B']:['',''];
+    return '<div class="cierre-elec"><p class="cierre-q">'+esc(cierre.txt)+'</p>' +
+           '<div class="cierre-opts">'+
+           cierre.opts.map((o,i)=>'<button class="c-opt" data-i="'+i+'">'+(letras[i]?'<span class="c-letra">'+letras[i]+'</span>':'')+esc(o)+'</button>').join('')+
+           '</div><div class="cierre-reac"></div></div>';
+  }
+  return '';
+}
+
+function frBlock(p, modo){
+  if(!p.fr_chispa)return '';
+  if(modo==='chispa'){
+    return '<div class="fr-chispa chispa-small">'+
+           '<span class="fr-texto">'+p.fr_chispa+'</span>'+
+           (p.fr_trad?'<span class="fr-trad-s">'+esc(p.fr_trad)+'</span>':'')+
+           '<button class="mini-son" data-txt="'+esc(p.fr_chispa)+'" aria-label="Escuchar">🔊</button></div>';
+  }
+  return '<div class="fr-chispa chispa-big">'+
+         '<span class="fr-grande">'+p.fr_chispa+'</span>'+
+         (p.fr_trad?'<details class="fr-desp"><summary>ver en español</summary><span class="fr-trad-b">'+esc(p.fr_trad)+'</span></details>':'')+
+         '<button class="mini-son" data-txt="'+esc(p.fr_chispa)+'" aria-label="Escuchar">🔊</button></div>';
+}
+
+async function crearCarte(p){
+  const cat=CATS[p.c];
+  const modo=modoIdioma();
+  const el=document.createElement('article');
+  el.className='carte';
+  el.dataset.cat=p.c;
+  el.dataset.id=p.id;
+  el.dataset.t0='0';
+  el.style.setProperty('--teinte',cat.teinte);
+  el.style.setProperty('--fondo-grado',cat.grado);
+  el.style.background=cat.grado;
+
+  el.innerHTML=
+    '<div class="card-overlay"></div>'+
+    '<div class="card-inner">'+
+    /* ── PARTE 1: gancho ── */
+    '<div class="card-gancho">'+
+      '<div class="cat-tag"><span class="cat-emo pulse">'+cat.emo+'</span><span class="cat-nom">'+cat.nom+'</span>'+
+      '<span class="fr-pct">'+pctFr()+'% FR</span></div>'+
+      '<h1 class="gancho-es">'+esc(p.gancho)+'</h1>'+
+      (p.gancho_fr&&modo!=='chispa'?'<p class="gancho-fr">'+p.gancho_fr+'</p>':'')+
+    '</div>'+
+    /* ── PARTE 2: dato ── */
+    '<div class="card-dato">'+
+      '<ul class="viñetas">'+renderViñetas(p.viñetas||[])+'</ul>'+
+      frBlock(p,modo)+
+    '</div>'+
+    /* ── PARTE 3: cierre lúdico ── */
+    '<div class="card-cierre">'+renderCierre(p, p.cierre)+'</div>'+
+    '</div>'+
+    /* ── acciones laterales ── */
+    '<div class="acciones">'+
+      '<button class="act son-btn" data-txt="'+esc(p.fr_chispa||p.gancho_fr||'')+'" aria-label="Escuchar">🔊</button>'+
+      '<button class="act gardar" aria-label="Guardar">♡</button>'+
+    '</div>';
+
+  /* animación de entrada */
+  el.style.opacity='0';el.style.transform='translateY(20px)';
+  setTimeout(()=>{el.style.transition='opacity 300ms, transform 300ms';el.style.opacity='1';el.style.transform='translateY(0)';},10);
+
+  /* voz */
+  el.querySelectorAll('[data-txt]').forEach(b=>{
+    if(!b.dataset.txt)return;
+    b.addEventListener('click',e=>{e.stopPropagation();decir(b.dataset.txt,b);});
+  });
+
+  /* guardar */
+  const bg=el.querySelector('.gardar');
+  if(guard.includes(p.id))bg.classList.add('actif');
+  bg.addEventListener('click',()=>{
+    const i=guard.indexOf(p.id);
+    if(i>=0){guard.splice(i,1);bg.classList.remove('actif');msg('Quitada');}
+    else{guard.push(p.id);bg.classList.add('actif');msg('Guardada ♡');}
+    G.w('df4_g',guard);guardarPronto();
+  });
+
+  /* cierre: opinión / A-B */
+  const cOpts=el.querySelectorAll('.c-opt');
+  const cReac=el.querySelector('.cierre-reac');
+  if(cOpts.length){
+    cOpts.forEach(op=>{
+      op.addEventListener('click',()=>{
+        cOpts.forEach(o=>{o.disabled=true;o.classList.add('disabled');});
+        op.classList.add('elegida');
+        if(cReac)cReac.innerHTML='<span class="reac-txt">✨ Bien</span>';
+        const ms=+el.dataset.t0?Date.now()-(+el.dataset.t0):8000;
+        const sub=pulso(ms,p.c,p.id,true);
+        if(!vistas.includes(p.id)){vistas.push(p.id);G.w('df4_v',vistas);}
+        if(diario.n>0&&diario.n%10===0)chequearMilestone('pilulas_'+Math.floor(diario.n/10)*10);
+        if(racha.dias>0&&racha.dias%7===0)chequearMilestone('racha_'+racha.dias);
+        if(sub)setTimeout(()=>msg('🎉 Fase '+E.fase+' — '+faseActual().nom,4000),600);
+        setTimeout(()=>bajar(el),900);
+      });
+    });
+  }
+
+  /* cierre: siguiente */
+  const btnSig=el.querySelector('.btn-sig');
+  if(btnSig){
+    btnSig.addEventListener('click',()=>{
+      btnSig.style.animation='ripple 600ms';
+      const ms=+el.dataset.t0?Date.now()-(+el.dataset.t0):8000;
+      const sub=pulso(ms,p.c,p.id,false);
+      if(!vistas.includes(p.id)){vistas.push(p.id);G.w('df4_v',vistas);}
+      if(diario.n>0&&diario.n%10===0)chequearMilestone('pilulas_'+Math.floor(diario.n/10)*10);
+      if(racha.dias>0&&racha.dias%7===0)chequearMilestone('racha_'+racha.dias);
+      if(sub)setTimeout(()=>msg('🎉 Fase '+E.fase,4000),600);
+      bajar(el);
+    });
+  }
+
+  /* doble toque = guardar */
+  let ult=0;
+  el.addEventListener('click',ev=>{
+    if(ev.target.closest('button'))return;
+    const t=Date.now();
+    if(t-ult<320){bg.click();ult=0;}else ult=t;
+  });
+
+  cnt++;
+  return el;
+}
+
+function bajar(el){const s=el.nextElementSibling;if(s)s.scrollIntoView({behavior:'smooth',block:'start'});}
+
+async function alimentar(n){for(let i=0;i<n;i++){const p=siguiente();if(p){const el=await crearCarte(p);feed.appendChild(el);}}}
+
+/* ─── voz ─── */
+let voz=null;
+function elegirVoz(){const vs=speechSynthesis.getVoices();voz=vs.find(v=>v.lang==='fr-CA')||vs.find(v=>v.lang.indexOf('fr')===0)||null;}
+if('speechSynthesis' in window){elegirVoz();speechSynthesis.onvoiceschanged=elegirVoz;}
+function decir(txt,btn){
+  if(!txt||!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt.replace(/<[^>]+>/g,''));
+  u.lang='fr-CA';u.rate=.88;if(voz)u.voice=voz;
+  if(btn){btn.classList.add('parle');u.onend=u.onerror=()=>btn.classList.remove('parle');}
+  speechSynthesis.speak(u);
+}
+
+/* ─── barra ─── */
+function pintarBarra(){
+  const f=faseActual();
+  const nb=document.getElementById('faseNom');
+  if(nb){nb.textContent='Fase '+E.fase+' · '+f.nom;nb.style.color='var(--teinte)';}
+  const fp=document.getElementById('facePct');if(fp)fp.textContent=pctFr()+'% FR';
+  const hoy_n=document.getElementById('hoyN');if(hoy_n)hoy_n.textContent=diario.n+' hoy';
+  const racha_n=document.getElementById('rachaN');if(racha_n)racha_n.textContent=racha.dias+' días';
+  const sig=FASES[E.fase];
+  let pct=sig?Math.min(E.asim/Math.max(1,sig.umbral),1)*100:E.intens;
+  const b=document.getElementById('faseBarre');if(b){b.style.width=pct+'%';}
+}
+
+/* ─── observer ─── */
+const obs=new IntersectionObserver(ents=>{
+  ents.forEach(e=>{
+    if(e.intersectionRatio>.6){
+      feed.querySelectorAll('.carte').forEach(c=>c.dataset.actif='0');
+      e.target.dataset.actif='1';
+      if(e.target.dataset.t0==='0')e.target.dataset.t0=String(Date.now());
+      const idx=[].indexOf.call(feed.children,e.target);
+      if(feed.children.length-idx<4)alimentar(4);
+      if(feed.children.length>26){for(let i=0;i<6;i++)feed.firstElementChild.remove();}
+    }
+  });
+},{threshold:[.6]});
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===1)obs.observe(n);})))
+  .observe(feed,{childList:true});
+
+/* ─── teclado ─── */
+document.addEventListener('keydown',e=>{
+  const act=feed.querySelector('.carte[data-actif="1"]');if(!act)return;
+  if(e.key==='ArrowDown'){e.preventDefault();bajar(act);}
+  if(e.key==='ArrowUp'){e.preventDefault();const p=act.previousElementSibling;if(p)p.scrollIntoView({behavior:'smooth'});}
+});
+
+/* ─── nube ─── */
+function mkEstado(t,c){const e=document.getElementById('estadoNube');if(e){e.textContent=t;e.className='etat '+(c||'');}}
+
+function fusionar(n){
+  if(!n)return;
+  const ne=n.estado||{};
+  E.fase=Math.max(E.fase,ne.fase||1);
+  E.asim=Math.max(E.asim,ne.asim||0);
+  if((ne.fase||1)===E.fase)E.intens=Math.max(E.intens,ne.intens||0);
+  Object.keys(CATS).forEach(c=>{E.cats[c]=Math.max(E.cats[c]||0,(ne.cats||{})[c]||0);});
+  const u=(a,b)=>Array.from(new Set([].concat(a||[],b||[])));
+  vistas=u(vistas,n.vistas);guard=u(guard,n.guardadas);fall=u(fall,n.falladas);
+  const dn=n.diario||{};if(dn.fecha===hoy())diario.n=Math.max(diario.n,dn.n||0);
+  G.w('df4_e',E);G.w('df4_v',vistas);G.w('df4_g',guard);G.w('df4_f',fall);G.w('df4_d',diario);
+}
+
+async function nubeCargar(){
+  if(!online){mkEstado('Sin conexión. Se guarda en el teléfono.','');return;}
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/frances_progreso?perfil=eq.'+PERFIL+'&select=*',{headers:cS});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const f=await r.json();
+    if(f.length)fusionar(f[0]);
+    const rc=await fetch(SUPA_URL+'/rest/v1/frances_cartes?perfil=eq.'+PERFIL+'&select=id,tema,tipo,contenu,nivel&order=creado.desc&limit=300',{headers:cS});
+    if(rc.ok){const cs=await rc.json();const ya=new Set(gen.map(c=>c.id));cs.forEach(x=>{if(ya.has(x.id))return;gen.push(Object.assign({},x.contenu,{id:x.id,c:x.tema,niv:x.nivel,ia:true}));});G.w('df4_gen',gen);}
+    pintarBarra();mkEstado('Al día · '+E.asim+' píldoras','bon');
+    guardar(true);
+  }catch(e){mkEstado('Modo offline. Sigues avanzando local.','');}
+}
+
+async function guardar(silencio){
+  if(!online||syncing){pending=true;return;}
+  syncing=true;
+  try{
+    const r=await fetch(SUPA_URL+'/rest/v1/frances_progreso?on_conflict=perfil',{
+      method:'POST',headers:Object.assign({},cS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body:JSON.stringify({perfil:PERFIL,estado:E,vistas:vistas.slice(-800),guardadas:guard,falladas:fall,diario:diario,racha:racha,milestones:milestones,total:E.asim,progreso:E.cats,actualizado:new Date().toISOString()})
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    if(!silencio)mkEstado('Guardado en la nube','bon');
+  }catch(e){pending=true;mkEstado('Pendiente de subir.','');}
+  finally{syncing=false;if(pending){pending=false;setTimeout(()=>guardar(true),1500);}}
+}
+let _t=null;
+function guardarPronto(){clearTimeout(_t);_t=setTimeout(()=>guardar(true),900);}
+
+async function registrar(id,cat,ms){
+  if(!online)return;
+  try{await fetch(SUPA_URL+'/rest/v1/frances_reponses',{method:'POST',headers:Object.assign({},cS,{'Prefer':'return=minimal'}),body:JSON.stringify({perfil:PERFIL,carte_id:id,tema:cat,resultado:'ok',latencia_ms:ms,fase:E.fase})});}catch(e){}
+}
+
+window.addEventListener('online',()=>{online=true;guardar(false);});
+window.addEventListener('offline',()=>{online=false;mkEstado('Sin conexión. Se guarda local.','');});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')guardar(true);});
+
+/* ─── panel ─── */
+const pann=document.getElementById('panneau'),fondP=document.getElementById('fondPanneau');
+function abrirPanel(){
+  const f=faseActual(),sig=FASES[E.fase];
+  document.getElementById('pFase').textContent='Fase '+E.fase+' — '+f.nom;
+  document.getElementById('pAsim').textContent=E.asim;
+  document.getElementById('pHoy').textContent=diario.n;
+  document.getElementById('pRacha').textContent=racha.dias;
+  document.getElementById('pPct').textContent=pctFr()+'%';
+  document.getElementById('pSig').textContent=sig?'Faltan '+Math.max(0,sig.umbral-E.asim)+' píldoras.':'Máximo nivel.';
+  document.getElementById('lCats').innerHTML=Object.entries(CATS).map(([k,v])=>{
+    const n=E.cats[k]||0,pct=Math.min(100,(n%10)*10);
+    return '<div class="theme"><div class="theme-haut"><span class="theme-nom" style="color:'+v.teinte+'">'+v.emo+' '+v.nom+'</span><span class="theme-niv">'+n+'</span></div>'+
+           '<div class="theme-pista"><div class="theme-barra" style="width:'+pct+'%;background:'+v.teinte+'"></div></div></div>';
+  }).join('');
+  
+  /* badges desbloqueados */
+  const badgeTexts={
+    'fase_2':'Fase 2 Desbloqueada',
+    'fase_3':'Fase 3 Desbloqueada',
+    'pilulas_50':'50 Píldoras',
+    'pilulas_100':'100 Píldoras',
+    'racha_7':'Racha de 7 días',
+    'racha_14':'Racha de 14 días'
+  };
+  document.getElementById('lBadges').innerHTML=milestones.map(m=>'<div class="badge">'+badgeTexts[m]+'</div>').join('')||'<p class="muted">Desbloquea badges completando objetivos</p>';
+  
+  pann.classList.add('on');fondP.classList.add('on');
+}
+document.getElementById('btnPanneau').addEventListener('click',abrirPanel);
+fondP.addEventListener('click',()=>{pann.classList.remove('on');fondP.classList.remove('on');});
+
+/* ─── arranque ─── */
+pintarBarra();alimentar(5);nubeCargar();
+setTimeout(()=>{const p=feed.firstElementChild;if(p){p.dataset.actif='1';if(p.dataset.t0==='0')p.dataset.t0=String(Date.now());}},150);
+
+</script>
+</body>
+</html>
