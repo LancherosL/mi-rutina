@@ -189,6 +189,8 @@ body.night .snap-card { background: var(--night-card); }
   color: var(--ink);
 }
 body.night .snap-value { color: var(--night-text); }
+/* El cuadrito de fumado muestra un cronómetro: más chico para que quepa */
+#snap-fumado { font-size: 21px; font-variant-numeric: tabular-nums; }
 .snap-unit { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 2px; }
 .snap-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
 .snap-empty { font-size: 20px; opacity: 0.3; }
@@ -451,6 +453,38 @@ body.night .log-card { background: var(--night-card); }
   margin-bottom: 12px;
 }
 .log-total { font-size: 12px; font-weight: 700; color: var(--terra); }
+
+/* Cronómetro de fumado */
+.crono-box {
+  background: linear-gradient(135deg, var(--sage-soft), rgba(184,92,53,0.06));
+  border-radius: var(--r-sm);
+  padding: 18px 14px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+body.night .crono-box { background: linear-gradient(135deg, rgba(123,174,200,0.1), rgba(123,174,200,0.05)); }
+.crono-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.crono-time {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--terra);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+body.night .crono-time { color: var(--night-accent); }
+.crono-desde {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+}
 .log-quick-btns { display: flex; gap: 8px; margin-bottom: 12px; }
 .log-qbtn {
   flex: 1;
@@ -1282,6 +1316,11 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="ql-title" style="margin:0;">Fumado 🌬️</div>
       <div class="log-total" id="cigarrillos-total">Hoy: nada registrado</div>
     </div>
+    <div class="crono-box" id="crono-box">
+      <div class="crono-label">Tiempo sin fumar</div>
+      <div class="crono-time" id="crono-time">—</div>
+      <div class="crono-desde" id="crono-desde">Sin registros todavía</div>
+    </div>
     <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo o pipa?</div>
     <div class="nivel-pills" id="metodo-pills" style="margin-bottom:14px;">
       <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
@@ -1757,6 +1796,12 @@ function horaActualHHMM() {
   return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
+// Con segundos, para que el cronómetro arranque exacto
+function horaActualHHMMSS() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+}
+
 async function sbLog(tabla, method, body=null, params='') {
   const headers = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};
   if(method==='POST') headers['Prefer']='return=representation';
@@ -1766,7 +1811,95 @@ async function sbLog(tabla, method, body=null, params='') {
 }
 
 let cigarrillosHoy = [];
+let ultimoFumado = null; // {fecha, hora, created_at} del registro más reciente (cualquier día)
+let cronoTimer = null;
 let metodoFumadoActual = 'cigarro'; // 'cigarro' | 'pipa' — se aplica al siguiente registro rápido
+
+// Convierte un registro de fumado en un objeto Date. Prefiere created_at (tiene
+// segundos y zona horaria); si no está, arma la fecha con fecha + hora locales.
+function momentoDeFumado(x) {
+  if(!x) return null;
+  if(x.created_at) {
+    const d = new Date(x.created_at);
+    if(!isNaN(d)) return d;
+  }
+  if(x.fecha && x.hora) {
+    const hora = x.hora.length===5 ? x.hora+':00' : x.hora;
+    const d = new Date(`${x.fecha}T${hora}`);
+    if(!isNaN(d)) return d;
+  }
+  return null;
+}
+
+// Formato corto para el cuadrito de arriba: 45s · 12:30 · 3h 12m · 2d 4h
+function formatCronoCorto(ms) {
+  const s = Math.floor(ms/1000);
+  if(s < 60) return `${s}s`;
+  const m = Math.floor(s/60), segRestantes = s%60;
+  if(m < 60) return `${m}:${String(segRestantes).padStart(2,'0')}`;
+  const h = Math.floor(m/60), minRestantes = m%60;
+  if(h < 24) return `${h}h ${minRestantes}m`;
+  const d = Math.floor(h/24), horasRestantes = h%24;
+  return `${d}d ${horasRestantes}h`;
+}
+
+// Formato largo para el display grande de la tarjeta
+function formatCronoLargo(ms) {
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const seg = s%60;
+  if(d > 0) return `${d}d ${h}h ${m}m`;
+  if(h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(seg).padStart(2,'0')}`;
+  return `${m}:${String(seg).padStart(2,'0')}`;
+}
+
+// Describe cuándo fue el último registro: "hoy a las 3:15 PM" / "ayer a las 9:40 PM"
+function describeUltimoFumado(x) {
+  const d = momentoDeFumado(x);
+  if(!d) return 'Sin registros todavía';
+  const horaTxt = formatHora12(x.hora) || d.toLocaleTimeString('es',{hour:'numeric',minute:'2-digit'});
+  if(x.fecha === todayStr) return `Desde hoy a las ${horaTxt}`;
+  const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
+  const ayerStr = ayer.toISOString().slice(0,10);
+  if(x.fecha === ayerStr) return `Desde ayer a las ${horaTxt}`;
+  return `Desde ${formatFechaCorta(x.fecha)} a las ${horaTxt}`;
+}
+
+// Actualiza cronómetro + cuadrito de arriba. Se llama cada segundo.
+function tickCrono() {
+  const cronoEl = document.getElementById('crono-time');
+  const desdeEl = document.getElementById('crono-desde');
+  const snapEl = document.getElementById('snap-fumado');
+  const snapSubEl = document.getElementById('snap-fumado-sub');
+  const totalVeces = cigarrillosHoy.length;
+  const totalUnidades = cigarrillosHoy.reduce((s,x)=>s+Number(x.cantidad||0),0);
+
+  const desde = momentoDeFumado(ultimoFumado);
+  if(!desde) {
+    if(cronoEl) cronoEl.textContent = '—';
+    if(desdeEl) desdeEl.textContent = 'Sin registros todavía';
+    if(snapEl) snapEl.innerHTML = '<span class="snap-empty">—</span>';
+    if(snapSubEl) snapSubEl.textContent = 'Registrar';
+    return;
+  }
+  const ms = Math.max(0, Date.now() - desde.getTime());
+  if(cronoEl) cronoEl.textContent = formatCronoLargo(ms);
+  if(desdeEl) desdeEl.textContent = describeUltimoFumado(ultimoFumado);
+  if(snapEl) snapEl.innerHTML = formatCronoCorto(ms);
+  if(snapSubEl) {
+    snapSubEl.textContent = totalVeces
+      ? `sin fumar · ${totalUnidades} hoy`
+      : 'sin fumar';
+  }
+}
+
+function iniciarCrono() {
+  if(cronoTimer) clearInterval(cronoTimer);
+  tickCrono();
+  cronoTimer = setInterval(tickCrono, 1000);
+}
 
 function setMetodoFumado(m) {
   metodoFumadoActual = m;
@@ -1786,12 +1919,15 @@ function scrollToFumado() {
 async function registrarPausa(cantidad) {
   if(!cantidad || cantidad<1) return;
   setSyncing(true);
-  const nuevo = {fecha:todayStr, hora:horaActualHHMM(), cantidad, metodo:metodoFumadoActual};
+  const nuevo = {fecha:todayStr, hora:horaActualHHMMSS(), cantidad, metodo:metodoFumadoActual};
   try {
     const r = await sbLog('cigarrillos','POST',nuevo);
-    cigarrillosHoy.push((Array.isArray(r)&&r[0]) ? r[0] : nuevo);
+    const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
+    cigarrillosHoy.push(guardado);
     cigarrillosHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+    ultimoFumado = guardado;          // reinicia el cronómetro desde ahora
     buildCigarrillos();
+    iniciarCrono();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
 }
@@ -1809,6 +1945,8 @@ async function borrarCigarrillo(id) {
     await sbLog('cigarrillos','DELETE',null,`?id=eq.${id}`);
     cigarrillosHoy = cigarrillosHoy.filter(x=>x.id!==id);
     buildCigarrillos();
+    await cargarUltimoFumado();   // el cronómetro vuelve al registro anterior
+    iniciarCrono();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
 }
@@ -1838,13 +1976,8 @@ function buildCigarrillos() {
         </div>`).join('');
     }
   }
-  // Cuadrito del resumen de arriba (reemplaza a "Pasos")
-  const snapEl = document.getElementById('snap-fumado');
-  const snapSubEl = document.getElementById('snap-fumado-sub');
-  if(snapEl) {
-    snapEl.innerHTML = totalVeces ? String(totalVeces) : '<span class="snap-empty">—</span>';
-    if(snapSubEl) snapSubEl.textContent = totalVeces ? `veces · ${totalUnidades} en total` : 'Registrar';
-  }
+  // El cuadrito de arriba ahora lo maneja el cronómetro (tickCrono)
+  tickCrono();
 }
 
 async function cargarCigarrillosHoy() {
@@ -1853,6 +1986,15 @@ async function cargarCigarrillosHoy() {
     cigarrillosHoy = Array.isArray(data) ? data : [];
     buildCigarrillos();
   } catch(e){ console.error('Error cargando cigarrillos:', e); }
+}
+
+// Busca el registro más reciente de cualquier día, para que el cronómetro
+// siga corriendo aunque el último cigarrillo haya sido ayer o antier.
+async function cargarUltimoFumado() {
+  try {
+    const data = await sbLog('cigarrillos','GET',null,'?order=fecha.desc,hora.desc&limit=1');
+    ultimoFumado = (Array.isArray(data) && data[0]) ? data[0] : null;
+  } catch(e){ console.error('Error cargando último fumado:', e); }
 }
 
 let gastosHoy = [];
@@ -2890,6 +3032,7 @@ async function refrescoAutomatico() {
     // Cigarrillos y gastos son listas de eventos (no campos editables),
     // así que basta con releerlas completas para reflejar lo agregado desde otro dispositivo
     await cargarCigarrillosHoy();
+    await cargarUltimoFumado();
     await cargarGastosHoy();
     await cargarGastosSemana();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
@@ -2959,9 +3102,11 @@ async function init() {
   await cargarUltimaVezHabitos();
   await cargarSemana();
   await cargarCigarrillosHoy();
+  await cargarUltimoFumado();
   await cargarGastosHoy();
   await cargarGastosSemana();
   setSyncing(false);
+  iniciarCrono();
   restoreTodayUI();
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
