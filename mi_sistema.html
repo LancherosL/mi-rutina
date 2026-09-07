@@ -1634,6 +1634,13 @@ function getWeekDates() {
 
 const weekDates = getWeekDates();
 const todayStr = getLocalDate(new Date());
+
+// La fecha real de ESTE momento. todayStr se calcula una sola vez al abrir la app,
+// así que si el teléfono quedó suspendido desde ayer, un registro nuevo se guardaba
+// con la fecha vieja y "desaparecía" de la lista de hoy.
+function fechaDeAhora() {
+  return getLocalDate(new Date());
+}
 const todayIdx = Math.max(0, weekDates.indexOf(todayStr));
 
 // ── GREETING ──
@@ -1815,17 +1822,26 @@ let ultimoFumado = null; // {fecha, hora, created_at} del registro más reciente
 let cronoTimer = null;
 let metodoFumadoActual = 'cigarro'; // 'cigarro' | 'pipa' — se aplica al siguiente registro rápido
 
-// Convierte un registro de fumado en un objeto Date. Prefiere created_at (tiene
-// segundos y zona horaria); si no está, arma la fecha con fecha + hora locales.
+// Convierte un registro de fumado en un objeto Date.
+// Usamos SIEMPRE fecha + hora, que se guardan en hora local del teléfono.
+// (created_at viene del servidor en UTC y, si la columna no guarda zona horaria,
+//  JS lo interpreta como local y el cronómetro queda en el futuro → congelado en 0:00)
 function momentoDeFumado(x) {
   if(!x) return null;
-  if(x.created_at) {
-    const d = new Date(x.created_at);
-    if(!isNaN(d)) return d;
-  }
   if(x.fecha && x.hora) {
-    const hora = x.hora.length===5 ? x.hora+':00' : x.hora;
-    const d = new Date(`${x.fecha}T${hora}`);
+    const partes = String(x.hora).split(':');
+    const hh = parseInt(partes[0],10)||0;
+    const mm = parseInt(partes[1],10)||0;
+    const ss = parseInt(partes[2],10)||0;
+    const [y,m,d] = x.fecha.split('-').map(n=>parseInt(n,10));
+    const dt = new Date(y, m-1, d, hh, mm, ss);
+    if(!isNaN(dt)) return dt;
+  }
+  if(x.created_at) {
+    // Fallback: si no trae zona horaria, asumimos UTC
+    const raw = String(x.created_at);
+    const conZona = /[Zz]|[+-]\d{2}:?\d{2}$/.test(raw) ? raw : raw.replace(' ','T')+'Z';
+    const d = new Date(conZona);
     if(!isNaN(d)) return d;
   }
   return null;
@@ -1884,10 +1900,13 @@ function tickCrono() {
     if(snapSubEl) snapSubEl.textContent = 'Registrar';
     return;
   }
-  const ms = Math.max(0, Date.now() - desde.getTime());
-  if(cronoEl) cronoEl.textContent = formatCronoLargo(ms);
+  const ms = Date.now() - desde.getTime();
+  // Si por alguna razón el registro quedó en el futuro (desfase de reloj o zona
+  // horaria), mostramos 0 pero no dejamos que el contador se quede pegado ahí.
+  const msSeguro = ms > 0 ? ms : 0;
+  if(cronoEl) cronoEl.textContent = formatCronoLargo(msSeguro);
   if(desdeEl) desdeEl.textContent = describeUltimoFumado(ultimoFumado);
-  if(snapEl) snapEl.innerHTML = formatCronoCorto(ms);
+  if(snapEl) snapEl.innerHTML = formatCronoCorto(msSeguro);
   if(snapSubEl) {
     snapSubEl.textContent = totalVeces
       ? `sin fumar · ${totalUnidades} hoy`
@@ -1919,7 +1938,7 @@ function scrollToFumado() {
 async function registrarPausa(cantidad) {
   if(!cantidad || cantidad<1) return;
   setSyncing(true);
-  const nuevo = {fecha:todayStr, hora:horaActualHHMMSS(), cantidad, metodo:metodoFumadoActual};
+  const nuevo = {fecha:fechaDeAhora(), hora:horaActualHHMMSS(), cantidad, metodo:metodoFumadoActual};
   try {
     const r = await sbLog('cigarrillos','POST',nuevo);
     const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
@@ -2011,7 +2030,7 @@ async function registrarGasto() {
   if(isNaN(monto) || monto<=0) return;
   const nota = (inputNota.value||'').trim();
   setSyncing(true);
-  const nuevo = {fecha:todayStr, hora:horaActualHHMM(), monto, nota: nota||null};
+  const nuevo = {fecha:fechaDeAhora(), hora:horaActualHHMM(), monto, nota: nota||null};
   try {
     const r = await sbLog('gastos','POST',nuevo);
     const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
@@ -3062,14 +3081,15 @@ function iniciarAutoRefresco() {
   // También refrescar cuando la pestaña vuelve a estar visible
   document.addEventListener('visibilitychange', () => {
     if(!document.hidden) {
+      iniciarCrono(); // iOS pausa los timers en background: reactivar el cronómetro
       if(verificarCambioDeDia()) return;
       refrescoAutomatico();
     }
     else forzarGuardadoPendiente(); // se va a background: guardar ya, sin esperar el debounce
   });
   // iOS: al reanudar una web app desde memoria dispara 'pageshow' en vez de recargar
-  window.addEventListener('pageshow', () => { verificarCambioDeDia(); });
-  window.addEventListener('focus', () => { verificarCambioDeDia(); });
+  window.addEventListener('pageshow', () => { iniciarCrono(); verificarCambioDeDia(); });
+  window.addEventListener('focus', () => { iniciarCrono(); verificarCambioDeDia(); });
   // Última red de seguridad: si la página se cierra/descarga, forzar guardado inmediato
   window.addEventListener('pagehide', forzarGuardadoPendiente);
 }
