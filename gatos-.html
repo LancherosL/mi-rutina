@@ -105,7 +105,7 @@
 const SB='https://snwnqjltfyqlwyeyfjba.supabase.co';
 const KEY='sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
 const H={apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json',Prefer:'return=representation'};
-let gatos=[],trat=[],vac=[],sint=[],gastos=[],log=[],pend=[],visitas=[],labs=[],docs=[],estados=[];
+let gatos=[],trat=[],vac=[],sint=[],gastos=[],log=[],pend=[],visitas=[],labs=[],docs=[],estados=[],salidas=[];
 let vista='inicio',form=null,folds={};
 
 async function api(p,o={}){const r=await fetch(SB+'/rest/v1/'+p,{headers:H,...o});if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):null;}
@@ -131,8 +131,8 @@ async function cargar(){
     api('gatos_gastos?select=*&order=fecha.desc'),api('gatos_dosis_log?select=*&fecha=gte.'+suma(hoy(),-60)),
     api('gatos_pendientes?select=*&order=prioridad,created_at'),api('gatos_visitas?select=*&order=fecha.desc'),
     api('gatos_labs?select=*&order=fecha.desc'),api('gatos_documentos?select=*&order=fecha.desc'),
-    api('gatos_plan_estado?select=*')]);
-  [gatos,trat,vac,sint,gastos,log,pend,visitas,labs,docs,estados]=r;
+    api('gatos_plan_estado?select=*'),api('gatos_salidas?select=*&order=fecha.desc')]);
+  [gatos,trat,vac,sint,gastos,log,pend,visitas,labs,docs,estados,salidas]=r;
 }
 
 function proximas(gid){
@@ -150,6 +150,7 @@ function proximas(gid){
 const diarios=gid=>trat.filter(t=>t.frecuencia==='diario'&&t.activo!==false&&(!gid||t.gato_id===gid));
 const hechoHoy=id=>log.some(l=>l.tratamiento_id===id&&l.fecha===hoy());
 const abiertos=gid=>pend.filter(p=>!p.hecho&&(!gid||p.gato_id===gid));
+const salioHoy=gid=>salidas.some(s=>s.gato_id===gid&&s.fecha===hoy());
 const tick=()=>'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>';
 
 function patron(gid){
@@ -162,7 +163,7 @@ function patron(gid){
   return `<b>${esc(G(gid).nombre)} lleva ${s.length} episodios en 3 semanas</b> (${top[1]} de ${esc(top[0])}${tc&&tc[1]>1?', '+tc[1]+' con '+esc(tc[0]):''}). Vale la pena mencionárselo a la vet.`;
 }
 
-function go(v){vista=v;form=null;folds={};render();}
+function go(v){vista=v;form=null;folds={};render();window.scrollTo(0,0);}
 window.go=go;
 window.fold=function(k){folds[k]=!folds[k];render();};
 
@@ -193,7 +194,7 @@ function render(){
     hd.innerHTML=`<div class="wrap"><div class="top"><div class="kick">${t[0].charAt(0).toUpperCase()+t[0].slice(1)}</div><h1>${t[1]}</h1></div></div>`;
   }
   document.getElementById('view').innerHTML=g?vGato(g):(vista==='inicio'?vInicio():vGastos());
-  pintarNav();window.scrollTo(0,0);
+  pintarNav();
 }
 
 /* ===== INICIO ===== */
@@ -251,6 +252,23 @@ function vGato(g){
   if(dd.length)h+='<h2>Todos los días</h2>'+dd.map(t=>{const d=hechoHoy(t.id);
     return `<div class="chk${d?' on':''}" onclick="toggleDiario('${t.id}',${d})"><div class="bx">${d?tick():''}</div>
       <div><div class="t">${esc(t.producto)}</div><div class="d">${esc(t.indicacion||'')}</div></div></div>`;}).join('');
+
+  /* Salidas */
+  const sal=salidas.filter(x=>x.gato_id===id);
+  const sh=salioHoy(id);
+  const s30=sal.filter(x=>x.fecha>=suma(hoy(),-30)).length;
+  h+=`<h2>Salidas <button class="add" onclick="abrir('sal')">+ agregar</button></h2>`;
+  h+=`<div class="chk${sh?' on':''}" onclick="toggleSalida('${id}',${sh})"><div class="bx">${sh?tick():''}</div>
+    <div><div class="t">Hoy salió a pasear</div><div class="d">${s30} salida${s30===1?'':'s'} en 30 días</div></div></div>`;
+  h+=`<div class="panel${form==='sal'?' open':''}"><h3>Registrar salida</h3>
+    <div class="r2"><div class="f"><label>Fecha</label><input type="date" id="sal-fecha" value="${hoy()}"></div>
+      <div class="f"><label>Duración en min (opcional)</label><input type="number" id="sal-dur"></div></div>
+    <div class="f"><label>Notas</label><textarea id="sal-notas" placeholder="Al patio, con correa, jardín..."></textarea></div>
+    <div class="btns"><button class="save" onclick="gSalida(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
+  h+=sal.length?sal.slice(0,8).map(x=>`<div class="li"><div class="b"><div class="t">${fmtL(x.fecha)}</div>
+    <div class="d">${x.duracion_min?x.duracion_min+' min':''}${x.notas?(x.duracion_min?' · ':'')+esc(x.notas):''}</div></div>
+    <button class="del" onclick="borrar('gatos_salidas','${x.id}')">×</button></div>`).join('')
+    :'<div class="empty">Nada anotado todavía.</div>';
 
   /* 2. SÍNTOMAS — ahora arriba */
   const ss=sint.filter(x=>x.gato_id===id);
@@ -473,6 +491,12 @@ window.toggleDiario=async function(id,ok){try{
   if(ok)await api(`gatos_dosis_log?tratamiento_id=eq.${id}&fecha=eq.${hoy()}`,{method:'DELETE'});
   else await api('gatos_dosis_log',{method:'POST',body:JSON.stringify({tratamiento_id:id,fecha:hoy()})});
   await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.toggleSalida=async function(gid,ok){try{
+  if(ok)await api(`gatos_salidas?gato_id=eq.${gid}&fecha=eq.${hoy()}`,{method:'DELETE'});
+  else await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha:hoy()})});
+  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+window.gSalida=async function(btn,gid){
+  await post('gatos_salidas',{gato_id:gid,fecha:v('sal-fecha')||hoy(),duracion_min:n('sal-dur'),notas:v('sal-notas')},btn);};
 window.togglePend=async function(id,ok){try{
   await api('gatos_pendientes?id=eq.'+id,{method:'PATCH',body:JSON.stringify({hecho:!ok,hecho_fecha:ok?null:hoy()})});
   await cargar();render();}catch(e){alert('No se pudo guardar.');}};
