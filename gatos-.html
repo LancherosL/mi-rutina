@@ -454,9 +454,15 @@ async function subir(f){const b=await comprimir(f);const p=`sintomas/${Date.now(
   if(!r.ok)throw new Error('foto');return `${SB}/storage/v1/object/public/gatos-fotos/${p}`;}
 function v(id){const e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():null;}
 function n(id){const x=v(id);return x?Number(x):null;}
+function friendlyError(e){
+  const m=(e&&e.message)||'';
+  if(m.includes('duplicate key')||m.includes('already exists'))return 'Ya hay un registro guardado para esa fecha. Bórralo primero si quieres cambiarlo, o edita el que ya existe.';
+  if(m.includes('Failed to fetch')||m.includes('NetworkError')||m==='')return 'No hay conexión a internet en este momento. Vuelve a intentar cuando tengas señal.';
+  return 'No se pudo guardar. Detalle: '+m.slice(0,160);
+}
 async function post(t,b,btn){btn.disabled=true;btn.textContent='Guardando…';
   try{await api(t,{method:'POST',body:JSON.stringify(b)});await cargar();form=null;render();}
-  catch(e){alert('No se pudo guardar. Revisa la conexión.');btn.disabled=false;btn.textContent='Guardar';}}
+  catch(e){alert(friendlyError(e));btn.disabled=false;btn.textContent='Guardar';}}
 window.gSint=async function(btn,gid){const f=document.getElementById('s-foto').files[0];let u=null;
   if(f){btn.disabled=true;btn.textContent='Subiendo foto…';try{u=await subir(f);}catch(e){alert('La foto no subió, pero guardo el resto.');}}
   await post('gatos_sintomas',{gato_id:gid,fecha:v('s-fecha'),hora:v('s-hora'),tipo:v('s-tipo')||'vómito',contenido:v('s-contenido'),comio_antes:v('s-comio'),foto_url:u,notas:v('s-notas')},btn);};
@@ -480,30 +486,43 @@ async function pausarDirecto(gid,prod,susp){
 }
 window.pausar=async function(gid,prod,estaPausado){
   if(!estaPausado&&!confirm(`¿Poner ${prod} en pausa?\n\nDeja de aparecer en "lo que sigue", pero se queda guardado con todo su historial. Cuando lo vuelvas a usar le das "Retomar" o simplemente registras la dosis nueva.`))return;
-  try{await pausarDirecto(gid,prod,!estaPausado);await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  try{await pausarDirecto(gid,prod,!estaPausado);await cargar();render();}catch(e){alert(friendlyError(e));}};
 
 window.marcar=async function(id){const b=trat.find(t=>t.id===id);if(!b)return;
   if(!confirm(`¿Anotar que hoy le diste ${b.producto} a ${G(b.gato_id).nombre}?`))return;
-  try{await api('gatos_tratamientos',{method:'POST',body:JSON.stringify({gato_id:b.gato_id,tipo:b.tipo,producto:b.producto,fecha:hoy(),intervalo_dias:b.intervalo_dias,frecuencia:'periodico',activo:true,indicacion:b.indicacion,lote:b.lote,dosis:b.dosis})});
-  await pausarDirecto(b.gato_id,b.producto,false); // registrar una dosis lo reactiva solo
-  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  try{
+    await api('gatos_tratamientos',{method:'POST',body:JSON.stringify({gato_id:b.gato_id,tipo:b.tipo,producto:b.producto,fecha:hoy(),intervalo_dias:b.intervalo_dias,frecuencia:'periodico',activo:true,indicacion:b.indicacion,lote:b.lote,dosis:b.dosis})});
+  }catch(e){alert(friendlyError(e));return;}
+  try{await pausarDirecto(b.gato_id,b.producto,false);}catch(e){} // no bloquea si esto falla, la dosis ya quedo guardada
+  try{await cargar();render();}catch(e){alert('La dosis se guardó, pero la pantalla no se pudo actualizar. Recarga la página.');}};
 window.toggleDiario=async function(id,ok){try{
   if(ok)await api(`gatos_dosis_log?tratamiento_id=eq.${id}&fecha=eq.${hoy()}`,{method:'DELETE'});
   else await api('gatos_dosis_log',{method:'POST',body:JSON.stringify({tratamiento_id:id,fecha:hoy()})});
-  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  await cargar();render();}catch(e){alert(friendlyError(e));}};
 window.toggleSalida=async function(gid,ok){try{
   if(ok)await api(`gatos_salidas?gato_id=eq.${gid}&fecha=eq.${hoy()}`,{method:'DELETE'});
-  else await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha:hoy()})});
-  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  else{
+    const ex=salidas.find(s=>s.gato_id===gid&&s.fecha===hoy());
+    if(ex)await api('gatos_salidas?id=eq.'+ex.id,{method:'DELETE'}); // por si quedo un registro huerfano
+    await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha:hoy()})});
+  }
+  await cargar();render();}catch(e){alert(friendlyError(e));}};
 window.gSalida=async function(btn,gid){
-  await post('gatos_salidas',{gato_id:gid,fecha:v('sal-fecha')||hoy(),duracion_min:n('sal-dur'),notas:v('sal-notas')},btn);};
+  const fecha=v('sal-fecha')||hoy();
+  const ex=salidas.find(s=>s.gato_id===gid&&s.fecha===fecha);
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    if(ex)await api('gatos_salidas?id=eq.'+ex.id,{method:'PATCH',body:JSON.stringify({duracion_min:n('sal-dur'),notas:v('sal-notas')})});
+    else await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha,duracion_min:n('sal-dur'),notas:v('sal-notas')})});
+    await cargar();form=null;render();
+  }catch(e){alert(friendlyError(e));btn.disabled=false;btn.textContent='Guardar';}};
 window.togglePend=async function(id,ok){try{
   await api('gatos_pendientes?id=eq.'+id,{method:'PATCH',body:JSON.stringify({hecho:!ok,hecho_fecha:ok?null:hoy()})});
-  await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  await cargar();render();}catch(e){alert(friendlyError(e));}};
 window.terminar=async function(id){if(!confirm('¿Marcar que se acabó hoy?'))return;
-  try{await api('gatos_gastos?id=eq.'+id,{method:'PATCH',body:JSON.stringify({fecha_terminado:hoy()})});await cargar();render();}catch(e){alert('No se pudo guardar.');}};
+  try{await api('gatos_gastos?id=eq.'+id,{method:'PATCH',body:JSON.stringify({fecha_terminado:hoy()})});await cargar();render();}catch(e){alert(friendlyError(e));}};
 window.borrar=async function(t,id){if(!confirm('¿Eliminar este registro?'))return;
-  try{await api(`${t}?id=eq.${id}`,{method:'DELETE'});await cargar();render();}catch(e){alert('No se pudo eliminar.');}};
+  try{await api(`${t}?id=eq.${id}`,{method:'DELETE'});await cargar();render();}catch(e){alert(friendlyError(e));}};
 
 (async function(){try{await cargar();render();}catch(e){document.getElementById('view').innerHTML='<div class="empty">No se pudo conectar. Revisa tu internet y recarga.</div>';}})();
 </script>
