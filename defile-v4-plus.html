@@ -91,6 +91,12 @@ header>*{pointer-events:auto;}
 }
 .card-inner::-webkit-scrollbar{display:none;}
 
+/* ── VISUAL: emoji grande + SVG ilustrativo ── */
+.card-visual{display:flex;align-items:center;gap:16px;padding:12px 0 4px;animation:slideUp 300ms ease-out 80ms both;}
+.emoji-grande{font-size:52px;line-height:1;filter:drop-shadow(0 0 12px var(--teinte));animation:pulse 3s ease-in-out infinite;flex:0 0 auto;}
+.svg-ilustra{flex:1;height:88px;border-radius:12px;overflow:hidden;background:rgba(6,14,22,.5);backdrop-filter:blur(4px);border:1px solid rgba(243,240,234,.08);display:flex;align-items:center;justify-content:center;}
+.svg-ilustra svg{width:100%;height:100%;display:block;}
+
 /* ── PARTE 1: gancho ── */
 .cat-tag{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.08em;
   color:var(--teinte);text-transform:uppercase;margin-bottom:10px;
@@ -634,14 +640,17 @@ const PILULES = [
 ]; // fin PILULES
 
 const CATS = {
-  francais: {nom:"Français Vivant",     emo:"🇫🇷", teinte:'#E0A33E', fond:'#1C1005', grado:'linear-gradient(135deg, #E0A33E 0%, #D97E2A 50%, #1C1005 100%)'},
-  cerveau:  {nom:"Neurosciences",       emo:"🧠", teinte:'#8B7BC7', fond:'#120E25', grado:'linear-gradient(135deg, #8B7BC7 0%, #6B4AA0 50%, #120E25 100%)'},
-  chats:    {nom:"Faits sur les chats", emo:"🐈", teinte:'#D98E6A', fond:'#1E100A', grado:'linear-gradient(135deg, #D98E6A 0%, #B86E52 50%, #1E100A 100%)'},
-  quebec:   {nom:"Culture d'ici",       emo:"🍁", teinte:'#4A90C2', fond:'#071422', grado:'linear-gradient(135deg, #4A90C2 0%, #2A6FA0 50%, #071422 100%)'},
-  culture:  {nom:"Culture générale",    emo:"🎬", teinte:'#C77BA6', fond:'#1E0D17', grado:'linear-gradient(135deg, #C77BA6 0%, #9B5F85 50%, #1E0D17 100%)'},
-  bio:      {nom:"Bio & Chimie",        emo:"🧬", teinte:'#4FA88B', fond:'#051A15', grado:'linear-gradient(135deg, #4FA88B 0%, #3A8070 50%, #051A15 100%)'},
-  math:     {nom:"Maths & Physique",    emo:"⚡", teinte:'#9AB0C4', fond:'#0D141A', grado:'linear-gradient(135deg, #9AB0C4 0%, #7A95A8 50%, #0D141A 100%)'}
+  francais: {nom:"Français Vivant",     emo:"🇫🇷", emoGrande:"🗼", teinte:'#E0A33E', fond:'#1C1005', grado:'linear-gradient(135deg, #E0A33E 0%, #D97E2A 50%, #1C1005 100%)'},
+  cerveau:  {nom:"Neurosciences",       emo:"🧠", emoGrande:"🧠", teinte:'#8B7BC7', fond:'#120E25', grado:'linear-gradient(135deg, #8B7BC7 0%, #6B4AA0 50%, #120E25 100%)'},
+  chats:    {nom:"Faits sur les chats", emo:"🐈", emoGrande:"🐱", teinte:'#D98E6A', fond:'#1E100A', grado:'linear-gradient(135deg, #D98E6A 0%, #B86E52 50%, #1E100A 100%)'},
+  quebec:   {nom:"Culture d'ici",       emo:"🍁", emoGrande:"🍁", teinte:'#4A90C2', fond:'#071422', grado:'linear-gradient(135deg, #4A90C2 0%, #2A6FA0 50%, #071422 100%)'},
+  culture:  {nom:"Culture générale",    emo:"🎬", emoGrande:"🎬", teinte:'#C77BA6', fond:'#1E0D17', grado:'linear-gradient(135deg, #C77BA6 0%, #9B5F85 50%, #1E0D17 100%)'},
+  bio:      {nom:"Bio & Chimie",        emo:"🧬", emoGrande:"🧬", teinte:'#4FA88B', fond:'#051A15', grado:'linear-gradient(135deg, #4FA88B 0%, #3A8070 50%, #051A15 100%)'},
+  math:     {nom:"Maths & Physique",    emo:"⚡", emoGrande:"⚡", teinte:'#9AB0C4', fond:'#0D141A', grado:'linear-gradient(135deg, #9AB0C4 0%, #7A95A8 50%, #0D141A 100%)'}
 };
+
+/* ─── SVGs ilustrativos por categoría ─── */
+const SVG_CATS={francais:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gfr" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#E0A33E" stop-opacity="0.4"/><stop offset="100%" stop-color="#E0A33E" stop-opacity="0"/></radialGradient><filter id="bfr"><feGaussianBlur stdDeviation="1.5"/></filter></defs><rect x="10" y="40" width="50" height="100" fill="#1a1008" rx="2"/><rect x="15" y="50" width="12" height="10" fill="#E0A33E" opacity="0.7" rx="1"/><rect x="32" y="50" width="12" height="10" fill="#E0A33E" opacity="0.4" rx="1"/><rect x="15" y="68" width="12" height="10" fill="#E0A33E" opacity="0.9" rx="1"/><rect x="32" y="68" width="12" height="10" fill="#D97E2A" opacity="0.5" rx="1"/><path d="M60 80 L60 140 L50 140 L50 90 L40 90 L40 100 L30 100" fill="none" stroke="#E0A33E" stroke-width="1.5" opacity="0.8"/><rect x="75" y="20" width="50" height="120" fill="#120a02" rx="2"/><rect x="80" y="30" width="14" height="12" fill="#E0A33E" opacity="0.9" rx="1"/><rect x="100" y="30" width="14" height="12" fill="#E0A33E" opacity="0.6" rx="1"/><rect x="80" y="50" width="14" height="12" fill="#D97E2A" opacity="0.5" rx="1"/><rect x="100" y="50" width="14" height="12" fill="#E0A33E" opacity="0.8" rx="1"/><rect x="80" y="70" width="14" height="12" fill="#E0A33E" opacity="0.95" rx="1"/><rect x="100" y="70" width="14" height="12" fill="#D97E2A" opacity="0.4" rx="1"/><path d="M125 60 L125 140 L115 140 L115 75 L105 75" fill="none" stroke="#E0A33E" stroke-width="1.5" opacity="0.9"/><rect x="140" y="50" width="50" height="90" fill="#1a1008" rx="2"/><rect x="145" y="60" width="12" height="10" fill="#E0A33E" opacity="0.6" rx="1"/><rect x="162" y="60" width="12" height="10" fill="#E0A33E" opacity="0.9" rx="1"/><line x1="100" y1="0" x2="100" y2="20" stroke="#E0A33E" stroke-width="1.5"/><circle cx="100" cy="0" r="6" fill="#E0A33E" opacity="0.9" filter="url(#bfr)"/><circle cx="100" cy="0" r="14" fill="url(#gfr)"/><rect x="0" y="135" width="200" height="5" fill="#ccd8e0" opacity="0.25" rx="2"/></svg>`,cerveau:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><defs><filter id="gf"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="100" cy="70" r="5" fill="#8B7BC7" filter="url(#gf)" opacity="0.9"/><circle cx="40" cy="30" r="3.5" fill="#6B4AA0" filter="url(#gf)" opacity="0.8"/><circle cx="160" cy="25" r="4" fill="#8B7BC7" filter="url(#gf)"/><circle cx="30" cy="90" r="3" fill="#9B8BD7" filter="url(#gf)" opacity="0.7"/><circle cx="170" cy="95" r="3.5" fill="#6B4AA0" filter="url(#gf)" opacity="0.8"/><circle cx="75" cy="115" r="3" fill="#8B7BC7" filter="url(#gf)" opacity="0.75"/><circle cx="130" cy="120" r="3" fill="#9B8BD7" filter="url(#gf)" opacity="0.7"/><circle cx="55" cy="55" r="2.5" fill="#6B4AA0" filter="url(#gf)" opacity="0.6"/><circle cx="150" cy="60" r="2.5" fill="#8B7BC7" filter="url(#gf)" opacity="0.65"/><line x1="100" y1="70" x2="40" y2="30" stroke="#8B7BC7" stroke-width="1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.9;0.5" dur="2s" repeatCount="indefinite"/></line><line x1="100" y1="70" x2="160" y2="25" stroke="#6B4AA0" stroke-width="1" opacity="0.4"><animate attributeName="opacity" values="0.4;0.85;0.4" dur="2.5s" repeatCount="indefinite"/></line><line x1="100" y1="70" x2="30" y2="90" stroke="#9B8BD7" stroke-width="1" opacity="0.45"><animate attributeName="opacity" values="0.45;0.8;0.45" dur="1.8s" repeatCount="indefinite"/></line><line x1="100" y1="70" x2="170" y2="95" stroke="#8B7BC7" stroke-width="1" opacity="0.4"><animate attributeName="opacity" values="0.4;0.75;0.4" dur="3s" repeatCount="indefinite"/></line><line x1="100" y1="70" x2="75" y2="115" stroke="#6B4AA0" stroke-width="1" opacity="0.5"><animate attributeName="opacity" values="0.5;0.88;0.5" dur="2.2s" repeatCount="indefinite"/></line><line x1="100" y1="70" x2="130" y2="120" stroke="#8B7BC7" stroke-width="0.8" opacity="0.4"><animate attributeName="opacity" values="0.4;0.7;0.4" dur="2.7s" repeatCount="indefinite"/></line><circle cx="100" cy="70" r="8" fill="none" stroke="#8B7BC7" stroke-width="1" opacity="0.6"><animate attributeName="r" values="8;20;8" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/></circle></svg>`,chats:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="goeil" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#D98E6A" stop-opacity="0.6"/><stop offset="100%" stop-color="#D98E6A" stop-opacity="0"/></radialGradient></defs><ellipse cx="100" cy="80" rx="55" ry="48" fill="#1a0d06" stroke="#D98E6A" stroke-width="0.8" stroke-opacity="0.3"/><polygon points="55,45 45,15 75,38" fill="#1a0d06" stroke="#D98E6A" stroke-width="0.8" stroke-opacity="0.4"/><polygon points="58,43 50,22 72,40" fill="#D98E6A" opacity="0.2"/><polygon points="145,45 155,15 125,38" fill="#1a0d06" stroke="#D98E6A" stroke-width="0.8" stroke-opacity="0.4"/><polygon points="142,43 150,22 128,40" fill="#D98E6A" opacity="0.2"/><ellipse cx="78" cy="75" rx="14" ry="16" fill="#0a0604" stroke="#D98E6A" stroke-width="1" stroke-opacity="0.6"/><ellipse cx="78" cy="75" rx="7" ry="13" fill="#2a5a1a"><animate attributeName="ry" values="13;4;13" dur="4s" repeatCount="indefinite" begin="2s"/></ellipse><circle cx="82" cy="70" r="2.5" fill="white" opacity="0.9"/><ellipse cx="78" cy="75" rx="18" ry="20" fill="url(#goeil)" opacity="0.5"/><ellipse cx="122" cy="75" rx="14" ry="16" fill="#0a0604" stroke="#D98E6A" stroke-width="1" stroke-opacity="0.6"/><ellipse cx="122" cy="75" rx="7" ry="13" fill="#2a5a1a"><animate attributeName="ry" values="13;4;13" dur="4s" repeatCount="indefinite" begin="2s"/></ellipse><circle cx="126" cy="70" r="2.5" fill="white" opacity="0.9"/><ellipse cx="122" cy="75" rx="18" ry="20" fill="url(#goeil)" opacity="0.5"/><polygon points="100,90 95,97 105,97" fill="#D98E6A" opacity="0.7"/><path d="M100 97 Q92 105 85 102" fill="none" stroke="#D98E6A" stroke-width="1.2" stroke-opacity="0.6" stroke-linecap="round"/><path d="M100 97 Q108 105 115 102" fill="none" stroke="#D98E6A" stroke-width="1.2" stroke-opacity="0.6" stroke-linecap="round"/><line x1="100" y1="95" x2="55" y2="85" stroke="#D98E6A" stroke-width="0.7" opacity="0.5"/><line x1="100" y1="98" x2="52" y2="98" stroke="#D98E6A" stroke-width="0.7" opacity="0.4"/><line x1="100" y1="95" x2="145" y2="85" stroke="#D98E6A" stroke-width="0.7" opacity="0.5"/><line x1="100" y1="98" x2="148" y2="98" stroke="#D98E6A" stroke-width="0.7" opacity="0.4"/></svg>`,quebec:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="200" height="140" fill="#071422"/><circle cx="160" cy="22" r="14" fill="#c8d8e8" opacity="0.9"/><circle cx="167" cy="17" r="11" fill="#071422" opacity="0.95"/><circle cx="20" cy="12" r="1" fill="white" opacity="0.8"/><circle cx="50" cy="8" r="1.2" fill="white" opacity="0.7"/><circle cx="80" cy="15" r="0.8" fill="white" opacity="0.6"/><circle cx="110" cy="6" r="1" fill="white" opacity="0.75"/><circle cx="35" cy="28" r="0.7" fill="white" opacity="0.5"/><rect x="65" y="55" width="70" height="85" fill="#0a1a2a" stroke="#4A90C2" stroke-width="0.5" stroke-opacity="0.4"/><rect x="65" y="30" width="18" height="85" fill="#0d1f30" stroke="#4A90C2" stroke-width="0.4" stroke-opacity="0.4"/><rect x="117" y="30" width="18" height="85" fill="#0d1f30" stroke="#4A90C2" stroke-width="0.4" stroke-opacity="0.4"/><polygon points="74,30 83,10 92,30" fill="#0d1f30" stroke="#4A90C2" stroke-width="0.5" stroke-opacity="0.6"/><polygon points="126,30 135,10 144,30" fill="#0d1f30" stroke="#4A90C2" stroke-width="0.5" stroke-opacity="0.6"/><line x1="83" y1="12" x2="83" y2="5" stroke="#4A90C2" stroke-width="1.2" opacity="0.8"/><line x1="80" y1="8" x2="86" y2="8" stroke="#4A90C2" stroke-width="1.2" opacity="0.8"/><line x1="135" y1="12" x2="135" y2="5" stroke="#4A90C2" stroke-width="1.2" opacity="0.8"/><line x1="132" y1="8" x2="138" y2="8" stroke="#4A90C2" stroke-width="1.2" opacity="0.8"/><circle cx="100" cy="65" r="9" fill="none" stroke="#4A90C2" stroke-width="1" opacity="0.7"/><circle cx="100" cy="65" r="5" fill="#4A90C2" opacity="0.15"/><rect x="70" y="45" width="8" height="12" fill="#4A90C2" opacity="0.4" rx="4"/><rect x="122" y="45" width="8" height="12" fill="#4A90C2" opacity="0.3" rx="4"/><circle cx="25" cy="50" r="1.2" fill="white" opacity="0.6"><animate attributeName="cy" values="50;140" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0" dur="4s" repeatCount="indefinite"/></circle><circle cx="70" cy="20" r="1" fill="white" opacity="0.5"><animate attributeName="cy" values="20;140" dur="5s" repeatCount="indefinite" begin="1s"/><animate attributeName="opacity" values="0.5;0" dur="5s" repeatCount="indefinite" begin="1s"/></circle><circle cx="150" cy="35" r="1.3" fill="white" opacity="0.55"><animate attributeName="cy" values="35;140" dur="3.5s" repeatCount="indefinite" begin="0.5s"/><animate attributeName="opacity" values="0.55;0" dur="3.5s" repeatCount="indefinite" begin="0.5s"/></circle><ellipse cx="100" cy="138" rx="100" ry="5" fill="#c8d8e0" opacity="0.2"/></svg>`,culture:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="200" height="140" fill="#0d0610"/><rect x="15" y="8" width="170" height="90" fill="#0f0a14" rx="2" stroke="#C77BA6" stroke-width="0.5" stroke-opacity="0.3"/><path d="M100 0 L75 53 L125 53 Z" fill="#C77BA6" opacity="0.15"/><circle cx="100" cy="36" r="7" fill="#C77BA6" opacity="0.4"/><path d="M88 63 Q100 48 112 63 L115 83 L85 83 Z" fill="#C77BA6" opacity="0.3"/><text x="38" y="33" font-size="14" fill="#C77BA6" opacity="0.6" font-family="serif">♪</text><text x="150" y="38" font-size="18" fill="#9B5F85" opacity="0.5" font-family="serif">♫</text><text x="28" y="58" font-size="10" fill="#9B5F85" opacity="0.4" font-family="serif">♬</text><rect x="5" y="8" width="8" height="90" fill="#100814" stroke="#C77BA6" stroke-width="0.3" stroke-opacity="0.3"/><rect x="187" y="8" width="8" height="90" fill="#100814" stroke="#C77BA6" stroke-width="0.3" stroke-opacity="0.3"/><rect x="6" y="14" width="6" height="8" rx="1" fill="#0d0610"/><rect x="6" y="28" width="6" height="8" rx="1" fill="#0d0610"/><rect x="6" y="42" width="6" height="8" rx="1" fill="#0d0610"/><rect x="6" y="56" width="6" height="8" rx="1" fill="#0d0610"/><rect x="6" y="70" width="6" height="8" rx="1" fill="#0d0610"/><rect x="188" y="14" width="6" height="8" rx="1" fill="#0d0610"/><rect x="188" y="28" width="6" height="8" rx="1" fill="#0d0610"/><rect x="188" y="42" width="6" height="8" rx="1" fill="#0d0610"/><rect x="188" y="56" width="6" height="8" rx="1" fill="#0d0610"/><rect x="188" y="70" width="6" height="8" rx="1" fill="#0d0610"/><rect x="20" y="105" width="15" height="20" rx="3" fill="#1a0d1a"/><rect x="42" y="103" width="15" height="22" rx="3" fill="#1a0d1a"/><rect x="64" y="105" width="15" height="20" rx="3" fill="#1a0d1a"/><rect x="86" y="104" width="15" height="21" rx="3" fill="#C77BA6" opacity="0.12"/><rect x="108" y="105" width="15" height="20" rx="3" fill="#1a0d1a"/><rect x="130" y="103" width="15" height="22" rx="3" fill="#1a0d1a"/><rect x="152" y="105" width="15" height="20" rx="3" fill="#1a0d1a"/></svg>`,bio:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gadn" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#4FA88B" stop-opacity="0.3"/><stop offset="100%" stop-color="#4FA88B" stop-opacity="0"/></radialGradient><filter id="fadn"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path d="M80 5 C60 20 120 35 100 50 C80 65 60 80 80 95 C100 110 120 125 100 140" fill="none" stroke="#4FA88B" stroke-width="2.5" opacity="0.85" filter="url(#fadn)"/><path d="M120 5 C140 20 80 35 100 50 C120 65 140 80 120 95 C100 110 80 125 100 140" fill="none" stroke="#3A8070" stroke-width="2.5" opacity="0.85" filter="url(#fadn)"/><line x1="82" y1="12" x2="118" y2="12" stroke="#4FA88B" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/><line x1="95" y1="22" x2="105" y2="22" stroke="#5FC89B" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/><line x1="103" y1="32" x2="97" y2="32" stroke="#4FA88B" stroke-width="1.5" opacity="0.65" stroke-linecap="round"/><line x1="98" y1="52" x2="102" y2="52" stroke="#4FA88B" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/><line x1="95" y1="62" x2="105" y2="62" stroke="#5FC89B" stroke-width="1.5" opacity="0.65" stroke-linecap="round"/><line x1="93" y1="72" x2="107" y2="72" stroke="#4FA88B" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/><line x1="95" y1="82" x2="105" y2="82" stroke="#3A8070" stroke-width="1.5" opacity="0.7" stroke-linecap="round"/><line x1="98" y1="92" x2="102" y2="92" stroke="#4FA88B" stroke-width="1.5" opacity="0.65" stroke-linecap="round"/><line x1="103" y1="112" x2="97" y2="112" stroke="#4FA88B" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/><line x1="105" y1="122" x2="95" y2="122" stroke="#3A8070" stroke-width="1.5" opacity="0.65" stroke-linecap="round"/><ellipse cx="100" cy="70" rx="30" ry="50" fill="url(#gadn)"/><circle cx="30" cy="30" r="2" fill="#4FA88B" opacity="0.5"><animate attributeName="cy" values="30;20;30" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/></circle><circle cx="170" cy="80" r="1.5" fill="#5FC89B" opacity="0.4"><animate attributeName="cy" values="80;68;80" dur="4s" repeatCount="indefinite"/></circle><circle cx="20" cy="100" r="1.8" fill="#3A8070" opacity="0.5"><animate attributeName="cy" values="100;88;100" dur="2.5s" repeatCount="indefinite"/></circle></svg>`,math:`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gmath" cx="80%" cy="80%" r="60%"><stop offset="0%" stop-color="#9AB0C4" stop-opacity="0.35"/><stop offset="100%" stop-color="#9AB0C4" stop-opacity="0"/></radialGradient><filter id="fmath"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><line x1="0" y1="30" x2="200" y2="30" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="60" x2="200" y2="60" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="90" x2="200" y2="90" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="120" x2="200" y2="120" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="40" y1="0" x2="40" y2="140" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="80" y1="0" x2="80" y2="140" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="120" y1="0" x2="120" y2="140" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="160" y1="0" x2="160" y2="140" stroke="#9AB0C4" stroke-width="0.3" opacity="0.15"/><line x1="20" y1="120" x2="195" y2="120" stroke="#9AB0C4" stroke-width="1.2" opacity="0.5"/><line x1="20" y1="5" x2="20" y2="125" stroke="#9AB0C4" stroke-width="1.2" opacity="0.5"/><polygon points="195,117 200,120 195,123" fill="#9AB0C4" opacity="0.5"/><polygon points="17,5 20,0 23,5" fill="#9AB0C4" opacity="0.5"/><path d="M20 118 C40 117 60 115 80 110 C100 103 115 90 130 72 C142 56 152 38 165 15" fill="none" stroke="#9AB0C4" stroke-width="2.5" opacity="0.9" filter="url(#fmath)"/><circle cx="165" cy="15" r="4" fill="#9AB0C4" opacity="0.8" filter="url(#fmath)"><animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/></circle><path d="M20 118 C40 117 60 115 80 110 C100 103 115 90 130 72 C142 56 152 38 165 15 L165 120 L20 120 Z" fill="url(#gmath)" opacity="0.25"/><circle cx="50" cy="116" r="2.5" fill="#9AB0C4" opacity="0.7"/><circle cx="80" cy="110" r="2.5" fill="#9AB0C4" opacity="0.7"/><circle cx="110" cy="97" r="2.5" fill="#9AB0C4" opacity="0.7"/><circle cx="140" cy="65" r="2.5" fill="#9AB0C4" opacity="0.7"/><text x="25" y="55" font-size="9" fill="#9AB0C4" opacity="0.5" font-family="monospace">f(x) = eˣ</text><text x="155" y="138" font-size="16" fill="#9AB0C4" opacity="0.3" font-family="serif">∞</text></svg>`};
 
 const FASES = [
   {n:1, nom:'Línea Base',    umbral:0,  pctMin:20, pctMax:32},
@@ -766,21 +775,50 @@ function checkFase(){
 }
 
 /* ─── selección ─── */
+/* buffer de IDs mostrados recientemente — evita repetición inmediata */
+const RECIENTES=[];
+const MAX_RECIENTES=8; /* no repite ninguna de las últimas 8 tarjetas */
+
 function siguiente(){
   const pool=todas().filter(p=>(p.niv||1)<=E.fase);
-  if(fall.length&&cnt%5===4){
-    const c=pool.find(p=>p.id===fall[Math.floor(Math.random()*fall.length)]);
-    if(c)return c;
+
+  /* repaso de falladas: solo cada 7 tarjetas, y nunca si está en recientes */
+  if(fall.length&&cnt%7===6){
+    const fallDisp=fall.filter(id=>!RECIENTES.includes(id));
+    if(fallDisp.length){
+      const c=pool.find(p=>p.id===fallDisp[Math.floor(Math.random()*fallDisp.length)]);
+      if(c){_registrarReciente(c.id);return c;}
+    }
   }
-  const fr=pool.filter(p=>!vistas.includes(p.id));
-  const src=fr.length?fr:pool;
+
+  /* no vistas primero, excluyendo recientes */
+  const noVistas=pool.filter(p=>!vistas.includes(p.id)&&!RECIENTES.includes(p.id));
+  /* ya vistas pero no recientes */
+  const yaVistas=pool.filter(p=>vistas.includes(p.id)&&!RECIENTES.includes(p.id));
+  /* si todo está en recientes (pool muy pequeño), igualmente mostramos pero evitamos la más reciente */
+  const src=noVistas.length?noVistas:yaVistas.length?yaVistas:pool.filter(p=>p.id!==RECIENTES[RECIENTES.length-1]);
+
+  /* rotar categorías: primero las menos vistas */
   const ords=Object.keys(CATS).sort((a,b)=>(E.cats[a]||0)-(E.cats[b]||0));
-  const orden=Math.random()<.45?ords:ords.sort(()=>Math.random()-.5);
+  const orden=Math.random()<.45?ords:[...ords].sort(()=>Math.random()-.5);
+
   for(const c of orden){
     const cand=src.filter(p=>p.c===c);
-    if(cand.length&&Math.random()<.6)return cand[Math.floor(Math.random()*cand.length)];
+    if(cand.length&&Math.random()<.65){
+      const elegida=cand[Math.floor(Math.random()*cand.length)];
+      _registrarReciente(elegida.id);
+      return elegida;
+    }
   }
-  return src[Math.floor(Math.random()*src.length)];
+  /* fallback */
+  const fallback=src[Math.floor(Math.random()*src.length)]||pool[0];
+  if(fallback)_registrarReciente(fallback.id);
+  return fallback;
+}
+
+function _registrarReciente(id){
+  RECIENTES.push(id);
+  if(RECIENTES.length>MAX_RECIENTES)RECIENTES.shift();
 }
 
 /* ─── render ─── */
@@ -832,6 +870,11 @@ async function crearCarte(p){
   el.innerHTML=
     '<div class="card-overlay"></div>'+
     '<div class="card-inner">'+
+    /* ── VISUAL: emoji grande + SVG ── */
+    '<div class="card-visual">'+
+      '<div class="emoji-grande">'+cat.emoGrande+'</div>'+
+      '<div class="svg-ilustra">'+SVG_CATS[p.c]+'</div>'+
+    '</div>'+
     /* ── PARTE 1: gancho ── */
     '<div class="card-gancho">'+
       '<div class="cat-tag"><span class="cat-emo pulse">'+cat.emo+'</span><span class="cat-nom">'+cat.nom+'</span>'+
@@ -926,13 +969,35 @@ async function alimentar(n){for(let i=0;i<n;i++){const p=siguiente();if(p){const
 
 /* ─── voz ─── */
 let voz=null;
-function elegirVoz(){const vs=speechSynthesis.getVoices();voz=vs.find(v=>v.lang==='fr-CA')||vs.find(v=>v.lang.indexOf('fr')===0)||null;}
-if('speechSynthesis' in window){elegirVoz();speechSynthesis.onvoiceschanged=elegirVoz;}
+const VOZ_FEMENINAS=['amélie','marie','audrey','juliette','clara','elsa','alice','lea','léa','camille','céline','celine','fiona','virginie','female','femme'];
+const VOZ_MASCULINAS=['thomas','nicolas','pierre','jean','male','homme'];
+function elegirVoz(){
+  const vs=speechSynthesis.getVoices();
+  if(!vs.length)return;
+  /* 1. nombre explícitamente femenino en fr-FR */
+  voz=vs.find(v=>v.lang==='fr-FR'&&VOZ_FEMENINAS.some(n=>v.name.toLowerCase().includes(n)));
+  /* 2. fr-FR que NO sea masculino */
+  if(!voz)voz=vs.find(v=>v.lang==='fr-FR'&&!VOZ_MASCULINAS.some(n=>v.name.toLowerCase().includes(n)));
+  /* 3. cualquier fr-FR */
+  if(!voz)voz=vs.find(v=>v.lang==='fr-FR');
+  /* 4. cualquier voz francesa */
+  if(!voz)voz=vs.find(v=>v.lang.startsWith('fr'));
+}
+if('speechSynthesis' in window){
+  elegirVoz();
+  speechSynthesis.onvoiceschanged=elegirVoz;
+  /* iOS necesita un segundo intento */
+  setTimeout(elegirVoz,800);
+}
 function decir(txt,btn){
   if(!txt||!('speechSynthesis' in window))return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(txt.replace(/<[^>]+>/g,''));
-  u.lang='fr-CA';u.rate=.88;if(voz)u.voice=voz;
+  u.lang='fr-FR';
+  u.rate=1.0;   /* velocidad natural */
+  u.pitch=1.15; /* tono femenino suave */
+  u.volume=1;
+  if(voz)u.voice=voz;
   if(btn){btn.classList.add('parle');u.onend=u.onerror=()=>btn.classList.remove('parle');}
   speechSynthesis.speak(u);
 }
