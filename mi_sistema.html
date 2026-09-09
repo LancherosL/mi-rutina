@@ -1660,53 +1660,82 @@ const ANCLAS = [
 ];
 
 // Preguntas reflexivas para el cuaderno (rotan cada día)
+// PREGUNTAS: mezcla de identidad/PNL (procesamiento emocional) y entrenamiento
+// cerebral resolutivo (causalidad, contrafactuales, analogías, multi-perspectiva,
+// enseñanza, cuantificación). El pensamiento resolutivo activa más regiones a la vez
+// —corteza prefrontal, hipocampo, redes asociativas— que solo recordar cómo te sentiste.
 const PREGUNTAS = [
-  '¿Qué emoción se repitió hoy y qué la disparó?',
-  '¿Qué le dirías hoy a la versión de ti de hace un año?',
-  '¿Qué necesitaste hoy que no pediste?',
+  // — Identidad y procesamiento emocional (base) —
   '¿Qué patrón tuyo notaste hoy que ya conoces?',
-  '¿Dónde sentiste tensión en el cuerpo y en qué momento?',
-  '¿Qué hiciste hoy por obligación y qué por deseo?',
-  '¿Qué historia te contaste hoy sobre ti misma?',
-  '¿Qué te dio calma hoy, aunque fuera un segundo?',
-  '¿Qué evitaste hoy y qué sentiste al evitarlo?',
-  '¿Qué parte de tu día repetirías tal cual?',
-  '¿Qué te hizo sentir orgullosa hoy, por pequeño que sea?',
-  '¿Qué conversación te quedó dando vueltas?',
-  '¿Qué límite pusiste o no pusiste hoy?',
-  '¿Cómo cambió tu energía a lo largo del día?',
-  '¿Qué pensamiento apareció hoy más de una vez?',
-  '¿Qué necesita tu cuerpo mañana que hoy no le diste?',
-  '¿Qué te sorprendió de tu reacción hoy?',
-  '¿Qué extrañaste hoy?',
-  '¿Qué hiciste hoy que tu yo del futuro va a agradecer?',
-  '¿Qué te costó soltar hoy?',
-  '¿A quién quisiste llamar y no lo hiciste?',
-  '¿Qué sensación física acompañó tu emoción más fuerte del día?',
-  '¿Qué te hizo reír hoy?',
-  '¿Qué decisión pequeña tomaste hoy que te sorprendió?',
-  '¿Qué te dijiste a ti misma cuando algo salió mal?',
-  '¿Qué momento del día te sentiste más tú?',
-  '¿Qué peso cargaste hoy que no era tuyo?',
   '¿Qué aprendiste hoy sobre cómo funcionas?',
-  '¿Qué te gustaría hacer distinto mañana?',
-  '¿Qué agradeces de hoy, aunque fue difícil?',
-  '¿Qué señal te dio tu cuerpo que ignoraste?',
-  '¿Qué te dijiste hoy que empezaba con "siempre" o "nunca", y qué tan cierto es en realidad?',
+  '¿Qué te sorprendió de tu reacción hoy?',
+  '¿Qué decisión pequeña tomaste hoy que te sorprendió?',
   '¿En qué momento de hoy actuaste como la persona en la que te estás convirtiendo?',
-  '¿Qué harías distinto si supieras que no puedes fallar?',
-  '¿Qué emoción de hoy es información, y qué te está informando?',
   '¿Qué evidencia reuniste hoy de que sí puedes sostener un cambio?',
-  '¿Cómo le explicarías a un amigo, con cariño, lo que te pasó hoy?',
-  '¿Qué parte de tu historia de hoy contarías distinto si fueras la heroína en vez de la víctima?',
-  '¿Qué necesitas creer sobre ti misma para que mañana sea más fácil que hoy?',
   '¿Qué hiciste hoy en piloto automático, y qué elegirías si lo hicieras consciente?',
-  '¿Qué te dirías si te hablaras con la misma paciencia que le tienes a alguien que quieres?',
-  '¿Qué imagen mental tienes de la persona que quieres ser, y en qué se pareció hoy a ella?',
-  '¿Qué palabra resume cómo quieres que se sienta mañana, y qué puedes hacer hoy antes de dormir para acercarte?',
   '¿Qué patrón, si lo repites 100 veces más, en quién te convierte?',
-  '¿Qué le agradecerías a tu "yo" de hoy si lo vieras desde dentro de un año?',
   '¿Qué pequeña señal de hoy demuestra que tu cerebro ya está aprendiendo el patrón nuevo?',
+  '¿Qué te dijiste hoy que empezaba con "siempre" o "nunca", y qué tan cierto es en realidad?',
+  '¿Qué necesitas creer sobre ti misma para que mañana sea más fácil que hoy?',
+  '¿Qué historia te contaste hoy sobre ti misma?',
+  '¿Qué parte de tu historia de hoy contarías distinto si fueras la heroína en vez de la víctima?',
+  '¿Cómo le explicarías a un amigo, con cariño, lo que te pasó hoy?',
+  '¿Qué señal te dio tu cuerpo que ignoraste?',
+  '¿Qué agradeces de hoy, aunque fue difícil?',
+
+  // — Resolución de problemas: generar varias soluciones activa la corteza prefrontal —
+  '¿Qué problema de hoy no resolviste? Dale 3 soluciones distintas, aunque una sea absurda.',
+  'Si tuvieras que resolver lo mismo de hoy con la mitad del tiempo, ¿qué cortarías primero?',
+  '¿Qué obstáculo de hoy resolverías distinto si tuvieras que explicárselo a un niño de 8 años?',
+  'Si solo pudieras arreglar UNA cosa de tu día de mañana, ¿cuál elegirías y por qué esa y no otra?',
+  '¿Qué de tu rutina de hoy simplificarías si mañana tuvieras la mitad del tiempo?',
+
+  // — Analogías: conectar dominios distintos activa redes asociativas más amplias —
+  'Si tu día de hoy fuera un plato de comida, ¿cuál sería y por qué?',
+  'Compara algo que viviste hoy con algo del mundo natural (clima, animales, plantas). ¿Qué tienen en común?',
+  '¿Qué mecanismo o sistema (motor, receta, ruta) se parece a cómo resolviste algo hoy?',
+  'Si tu energía de hoy fuera un tipo de clima, ¿cuál sería y por qué?',
+  '¿A qué se parece más lo que sentiste hoy: a una ola, a un fuego o a una piedra? ¿Por qué esa imagen?',
+
+  // — Cadenas causales: trazar el "por qué" fortalece el razonamiento lógico —
+  'Elige una decisión de hoy y traza 3 causas que te llevaron hasta ahí.',
+  '¿Qué pasó hoy que fue consecuencia directa de algo que decidiste ayer?',
+  'Si algo salió mal hoy, ¿cuál fue el primer punto donde pudiste cambiar el rumbo?',
+  '¿Qué pequeña causa de esta mañana explica el resultado más grande de tu tarde?',
+
+  // — Pensamiento contrafactual: imaginar el "qué hubiera pasado si" activa hipocampo y corteza prefrontal —
+  'Si hubieras tomado la decisión opuesta hoy en algo puntual, ¿qué habría cambiado?',
+  '¿Qué hubiera pasado si hoy hubieras dicho que no a algo que dijiste que sí?',
+  '¿Qué habrías hecho diferente si hubieras sabido esta mañana cómo iba a terminar el día?',
+
+  // — Enseñar lo aprendido: explicar fuerza recuperación y simplificación (efecto Feynman) —
+  'Explica en 3 frases lo más importante que aprendiste hoy, como si se lo contaras a alguien que no sabe nada del tema.',
+  '¿Qué le enseñarías a otra persona sobre cómo manejaste algo difícil hoy?',
+  'Si tuvieras que resumir tu día en un titular de noticia, ¿cuál sería?',
+
+  // — Multi-perspectiva: ver desde otros ojos activa la teoría de la mente —
+  'Piensa en algo que te costó hoy. ¿Cómo lo vería alguien que no te conoce? ¿Y alguien que te quiere mucho?',
+  '¿Qué parte de tu día se vería distinta si la contaras desde la perspectiva de otra persona involucrada?',
+  'Si tu día de hoy fuera el día de alguien que admiras, ¿qué haría distinto ella con la misma situación?',
+
+  // — Patrones a través del tiempo: compara episodios y refuerza memoria de largo plazo —
+  '¿Qué de hoy se parece a algo que viviste hace semanas o meses? ¿Qué cambió esta vez?',
+  '¿Qué decisión de hoy repetiste sin darte cuenta de que ya la habías tomado antes?',
+  '¿Qué de hoy es distinto a como habrías reaccionado hace un año?',
+
+  // — Cuantificar: traducir lo verbal a números activa otra vía cerebral (corteza parietal) —
+  'Si tuvieras que ponerle un número del 1 al 10 a tu enfoque de hoy, ¿cuál sería y qué te subió o bajó ese número?',
+  '¿Cuántas veces hoy resolviste algo sin pedir ayuda? ¿Qué te dice eso de ti?',
+  'Si tu día de hoy fuera un porcentaje de "lo planeado" vs "lo improvisado", ¿cuál sería y cómo te sentiste con eso?',
+
+  // — Predicción y verificación: comparar lo esperado con lo real entrena la metacognición —
+  '¿Qué predijiste esta mañana sobre cómo iba a ser tu día? ¿Qué tan acertada fue esa predicción?',
+  'Si tuvieras que apostar sobre cómo va a ser tu día de mañana, ¿qué dirías y en qué te basas?',
+
+  // — Pensamiento sistémico: ver el panorama completo conecta piezas dispersas —
+  '¿Qué parte pequeña de hoy tuvo un efecto más grande de lo que esperabas?',
+  '¿Qué hábito de los que ya tienes hizo más fácil algo de hoy?',
+  '¿Qué de hoy dependió de algo que hiciste ayer sin darte cuenta?',
 ];
 
 let state = {m:{},n:{}};
