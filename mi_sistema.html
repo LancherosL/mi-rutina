@@ -468,6 +468,46 @@ body.night .log-card { background: var(--night-card); }
 }
 .log-total { font-size: 12px; font-weight: 700; color: var(--terra); }
 
+/* Fecha del gasto: por defecto hoy, se puede backdatear */
+.log-fecha-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.log-fecha-label { flex-shrink: 0; }
+.log-fecha-input {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+}
+body.night .log-fecha-input {
+  background: var(--night-card);
+  color: var(--night-text);
+  border-color: rgba(255,255,255,0.12);
+}
+.log-fecha-row.fecha-pasada { color: var(--terra); font-weight: 600; }
+body.night .log-fecha-row.fecha-pasada { color: var(--night-accent); }
+.log-fecha-hoy {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--terra);
+  background: transparent;
+  color: var(--terra);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+body.night .log-fecha-hoy { border-color: var(--night-accent); color: var(--night-accent); }
+
 /* Ciclo menstrual — tarjeta informativa */
 .ciclo-card {
   background: var(--card);
@@ -1124,40 +1164,117 @@ body.night .bar-pct { color: var(--night-accent); }
 /* GASTOS - MEJORA VISUAL */
 .gastos-card .res-title {
   color: var(--gold);
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 body.night .gastos-card .res-title { color: var(--gold); }
 .gastos-total-box {
   background: linear-gradient(135deg, rgba(199,168,113,0.15), rgba(199,168,113,0.08));
   border-radius: var(--r-sm);
-  padding: 20px;
+  padding: 12px;
   text-align: center;
-  margin-bottom: 18px;
-  border: 2px solid var(--gold);
+  margin-bottom: 12px;
+  border: 1.5px solid var(--gold);
 }
 body.night .gastos-total-box { background: linear-gradient(135deg, rgba(199,168,113,0.12), rgba(199,168,113,0.06)); }
 .gastos-total-label {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
 }
 .gastos-total-amount {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 42px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--gold);
   line-height: 1;
 }
+.gastos-subhead {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 10px 0 6px;
+}
 .gastos-bar-row {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .gastos-bar-pct {
   color: var(--gold);
   font-weight: 700;
 }
+/* La lista de gastos de la semana no crece sin límite */
+.gastos-card .log-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+.log-item-tocable {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 5px 6px;
+  margin: 0 -6px;
+  transition: background .15s;
+}
+.log-item-tocable:active { background: var(--terra-soft); }
+body.night .log-item-tocable:active { background: rgba(123,174,200,0.1); }
+.log-item-editar {
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+.gasto-editando {
+  background: var(--terra-soft);
+  border-radius: var(--r-sm);
+  padding: 8px;
+  margin: 2px -6px;
+}
+body.night .gasto-editando { background: rgba(123,174,200,0.08); }
+.gasto-edit-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.gasto-edit-row .log-item-hora { flex-shrink: 0; }
+.gasto-edit-monto, .gasto-edit-nota {
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--ink);
+}
+body.night .gasto-edit-monto, body.night .gasto-edit-nota {
+  background: var(--night-card);
+  color: var(--night-text);
+  border-color: rgba(255,255,255,0.12);
+}
+.gasto-edit-monto { width: 64px; flex-shrink: 0; }
+.gasto-edit-nota { flex: 1; min-width: 0; }
+.gasto-edit-acciones {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.gasto-edit-acciones button {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+}
+.gasto-edit-guardar { background: var(--terra); color: #fff; }
+.gasto-edit-borrar { background: transparent; color: var(--terra); border: 1px solid var(--terra) !important; }
+.gasto-edit-cancelar { background: transparent; color: var(--muted); }
+body.night .gasto-edit-guardar { background: var(--night-accent); }
+body.night .gasto-edit-borrar { color: var(--night-accent); border-color: var(--night-accent) !important; }
 body.night .bar-fill { background: var(--night-accent); }
 .week-dots { display: flex; gap: 5px; margin: 10px 0 4px; }
 .w-dot { flex: 1; height: 7px; border-radius: 4px; background: var(--line); transition: background .3s; }
@@ -1430,6 +1547,27 @@ body.night .habito-count { color: var(--night-accent); }
     </div>
   </div>
 
+  <!-- Ciclo menstrual -->
+  <div class="ciclo-card">
+    <div class="ciclo-top">
+      <div class="ciclo-dia-box">
+        <div class="ciclo-dia-num" id="ciclo-dia-num">—</div>
+        <div class="ciclo-dia-label">día del ciclo</div>
+      </div>
+      <div class="ciclo-fase-box">
+        <div class="ciclo-fase-nombre" id="ciclo-fase-nombre">Sin datos</div>
+        <div class="ciclo-fase-sub" id="ciclo-fase-sub">Registra tu último periodo</div>
+      </div>
+    </div>
+
+    <div class="ciclo-barra" id="ciclo-barra"></div>
+
+    <div class="ciclo-info" id="ciclo-info"></div>
+
+    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
+    <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
+  </div>
+
   <!-- Mis comidas -->
   <div class="meal-card">
     <div class="meal-header">
@@ -1543,6 +1681,11 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="ql-title" style="margin:0;">Gastos 💰</div>
       <div class="log-total" id="gastos-total">Hoy: $0</div>
     </div>
+    <div class="log-fecha-row" id="gasto-fecha-row">
+      <span class="log-fecha-label">Para</span>
+      <input type="date" id="input-gasto-fecha" class="log-fecha-input" onchange="onCambioFechaGasto()">
+      <button class="log-fecha-hoy" id="btn-gasto-hoy" onclick="resetGastoFechaHoy()" style="display:none;">Volver a hoy</button>
+    </div>
     <div class="log-form-row">
       <input class="ql-num-input" type="number" id="input-gasto-monto" placeholder="$" step="0.01" inputmode="decimal">
       <input class="log-nota-input" type="text" id="input-gasto-nota" placeholder="¿en qué? (opcional)" onkeydown="if(event.key==='Enter')registrarGasto()">
@@ -1550,9 +1693,6 @@ body.night .habito-count { color: var(--night-accent); }
     </div>
     <div class="log-list" id="gastos-list"></div>
   </div>
-
-  <!-- Pregunta del día para el cuaderno se movió a Noche por consolidación en el sueño -->
-
 
 </div>
 
@@ -1594,27 +1734,6 @@ body.night .habito-count { color: var(--night-accent); }
         <button class="ql-star" onclick="setStars('sueno',5)">5</button>
       </div>
     </div>
-  </div>
-
-  <div class="section-label">Ciclo menstrual</div>
-  <div class="ciclo-card">
-    <div class="ciclo-top">
-      <div class="ciclo-dia-box">
-        <div class="ciclo-dia-num" id="ciclo-dia-num">—</div>
-        <div class="ciclo-dia-label">día del ciclo</div>
-      </div>
-      <div class="ciclo-fase-box">
-        <div class="ciclo-fase-nombre" id="ciclo-fase-nombre">Sin datos</div>
-        <div class="ciclo-fase-sub" id="ciclo-fase-sub">Registra tu último periodo</div>
-      </div>
-    </div>
-
-    <div class="ciclo-barra" id="ciclo-barra"></div>
-
-    <div class="ciclo-info" id="ciclo-info"></div>
-
-    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
-    <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
   </div>
 </div>
 
@@ -1704,12 +1823,14 @@ const HABITS = {
     {icon:'🛏️',name:'Tiendo mi cama'},
     {icon:'💧',name:'Lavo mi cara'},
     {icon:'🦷',name:'Cepillo mis dientes'},
+    {icon:'📖',name:'Leo 15 minutos'},
   ],
   n:[
     {icon:'💧',name:'Lavo mi cara'},
     {icon:'🦷',name:'Cepillo mis dientes'},
     {icon:'🥗',name:'Alisto mi almuerzo'},
     {icon:'🫙',name:'Lavo mis tápers'},
+    {icon:'📓',name:'Escribo en mi cuaderno'},
   ]
 };
 
@@ -2287,25 +2408,48 @@ function formatMonto(n) {
   return Number(n).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+function onCambioFechaGasto() {
+  const el = document.getElementById('input-gasto-fecha');
+  const btnHoy = document.getElementById('btn-gasto-hoy');
+  const row = document.getElementById('gasto-fecha-row');
+  if(!el.value) el.value = todayStr; // no se permite dejarlo vacío
+  const esHoy = el.value === todayStr;
+  if(btnHoy) btnHoy.style.display = esHoy ? 'none' : 'inline-block';
+  if(row) row.classList.toggle('fecha-pasada', !esHoy);
+}
+
+function resetGastoFechaHoy() {
+  document.getElementById('input-gasto-fecha').value = todayStr;
+  onCambioFechaGasto();
+}
+
 async function registrarGasto() {
   const inputMonto = document.getElementById('input-gasto-monto');
   const inputNota = document.getElementById('input-gasto-nota');
+  const inputFecha = document.getElementById('input-gasto-fecha');
   const monto = parseFloat(inputMonto.value);
   if(isNaN(monto) || monto<=0) return;
   const nota = (inputNota.value||'').trim();
+  const fecha = (inputFecha && inputFecha.value) ? inputFecha.value : fechaDeAhora();
   setSyncing(true);
-  const nuevo = {fecha:fechaDeAhora(), hora:horaActualHHMM(), monto, nota: nota||null};
+  const nuevo = {fecha, hora:horaActualHHMM(), monto, nota: nota||null};
   try {
     const r = await sbLog('gastos','POST',nuevo);
     const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
     // Cada tap en "+" AGREGA una fila nueva — nunca sobreescribe las anteriores.
-    gastosHoy.push(guardado);
-    gastosHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-    gastosSemana.unshift(guardado);
+    // Si la fecha elegida no es hoy, no entra a la lista de "Hoy" pero sí a la semana.
+    if(fecha === todayStr) {
+      gastosHoy.push(guardado);
+      gastosHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+    }
+    if(weekDates.includes(fecha)) {
+      gastosSemana.unshift(guardado);
+    }
     buildGastos();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
     inputMonto.value=''; inputNota.value='';
     inputMonto.focus();
+    if(fecha !== todayStr) mostrarRecompensa(`💰 Agregado a ${formatFechaCorta(fecha)}`);
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
 }
@@ -2320,6 +2464,38 @@ async function borrarGasto(id) {
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
+}
+
+// Edición desde la Semana: toca un gasto para abrir sus campos, "Guardar" lo actualiza.
+let gastoEditando = null;
+
+function abrirEdicionGasto(id) {
+  gastoEditando = (gastoEditando === id) ? null : id;
+  buildSemana();
+}
+
+async function guardarEdicionGasto(id) {
+  const montoEl = document.getElementById(`edit-monto-${id}`);
+  const notaEl = document.getElementById(`edit-nota-${id}`);
+  const monto = parseFloat(montoEl.value);
+  if(isNaN(monto) || monto<=0) return;
+  const nota = (notaEl.value||'').trim();
+  setSyncing(true);
+  try {
+    await sbLog('gastos','PATCH',{monto, nota: nota||null},`?id=eq.${id}`);
+    const actualizar = arr => { const x=arr.find(g=>g.id===id); if(x){x.monto=monto;x.nota=nota||null;} };
+    actualizar(gastosHoy); actualizar(gastosSemana);
+    gastoEditando = null;
+    buildGastos();
+    buildSemana();
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error(e); setSyncError(); }
+}
+
+async function borrarGastoSemana(id) {
+  await borrarGasto(id);
+  gastoEditando = null;
+  buildSemana();
 }
 
 function buildGastos() {
@@ -2755,6 +2931,22 @@ function saveLectura() {
   todayData.lectura=document.getElementById('input-lectura').value;
   saveTodayLocal();
   buildLecturaVisual();
+  sincronizarHabitoLectura();
+}
+
+// Leer 15+ minutos marca sola el hábito "Leo 15 minutos" (última posición de HABITS.m),
+// para que cuente en el progreso del día, la racha y el gráfico de la semana.
+function sincronizarHabitoLectura() {
+  const idx = HABITS.m.length-1;
+  const day = currentDay.m;
+  const min = parseInt(todayData.lectura)||0;
+  const debeEstar = min>=15;
+  if(!state.m[day]) state.m[day]=new Array(HABITS.m.length).fill(false);
+  if(state.m[day][idx] === debeEstar) return; // ya está sincronizado
+  state.m[day][idx] = debeEstar;
+  buildHabits('m'); updateProgress('m'); updateSnaps(); updateAnclaUI();
+  if(debeEstar && day===todayIdx) celebrarSiCompleto('m');
+  guardarHabito('m',day,idx,debeEstar);
 }
 
 function buildLecturaVisual() {
@@ -2788,6 +2980,20 @@ function toggleEscribi() {
   updateAnclaUI();
   saveTodayLocal();
   if(todayData.escribi) mostrarRecompensa('📓 Escribiste. Eso es autoconocimiento en acción');
+  sincronizarHabitoCuaderno();
+}
+
+// "Ya escribí" marca sola el hábito "Escribo en mi cuaderno" (última posición de HABITS.n)
+function sincronizarHabitoCuaderno() {
+  const idx = HABITS.n.length-1;
+  const day = currentDay.n;
+  const debeEstar = !!todayData.escribi;
+  if(!state.n[day]) state.n[day]=new Array(HABITS.n.length).fill(false);
+  if(state.n[day][idx] === debeEstar) return;
+  state.n[day][idx] = debeEstar;
+  buildHabits('n'); updateProgress('n'); updateSnaps(); updateAnclaUI();
+  if(debeEstar && day===todayIdx) celebrarSiCompleto('n');
+  guardarHabito('n',day,idx,debeEstar);
 }
 
 function updateCuadernoUI() {
@@ -3406,22 +3612,41 @@ function buildSemana() {
             <div class="bar-track"><div class="bar-fill" style="width:${Math.round(porDia[f]/maxDia*100)}%;background:var(--gold);"></div></div>
           </div>`).join('');
         const lista = gastosSemana.length
-          ? `<div class="log-list">${gastosSemana.map(x=>`
-              <div class="log-item">
+          ? `<div class="log-list">${gastosSemana.map(x=>{
+              const editando = gastoEditando === x.id;
+              if(editando) {
+                return `
+                  <div class="log-item gasto-editando">
+                    <div class="gasto-edit-row">
+                      <span class="log-item-hora">${formatFechaCorta(x.fecha)}</span>
+                      <input class="gasto-edit-monto" type="number" step="0.01" id="edit-monto-${x.id}" value="${x.monto}">
+                      <input class="gasto-edit-nota" type="text" id="edit-nota-${x.id}" value="${x.nota?escapeHtml(x.nota):''}" placeholder="¿en qué?">
+                    </div>
+                    <div class="gasto-edit-acciones">
+                      <button class="gasto-edit-guardar" onclick="guardarEdicionGasto('${x.id}')">Guardar</button>
+                      <button class="gasto-edit-borrar" onclick="borrarGastoSemana('${x.id}')">Eliminar</button>
+                      <button class="gasto-edit-cancelar" onclick="abrirEdicionGasto('${x.id}')">Cancelar</button>
+                    </div>
+                  </div>`;
+              }
+              return `
+              <div class="log-item log-item-tocable" onclick="abrirEdicionGasto('${x.id}')">
                 <div class="log-item-info">
                   <span class="log-item-hora">${formatFechaCorta(x.fecha)}${x.hora?' · '+formatHora12(x.hora):''}</span>
                   <span class="log-item-detalle">$${formatMonto(x.monto)}${x.nota?' · '+escapeHtml(x.nota):''}</span>
                 </div>
-              </div>`).join('')}</div>`
+                <span class="log-item-editar">✎</span>
+              </div>`;
+            }).join('')}</div>`
           : '<div class="log-empty">Nada registrado esta semana todavía</div>';
         return `
           <div class="gastos-total-box">
             <div class="gastos-total-label">Total esta semana</div>
             <div class="gastos-total-amount">$${formatMonto(totalSemana)}</div>
           </div>
-          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin:16px 0 8px;font-weight:600;">Por día</div>
+          <div class="gastos-subhead">Por día</div>
           ${barras}
-          <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin:16px 0 8px;font-weight:600;">¿En qué gasté?</div>
+          <div class="gastos-subhead">¿En qué gasté?</div>
           ${lista}`;
       })()}
     </div>`;
@@ -3614,6 +3839,9 @@ async function init() {
   restoreTodayUI();
   buildAncla();
   updateSnaps();
+  // Se fija una sola vez al cargar: no se toca de nuevo salvo que la usuaria lo cambie a mano
+  const gastoFechaEl = document.getElementById('input-gasto-fecha');
+  if(gastoFechaEl) { gastoFechaEl.value = todayStr; gastoFechaEl.max = todayStr; onCambioFechaGasto(); }
   setSyncing(true);
   await cargarRegistroDesdeSupabase();
   await cargarUltimaVezGatos();
