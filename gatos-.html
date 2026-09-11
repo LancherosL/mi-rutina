@@ -150,7 +150,29 @@ function proximas(gid){
 const diarios=gid=>trat.filter(t=>t.frecuencia==='diario'&&t.activo!==false&&(!gid||t.gato_id===gid));
 const hechoHoy=id=>log.some(l=>l.tratamiento_id===id&&l.fecha===hoy());
 const abiertos=gid=>pend.filter(p=>!p.hecho&&(!gid||p.gato_id===gid));
-const salioHoy=gid=>salidas.some(s=>s.gato_id===gid&&s.fecha===hoy());
+const salidaAbierta=gid=>salidas.find(s=>s.gato_id===gid&&!s.fin);
+function elapsedStr(startIso){
+  const ms=Date.now()-new Date(startIso).getTime();
+  const s=Math.max(0,Math.floor(ms/1000));
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  return (h>0?h+':':'')+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function fmtHora(iso){return iso?new Date(iso).toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'}):'';}
+function duracionStr(iniIso,finIso){
+  const ms=new Date(finIso).getTime()-new Date(iniIso).getTime();
+  const m=Math.round(ms/60000);
+  if(m<60)return m+' min';
+  const h=Math.floor(m/60),r=m%60;
+  return h+'h'+(r?' '+r+'min':'');
+}
+let stopwatchTimer=null;
+function tickStopwatch(){
+  if(stopwatchTimer){clearInterval(stopwatchTimer);stopwatchTimer=null;}
+  const el=document.getElementById('stopwatch');
+  if(!el)return;
+  const upd=()=>{el.textContent=elapsedStr(el.dataset.start);};
+  upd();stopwatchTimer=setInterval(upd,1000);
+}
 const tick=()=>'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>';
 
 function patron(gid){
@@ -194,7 +216,7 @@ function render(){
     hd.innerHTML=`<div class="wrap"><div class="top"><div class="kick">${t[0].charAt(0).toUpperCase()+t[0].slice(1)}</div><h1>${t[1]}</h1></div></div>`;
   }
   document.getElementById('view').innerHTML=g?vGato(g):(vista==='inicio'?vInicio():vGastos());
-  pintarNav();
+  pintarNav();tickStopwatch();
 }
 
 /* ===== INICIO ===== */
@@ -253,20 +275,30 @@ function vGato(g){
     return `<div class="chk${d?' on':''}" onclick="toggleDiario('${t.id}',${d})"><div class="bx">${d?tick():''}</div>
       <div><div class="t">${esc(t.producto)}</div><div class="d">${esc(t.indicacion||'')}</div></div></div>`;}).join('');
 
-  /* Salidas */
-  const sal=salidas.filter(x=>x.gato_id===id);
-  const sh=salioHoy(id);
-  const s30=sal.filter(x=>x.fecha>=suma(hoy(),-30)).length;
+  /* Salidas — cronómetro */
+  const sal=salidas.filter(x=>x.gato_id===id).sort((a,b)=>b.inicio.localeCompare(a.inicio));
+  const salAbierta=salidaAbierta(id);
+  const s30=sal.filter(x=>x.inicio.slice(0,10)>=suma(hoy(),-30)).length;
   h+=`<h2>Salidas <button class="add" onclick="abrir('sal')">+ agregar</button></h2>`;
-  h+=`<div class="chk${sh?' on':''}" onclick="toggleSalida('${id}',${sh})"><div class="bx">${sh?tick():''}</div>
-    <div><div class="t">Hoy salió a pasear</div><div class="d">${s30} salida${s30===1?'':'s'} en 30 días</div></div></div>`;
-  h+=`<div class="panel${form==='sal'?' open':''}"><h3>Registrar salida</h3>
-    <div class="r2"><div class="f"><label>Fecha</label><input type="date" id="sal-fecha" value="${hoy()}"></div>
-      <div class="f"><label>Duración en min (opcional)</label><input type="number" id="sal-dur"></div></div>
+  if(salAbierta){
+    h+=`<div class="box" style="border-left:3px solid ${hex(g)}"><div class="top"><div>
+      <div class="d" style="margin-top:0">${esc(g.nombre)} está afuera desde las ${fmtHora(salAbierta.inicio)}</div>
+      <div id="stopwatch" data-start="${salAbierta.inicio}" style="font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:4px">${elapsedStr(salAbierta.inicio)}</div></div>
+      <button class="go" style="background:${hex(g)};color:#fff;border-color:${hex(g)}" onclick="volvio('${salAbierta.id}')">Volvió</button></div></div>`;
+  }else{
+    h+=`<div class="box" style="cursor:pointer" onclick="salio('${id}')"><div class="top">
+      <div><div class="t">¿${esc(g.nombre)} salió?</div><div class="d">${s30} salida${s30===1?'':'s'} en 30 días</div></div>
+      <button class="go" onclick="event.stopPropagation();salio('${id}')">Salió</button></div></div>`;
+  }
+  h+=`<div class="panel${form==='sal'?' open':''}"><h3>Registrar salida pasada</h3>
+    <div class="f"><label>Fecha</label><input type="date" id="sal-fecha" value="${hoy()}"></div>
+    <div class="r2"><div class="f"><label>Hora de salida</label><input type="time" id="sal-ini"></div>
+      <div class="f"><label>Hora de vuelta (opcional)</label><input type="time" id="sal-fin"></div></div>
     <div class="f"><label>Notas</label><textarea id="sal-notas" placeholder="Al patio, con correa, jardín..."></textarea></div>
     <div class="btns"><button class="save" onclick="gSalida(this,'${id}')">Guardar</button><button class="ghost" onclick="cerrar()">Cancelar</button></div></div>`;
-  h+=sal.length?sal.slice(0,8).map(x=>`<div class="li"><div class="b"><div class="t">${fmtL(x.fecha)}</div>
-    <div class="d">${x.duracion_min?x.duracion_min+' min':''}${x.notas?(x.duracion_min?' · ':'')+esc(x.notas):''}</div></div>
+  h+=sal.length?sal.slice(0,10).map(x=>`<div class="li"><div class="b">
+    <div class="t">${fmtL(x.inicio.slice(0,10))} · ${fmtHora(x.inicio)}${x.fin?' – '+fmtHora(x.fin):' (en curso)'}</div>
+    <div class="d">${x.fin?duracionStr(x.inicio,x.fin):'Todavía afuera'}${x.notas?' · '+esc(x.notas):''}</div></div>
     <button class="del" onclick="borrar('gatos_salidas','${x.id}')">×</button></div>`).join('')
     :'<div class="empty">Nada anotado todavía.</div>';
 
@@ -499,21 +531,22 @@ window.toggleDiario=async function(id,ok){try{
   if(ok)await api(`gatos_dosis_log?tratamiento_id=eq.${id}&fecha=eq.${hoy()}`,{method:'DELETE'});
   else await api('gatos_dosis_log',{method:'POST',body:JSON.stringify({tratamiento_id:id,fecha:hoy()})});
   await cargar();render();}catch(e){alert(friendlyError(e));}};
-window.toggleSalida=async function(gid,ok){try{
-  if(ok)await api(`gatos_salidas?gato_id=eq.${gid}&fecha=eq.${hoy()}`,{method:'DELETE'});
-  else{
-    const ex=salidas.find(s=>s.gato_id===gid&&s.fecha===hoy());
-    if(ex)await api('gatos_salidas?id=eq.'+ex.id,{method:'DELETE'}); // por si quedo un registro huerfano
-    await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha:hoy()})});
-  }
+window.salio=async function(gid){
+  if(salidaAbierta(gid)){alert('Ya hay una salida en curso para este gato.');return;}
+  try{await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha:hoy(),inicio:new Date().toISOString()})});
+  await cargar();render();}catch(e){alert(friendlyError(e));}};
+window.volvio=async function(id){
+  try{await api('gatos_salidas?id=eq.'+id,{method:'PATCH',body:JSON.stringify({fin:new Date().toISOString()})});
   await cargar();render();}catch(e){alert(friendlyError(e));}};
 window.gSalida=async function(btn,gid){
   const fecha=v('sal-fecha')||hoy();
-  const ex=salidas.find(s=>s.gato_id===gid&&s.fecha===fecha);
+  const hIni=v('sal-ini'),hFin=v('sal-fin');
+  if(!hIni){alert('Pon al menos la hora de salida.');return;}
+  const inicio=new Date(fecha+'T'+hIni+':00').toISOString();
+  const fin=hFin?new Date(fecha+'T'+hFin+':00').toISOString():null;
   btn.disabled=true;btn.textContent='Guardando…';
   try{
-    if(ex)await api('gatos_salidas?id=eq.'+ex.id,{method:'PATCH',body:JSON.stringify({duracion_min:n('sal-dur'),notas:v('sal-notas')})});
-    else await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha,duracion_min:n('sal-dur'),notas:v('sal-notas')})});
+    await api('gatos_salidas',{method:'POST',body:JSON.stringify({gato_id:gid,fecha,inicio,fin,notas:v('sal-notas')})});
     await cargar();form=null;render();
   }catch(e){alert(friendlyError(e));btn.disabled=false;btn.textContent='Guardar';}};
 window.togglePend=async function(id,ok){try{
