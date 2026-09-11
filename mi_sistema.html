@@ -468,6 +468,147 @@ body.night .log-card { background: var(--night-card); }
 }
 .log-total { font-size: 12px; font-weight: 700; color: var(--terra); }
 
+/* Ciclo menstrual — tarjeta informativa */
+.ciclo-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .ciclo-card { background: var(--night-card); }
+.ciclo-top {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ciclo-dia-box {
+  background: var(--terra-soft);
+  border-radius: var(--r-sm);
+  padding: 12px 8px;
+  text-align: center;
+}
+body.night .ciclo-dia-box { background: rgba(123,174,200,0.1); }
+.ciclo-dia-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--terra);
+  line-height: 1;
+}
+body.night .ciclo-dia-num { color: var(--night-accent); }
+.ciclo-dia-label {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 600;
+}
+.ciclo-fase-nombre {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.ciclo-fase-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.ciclo-barra { margin-bottom: 18px; }
+.ciclo-barra-track {
+  position: relative;
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--line);
+}
+.ciclo-tramo { opacity: 0.35; transition: opacity .3s; }
+.ciclo-tramo.activa { opacity: 1; }
+.ciclo-marcador {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 16px;
+  background: var(--ink);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+body.night .ciclo-marcador { background: var(--night-text); }
+.ciclo-barra-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.ciclo-bloque {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.ciclo-bloque:last-of-type { border-bottom: none; }
+.ciclo-bloque-titulo {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ciclo-bloque-texto {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+body.night .ciclo-bloque-texto { color: var(--night-text); }
+.ciclo-nutrientes {
+  font-weight: 600;
+  color: var(--terra);
+}
+body.night .ciclo-nutrientes { color: var(--night-accent); }
+.ciclo-alimentos {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+body.night .ciclo-alimentos { color: var(--night-text); }
+.ciclo-alimentos li { margin-bottom: 5px; }
+.ciclo-disclaimer {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  text-align: center;
+  margin: 14px 0 4px;
+}
+.ciclo-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--terra);
+  background: transparent;
+  color: var(--terra);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.ciclo-btn:active { background: var(--terra-soft); }
+body.night .ciclo-btn { border-color: var(--night-accent); color: var(--night-accent); }
+.ciclo-ultimo {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
 /* Algo de más (extras de comida) */
 .extras-block {
   margin-top: 16px;
@@ -1456,22 +1597,24 @@ body.night .habito-count { color: var(--night-accent); }
   </div>
 
   <div class="section-label">Ciclo menstrual</div>
-  <div class="quick-log">
-    <div class="ql-row">
-      <div class="ql-icon">🌸</div>
-      <div class="ql-label">Día del ciclo</div>
-      <input class="ql-num-input" type="number" id="input-ciclo" placeholder="—" min="1" max="35" onchange="saveCiclo()">
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">🌊</div>
-      <div class="ql-label">Fase</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;" id="fase-pills">
-        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Menstrual')">Menstrual</button>
-        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Folicular')">Folicular</button>
-        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Ovulatoria')">Ovulatoria</button>
-        <button class="emo-pill" style="font-size:11px;padding:4px 8px;" onclick="setFase(this,'Lútea')">Lútea</button>
+  <div class="ciclo-card">
+    <div class="ciclo-top">
+      <div class="ciclo-dia-box">
+        <div class="ciclo-dia-num" id="ciclo-dia-num">—</div>
+        <div class="ciclo-dia-label">día del ciclo</div>
+      </div>
+      <div class="ciclo-fase-box">
+        <div class="ciclo-fase-nombre" id="ciclo-fase-nombre">Sin datos</div>
+        <div class="ciclo-fase-sub" id="ciclo-fase-sub">Registra tu último periodo</div>
       </div>
     </div>
+
+    <div class="ciclo-barra" id="ciclo-barra"></div>
+
+    <div class="ciclo-info" id="ciclo-info"></div>
+
+    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
+    <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
   </div>
 </div>
 
@@ -2742,16 +2885,186 @@ function saveSueno() {
   updateSnaps();
 }
 
-function saveCiclo() {
-  todayData.ciclo_dia=document.getElementById('input-ciclo').value;
-  saveTodayLocal();
+// ── CICLO MENSTRUAL ──
+// La app ya no pide diligenciar día ni fase: se calculan a partir de la fecha
+// de inicio del último periodo. Base fisiológica: la fase lútea dura ~14 días
+// fijos, así que la ovulación se ubica contando hacia atrás desde el próximo
+// periodo esperado (ACOG / Endocrine Society).
+let periodos = []; // fechas de inicio, más reciente primero
+
+const FASES_INFO = {
+  'Menstrual': {
+    emoji: '🩸',
+    color: 'var(--terra)',
+    cuerpo: 'Estrógenos y progesterona en su punto más bajo. La FSH empieza a subir para reclutar folículos nuevos. El desprendimiento del endometrio implica pérdida de sangre y por tanto de hierro.',
+    necesidades: 'Reposición de hierro, control de la inflamación y del dolor, descanso.',
+    nutrientes: 'Hierro + vitamina C (que mejora su absorción), magnesio, omega-3.',
+    alimentos: [
+      'Sardinas en lata — hierro, omega-3 y calcio. En cualquier IGA o Metro.',
+      'Espinaca salteada con limón — el ácido del limón mejora la absorción del hierro.',
+      'Kiwi o fresas — vitamina C alta, mejor que el jugo de guayaba procesado.',
+      'Semillas de calabaza (pepitas) — hierro y magnesio. Bulk Barn las vende a granel.'
+    ]
+  },
+  'Folicular': {
+    emoji: '🌱',
+    color: 'var(--sage)',
+    cuerpo: 'El estrógeno sube de forma sostenida mientras la FSH madura el folículo dominante. La progesterona sigue baja. Mejor sensibilidad a la insulina y mayor tolerancia al ejercicio intenso.',
+    necesidades: 'Construcción de tejido, energía estable, soporte para síntesis hormonal.',
+    nutrientes: 'Proteína completa, vitaminas del complejo B, zinc, fibra.',
+    alimentos: [
+      'Yogur griego natural sin azúcar — mucha más proteína que el Activia de vainilla.',
+      'Quinoa — proteína completa y B-vitaminas. Buena rotación para el arroz.',
+      'Brócoli o coliflor — fibra y compuestos que ayudan a metabolizar el estrógeno.',
+      'Semillas de girasol — zinc y vitamina E. Fáciles de tener a mano.'
+    ]
+  },
+  'Ovulatoria': {
+    emoji: '✨',
+    color: 'var(--gold)',
+    cuerpo: 'Pico de LH que dispara la ovulación, con el estrógeno en su punto más alto. Hay estrés oxidativo propio del proceso ovulatorio y la temperatura basal empieza a subir.',
+    necesidades: 'Defensa antioxidante y ayuda al hígado para metabolizar el estrógeno alto.',
+    nutrientes: 'Antioxidantes, vitamina E, zinc, fibra.',
+    alimentos: [
+      'Arándanos o moras congelados — antioxidantes todo el año y baratos en Montreal.',
+      'Aguacate — vitamina E y grasas que ayudan a la síntesis hormonal.',
+      'Almendras — vitamina E y magnesio. Buen reemplazo del croissant de media mañana.',
+      'Coles de Bruselas o repollo — fibra que ayuda a eliminar el exceso de estrógeno.'
+    ]
+  },
+  'Lútea': {
+    emoji: '🌙',
+    color: 'var(--lavender)',
+    cuerpo: 'El cuerpo lúteo produce progesterona, que alcanza su pico hacia la mitad de esta fase. La LH y la FSH quedan suprimidas. La progesterona sube la temperatura basal y con ella el gasto energético en reposo, lo que explica el aumento de apetito.',
+    necesidades: 'Más energía disponible, estabilidad del ánimo y del azúcar en sangre, relajación muscular.',
+    nutrientes: 'Magnesio, vitamina B6, calcio, triptófano y carbohidratos complejos.',
+    alimentos: [
+      'Semillas de calabaza (pepitas) — de lo más denso en magnesio que existe. Bulk Barn o Metro.',
+      'Salmón o sardinas — B6 y omega-3, los dos con más respaldo para síntomas premenstruales.',
+      'Banano — B6 y potasio. Mejor que el dulce procesado cuando llega el antojo.',
+      'Chocolate negro 70% o más — magnesio real, sin la carga de azúcar del chocolate de leche.',
+      'Avena integral en hojuelas — carbohidrato complejo que sostiene el ánimo mejor que el arroz blanco.'
+    ]
+  }
+};
+
+function calcularLongitudCiclo() {
+  // Promedio de los últimos ciclos completos; si no hay suficientes datos, 28 días
+  if(periodos.length < 2) return 28;
+  const difs = [];
+  for(let i=0; i<Math.min(periodos.length-1, 6); i++) {
+    const a = new Date(periodos[i]+'T00:00:00');
+    const b = new Date(periodos[i+1]+'T00:00:00');
+    const dias = Math.round((a-b)/(1000*60*60*24));
+    if(dias >= 21 && dias <= 40) difs.push(dias); // descarta registros atípicos
+  }
+  if(!difs.length) return 28;
+  return Math.round(difs.reduce((s,x)=>s+x,0)/difs.length);
 }
 
-function setFase(el, val) {
-  document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
-  el.classList.add('selected');
-  todayData.fase=val;
-  saveTodayLocal();
+function calcularCiclo() {
+  if(!periodos.length) return null;
+  const inicio = new Date(periodos[0]+'T00:00:00');
+  const hoy = new Date(todayStr+'T00:00:00');
+  const dia = Math.round((hoy-inicio)/(1000*60*60*24)) + 1;
+  if(dia < 1) return null;
+  const L = calcularLongitudCiclo();
+  // La fase lútea es la constante (~14 días); la folicular es la que varía
+  const diaOvulacion = L - 14;
+  let fase;
+  if(dia <= 5) fase = 'Menstrual';
+  else if(dia < diaOvulacion - 1) fase = 'Folicular';
+  else if(dia <= diaOvulacion + 1) fase = 'Ovulatoria';
+  else fase = 'Lútea';
+  return {dia, fase, longitud:L, diaOvulacion, inicio:periodos[0], faltan: Math.max(0, L - dia + 1)};
+}
+
+function buildCiclo() {
+  const c = calcularCiclo();
+  const numEl = document.getElementById('ciclo-dia-num');
+  const nombreEl = document.getElementById('ciclo-fase-nombre');
+  const subEl = document.getElementById('ciclo-fase-sub');
+  const barraEl = document.getElementById('ciclo-barra');
+  const infoEl = document.getElementById('ciclo-info');
+  const ultimoEl = document.getElementById('ciclo-ultimo');
+  if(!numEl) return;
+
+  if(!c) {
+    numEl.textContent = '—';
+    nombreEl.textContent = 'Sin datos';
+    subEl.textContent = 'Registra tu último periodo';
+    barraEl.innerHTML = '';
+    infoEl.innerHTML = '';
+    ultimoEl.textContent = '';
+    return;
+  }
+
+  const info = FASES_INFO[c.fase];
+  numEl.textContent = c.dia;
+  nombreEl.innerHTML = `${info.emoji} ${c.fase}`;
+  nombreEl.style.color = info.color;
+  subEl.textContent = c.faltan <= 1 ? 'Tu periodo podría llegar hoy' : `Próximo periodo en ~${c.faltan} días`;
+
+  // Barra con las 4 fases proporcionales y un marcador en el día de hoy
+  const tramos = [
+    {n:'Menstrual', ini:1, fin:5},
+    {n:'Folicular', ini:6, fin:c.diaOvulacion-2},
+    {n:'Ovulatoria', ini:c.diaOvulacion-1, fin:c.diaOvulacion+1},
+    {n:'Lútea', ini:c.diaOvulacion+2, fin:c.longitud}
+  ];
+  barraEl.innerHTML = `
+    <div class="ciclo-barra-track">
+      ${tramos.map(t=>{
+        const ancho = Math.max(0,(t.fin-t.ini+1))/c.longitud*100;
+        const activa = t.n===c.fase;
+        return `<div class="ciclo-tramo ${activa?'activa':''}" style="width:${ancho}%;background:${FASES_INFO[t.n].color};"></div>`;
+      }).join('')}
+      <div class="ciclo-marcador" style="left:${Math.min(100,(c.dia-0.5)/c.longitud*100)}%"></div>
+    </div>
+    <div class="ciclo-barra-labels">
+      <span>Día 1</span><span>Día ${c.longitud}</span>
+    </div>`;
+
+  infoEl.innerHTML = `
+    <div class="ciclo-bloque">
+      <div class="ciclo-bloque-titulo">Tu cuerpo ahora</div>
+      <div class="ciclo-bloque-texto">${info.cuerpo}</div>
+    </div>
+    <div class="ciclo-bloque">
+      <div class="ciclo-bloque-titulo">Qué predomina</div>
+      <div class="ciclo-bloque-texto">${info.necesidades}</div>
+    </div>
+    <div class="ciclo-bloque">
+      <div class="ciclo-bloque-titulo">Nutrientes clave</div>
+      <div class="ciclo-bloque-texto ciclo-nutrientes">${info.nutrientes}</div>
+      <ul class="ciclo-alimentos">
+        ${info.alimentos.map(a=>`<li>${a}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="ciclo-disclaimer">Información general de fisiología del ciclo. No reemplaza a tu médica.</div>`;
+
+  ultimoEl.textContent = `Último periodo: ${formatFechaCorta(c.inicio)} · ciclo promedio ${c.longitud} días`;
+}
+
+async function cargarPeriodos() {
+  try {
+    const data = await sbLog('periodos','GET',null,'?order=fecha_inicio.desc&limit=12');
+    periodos = Array.isArray(data) ? data.map(x=>x.fecha_inicio) : [];
+    buildCiclo();
+  } catch(e){ console.error('Error cargando periodos:', e); }
+}
+
+async function registrarPeriodo() {
+  const hoy = fechaDeAhora();
+  if(periodos[0] === hoy) { alert('Ya registraste que tu periodo empezó hoy.'); return; }
+  if(!confirm('¿Hoy empezó tu periodo? Esto reinicia el conteo del ciclo.')) return;
+  setSyncing(true);
+  try {
+    await sbLog('periodos','POST',{fecha_inicio: hoy});
+    periodos.unshift(hoy);
+    buildCiclo();
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error(e); setSyncError(); }
 }
 
 function restoreTodayUI() {
@@ -2763,9 +3076,8 @@ function restoreTodayUI() {
   };
   document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
-  document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-  ['input-pasos','input-km','input-sueno','input-ciclo','input-lectura'].forEach(limpiar);
+  ['input-pasos','input-km','input-sueno','input-lectura'].forEach(limpiar);
   starState={agua:0,energia:0,sueno:0,movimiento:0};
   const biciBtn=document.getElementById('bici-btn');
   if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
@@ -2786,10 +3098,13 @@ function restoreTodayUI() {
   if(todayData.km) document.getElementById('input-km').value=todayData.km;
   if(todayData.bici && biciBtn){ biciBtn.textContent='🚲 Sí'; biciBtn.classList.add('selected'); }
   if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
-  if(todayData.ciclo_dia) document.getElementById('input-ciclo').value=todayData.ciclo_dia;
-  if(todayData.fase) {
-    document.querySelectorAll('#fase-pills .emo-pill').forEach(p=>{if(p.textContent===todayData.fase)p.classList.add('selected');});
+  // El día y la fase del ciclo ya no se diligencian: se calculan y se guardan solos
+  const cicloHoy = calcularCiclo();
+  if(cicloHoy) {
+    todayData.ciclo_dia = String(cicloHoy.dia);
+    todayData.fase = cicloHoy.fase;
   }
+  buildCiclo();
   if(todayData.lectura) document.getElementById('input-lectura').value=todayData.lectura;
   buildLecturaVisual();
   buildGatos();
@@ -3306,6 +3621,7 @@ async function init() {
   await cargarSemana();
   await cargarCigarrillosHoy();
   await cargarUltimoFumado();
+  await cargarPeriodos();
   await cargarGastosHoy();
   await cargarGastosSemana();
   setSyncing(false);
