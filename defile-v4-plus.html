@@ -186,11 +186,14 @@ header>*{pointer-events:auto;}
 .fond-pann.on{opacity:1;pointer-events:auto;}
 .pann{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--encre);
   border-top:1px solid var(--linha);border-radius:22px 22px 0 0;
-  padding:10px var(--m) calc(env(safe-area-inset-bottom,0px) + 24px);
+  padding:0 var(--m) calc(env(safe-area-inset-bottom,0px) + 24px);
   max-height:90dvh;overflow-y:auto;
   transform:translateY(101%);transition:transform .32s cubic-bezier(.22,1,.3,1);}
 .pann.on{transform:none;}
-.poign{width:36px;height:4px;border-radius:2px;background:var(--linha);margin:6px auto 20px;}
+.pann-header{display:flex;align-items:center;justify-content:center;padding:14px 0 8px;position:sticky;top:0;background:var(--encre);z-index:2;border-radius:22px 22px 0 0;}
+.poign{width:36px;height:4px;border-radius:2px;background:var(--linha);flex:1;max-width:36px;}
+.btn-cerrar-pann{position:absolute;right:0;top:10px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:var(--craie-f);border:1px solid var(--linha);background:rgba(243,240,234,.06);cursor:pointer;transition:background .2s,color .2s;}
+.btn-cerrar-pann:hover{background:rgba(243,240,234,.14);color:var(--craie);}
 .pann h2{font-family:var(--serif);font-size:24px;font-weight:600;margin-bottom:4px;}
 .sous{font-size:13px;color:var(--craie-f);line-height:1.6;margin-bottom:20px;}
 .cifras{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:20px;}
@@ -248,7 +251,10 @@ header>*{pointer-events:auto;}
 
 <div class="fond-pann" id="fondPanneau"></div>
 <section class="pann" id="panneau" role="dialog" aria-label="Mi progreso">
-  <div class="poign"></div>
+  <div class="pann-header">
+    <div class="poign"></div>
+    <button class="btn-cerrar-pann" id="btnCerrarPann" aria-label="Cerrar">✕</button>
+  </div>
   <h2 id="pFase">Fase 1 · Línea Base</h2>
   <p class="sous" id="pSig"></p>
   <div class="cifras">
@@ -776,49 +782,65 @@ function checkFase(){
 
 /* ─── selección ─── */
 /* buffer de IDs mostrados recientemente — evita repetición inmediata */
-const RECIENTES=[];
-const MAX_RECIENTES=8; /* no repite ninguna de las últimas 8 tarjetas */
+/* buffer persistido en localStorage — sobrevive recargas */
+let RECIENTES = G.r('df4_rec',[]);
+const MAX_RECIENTES = 12; /* no repite ninguna de las últimas 12 */
 
 function siguiente(){
-  const pool=todas().filter(p=>(p.niv||1)<=E.fase);
+  const pool = todas().filter(p=>(p.niv||1)<=E.fase);
+  if(!pool.length) return null;
 
-  /* repaso de falladas: solo cada 7 tarjetas, y nunca si está en recientes */
-  if(fall.length&&cnt%7===6){
-    const fallDisp=fall.filter(id=>!RECIENTES.includes(id));
+  /* repaso de falladas: cada 8 tarjetas, nunca reciente */
+  if(fall.length && cnt%8===7){
+    const fallDisp = fall.filter(id=>!RECIENTES.includes(id));
     if(fallDisp.length){
-      const c=pool.find(p=>p.id===fallDisp[Math.floor(Math.random()*fallDisp.length)]);
-      if(c){_registrarReciente(c.id);return c;}
+      const elegida = pool.find(p=>p.id===fallDisp[Math.floor(Math.random()*fallDisp.length)]);
+      if(elegida){_reg(elegida.id);return elegida;}
     }
   }
 
-  /* no vistas primero, excluyendo recientes */
-  const noVistas=pool.filter(p=>!vistas.includes(p.id)&&!RECIENTES.includes(p.id));
-  /* ya vistas pero no recientes */
-  const yaVistas=pool.filter(p=>vistas.includes(p.id)&&!RECIENTES.includes(p.id));
-  /* si todo está en recientes (pool muy pequeño), igualmente mostramos pero evitamos la más reciente */
-  const src=noVistas.length?noVistas:yaVistas.length?yaVistas:pool.filter(p=>p.id!==RECIENTES[RECIENTES.length-1]);
+  /* 1. no vistas nunca + no recientes */
+  let src = pool.filter(p=>!vistas.includes(p.id)&&!RECIENTES.includes(p.id));
 
-  /* rotar categorías: primero las menos vistas */
-  const ords=Object.keys(CATS).sort((a,b)=>(E.cats[a]||0)-(E.cats[b]||0));
-  const orden=Math.random()<.45?ords:[...ords].sort(()=>Math.random()-.5);
+  /* 2. ya vistas pero no recientes */
+  if(!src.length) src = pool.filter(p=>!RECIENTES.includes(p.id));
+
+  /* 3. todo reciente (pool ≤ MAX_RECIENTES): ventana deslizante
+        — toma las menos recientes (inicio del array) */
+  if(!src.length){
+    /* liberar la mitad más antigua del buffer para que haya variedad */
+    const libres = RECIENTES.slice(0, Math.floor(RECIENTES.length/2));
+    src = pool.filter(p=>libres.includes(p.id));
+    /* si aún así vacío, solo excluir la última mostrada */
+    if(!src.length) src = pool.filter(p=>p.id!==RECIENTES[RECIENTES.length-1]);
+    if(!src.length) src = pool; /* último recurso absoluto */
+  }
+
+  /* rotar categorías: primero las menos vistas, con aleatoriedad parcial */
+  const ords = Object.keys(CATS).sort((a,b)=>(E.cats[a]||0)-(E.cats[b]||0));
+  const orden = Math.random()<.4 ? ords : [...ords].sort(()=>Math.random()-.5);
 
   for(const c of orden){
-    const cand=src.filter(p=>p.c===c);
-    if(cand.length&&Math.random()<.65){
-      const elegida=cand[Math.floor(Math.random()*cand.length)];
-      _registrarReciente(elegida.id);
+    const cand = src.filter(p=>p.c===c);
+    if(cand.length && Math.random()<.65){
+      const elegida = cand[Math.floor(Math.random()*cand.length)];
+      _reg(elegida.id);
       return elegida;
     }
   }
-  /* fallback */
-  const fallback=src[Math.floor(Math.random()*src.length)]||pool[0];
-  if(fallback)_registrarReciente(fallback.id);
+  /* fallback: el primer disponible del src */
+  const fallback = src[Math.floor(Math.random()*src.length)] || pool[0];
+  if(fallback) _reg(fallback.id);
   return fallback;
 }
 
-function _registrarReciente(id){
+function _reg(id){
+  /* evitar duplicados en el buffer */
+  const i = RECIENTES.indexOf(id);
+  if(i>=0) RECIENTES.splice(i,1);
   RECIENTES.push(id);
-  if(RECIENTES.length>MAX_RECIENTES)RECIENTES.shift();
+  if(RECIENTES.length>MAX_RECIENTES) RECIENTES.shift();
+  G.w('df4_rec', RECIENTES);
 }
 
 /* ─── render ─── */
@@ -1111,19 +1133,28 @@ function abrirPanel(){
   
   /* badges desbloqueados */
   const badgeTexts={
-    'fase_2':'Fase 2 Desbloqueada',
-    'fase_3':'Fase 3 Desbloqueada',
-    'pilulas_50':'50 Píldoras',
-    'pilulas_100':'100 Píldoras',
-    'racha_7':'Racha de 7 días',
-    'racha_14':'Racha de 14 días'
+    'fase_2':'🎯 Fase 2','fase_3':'🏆 Fase 3',
+    'pilulas_10':'✨ 10 píldoras','pilulas_20':'🌱 20','pilulas_30':'💫 30',
+    'pilulas_40':'⚡ 40','pilulas_50':'🌟 50','pilulas_60':'🔥 60',
+    'pilulas_70':'💎 70','pilulas_80':'🚀 80','pilulas_90':'🎖️ 90','pilulas_100':'👑 100',
+    'racha_7':'🔥 7 días seguidos','racha_14':'⚡ 14 días','racha_21':'🌙 21 días','racha_30':'🏅 30 días'
   };
-  document.getElementById('lBadges').innerHTML=milestones.map(m=>'<div class="badge">'+badgeTexts[m]+'</div>').join('')||'<p class="muted">Desbloquea badges completando objetivos</p>';
-  
+  document.getElementById('lBadges').innerHTML=milestones.length
+    ?milestones.map(m=>'<div class="badge">'+(badgeTexts[m]||'🏅 '+m)+'</div>').join('')
+    :'<p class="muted">Desbloquea badges completando objetivos</p>';
   pann.classList.add('on');fondP.classList.add('on');
 }
 document.getElementById('btnPanneau').addEventListener('click',abrirPanel);
-fondP.addEventListener('click',()=>{pann.classList.remove('on');fondP.classList.remove('on');});
+function cerrarPanel(){pann.classList.remove('on');fondP.classList.remove('on');}
+fondP.addEventListener('click',cerrarPanel);
+document.getElementById('btnCerrarPann').addEventListener('click',cerrarPanel);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarPanel();});
+/* swipe down para cerrar panel */
+let pyStart=0;
+pann.addEventListener('touchstart',e=>{pyStart=e.touches[0].clientY;},{passive:true});
+pann.addEventListener('touchend',e=>{
+  if(e.changedTouches[0].clientY-pyStart>80&&pann.scrollTop===0)cerrarPanel();
+},{passive:true});
 
 /* ─── arranque ─── */
 pintarBarra();alimentar(5);nubeCargar();
