@@ -1046,6 +1046,7 @@ const obs=new IntersectionObserver(ents=>{
       if(e.target.dataset.t0==='0')e.target.dataset.t0=String(Date.now());
       const idx=[].indexOf.call(feed.children,e.target);
       if(feed.children.length-idx<4)alimentar(4);
+      if(feed.children.length-idx<6)chequearPool(); /* si pool bajo, genera silencioso */
       if(feed.children.length>26){for(let i=0;i<6;i++)feed.firstElementChild.remove();}
     }
   });
@@ -1148,17 +1149,114 @@ document.getElementById('btnPanneau').addEventListener('click',abrirPanel);
 function cerrarPanel(){pann.classList.remove('on');fondP.classList.remove('on');}
 fondP.addEventListener('click',cerrarPanel);
 document.getElementById('btnCerrarPann').addEventListener('click',cerrarPanel);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarPanel();});
-/* swipe down para cerrar panel */
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pann.classList.contains('on'))cerrarPanel();});
 let pyStart=0;
 pann.addEventListener('touchstart',e=>{pyStart=e.touches[0].clientY;},{passive:true});
-pann.addEventListener('touchend',e=>{
-  if(e.changedTouches[0].clientY-pyStart>80&&pann.scrollTop===0)cerrarPanel();
-},{passive:true});
+pann.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-pyStart>80&&pann.scrollTop===0)cerrarPanel();},{passive:true});
+
+/* ─── generación IA ─── */
+let generando=false;
+
+async function generarPildoras(silencio){
+  if(generando)return;
+  const clave=G.r('df4_key','')||'';
+  if(!clave)return; /* sin clave, sin generar */
+  generando=true;
+  const ie=document.getElementById('estadoIA');
+  if(!silencio&&ie){ie.className='etat';ie.textContent='Escribiendo...';}
+  /* categoría menos vista */
+  const cat=Object.keys(CATS).sort((a,b)=>(E.cats[a]||0)-(E.cats[b]||0))[0];
+  const ya=todas().filter(p=>p.c===cat).map(p=>p.gancho).slice(0,12);
+  const prompt='Escribes píldoras para un feed de dopamina intelectual estilo TikTok mental.\n'+
+    'Lectora: Laura, colombiana en Quebec, francés intermedio. Fase '+E.fase+'/3. '+pctFr()+'% francés.\n'+
+    'Categoría: '+CATS[cat].nom+' (clave: '+cat+').\n\n'+
+    'Formato de cada píldora (array JSON de 5 objetos):\n'+
+    '{"gancho":"titular impactante en español","gancho_fr":"mismo en francés","viñetas":["viñeta con <b>negrita</b> permitida","máximo 3 viñetas, dato curioso o paradoja"],"fr_chispa":"frase corta en francés","fr_trad":"traducción","cierre":{"tipo":"opinion","txt":"pregunta corta","opts":["opción 1","opción 2"]},"niv":'+E.fase+',"c":"'+cat+'"}\n\n'+
+    'Reglas: gancho = frase que deja con ganas de leer. Viñetas: máximo 3, cortas, dato+paradoja+revelación. Cierre puede ser "opinion" (2 opts), "ab" (A vs B) o "siguiente" (sin opts). NO repetir estos ganchos: '+JSON.stringify(ya)+'.\n'+
+    'Responde SOLO el array JSON de 5 objetos. Sin markdown, sin explicaciones.';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':clave,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2800,messages:[{role:'user',content:prompt}]})
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    const txt=(data.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('').replace(/```json|```/g,'').trim();
+    const arr=JSON.parse(txt.slice(txt.indexOf('['),txt.lastIndexOf(']')+1));
+    const nvas=[];
+    arr.forEach((p,i)=>{
+      if(!p||!p.gancho||!p.viñetas)return;
+      p.c=p.c||cat;p.niv=p.niv||E.fase;p.ia=true;p.id='ia'+Date.now()+'_'+i;
+      gen.push(p);nvas.push(p);
+    });
+    if(gen.length>400)gen=gen.slice(-400);
+    G.w('df4_gen',gen);
+    subirGen(nvas);
+    if(!silencio&&ie){ie.className='etat bon';ie.textContent=nvas.length+' píldoras nuevas de '+CATS[cat].nom+'.';}
+    alimentar(3);
+  }catch(err){
+    const m=String(err.message||err);
+    if(!silencio&&ie){
+      ie.className='etat mal';
+      if(!clave)ie.textContent='Falta la clave de API.';
+      else if(m.includes('401'))ie.textContent='Clave no aceptada.';
+      else if(m.includes('429'))ie.textContent='API saturada. Espera un minuto.';
+      else ie.textContent='Error: '+m.slice(0,80);
+    }
+  }finally{generando=false;}
+}
+
+async function subirGen(l){
+  if(!online||!l.length)return;
+  try{await fetch(SUPA_URL+'/rest/v1/frances_cartes?on_conflict=id',{method:'POST',headers:Object.assign({},cS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify(l.map(c=>{const cp=Object.assign({},c);['id','c','ia','niv'].forEach(k=>delete cp[k]);return{id:c.id,perfil:PERFIL,tema:c.c,tipo:'pilule',contenu:cp,nivel:c.niv||1};}))});}catch(e){}
+}
+
+/* listeners del panel */
+const ic=document.getElementById('clave');
+ic.value=G.r('df4_key','')||'';
+document.getElementById('btnBorrarClave').addEventListener('click',()=>{
+  G.del('df4_key');ic.value='';
+  const ie=document.getElementById('estadoIA');if(ie){ie.className='etat';ie.textContent='Clave borrada.';}
+});
+document.getElementById('btnGenerar').addEventListener('click',async()=>{
+  const b=document.getElementById('btnGenerar');
+  const clave=ic.value.trim();
+  if(clave)G.w('df4_key',clave);
+  b.disabled=true;b.textContent='Escribiendo…';
+  await generarPildoras(false);
+  b.disabled=false;b.textContent='Generar 5 píldoras nuevas';
+});
+document.getElementById('btnSync').addEventListener('click',async()=>{
+  const b=document.getElementById('btnSync');b.disabled=true;b.textContent='Sincronizando...';
+  online=navigator.onLine;await nubeCargar();abrirPanel();b.disabled=false;b.textContent='Sincronizar ahora';
+});
+document.getElementById('btnReset').addEventListener('click',()=>{
+  const b=document.getElementById('btnReset');
+  if(b.dataset.s!=='1'){b.dataset.s='1';b.textContent='Tocar otra vez para confirmar';setTimeout(()=>{b.dataset.s='0';b.textContent='Empezar de cero';},4000);return;}
+  ['df4_e','df4_v','df4_g','df4_f','df4_gen','df4_d','df4_racha','df4_milestones','df4_rec'].forEach(k=>G.del(k));location.reload();
+});
+
+/* ─── auto-generación cuando el pool se agota ─── */
+function poolDisponible(){
+  const pool=todas().filter(p=>(p.niv||1)<=E.fase);
+  return pool.filter(p=>!RECIENTES.includes(p.id)).length;
+}
+function chequearPool(){
+  if(poolDisponible()<10&&!generando&&G.r('df4_key','')){
+    generarPildoras(true); /* silencioso, sin molestar */
+  }
+}
 
 /* ─── arranque ─── */
-pintarBarra();alimentar(5);nubeCargar();
-setTimeout(()=>{const p=feed.firstElementChild;if(p){p.dataset.actif='1';if(p.dataset.t0==='0')p.dataset.t0=String(Date.now());}},150);
+pintarBarra();
+alimentar(6);
+nubeCargar();
+setTimeout(()=>{
+  const p=feed.firstElementChild;
+  if(p){p.dataset.actif='1';if(p.dataset.t0==='0')p.dataset.t0=String(Date.now());}
+  chequearPool(); /* check inmediato al abrir */
+},200);
 
 </script>
 </body>
