@@ -807,81 +807,18 @@ body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
 .log-item-del:active { color: var(--terra); }
 .log-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 6px 0; }
 
-/* Lectura visual */
-.lectura-bar-wrap {
-  display: flex;
-  gap: 3px;
-  margin-top: 10px;
-  align-items: flex-end;
-  height: 30px;
-}
-.lectura-book {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  background: var(--line);
-  transition: all .3s;
-  min-height: 6px;
-}
-.lectura-book.on { background: var(--gold); }
-
-/* Cuaderno / pregunta reflexiva */
-.cuaderno-card {
-  background: linear-gradient(135deg, var(--lavender-soft), var(--card));
-  border-radius: var(--r);
-  padding: 18px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  border-left: 3px solid var(--lavender);
-}
-body.night .cuaderno-card {
-  background: linear-gradient(135deg, rgba(123,111,160,0.15), var(--night-card));
-}
-.cuaderno-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.cuaderno-icon { font-size: 18px; }
-.cuaderno-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-.cuaderno-pregunta {
+/* Pregunta reflexiva: línea liviana, sin tarjeta ni botón — se marca en la lista de hábitos */
+.pregunta-inline {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
+  font-size: 17px;
   font-style: italic;
   font-weight: 400;
-  line-height: 1.4;
-  margin-bottom: 14px;
-}
-.cuaderno-btn {
-  width: 100%;
-  padding: 11px;
-  border-radius: 14px;
-  border: 1.5px solid var(--lavender);
-  background: transparent;
-  color: var(--lavender);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
-}
-.cuaderno-btn:active { transform: scale(0.97); }
-.cuaderno-btn.done {
-  background: var(--lavender);
-  color: white;
-}
-.cuaderno-nota {
-  font-size: 10px;
-  color: var(--muted);
+  line-height: 1.5;
+  color: var(--ink);
   text-align: center;
-  margin-top: 10px;
-  line-height: 1.4;
+  padding: 10px 12px 4px;
 }
+body.night .pregunta-inline { color: var(--night-text); }
 
 /* ── ANCLA DEL DÍA ── */
 .ancla-card {
@@ -1547,27 +1484,6 @@ body.night .habito-count { color: var(--night-accent); }
     </div>
   </div>
 
-  <!-- Ciclo menstrual -->
-  <div class="ciclo-card">
-    <div class="ciclo-top">
-      <div class="ciclo-dia-box">
-        <div class="ciclo-dia-num" id="ciclo-dia-num">—</div>
-        <div class="ciclo-dia-label">día del ciclo</div>
-      </div>
-      <div class="ciclo-fase-box">
-        <div class="ciclo-fase-nombre" id="ciclo-fase-nombre">Sin datos</div>
-        <div class="ciclo-fase-sub" id="ciclo-fase-sub">Registra tu último periodo</div>
-      </div>
-    </div>
-
-    <div class="ciclo-barra" id="ciclo-barra"></div>
-
-    <div class="ciclo-info" id="ciclo-info"></div>
-
-    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
-    <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
-  </div>
-
   <!-- Mis comidas -->
   <div class="meal-card">
     <div class="meal-header">
@@ -1694,6 +1610,27 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="log-list" id="gastos-list"></div>
   </div>
 
+  <!-- Ciclo menstrual -->
+  <div class="ciclo-card">
+    <div class="ciclo-top">
+      <div class="ciclo-dia-box">
+        <div class="ciclo-dia-num" id="ciclo-dia-num">—</div>
+        <div class="ciclo-dia-label">día del ciclo</div>
+      </div>
+      <div class="ciclo-fase-box">
+        <div class="ciclo-fase-nombre" id="ciclo-fase-nombre">Sin datos</div>
+        <div class="ciclo-fase-sub" id="ciclo-fase-sub">Registra tu último periodo</div>
+      </div>
+    </div>
+
+    <div class="ciclo-barra" id="ciclo-barra"></div>
+
+    <div class="ciclo-info" id="ciclo-info"></div>
+
+    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
+    <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
+  </div>
+
 </div>
 
 <!-- ── MAÑANA ── -->
@@ -1704,17 +1641,6 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="prog-track"><div class="prog-fill morning" id="prog-bar-m" style="width:0%"></div></div>
   </div>
   <div id="habits-m"></div>
-
-  <!-- Lectura: la mañana es mejor momento para retener información nueva -->
-  <div class="quick-log">
-    <div class="ql-title">Lectura 📖</div>
-    <div class="ql-row">
-      <div class="ql-icon">📚</div>
-      <div class="ql-label">Minutos leídos hoy</div>
-      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
-    </div>
-    <div class="lectura-bar-wrap" id="lectura-visual"></div>
-  </div>
 
   <div class="section-label">Anoche dormí</div>
   <div class="quick-log">
@@ -1745,6 +1671,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="prog-track"><div class="prog-fill night-fill" id="prog-bar-n" style="width:0%"></div></div>
   </div>
   <div id="habits-n"></div>
+  <div class="pregunta-inline" id="pregunta-dia">—</div>
 
   <div class="section-label">Cierre del día</div>
   <div class="quick-log">
@@ -1789,18 +1716,8 @@ body.night .habito-count { color: var(--night-accent); }
     </div>
   </div>
 
-  <!-- Pregunta del día para el cuaderno: escribir de noche ayuda a que el sueño consolide lo procesado -->
-  <div class="cuaderno-card">
-    <div class="cuaderno-header">
-      <span class="cuaderno-icon">📓</span>
-      <span class="cuaderno-label">Pregunta para tu cuaderno</span>
-    </div>
-    <div class="cuaderno-pregunta" id="pregunta-dia">—</div>
-    <button class="cuaderno-btn" id="cuaderno-btn" onclick="toggleEscribi()">
-      <span id="cuaderno-btn-text">Ya escribí ✍️</span>
-    </button>
-    <div class="cuaderno-nota">La escritura a mano activa procesamiento más profundo que teclear 🧠</div>
-  </div>
+  <!-- Pregunta del día para el cuaderno: escribir de noche ayuda a que el sueño consolide lo procesado.
+       Se marca tocando "Escribo en mi cuaderno" en la lista de hábitos de arriba. -->
 </div>
 
 <!-- ── SEMANA ── -->
@@ -1914,8 +1831,8 @@ async function cargarUltimaVezGatos(indices) {
 // Anclas posibles del día — rotan para que el cerebro no se acostumbre
 const ANCLAS = [
   {tipo:'habito', panel:'m', idx:0, texto:'Tiendo mi cama', icon:'🛏️', razon:'Empezar el día con una acción completada activa el circuito de logro'},
-  {tipo:'cuaderno', texto:'Escribo en mi cuaderno', icon:'📓', razon:'La escritura a mano consolida memoria y regula el sistema nervioso'},
-  {tipo:'lectura', texto:'Leo 15 minutos', icon:'📖', razon:'La lectura sostenida entrena tu capacidad de atención profunda'},
+  {tipo:'habito', panel:'n', idx:4, texto:'Escribo en mi cuaderno', icon:'📓', razon:'La escritura a mano consolida memoria y regula el sistema nervioso'},
+  {tipo:'habito', panel:'m', idx:3, texto:'Leo 15 minutos', icon:'📖', razon:'La lectura sostenida entrena tu capacidad de atención profunda'},
   {tipo:'habito', panel:'n', idx:2, texto:'Alisto mi almuerzo', icon:'🥗', razon:'Decidir hoy lo de mañana reduce la carga cognitiva del futuro'},
   {tipo:'gato', idx:1, texto:'Cepillo a mis gatos', icon:'🪮', razon:'El contacto con animales baja cortisol en minutos'},
   {tipo:'emocion', texto:'Nombro cómo me siento', icon:'🌊', razon:'Nombrar una emoción reduce su intensidad — "name it to tame it"'},
@@ -2608,8 +2525,6 @@ async function guardarRegistroDiario(fecha) {
     extras: Array.isArray(d.extras) ? d.extras : [],
     ciclo_dia: d.ciclo_dia ? parseInt(d.ciclo_dia) : null,
     ciclo_fase: d.fase || null,
-    lectura_min: d.lectura ? parseInt(d.lectura) : null,
-    escribi: !!d.escribi,
     comidas: d.comidas || {},
     comidas_texto: d.comidas_texto || {},
     gatos: d.gatos || {},
@@ -2653,8 +2568,6 @@ async function cargarRegistroDesdeSupabase() {
         if(Array.isArray(row.extras)) d.extras=row.extras;
         if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
         if(row.ciclo_fase) d.fase=row.ciclo_fase;
-        if(row.lectura_min) d.lectura=String(row.lectura_min);
-        d.escribi=!!row.escribi;
         if(row.comidas) d.comidas=row.comidas;
         if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
         if(row.gatos) d.gatos=row.gatos;
@@ -2775,8 +2688,6 @@ function buildAncla() {
 function anclaEstaHecha() {
   const a=getAnclaHoy();
   if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][a.idx];
-  if(a.tipo==='cuaderno') return !!todayData.escribi;
-  if(a.tipo==='lectura') return parseInt(todayData.lectura||0)>=15;
   if(a.tipo==='gato') return todayData.gatos && todayData.gatos[a.idx];
   if(a.tipo==='emocion') return !!todayData.emocion;
   if(a.tipo==='comida') return todayData.comidas && todayData.comidas[a.idx];
@@ -2799,14 +2710,8 @@ async function toggleAncla() {
   const a=getAnclaHoy();
   if(a.tipo==='habito') {
     await toggleHabitQuick(a.panel,todayIdx,a.idx);
-  } else if(a.tipo==='cuaderno') {
-    toggleEscribi();
   } else if(a.tipo==='gato') {
     toggleGato(a.idx);
-  } else if(a.tipo==='lectura') {
-    switchPanel('hoy');
-    document.getElementById('input-lectura').focus();
-    return;
   } else if(a.tipo==='comida') {
     toggleComida(a.idx);
   } else if(a.tipo==='emocion') {
@@ -2926,44 +2831,9 @@ function toggleGato(i) {
   }
 }
 
-// ── LECTURA ──
-function saveLectura() {
-  todayData.lectura=document.getElementById('input-lectura').value;
-  saveTodayLocal();
-  buildLecturaVisual();
-  sincronizarHabitoLectura();
-}
-
-// Leer 15+ minutos marca sola el hábito "Leo 15 minutos" (última posición de HABITS.m),
-// para que cuente en el progreso del día, la racha y el gráfico de la semana.
-function sincronizarHabitoLectura() {
-  const idx = HABITS.m.length-1;
-  const day = currentDay.m;
-  const min = parseInt(todayData.lectura)||0;
-  const debeEstar = min>=15;
-  if(!state.m[day]) state.m[day]=new Array(HABITS.m.length).fill(false);
-  if(state.m[day][idx] === debeEstar) return; // ya está sincronizado
-  state.m[day][idx] = debeEstar;
-  buildHabits('m'); updateProgress('m'); updateSnaps(); updateAnclaUI();
-  if(debeEstar && day===todayIdx) celebrarSiCompleto('m');
-  guardarHabito('m',day,idx,debeEstar);
-}
-
-function buildLecturaVisual() {
-  const c=document.getElementById('lectura-visual');
-  const min=parseInt(todayData.lectura)||0;
-  // 12 barras, cada una = 5 minutos (meta 60 min)
-  c.innerHTML='';
-  for(let i=0;i<12;i++){
-    const bar=document.createElement('div');
-    const filled=min>=(i+1)*5;
-    bar.className='lectura-book'+(filled?' on':'');
-    bar.style.height=filled?`${8+i*1.8}px`:'6px';
-    c.appendChild(bar);
-  }
-}
-
 // ── PREGUNTA DEL DÍA ──
+// Solo texto informativo: se marca como hecho tocando "Escribo en mi cuaderno"
+// en la lista de hábitos de Noche, igual que cualquier otro hábito.
 function setPreguntaDia() {
   // Rota según el día del año para que sea consistente todo el día
   const now=new Date();
@@ -2972,40 +2842,6 @@ function setPreguntaDia() {
   const dayOfYear=Math.floor(diff/(1000*60*60*24));
   const idx=dayOfYear % PREGUNTAS.length;
   document.getElementById('pregunta-dia').textContent=PREGUNTAS[idx];
-}
-
-function toggleEscribi() {
-  todayData.escribi=!todayData.escribi;
-  updateCuadernoUI();
-  updateAnclaUI();
-  saveTodayLocal();
-  if(todayData.escribi) mostrarRecompensa('📓 Escribiste. Eso es autoconocimiento en acción');
-  sincronizarHabitoCuaderno();
-}
-
-// "Ya escribí" marca sola el hábito "Escribo en mi cuaderno" (última posición de HABITS.n)
-function sincronizarHabitoCuaderno() {
-  const idx = HABITS.n.length-1;
-  const day = currentDay.n;
-  const debeEstar = !!todayData.escribi;
-  if(!state.n[day]) state.n[day]=new Array(HABITS.n.length).fill(false);
-  if(state.n[day][idx] === debeEstar) return;
-  state.n[day][idx] = debeEstar;
-  buildHabits('n'); updateProgress('n'); updateSnaps(); updateAnclaUI();
-  if(debeEstar && day===todayIdx) celebrarSiCompleto('n');
-  guardarHabito('n',day,idx,debeEstar);
-}
-
-function updateCuadernoUI() {
-  const btn=document.getElementById('cuaderno-btn');
-  const txt=document.getElementById('cuaderno-btn-text');
-  if(todayData.escribi) {
-    btn.classList.add('done');
-    txt.textContent='Escrito ✓ Buen trabajo 🌿';
-  } else {
-    btn.classList.remove('done');
-    txt.textContent='Ya escribí ✍️';
-  }
 }
 
 // ── COMIDAS PROGRESIVAS ──
@@ -3283,7 +3119,7 @@ function restoreTodayUI() {
   document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
   document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-  ['input-pasos','input-km','input-sueno','input-lectura'].forEach(limpiar);
+  ['input-pasos','input-km','input-sueno'].forEach(limpiar);
   starState={agua:0,energia:0,sueno:0,movimiento:0};
   const biciBtn=document.getElementById('bici-btn');
   if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
@@ -3311,11 +3147,8 @@ function restoreTodayUI() {
     todayData.fase = cicloHoy.fase;
   }
   buildCiclo();
-  if(todayData.lectura) document.getElementById('input-lectura').value=todayData.lectura;
-  buildLecturaVisual();
   buildGatos();
   setPreguntaDia();
-  updateCuadernoUI();
 }
 
 function updateSnaps() {
@@ -3725,10 +3558,8 @@ async function refrescoAutomatico() {
         merge('km', row.km!=null?String(row.km):null);
         merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
         merge('fase', row.ciclo_fase);
-        merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
         merge('sueno_horas', row.sueno_horas!=null?String(row.sueno_horas):null);
         merge('sueno_calidad', row.sueno_calidad!=null?row.sueno_calidad:null);
-        if(local.escribi===undefined) local.escribi=!!row.escribi;
         if(local.bici===undefined) local.bici=!!row.bici;
         // Extras: la lista más larga gana (no queremos perder lo agregado en otro dispositivo)
         if(Array.isArray(row.extras) && (!Array.isArray(local.extras) || row.extras.length > local.extras.length)) {
