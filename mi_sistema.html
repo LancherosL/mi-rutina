@@ -807,6 +807,75 @@ body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
 .log-item-del:active { color: var(--terra); }
 .log-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 6px 0; }
 
+/* Lectura visual */
+.lectura-bar-wrap {
+  display: flex;
+  gap: 3px;
+  margin-top: 10px;
+  align-items: flex-end;
+  height: 30px;
+}
+.lectura-book {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--line);
+  transition: all .3s;
+  min-height: 6px;
+}
+.lectura-book.on { background: var(--gold); }
+.lectura-nota {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Preguntas de la semana */
+.preguntas-semana {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pregunta-dia-item {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  border-left: 3px solid var(--line);
+}
+body.night .pregunta-dia-item { background: rgba(255,255,255,0.03); }
+.pregunta-dia-item.hoy {
+  border-left-color: var(--terra);
+  background: var(--terra-soft);
+}
+body.night .pregunta-dia-item.hoy {
+  border-left-color: var(--night-accent);
+  background: rgba(123,174,200,0.1);
+}
+.pregunta-dia-item.futura { opacity: 0.45; }
+.pregunta-dia-fecha {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.pregunta-dia-texto {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--ink);
+}
+body.night .pregunta-dia-texto { color: var(--night-text); }
+.preguntas-nota {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+  text-align: center;
+  margin-top: 12px;
+}
+
 /* Pregunta reflexiva: línea liviana, sin tarjeta ni botón — se marca en la lista de hábitos */
 .pregunta-inline {
   font-family: 'Cormorant Garamond', serif;
@@ -1642,6 +1711,18 @@ body.night .habito-count { color: var(--night-accent); }
   </div>
   <div id="habits-m"></div>
 
+  <!-- Lectura: la mañana es mejor momento para retener información nueva.
+       A partir de 15 minutos se marca sola como hábito cumplido. -->
+  <div class="quick-log">
+    <div class="ql-row">
+      <div class="ql-icon">📖</div>
+      <div class="ql-label">Minutos leídos hoy</div>
+      <input class="ql-num-input" type="number" id="input-lectura" placeholder="min" onchange="saveLectura()">
+    </div>
+    <div class="lectura-bar-wrap" id="lectura-visual"></div>
+    <div class="lectura-nota" id="lectura-nota"></div>
+  </div>
+
   <div class="section-label">Anoche dormí</div>
   <div class="quick-log">
     <div class="ql-row">
@@ -2476,7 +2557,15 @@ Object.defineProperty(window, 'todayData', {
 });
 
 let saveTimer=null;
+// Mientras se restaura la interfaz (al abrir, al cambiar de día, tras un refresco)
+// se llaman setStars/setNivel para pintar los valores guardados. Esas funciones
+// disparan saveTodayLocal, lo que provocaba que la app guardara sola registros de
+// días pasados — y si el caché de este dispositivo estaba vacío, los pisaba con nulls.
+// Con esta bandera, restaurar la UI nunca escribe.
+let restaurandoUI = false;
+
 function saveTodayLocal() {
+  if(restaurandoUI) return; // pintar la UI no es una edición de la usuaria
   const fecha = fechaActiva;
   localStorage.setItem('registro_'+fecha, JSON.stringify(registroCache[fecha]||{}));
   clearTimeout(saveTimer);
@@ -2506,32 +2595,40 @@ async function sbRegistro(method, body=null, params='') {
 }
 
 async function guardarRegistroDiario(fecha) {
-  setSyncing(true);
   const d = loadRegistroFecha(fecha);
-  const payload = {
-    fecha: fecha,
-    emocion: d.emocion || null,
-    energia: d.energia ? parseInt(d.energia) : null,
-    agua: d.agua || null,
-    pasos: d.pasos ? parseInt(d.pasos) : null,
-    fc: d.fc ? parseInt(d.fc) : null,
-    spo2: d.spo2 ? parseInt(d.spo2) : null,
-    hrv: d.hrv ? parseInt(d.hrv) : null,
-    estres: d.estres ? parseInt(d.estres) : null,
-    recuperacion: d.recuperacion ? parseInt(d.recuperacion) : null,
-    movimiento: d.movimiento ? parseInt(d.movimiento) : null,
-    km: d.km ? parseFloat(d.km) : null,
-    bici: !!d.bici,
-    extras: Array.isArray(d.extras) ? d.extras : [],
-    ciclo_dia: d.ciclo_dia ? parseInt(d.ciclo_dia) : null,
-    ciclo_fase: d.fase || null,
-    comidas: d.comidas || {},
-    comidas_texto: d.comidas_texto || {},
-    gatos: d.gatos || {},
-    sueno_horas: d.sueno_horas ? parseFloat(d.sueno_horas) : null,
-    sueno_calidad: d.sueno_calidad ? parseInt(d.sueno_calidad) : null,
-    updated_at: new Date().toISOString()
+
+  // Solo se envían los campos que este dispositivo realmente conoce.
+  // Antes se mandaba el objeto completo con nulls, así que un dispositivo con el
+  // caché vacío borraba en Supabase lo que otro había guardado bien.
+  const payload = { fecha: fecha, updated_at: new Date().toISOString() };
+  const poner = (col, valor, transformar) => {
+    const v = d[valor !== undefined ? valor : col];
+    if(v === undefined) return;               // nunca se tocó: no se manda
+    if(v === '' || v === null) { payload[col] = null; return; } // se borró a propósito
+    payload[col] = transformar ? transformar(v) : v;
   };
+
+  poner('emocion');
+  poner('energia', 'energia', v=>parseInt(v));
+  poner('agua');
+  poner('pasos', 'pasos', v=>parseInt(v));
+  poner('movimiento', 'movimiento', v=>parseInt(v));
+  poner('km', 'km', v=>parseFloat(v));
+  poner('lectura_min', 'lectura', v=>parseInt(v));
+  poner('ciclo_dia', 'ciclo_dia', v=>parseInt(v));
+  poner('ciclo_fase', 'fase');
+  poner('sueno_horas', 'sueno_horas', v=>parseFloat(v));
+  poner('sueno_calidad', 'sueno_calidad', v=>parseInt(v));
+  if(d.bici !== undefined) payload.bici = !!d.bici;
+  if(d.extras !== undefined) payload.extras = Array.isArray(d.extras) ? d.extras : [];
+  if(d.comidas !== undefined) payload.comidas = d.comidas || {};
+  if(d.comidas_texto !== undefined) payload.comidas_texto = d.comidas_texto || {};
+  if(d.gatos !== undefined) payload.gatos = d.gatos || {};
+
+  // Si no hay nada más que la fecha, no hay nada que guardar
+  if(Object.keys(payload).length <= 2) return;
+
+  setSyncing(true);
   try {
     const res = await sbRegistro('POST', payload, '?on_conflict=fecha');
     if(res && !res.ok) throw new Error('HTTP '+res.status);
@@ -2568,6 +2665,7 @@ async function cargarRegistroDesdeSupabase() {
         if(Array.isArray(row.extras)) d.extras=row.extras;
         if(row.ciclo_dia) d.ciclo_dia=String(row.ciclo_dia);
         if(row.ciclo_fase) d.fase=row.ciclo_fase;
+        if(row.lectura_min!=null) d.lectura=String(row.lectura_min);
         if(row.comidas) d.comidas=row.comidas;
         if(row.comidas_texto) d.comidas_texto=row.comidas_texto;
         if(row.gatos) d.gatos=row.gatos;
@@ -2831,17 +2929,66 @@ function toggleGato(i) {
   }
 }
 
+// ── LECTURA ──
+// Se registran los minutos reales, pero el hábito "Leo 15 minutos" se marca
+// solo al llegar a 15. Así queda el dato fino sin tener que marcar dos veces.
+const META_LECTURA = 15;
+
+function saveLectura() {
+  todayData.lectura=document.getElementById('input-lectura').value;
+  saveTodayLocal();
+  buildLecturaVisual();
+  sincronizarHabitoLectura();
+}
+
+function sincronizarHabitoLectura() {
+  const idx = HABITS.m.findIndex(h=>h.name==='Leo 15 minutos');
+  if(idx < 0) return;
+  const day = currentDay.m;
+  const min = parseInt(todayData.lectura)||0;
+  const debeEstar = min >= META_LECTURA;
+  if(!state.m[day]) state.m[day]=new Array(HABITS.m.length).fill(false);
+  if(state.m[day][idx] === debeEstar) return; // ya está sincronizado
+  state.m[day][idx] = debeEstar;
+  buildHabits('m'); updateProgress('m'); updateSnaps(); updateAnclaUI();
+  if(debeEstar && day===todayIdx) celebrarSiCompleto('m');
+  guardarHabito('m',day,idx,debeEstar);
+}
+
+function buildLecturaVisual() {
+  const c=document.getElementById('lectura-visual');
+  if(!c) return;
+  const min=parseInt(todayData.lectura)||0;
+  // 12 barras, cada una = 5 minutos (referencia visual hasta 60 min)
+  c.innerHTML='';
+  for(let i=0;i<12;i++){
+    const bar=document.createElement('div');
+    const filled=min>=(i+1)*5;
+    bar.className='lectura-book'+(filled?' on':'');
+    bar.style.height=filled?`${8+i*1.8}px`:'6px';
+    c.appendChild(bar);
+  }
+  const nota=document.getElementById('lectura-nota');
+  if(nota) {
+    if(!min) nota.textContent='';
+    else if(min>=META_LECTURA) nota.textContent=`${min} min · hábito cumplido ✓`;
+    else nota.textContent=`${min} min · ${META_LECTURA-min} para que cuente como hábito`;
+  }
+}
+
 // ── PREGUNTA DEL DÍA ──
 // Solo texto informativo: se marca como hecho tocando "Escribo en mi cuaderno"
 // en la lista de hábitos de Noche, igual que cualquier otro hábito.
+function preguntaParaFecha(fechaStr) {
+  const d = new Date(fechaStr+'T12:00:00');
+  const start = new Date(d.getFullYear(),0,0);
+  const dayOfYear = Math.floor((d-start)/(1000*60*60*24));
+  return PREGUNTAS[dayOfYear % PREGUNTAS.length];
+}
+
 function setPreguntaDia() {
-  // Rota según el día del año para que sea consistente todo el día
-  const now=new Date();
-  const start=new Date(now.getFullYear(),0,0);
-  const diff=now-start;
-  const dayOfYear=Math.floor(diff/(1000*60*60*24));
-  const idx=dayOfYear % PREGUNTAS.length;
-  document.getElementById('pregunta-dia').textContent=PREGUNTAS[idx];
+  const el = document.getElementById('pregunta-dia');
+  if(el) el.textContent = preguntaParaFecha(fechaActiva);
 }
 
 // ── COMIDAS PROGRESIVAS ──
@@ -3004,11 +3151,16 @@ function calcularLongitudCiclo() {
   return Math.round(difs.reduce((s,x)=>s+x,0)/difs.length);
 }
 
-function calcularCiclo() {
+function calcularCiclo(paraFecha) {
   if(!periodos.length) return null;
-  const inicio = new Date(periodos[0]+'T00:00:00');
-  const hoy = new Date(todayStr+'T00:00:00');
-  const dia = Math.round((hoy-inicio)/(1000*60*60*24)) + 1;
+  const fechaRef = paraFecha || todayStr;
+  // Se busca el periodo más reciente que empezó en o antes de la fecha consultada,
+  // para que al navegar a días pasados no se muestre el ciclo de hoy.
+  const inicioStr = periodos.find(p => p <= fechaRef);
+  if(!inicioStr) return null;
+  const inicio = new Date(inicioStr+'T00:00:00');
+  const ref = new Date(fechaRef+'T00:00:00');
+  const dia = Math.round((ref-inicio)/(1000*60*60*24)) + 1;
   if(dia < 1) return null;
   const L = calcularLongitudCiclo();
   // La fase lútea es la constante (~14 días); la folicular es la que varía
@@ -3018,11 +3170,11 @@ function calcularCiclo() {
   else if(dia < diaOvulacion - 1) fase = 'Folicular';
   else if(dia <= diaOvulacion + 1) fase = 'Ovulatoria';
   else fase = 'Lútea';
-  return {dia, fase, longitud:L, diaOvulacion, inicio:periodos[0], faltan: Math.max(0, L - dia + 1)};
+  return {dia, fase, longitud:L, diaOvulacion, inicio:inicioStr, faltan: Math.max(0, L - dia + 1)};
 }
 
 function buildCiclo() {
-  const c = calcularCiclo();
+  const c = calcularCiclo(fechaActiva);
   const numEl = document.getElementById('ciclo-dia-num');
   const nombreEl = document.getElementById('ciclo-fase-nombre');
   const subEl = document.getElementById('ciclo-fase-sub');
@@ -3110,45 +3262,52 @@ async function registrarPeriodo() {
 }
 
 function restoreTodayUI() {
-  // Limpiar todo primero para que no queden datos del día anterior visibles.
-  // Nunca se toca el campo que estás escribiendo en ese momento.
-  const limpiar = (id) => {
-    const el = document.getElementById(id);
-    if(el && document.activeElement !== el) el.value='';
-  };
-  document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
-  document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
-  document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-  ['input-pasos','input-km','input-sueno'].forEach(limpiar);
-  starState={agua:0,energia:0,sueno:0,movimiento:0};
-  const biciBtn=document.getElementById('bici-btn');
-  if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
+  restaurandoUI = true;   // pintar la UI no debe disparar guardados
+  try {
+    // Limpiar todo primero para que no queden datos del día anterior visibles.
+    // Nunca se toca el campo que estás escribiendo en ese momento.
+    const limpiar = (id) => {
+      const el = document.getElementById(id);
+      if(el && document.activeElement !== el) el.value='';
+    };
+    document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
+    document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
+    document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
+    ['input-pasos','input-km','input-sueno','input-lectura'].forEach(limpiar);
+    starState={agua:0,energia:0,sueno:0,movimiento:0};
+    const biciBtn=document.getElementById('bici-btn');
+    if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
 
-  // Ahora restaurar solo lo que existe para esta fecha
-  if(todayData.emocion) {
-    document.querySelectorAll('.emo-pill').forEach(p=>{if(p.textContent===todayData.emocion)p.classList.add('selected');});
+    // Ahora restaurar solo lo que existe para esta fecha
+    if(todayData.emocion) {
+      document.querySelectorAll('.emo-pill').forEach(p=>{if(p.textContent===todayData.emocion)p.classList.add('selected');});
+    }
+    if(todayData.pasos) document.getElementById('input-pasos').value=todayData.pasos;
+    if(todayData.agua) {
+      document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
+    }
+    if(todayData.energia) setStars('energia',todayData.energia);
+    restoreComidas();
+    buildExtras();
+    if(todayData.sueno_calidad) setStars("sueno",todayData.sueno_calidad);
+    if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
+    if(todayData.km) document.getElementById('input-km').value=todayData.km;
+    if(todayData.bici && biciBtn){ biciBtn.textContent='🚲 Sí'; biciBtn.classList.add('selected'); }
+    if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
+    if(todayData.lectura) { const el=document.getElementById('input-lectura'); if(el && document.activeElement!==el) el.value=todayData.lectura; }
+    buildLecturaVisual();
+    // El día y la fase del ciclo se calculan solos para la fecha que se esté viendo
+    const cicloDeEsaFecha = calcularCiclo(fechaActiva);
+    if(cicloDeEsaFecha) {
+      todayData.ciclo_dia = String(cicloDeEsaFecha.dia);
+      todayData.fase = cicloDeEsaFecha.fase;
+    }
+    buildCiclo();
+    buildGatos();
+    setPreguntaDia();
+  } finally {
+    restaurandoUI = false;  // siempre se reactiva, incluso si algo falla arriba
   }
-  if(todayData.pasos) document.getElementById('input-pasos').value=todayData.pasos;
-  if(todayData.agua) {
-    document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
-  }
-  if(todayData.energia) setStars('energia',todayData.energia);
-  restoreComidas();
-  buildExtras();
-  if(todayData.sueno_calidad) setStars("sueno",todayData.sueno_calidad);
-  if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
-  if(todayData.km) document.getElementById('input-km').value=todayData.km;
-  if(todayData.bici && biciBtn){ biciBtn.textContent='🚲 Sí'; biciBtn.classList.add('selected'); }
-  if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
-  // El día y la fase del ciclo ya no se diligencian: se calculan y se guardan solos
-  const cicloHoy = calcularCiclo();
-  if(cicloHoy) {
-    todayData.ciclo_dia = String(cicloHoy.dia);
-    todayData.fase = cicloHoy.fase;
-  }
-  buildCiclo();
-  buildGatos();
-  setPreguntaDia();
 }
 
 function updateSnaps() {
@@ -3482,6 +3641,22 @@ function buildSemana() {
           <div class="gastos-subhead">¿En qué gasté?</div>
           ${lista}`;
       })()}
+    </div>
+
+    <div class="resumen-card">
+      <div class="res-title">Preguntas de la semana 📓</div>
+      <div class="preguntas-semana">
+        ${weekDates.map((f,i)=>{
+          const esHoy = f===todayStr;
+          const futura = f>todayStr;
+          return `
+          <div class="pregunta-dia-item ${esHoy?'hoy':''} ${futura?'futura':''}">
+            <div class="pregunta-dia-fecha">${DAYS[i]}${esHoy?' · hoy':''}</div>
+            <div class="pregunta-dia-texto">${preguntaParaFecha(f)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="preguntas-nota">Puedes volver a cualquiera cuando quieras. Ninguna vence.</div>
     </div>`;
 }
 
@@ -3558,6 +3733,7 @@ async function refrescoAutomatico() {
         merge('km', row.km!=null?String(row.km):null);
         merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
         merge('fase', row.ciclo_fase);
+        merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
         merge('sueno_horas', row.sueno_horas!=null?String(row.sueno_horas):null);
         merge('sueno_calidad', row.sueno_calidad!=null?row.sueno_calidad:null);
         if(local.bici===undefined) local.bici=!!row.bici;
