@@ -243,6 +243,212 @@ body.night .emotion-bar { background: var(--night-card); }
 body.night .emo-pill { border-color: rgba(255,255,255,0.1); }
 .emo-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
 
+/* ── GRANULARIDAD EMOCIONAL (Barrett) ── */
+/* Segunda capa: aparece sólo después de elegir una emoción.
+   Objetivo: precisión lingüística, no más trabajo. Un tap, opcional. */
+.granular-box {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  animation: granularIn .28s ease;
+}
+.granular-box.on { display: block; }
+body.night .granular-box { border-top-color: rgba(255,255,255,0.1); }
+
+@keyframes granularIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.granular-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.granular-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.granular-pill {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 11px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s;
+}
+body.night .granular-pill { border-color: rgba(255,255,255,0.12); color: var(--night-text); }
+.granular-pill:active { transform: scale(0.94); }
+.granular-pill.selected {
+  background: var(--lavender-soft);
+  border-color: var(--lavender);
+  color: var(--lavender);
+  font-weight: 500;
+}
+body.night .granular-pill.selected { color: var(--night-accent); border-color: var(--night-accent); }
+
+/* ── TARJETA DE DISPARADOR (post-registro de fumado) ── */
+/* Aparece justo después de registrar, cuando la sensación aún está fresca.
+   Se cierra sola al responder. No deja peso visual permanente. */
+.disparador-box {
+  display: none;
+  margin: 12px 0 4px;
+  padding: 14px;
+  background: var(--sky-soft);
+  border-radius: var(--r-sm);
+  animation: granularIn .3s ease;
+}
+.disparador-box.on { display: block; }
+body.night .disparador-box { background: rgba(123,174,200,0.10); }
+
+.disparador-pregunta {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.disparador-grupo-label {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 8px 0 5px;
+}
+
+.disparador-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.disparador-pill {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 7px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s;
+}
+body.night .disparador-pill {
+  background: var(--night-card);
+  border-color: rgba(255,255,255,0.1);
+  color: var(--night-text);
+}
+.disparador-pill:active { transform: scale(0.94); }
+.disparador-pill.selected { background: var(--sky); border-color: var(--sky); color: white; }
+
+.disparador-skip {
+  background: none; border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 8px 0 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── MICRO-INTERVENCIÓN (Suzuki) ── */
+/* Una línea. Nunca una pantalla. Sin contador, sin gamificación. */
+.micro-accion {
+  display: none;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--sage-soft);
+  border-left: 2px solid var(--sage);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  animation: granularIn .3s ease;
+}
+.micro-accion.on { display: block; }
+body.night .micro-accion { background: rgba(92,138,101,0.12); }
+
+.micro-accion-texto {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+body.night .micro-accion-texto { color: var(--night-text); }
+
+.micro-accion-por-que {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* ── HORA EDITABLE (fumado) ── */
+.hora-toggle {
+  background: none; border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  padding: 0 0 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.hora-row {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  background: var(--gold-soft);
+  border-radius: var(--r-sm);
+}
+.hora-row.on { display: flex; }
+
+.hora-row-label { font-size: 11.5px; color: var(--muted); }
+
+.hora-row input[type="time"] {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+}
+body.night .hora-row input[type="time"] {
+  background: var(--night-card);
+  border-color: rgba(255,255,255,0.12);
+  color: var(--night-text);
+}
+
+.hora-row-reset {
+  background: none;
+  border: none;
+  color: var(--terra);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+/* La hora en la lista se puede tocar para corregirla */
+.log-item-hora.editable {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--muted);
+}
+
+/* Etiqueta del disparador dentro de la lista */
+.log-item-trigger {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
 /* Quick log */
 .quick-log {
   background: var(--card);
@@ -1541,6 +1747,13 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="emo-pill" onclick="setEmocion(this,'🌿 En paz')">🌿 En paz</button>
       <button class="emo-pill" onclick="setEmocion(this,'🔥 Motivada')">🔥 Motivada</button>
     </div>
+
+    <!-- Granularidad emocional (Barrett): segunda capa, sólo aparece al elegir arriba -->
+    <div class="granular-box" id="granular-box">
+      <div class="granular-label" id="granular-label">Si tuvieras que afinarlo</div>
+      <div class="granular-pills" id="granular-pills"></div>
+    </div>
+
     <div class="emotion-energia-row">
       <span class="emotion-energia-label">Energía general</span>
       <div class="ql-stars" id="stars-energia">
@@ -1650,6 +1863,14 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
       <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')">🌬️ Pipa</button>
     </div>
+    <!-- Hora manual: para cuando se te pasó anotarlo en el momento -->
+    <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()">🕐 Fue a otra hora</button>
+    <div class="hora-row" id="hora-row">
+      <span class="hora-row-label">A las</span>
+      <input type="time" id="input-hora-fumado" onchange="onCambioHoraFumado()">
+      <button class="hora-row-reset" onclick="resetHoraFumado()">Ahora</button>
+    </div>
+
     <div class="ql-title" style="margin-bottom:6px;">¿Cuántos en esta vez?</div>
     <div class="log-quick-btns">
       <button class="log-qbtn" onclick="registrarPausa(1)">1</button>
@@ -1657,6 +1878,21 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="log-qbtn" onclick="registrarPausa(3)">3</button>
       <button class="log-qbtn" onclick="registrarPausaCustom()">Otro</button>
     </div>
+
+    <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
+    <div class="disparador-box" id="disparador-box">
+      <div class="disparador-pregunta">¿Qué había justo antes?</div>
+      <div class="disparador-grupo-label">Del cuerpo</div>
+      <div class="disparador-pills" id="disparador-cuerpo"></div>
+      <div class="disparador-grupo-label">De la mente</div>
+      <div class="disparador-pills" id="disparador-mente"></div>
+      <div class="micro-accion" id="micro-accion">
+        <div class="micro-accion-texto" id="micro-accion-texto"></div>
+        <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
+      </div>
+      <button class="disparador-skip" onclick="cerrarDisparador()">Ahora no</button>
+    </div>
+
     <div class="log-list" id="cigarrillos-list"></div>
   </div>
 
@@ -2197,11 +2433,80 @@ async function sbLog(tabla, method, body=null, params='') {
   if(method==='POST') headers['Prefer']='return=representation';
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}${params}`,{method, keepalive:true, headers, body:body?JSON.stringify(body):null});
   if(method==='DELETE') return res;
-  return await res.json();
+  // PATCH sin Prefer:return=representation responde 204 sin cuerpo.
+  // res.json() sobre un cuerpo vacío lanza error y marcaba fallo de sync
+  // aunque el cambio sí se hubiera guardado. (Afectaba también a gastos.)
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// VOCABULARIO EDITABLE — Laura ajusta estas palabras con el tiempo.
+// Todo el texto de granularidad y disparadores vive AQUÍ y sólo aquí.
+// Para cambiar una palabra, se edita esta lista. Nada más.
+// ═══════════════════════════════════════════════════════════════════
+
+// Granularidad emocional (Barrett): la emoción gruesa abre opciones finas.
+// El objetivo no es clasificar bien — es que el cerebro tenga a mano una
+// palabra más precisa la próxima vez que sienta lo mismo.
+const GRANULARIDAD = {
+  '🌟 Excelente': ['vital', 'con impulso', 'lúcida', 'expansiva', 'agradecida'],
+  '😊 Bien':      ['tranquila', 'conforme', 'liviana', 'acompañada', 'estable'],
+  '😐 Regular':   ['plana', 'desconectada', 'a medias', 'esperando algo', 'sin ganas'],
+  '😔 Difícil':   ['triste', 'vacía', 'desanimada', 'sola', 'frustrada'],
+  '🌊 Cargada':   ['saturada', 'sin espacio', 'irritable', 'con mucho encima', 'sobreexigida'],
+  '⚡ Ansiosa':   ['inquieta', 'acelerada', 'impaciente', 'anticipando algo', 'alerta'],
+  '🌿 En paz':    ['serena', 'presente', 'sin urgencia', 'asentada', 'liviana'],
+  '🔥 Motivada':  ['con foco', 'decidida', 'con impulso', 'clara', 'lista']
+};
+
+// Disparadores del fumado (Barrett + Suzuki).
+// grupo 'cuerpo'  = presupuesto corporal: no era emoción, era fisiología.
+// grupo 'mente'   = emoción o patrón aprendido.
+// accion/porQue   = micro-intervención de Suzuki. Sólo donde hay una real.
+const DISPARADORES = [
+  { id:'cansancio',    label:'😴 Cansancio',    grupo:'cuerpo',
+    accion:'10 minutos de caminata suben dopamina y noradrenalina más que la nicotina — y el efecto dura horas, no minutos.',
+    porQue:'Suzuki: el movimiento breve funciona como fármaco biológico inmediato.' },
+
+  { id:'hambre',       label:'🍽️ Hambre',       grupo:'cuerpo',
+    accion:'Tu cuerpo pedía glucosa, no nicotina. Come algo primero y vuelve a preguntarte.',
+    porQue:'Barrett: el cerebro confunde déficit metabólico con emoción todo el tiempo.' },
+
+  { id:'sed',          label:'💧 Sed',          grupo:'cuerpo',
+    accion:'Un vaso de agua antes de decidir. La deshidratación leve se siente igual que la inquietud.',
+    porQue:'Barrett: presupuesto corporal mal interpretado.' },
+
+  { id:'inquietud',    label:'🌀 Inquietud física', grupo:'cuerpo',
+    accion:'Respiración de doble inhalación: dos inhalaciones cortas por nariz, una exhalación larga. 60 segundos.',
+    porQue:'Suzuki: baja la activación de la amígdala más rápido que cualquier otra vía.' },
+
+  { id:'ansiedad',     label:'⚡ Ansiedad',     grupo:'mente',
+    accion:'Antes del próximo: nombra en voz baja qué exactamente te preocupa. Una frase.',
+    porQue:'Barrett: el etiquetado afectivo activa la prefrontal y reduce la reactividad.' },
+
+  { id:'aburrimiento', label:'😑 Aburrimiento', grupo:'mente',
+    accion:'El aburrimiento es falta de estímulo, no de nicotina. Dos minutos de moverte cambian el estado.',
+    porQue:'Suzuki: el cambio fisiológico reinicia el estado mental.' },
+
+  { id:'rabia',        label:'😤 Rabia',        grupo:'mente',
+    accion:'Exhalación larga, más larga que la inhalación. Cuatro veces.',
+    porQue:'La exhalación extendida activa el parasimpático directamente.' },
+
+  { id:'costumbre',    label:'🔁 Costumbre',    grupo:'mente',
+    accion:'No había sensación: había un gesto. Este es el más fácil de desarmar, porque no está tapando nada.',
+    porQue:'Ganglios basales: estímulo → rutina. El estímulo es el contexto, no el cuerpo.' },
+
+  { id:'social',       label:'👥 Social',       grupo:'mente' },
+
+  { id:'gusto',        label:'😌 Lo quería',    grupo:'mente' }
+];
 
 let cigarrillosHoy = [];
 let ultimoFumado = null; // {fecha, hora, created_at} del registro más reciente (cualquier día)
+let horaManualFumado = null;    // 'HH:MM' si eligió otra hora; null = ahora
+let ultimoRegistroId = null;    // id del último cigarrillo registrado, para adjuntarle el disparador
 let cronoTimer = null;
 let metodoFumadoActual = 'cigarro'; // 'cigarro' | 'pipa' — se aplica al siguiente registro rápido
 
@@ -2318,16 +2623,153 @@ function scrollToFumado() {
   },80);
 }
 
+// ── HORA MANUAL ──
+// Para cuando se le pasó anotarlo en el momento pero sí recuerda a qué hora fue.
+function toggleHoraManual() {
+  const row = document.getElementById('hora-row');
+  const btn = document.getElementById('hora-toggle');
+  if(!row) return;
+  const abriendo = !row.classList.contains('on');
+  row.classList.toggle('on', abriendo);
+  if(abriendo) {
+    const input = document.getElementById('input-hora-fumado');
+    if(input && !input.value) input.value = horaActualHHMM();
+    onCambioHoraFumado();
+  } else {
+    resetHoraFumado();
+  }
+  if(btn) btn.textContent = abriendo ? '🕐 Ocultar' : '🕐 Fue a otra hora';
+}
+
+function onCambioHoraFumado() {
+  const input = document.getElementById('input-hora-fumado');
+  horaManualFumado = (input && input.value) ? input.value : null;
+}
+
+function resetHoraFumado() {
+  horaManualFumado = null;
+  const input = document.getElementById('input-hora-fumado');
+  if(input) input.value = horaActualHHMM();
+}
+
+// Devuelve la hora a registrar: la manual si la eligió, si no la de ahora.
+function horaParaRegistrar() {
+  if(horaManualFumado) {
+    // El input time da 'HH:MM'; la columna guarda 'HH:MM:SS'
+    return horaManualFumado.length === 5 ? horaManualFumado + ':00' : horaManualFumado;
+  }
+  return horaActualHHMMSS();
+}
+
 async function registrarPausa(cantidad) {
   if(!cantidad || cantidad<1) return;
   setSyncing(true);
-  const nuevo = {fecha:fechaDeAhora(), hora:horaActualHHMMSS(), cantidad, metodo:metodoFumadoActual};
+  const nuevo = {fecha:fechaDeAhora(), hora:horaParaRegistrar(), cantidad, metodo:metodoFumadoActual};
   try {
     const r = await sbLog('cigarrillos','POST',nuevo);
     const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
     cigarrillosHoy.push(guardado);
     cigarrillosHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
-    ultimoFumado = guardado;          // reinicia el cronómetro desde ahora
+    // El cronómetro cuenta desde el más reciente, que puede no ser este
+    // si acaba de registrar algo con una hora anterior.
+    await cargarUltimoFumado();
+    buildCigarrillos();
+    iniciarCrono();
+    // La hora manual es de un solo uso: el siguiente registro vuelve a ser "ahora"
+    const usoHoraManual = !!horaManualFumado;
+    if(usoHoraManual) {
+      const row=document.getElementById('hora-row'), btn=document.getElementById('hora-toggle');
+      if(row) row.classList.remove('on');
+      if(btn) btn.textContent = '🕐 Fue a otra hora';
+      resetHoraFumado();
+    }
+    setSyncing(false); clearSyncError();
+    // Se pregunta el disparador cuando la sensación aún está fresca
+    ultimoRegistroId = guardado.id || null;
+    if(ultimoRegistroId) abrirDisparador();
+  } catch(e){ console.error(e); setSyncError(); }
+}
+
+// ── DISPARADOR (Barrett) ──
+// Se pregunta DESPUÉS de registrar, nunca antes: registrar tiene que seguir
+// costando un tap. Esto es opcional y se cierra solo al responder.
+function abrirDisparador() {
+  const box = document.getElementById('disparador-box');
+  if(!box) return;
+  const pinta = (grupo, contId) => {
+    const cont = document.getElementById(contId);
+    if(!cont) return;
+    cont.innerHTML = DISPARADORES.filter(d=>d.grupo===grupo).map(d=>`
+      <button class="disparador-pill" onclick="setDisparador('${d.id}')">${d.label}</button>
+    `).join('');
+  };
+  pinta('cuerpo','disparador-cuerpo');
+  pinta('mente','disparador-mente');
+  const micro = document.getElementById('micro-accion');
+  if(micro) micro.classList.remove('on');
+  box.classList.add('on');
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'center'}),120);
+}
+
+function cerrarDisparador() {
+  const box = document.getElementById('disparador-box');
+  if(box) box.classList.remove('on');
+  const micro = document.getElementById('micro-accion');
+  if(micro) micro.classList.remove('on');
+  ultimoRegistroId = null;
+}
+
+async function setDisparador(id) {
+  const d = DISPARADORES.find(x=>x.id===id);
+  if(!d || !ultimoRegistroId) return;
+
+  document.querySelectorAll('#disparador-cuerpo .disparador-pill, #disparador-mente .disparador-pill')
+    .forEach(b=>b.classList.toggle('selected', b.textContent.trim()===d.label));
+
+  // Micro-intervención (Suzuki): sólo si este disparador tiene una real
+  const micro = document.getElementById('micro-accion');
+  const txt = document.getElementById('micro-accion-texto');
+  const por = document.getElementById('micro-accion-por-que');
+  if(micro && d.accion) {
+    if(txt) txt.textContent = d.accion;
+    if(por) por.textContent = d.porQue || '';
+    micro.classList.add('on');
+  } else if(micro) {
+    micro.classList.remove('on');
+  }
+
+  setSyncing(true);
+  try {
+    await sbLog('cigarrillos','PATCH',{disparador:id},`?id=eq.${ultimoRegistroId}`);
+    const local = cigarrillosHoy.find(x=>x.id===ultimoRegistroId);
+    if(local) local.disparador = id;
+    buildCigarrillos();
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error(e); setSyncError(); }
+
+  // Si no hay nada que leer, se cierra sola. Si hay micro-acción, se queda.
+  if(!d.accion) setTimeout(cerrarDisparador, 500);
+}
+
+// Corregir la hora de un registro ya hecho, tocándola en la lista
+async function editarHoraCigarrillo(id) {
+  const reg = cigarrillosHoy.find(x=>x.id===id);
+  if(!reg) return;
+  const actual = String(reg.hora||'').slice(0,5);
+  const val = prompt('¿A qué hora fue? (formato 24h, ej. 14:30)', actual);
+  if(val===null) return;
+  const limpio = val.trim();
+  if(!/^\d{1,2}:\d{2}$/.test(limpio)) { alert('Escribe la hora así: 14:30'); return; }
+  const [hh,mm] = limpio.split(':').map(n=>parseInt(n,10));
+  if(hh>23 || mm>59) { alert('Esa hora no existe.'); return; }
+  const nuevaHora = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:00`;
+
+  setSyncing(true);
+  try {
+    await sbLog('cigarrillos','PATCH',{hora:nuevaHora},`?id=eq.${id}`);
+    reg.hora = nuevaHora;
+    cigarrillosHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+    await cargarUltimoFumado();
     buildCigarrillos();
     iniciarCrono();
     setSyncing(false); clearSyncError();
@@ -2368,14 +2810,18 @@ function buildCigarrillos() {
     if(!totalVeces) {
       list.innerHTML = '<div class="log-empty">Nada registrado hoy todavía</div>';
     } else {
-      list.innerHTML = cigarrillosHoy.map(x => `
+      list.innerHTML = cigarrillosHoy.map(x => {
+        const disp = DISPARADORES.find(d=>d.id===x.disparador);
+        return `
         <div class="log-item">
           <div class="log-item-info">
-            <span class="log-item-hora">${formatHora12(x.hora)||'—'}</span>
+            <span class="log-item-hora editable" onclick="editarHoraCigarrillo('${x.id}')">${formatHora12(x.hora)||'—'}</span>
             <span class="log-item-detalle">${x.metodo==='pipa'?'🌬️ pipa':'🚬 cigarrillo'} · ${x.cantidad}</span>
+            ${disp ? `<span class="log-item-trigger">${disp.label}</span>` : ''}
           </div>
           <button class="log-item-del" onclick="borrarCigarrillo('${x.id}')">✕</button>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
   }
   // El cuadrito de arriba ahora lo maneja el cronómetro (tickCrono)
@@ -2609,6 +3055,7 @@ async function guardarRegistroDiario(fecha) {
   };
 
   poner('emocion');
+  poner('emocion_fina');
   poner('energia', 'energia', v=>parseInt(v));
   poner('agua');
   poner('pasos', 'pasos', v=>parseInt(v));
@@ -2679,9 +3126,43 @@ async function cargarRegistroDesdeSupabase() {
 }
 
 function setEmocion(el, val) {
+  const cambioDeEmocion = todayData.emocion !== val;
   document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
   el.classList.add('selected');
   todayData.emocion=val;
+  // Si cambia la emoción gruesa, el matiz anterior ya no aplica
+  if(cambioDeEmocion) todayData.emocion_fina = '';
+  saveTodayLocal();
+  updateSnaps();
+  buildGranularidad(val);
+}
+
+// ── GRANULARIDAD EMOCIONAL (Barrett) ──
+// Pinta la segunda capa de palabras para la emoción elegida.
+// Es opcional por diseño: un tap más, nunca obligatorio.
+function buildGranularidad(emocion) {
+  const box = document.getElementById('granular-box');
+  const cont = document.getElementById('granular-pills');
+  if(!box || !cont) return;
+
+  const opciones = GRANULARIDAD[emocion];
+  if(!emocion || !opciones) { box.classList.remove('on'); cont.innerHTML=''; return; }
+
+  const actual = todayData.emocion_fina || '';
+  cont.innerHTML = opciones.map(p => `
+    <button class="granular-pill${p===actual?' selected':''}"
+            onclick="setEmocionFina('${p.replace(/'/g,"\\'")}')">${p}</button>
+  `).join('');
+  box.classList.add('on');
+}
+
+function setEmocionFina(palabra) {
+  // Volver a tocar la misma la deselecciona: puede que ninguna encaje
+  const yaEstaba = todayData.emocion_fina === palabra;
+  todayData.emocion_fina = yaEstaba ? '' : palabra;
+  document.querySelectorAll('#granular-pills .granular-pill').forEach(b=>{
+    b.classList.toggle('selected', !yaEstaba && b.textContent.trim()===palabra);
+  });
   saveTodayLocal();
   updateSnaps();
 }
@@ -3282,6 +3763,8 @@ function restoreTodayUI() {
     if(todayData.emocion) {
       document.querySelectorAll('.emo-pill').forEach(p=>{if(p.textContent===todayData.emocion)p.classList.add('selected');});
     }
+    // La capa de granularidad se repinta siempre: si no hay emoción, se cierra sola
+    buildGranularidad(todayData.emocion);
     if(todayData.pasos) document.getElementById('input-pasos').value=todayData.pasos;
     if(todayData.agua) {
       document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
@@ -3721,6 +4204,7 @@ async function refrescoAutomatico() {
           if(local[clave]===undefined || local[clave]===null || local[clave]==='') local[clave]=valor;
         };
         merge('emocion', row.emocion);
+        merge('emocion_fina', row.emocion_fina);
         merge('energia', row.energia);
         merge('agua', row.agua);
         merge('pasos', row.pasos!=null?String(row.pasos):null);
