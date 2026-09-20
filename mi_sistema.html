@@ -383,6 +383,61 @@ body.night .micro-accion-texto { color: var(--night-text); }
   font-style: italic;
 }
 
+/* ── FUMADO EN EL RESUMEN SEMANAL ── */
+.fumado-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.fumado-stat {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  background: var(--sky-soft);
+  border-radius: var(--r-sm);
+}
+body.night .fumado-stat { background: rgba(123,174,200,0.10); }
+.fumado-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--sky);
+}
+body.night .fumado-num { color: var(--night-accent); }
+.fumado-label {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.fumado-sep {
+  height: 1px;
+  background: var(--line);
+  margin: 16px 0 12px;
+}
+body.night .fumado-sep { background: rgba(255,255,255,0.1); }
+.fumado-lectura {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/* Botón para cerrar la micro-acción cuando ya se leyó */
+.micro-accion-listo {
+  background: none;
+  border: none;
+  color: var(--sage);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 10px 0 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* ── HORA EDITABLE (fumado) ── */
 .hora-toggle {
   background: none; border: none;
@@ -1881,16 +1936,19 @@ body.night .habito-count { color: var(--night-accent); }
 
     <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
     <div class="disparador-box" id="disparador-box">
-      <div class="disparador-pregunta">¿Qué había justo antes?</div>
-      <div class="disparador-grupo-label">Del cuerpo</div>
-      <div class="disparador-pills" id="disparador-cuerpo"></div>
-      <div class="disparador-grupo-label">De la mente</div>
-      <div class="disparador-pills" id="disparador-mente"></div>
+      <div id="disparador-preguntas">
+        <div class="disparador-pregunta">¿Qué había justo antes?</div>
+        <div class="disparador-grupo-label">Del cuerpo</div>
+        <div class="disparador-pills" id="disparador-cuerpo"></div>
+        <div class="disparador-grupo-label">De la mente</div>
+        <div class="disparador-pills" id="disparador-mente"></div>
+        <button class="disparador-skip" onclick="cerrarDisparador()">Ahora no</button>
+      </div>
       <div class="micro-accion" id="micro-accion">
         <div class="micro-accion-texto" id="micro-accion-texto"></div>
         <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
+        <button class="micro-accion-listo" onclick="cerrarDisparador()">Listo ✓</button>
       </div>
-      <button class="disparador-skip" onclick="cerrarDisparador()">Ahora no</button>
     </div>
 
     <div class="log-list" id="cigarrillos-list"></div>
@@ -2705,6 +2763,9 @@ function abrirDisparador() {
   };
   pinta('cuerpo','disparador-cuerpo');
   pinta('mente','disparador-mente');
+  // Se reabre siempre en limpio: preguntas visibles, micro-acción oculta
+  const preguntas = document.getElementById('disparador-preguntas');
+  if(preguntas) preguntas.style.display = '';
   const micro = document.getElementById('micro-accion');
   if(micro) micro.classList.remove('on');
   box.classList.add('on');
@@ -2716,6 +2777,8 @@ function cerrarDisparador() {
   if(box) box.classList.remove('on');
   const micro = document.getElementById('micro-accion');
   if(micro) micro.classList.remove('on');
+  const preguntas = document.getElementById('disparador-preguntas');
+  if(preguntas) preguntas.style.display = '';
   ultimoRegistroId = null;
 }
 
@@ -2723,32 +2786,34 @@ async function setDisparador(id) {
   const d = DISPARADORES.find(x=>x.id===id);
   if(!d || !ultimoRegistroId) return;
 
-  document.querySelectorAll('#disparador-cuerpo .disparador-pill, #disparador-mente .disparador-pill')
-    .forEach(b=>b.classList.toggle('selected', b.textContent.trim()===d.label));
+  const registroId = ultimoRegistroId; // se captura: el cierre lo pone en null
 
-  // Micro-intervención (Suzuki): sólo si este disparador tiene una real
-  const micro = document.getElementById('micro-accion');
-  const txt = document.getElementById('micro-accion-texto');
-  const por = document.getElementById('micro-accion-por-que');
-  if(micro && d.accion) {
-    if(txt) txt.textContent = d.accion;
-    if(por) por.textContent = d.porQue || '';
-    micro.classList.add('on');
-  } else if(micro) {
-    micro.classList.remove('on');
-  }
+  // Ya respondió: las preguntas se van. El registro terminó acá.
+  const preguntas = document.getElementById('disparador-preguntas');
+  if(preguntas) preguntas.style.display = 'none';
 
   setSyncing(true);
   try {
-    await sbLog('cigarrillos','PATCH',{disparador:id},`?id=eq.${ultimoRegistroId}`);
-    const local = cigarrillosHoy.find(x=>x.id===ultimoRegistroId);
+    await sbLog('cigarrillos','PATCH',{disparador:id},`?id=eq.${registroId}`);
+    const local = cigarrillosHoy.find(x=>x.id===registroId);
     if(local) local.disparador = id;
     buildCigarrillos();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
 
-  // Si no hay nada que leer, se cierra sola. Si hay micro-acción, se queda.
-  if(!d.accion) setTimeout(cerrarDisparador, 500);
+  // Si hay micro-intervención (Suzuki) se queda visible hasta que la cierre;
+  // si no hay nada que leer, se cierra todo solo.
+  const micro = document.getElementById('micro-accion');
+  if(micro && d.accion) {
+    const txt = document.getElementById('micro-accion-texto');
+    const por = document.getElementById('micro-accion-por-que');
+    if(txt) txt.textContent = d.accion;
+    if(por) por.textContent = d.porQue || '';
+    micro.classList.add('on');
+    ultimoRegistroId = null; // el registro ya está completo
+  } else {
+    cerrarDisparador();
+  }
 }
 
 // Corregir la hora de un registro ya hecho, tocándola en la lista
@@ -2847,6 +2912,7 @@ async function cargarUltimoFumado() {
 
 let gastosHoy = [];
 let gastosSemana = []; // para el resumen de la semana (fecha desc, hora desc)
+let cigarrillosSemana = []; // para las estadísticas de fumado en Semana
 
 function formatMonto(n) {
   return Number(n).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -2965,6 +3031,13 @@ async function cargarGastosHoy() {
     gastosHoy = Array.isArray(data) ? data : [];
     buildGastos();
   } catch(e){ console.error('Error cargando gastos:', e); }
+}
+
+async function cargarCigarrillosSemana() {
+  try {
+    const data = await sbLog('cigarrillos','GET',null,`?fecha=in.(${weekDates.join(',')})&order=fecha.desc,hora.desc`);
+    cigarrillosSemana = Array.isArray(data) ? data : [];
+  } catch(e){ console.error('Error cargando fumado de la semana:', e); }
 }
 
 async function cargarGastosSemana() {
@@ -4074,6 +4147,89 @@ function buildSemana() {
         </div>
       </div>
     </div>
+    <div class="resumen-card fumado-card">
+      <div class="res-title">Fumado de la semana 🌬️</div>
+      ${(() => {
+        const totalSemana = cigarrillosSemana.reduce((s,x)=>s+Number(x.cantidad||0),0);
+        const porDia = {}; weekDates.forEach(f=>porDia[f]=0);
+        cigarrillosSemana.forEach(x=>{ if(porDia[x.fecha]!==undefined) porDia[x.fecha]+=Number(x.cantidad||0); });
+        const maxDia = Math.max(1, ...Object.values(porDia));
+        const diasConRegistro = Object.values(porDia).filter(v=>v>0).length;
+        const diasLimpios = weekDates.filter((f,i)=>porDia[f]===0 && i<=todayIdx).length;
+        const promedio = diasConRegistro ? (totalSemana/diasConRegistro).toFixed(1) : '0';
+
+        const barras = weekDates.map((f,i)=>`
+          <div class="bar-row fumado-bar-row">
+            <div class="bar-label"><span>${DAYS[i].slice(0,3)}${f===todayStr?' · hoy':''}</span><span class="bar-pct fumado-bar-pct">${porDia[f]||'—'}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(porDia[f]/maxDia*100)}%;background:var(--sky);"></div></div>
+          </div>`).join('');
+
+        // Qué había detrás: lo que realmente importa mirar (Barrett)
+        const conDisparador = cigarrillosSemana.filter(x=>x.disparador);
+        let bloqueDisparadores = '';
+        if(conDisparador.length >= 3) {
+          const conteo = {};
+          conDisparador.forEach(x=>{ conteo[x.disparador] = (conteo[x.disparador]||0)+1; });
+          const orden = Object.entries(conteo).sort((a,b)=>b[1]-a[1]);
+          const totalD = conDisparador.length;
+          const cuerpo = conDisparador.filter(x=>{
+            const d = DISPARADORES.find(y=>y.id===x.disparador);
+            return d && d.grupo==='cuerpo';
+          }).length;
+          const pctCuerpo = Math.round(cuerpo/totalD*100);
+
+          const filas = orden.map(([id,n])=>{
+            const d = DISPARADORES.find(y=>y.id===id);
+            if(!d) return '';
+            const pct = Math.round(n/totalD*100);
+            const color = d.grupo==='cuerpo' ? 'var(--sage)' : 'var(--lavender)';
+            return `
+              <div class="bar-row">
+                <div class="bar-label"><span>${d.label}</span><span class="bar-pct">${n}</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+              </div>`;
+          }).join('');
+
+          // Sólo se dice algo cuando el dato lo sostiene
+          let lectura = '';
+          if(pctCuerpo >= 60) {
+            lectura = `${pctCuerpo}% de las veces el cuerpo pedía otra cosa — sueño, comida, movimiento. Eso no se resuelve fumando.`;
+          } else if(pctCuerpo <= 25) {
+            lectura = `Casi siempre hubo una emoción detrás, no una necesidad física. Ahí es donde nombrar con precisión hace más diferencia.`;
+          } else {
+            lectura = `Está repartido entre cuerpo y emoción. Con más registros se va a ver cuál manda.`;
+          }
+
+          bloqueDisparadores = `
+            <div class="fumado-sep"></div>
+            <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;font-weight:600;">Qué había detrás</div>
+            ${filas}
+            <div class="fumado-lectura">${lectura}</div>`;
+        } else if(conDisparador.length > 0) {
+          bloqueDisparadores = `
+            <div class="fumado-sep"></div>
+            <div class="fumado-lectura">Llevas ${conDisparador.length} registro${conDisparador.length===1?'':'s'} con disparador. Desde 3 se empieza a ver el patrón.</div>`;
+        }
+
+        return `
+          <div class="fumado-stats">
+            <div class="fumado-stat">
+              <div class="fumado-num">${totalSemana}</div>
+              <div class="fumado-label">en la semana</div>
+            </div>
+            <div class="fumado-stat">
+              <div class="fumado-num">${promedio}</div>
+              <div class="fumado-label">por día activo</div>
+            </div>
+            <div class="fumado-stat">
+              <div class="fumado-num" style="color:var(--sage);">${diasLimpios}</div>
+              <div class="fumado-label">días sin nada</div>
+            </div>
+          </div>
+          ${barras}
+          ${bloqueDisparadores}`;
+      })()}
+    </div>
     <div class="resumen-card gastos-card">
       <div class="res-title">Gastos de la semana 💰</div>
       ${(() => {
@@ -4268,6 +4424,7 @@ async function refrescoAutomatico() {
     await cargarUltimoFumado();
     await cargarGastosHoy();
     await cargarGastosSemana();
+    await cargarCigarrillosSemana();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
   } catch(e){
     console.error('Error en refresco automático:', e);
@@ -4343,6 +4500,7 @@ async function init() {
   await cargarPeriodos();
   await cargarGastosHoy();
   await cargarGastosSemana();
+  await cargarCigarrillosSemana();
   setSyncing(false);
   iniciarCrono();
   restoreTodayUI();
