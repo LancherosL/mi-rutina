@@ -1299,7 +1299,7 @@ const PREC_VENTANA = 20;
 let milestones = G.r('df4_milestones',[]);
 Object.keys(CATS).forEach(c=>{if(!(c in E.cats))E.cats[c]=0;});
 const hoy=()=>new Date().toISOString().slice(0,10);
-if(diario.fecha!==hoy()){diario={fecha:hoy(),n:0};actualizarRacha();}
+if(diario.fecha!==hoy()){actualizarRacha(diario.n);diario={fecha:hoy(),n:0};}
 
 const feed=document.getElementById('feed');
 const toast=document.getElementById('toast');
@@ -1314,10 +1314,10 @@ function pctFr(){const f=faseActual();return Math.round(f.pctMin+(f.pctMax-f.pct
 function modoIdioma(){const p=pctFr();return p<38?'chispa':p<66?'doble':'inmersion';}
 
 /* ─── racha ─── */
-function actualizarRacha(){
+function actualizarRacha(nAyer){
   const ayer=new Date();ayer.setDate(ayer.getDate()-1);const ayerStr=ayer.toISOString().slice(0,10);
-  if(racha.fecha===ayerStr&&diario.n>0){racha.dias++;racha.fecha=hoy();}
-  else if(racha.fecha!==hoy()){racha={fecha:hoy(),dias:diario.n>0?1:0};}
+  if(racha.fecha===ayerStr&&nAyer>0){racha.dias++;racha.fecha=hoy();}
+  else if(racha.fecha!==hoy()){racha={fecha:hoy(),dias:nAyer>0?1:0};}
   G.w('df4_racha',racha);
 }
 
@@ -1881,7 +1881,7 @@ if('speechSynthesis' in window){
   setTimeout(elegirVoz,800);
 }
 function decir(txt,btn){
-  if(!txt||!('speechSynthesis' in window))return;
+  if(!txt||!('speechSynthesis' in window)){ if(btn)btn.classList.remove('parle'); return; }
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(txt.replace(/<[^>]+>/g,''));
   u.lang='fr-FR';
@@ -1889,7 +1889,14 @@ function decir(txt,btn){
   u.pitch=1.15; /* tono femenino suave */
   u.volume=1;
   if(voz)u.voice=voz;
-  if(btn){btn.classList.add('parle');u.onend=u.onerror=()=>btn.classList.remove('parle');}
+  if(btn){
+    btn.classList.add('parle');
+    const limpiar=()=>btn.classList.remove('parle');
+    u.onend=u.onerror=limpiar;
+    /* si el navegador bloquea el habla (autoplay sin gesto) no siempre dispara onend/onerror:
+       sin este respaldo el botón queda pulsando sin sonar y sin decir "toca para escuchar" */
+    setTimeout(limpiar,4000);
+  }
   speechSynthesis.speak(u);
 }
 
@@ -1938,7 +1945,7 @@ function fusionar(n){
   const ne=n.estado||{};
   E.fase=Math.max(E.fase,ne.fase||1);
   E.asim=Math.max(E.asim,ne.asim||0);
-  if((ne.fase||1)===E.fase)E.intens=Math.max(E.intens,ne.intens||0);
+  E.intens=Math.max(E.intens,ne.intens||0);
   Object.keys(CATS).forEach(c=>{E.cats[c]=Math.max(E.cats[c]||0,(ne.cats||{})[c]||0);});
   const u=(a,b)=>Array.from(new Set([].concat(a||[],b||[])));
   vistas=u(vistas,n.vistas);guard=u(guard,n.guardadas);fall=u(fall,n.falladas);
