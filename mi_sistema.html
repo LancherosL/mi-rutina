@@ -230,7 +230,7 @@ body.night .emotion-bar { background: var(--night-card); }
   color: var(--muted);
   font-weight: 500;
 }
-.emo-pill {
+.emo-pill, .mom-pill {
   padding: 6px 12px;
   border-radius: 20px;
   border: 1.5px solid var(--line);
@@ -240,8 +240,8 @@ body.night .emotion-bar { background: var(--night-card); }
   transition: all .18s;
   font-family: 'DM Sans', sans-serif;
 }
-body.night .emo-pill { border-color: rgba(255,255,255,0.1); }
-.emo-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
+body.night .emo-pill, body.night .mom-pill { border-color: rgba(255,255,255,0.1); }
+.emo-pill.selected, .mom-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
 
 /* ── GRANULARIDAD EMOCIONAL (Barrett) ── */
 /* Segunda capa: aparece sólo después de elegir una emoción.
@@ -2005,6 +2005,9 @@ body.night .habito-count { color: var(--night-accent); }
   </div>
   <div id="habits-m"></div>
 
+  <!-- Emoción por momento (fase 2 Barrett): se construye desde MOMENTOS + GRANULARIDAD -->
+  <div class="emotion-bar" id="momento-manana"></div>
+
   <!-- Lectura: la mañana es mejor momento para retener información nueva.
        A partir de 15 minutos se marca sola como hábito cumplido. -->
   <div class="quick-log">
@@ -2046,6 +2049,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="prog-track"><div class="prog-fill night-fill" id="prog-bar-n" style="width:0%"></div></div>
   </div>
   <div id="habits-n"></div>
+  <div class="emotion-bar" id="momento-noche"></div>
   <div class="pregunta-inline" id="pregunta-dia">—</div>
 
   <div class="section-label">Cierre del día</div>
@@ -2488,7 +2492,7 @@ function horaActualHHMMSS() {
 
 async function sbLog(tabla, method, body=null, params='') {
   const headers = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};
-  if(method==='POST') headers['Prefer']='return=representation';
+  if(method==='POST') headers['Prefer']='return=representation'+(params.includes('on_conflict')?',resolution=merge-duplicates':'');
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}${params}`,{method, keepalive:true, headers, body:body?JSON.stringify(body):null});
   if(method==='DELETE') return res;
   // PATCH sin Prefer:return=representation responde 204 sin cuerpo.
@@ -2517,6 +2521,13 @@ const GRANULARIDAD = {
   '⚡ Ansiosa':   ['inquieta', 'acelerada', 'impaciente', 'anticipando algo', 'alerta'],
   '🌿 En paz':    ['serena', 'presente', 'sin urgencia', 'asentada', 'liviana'],
   '🔥 Motivada':  ['con foco', 'decidida', 'con impulso', 'clara', 'lista']
+};
+
+// Emoción por momento: la pregunta que se hace en cada panel. Las palabras salen
+// de GRANULARIDAD, así que no hay un segundo vocabulario que mantener.
+const MOMENTOS = {
+  manana: { titulo: '¿Cómo amaneciste?' },
+  noche:  { titulo: '¿Cómo cierras el día?' }
 };
 
 // Disparadores del fumado (Barrett + Suzuki).
@@ -3240,6 +3251,111 @@ function setEmocionFina(palabra) {
   updateSnaps();
 }
 
+// ── EMOCIÓN POR MOMENTO (fase 2) ──
+// Una etiqueta diaria promedia mañana y noche y borra justo lo que se quiere ver.
+// Cada momento se guarda aparte en `emociones_momento`; ninguno es obligatorio.
+// `registro_diario.emocion` sigue existiendo: el primer momento del día la llena.
+let momentosCache = {};     // fecha -> { manana:{emocion,emocion_fina,hora}, noche:{...} }
+let momentosGuardando = 0;  // guardados en vuelo: mientras haya, la carga no pisa lo local
+
+function construirMomentos() {
+  Object.keys(MOMENTOS).forEach(m => {
+    const cont = document.getElementById('momento-'+m);
+    if(!cont) return;
+    cont.innerHTML = `
+      <div class="emotion-title">${MOMENTOS[m].titulo}</div>
+      <div class="emotion-pills">${Object.keys(GRANULARIDAD).map(e =>
+        `<button class="mom-pill" data-e="${e}" onclick="setMomentoEmocion('${m}',this.dataset.e)">${e}</button>`).join('')}</div>
+      <div class="granular-box" id="granular-${m}">
+        <div class="granular-label">Si tuvieras que afinarlo</div>
+        <div class="granular-pills" id="granular-pills-${m}"></div>
+      </div>`;
+  });
+}
+
+function pintarMomentos() {
+  const dia = momentosCache[fechaActiva] || {};
+  Object.keys(MOMENTOS).forEach(m => {
+    const d = dia[m] || {};
+    document.querySelectorAll(`#momento-${m} .mom-pill`).forEach(p => p.classList.toggle('selected', p.dataset.e === d.emocion));
+    const box = document.getElementById('granular-'+m);
+    const cont = document.getElementById('granular-pills-'+m);
+    if(!box || !cont) return;
+    const opciones = GRANULARIDAD[d.emocion];
+    if(!opciones) { box.classList.remove('on'); cont.innerHTML=''; return; }
+    cont.innerHTML = opciones.map(p =>
+      `<button class="granular-pill${p===d.emocion_fina?' selected':''}" data-p="${p}" onclick="setMomentoFina('${m}',this.dataset.p)">${p}</button>`).join('');
+    box.classList.add('on');
+  });
+}
+
+function setMomentoEmocion(m, emocion) {
+  const fecha = fechaActiva;
+  const dia = momentosCache[fecha] || (momentosCache[fecha] = {});
+  const d = dia[m] || (dia[m] = {});
+  if(d.emocion === emocion) return;
+  d.emocion = emocion;
+  d.emocion_fina = '';   // si cambia la emoción gruesa, el matiz anterior ya no aplica
+  d.hora = horaActualHHMM();
+
+  // El primer momento del día llena la emoción diaria: no se rompe el historial
+  const diario = loadRegistroFecha(fecha);
+  if(!diario.emocion) {
+    diario.emocion = emocion;
+    saveTodayLocal();
+    updateSnaps();
+    document.querySelectorAll('.emo-pill').forEach(p => p.classList.toggle('selected', p.textContent === emocion));
+    buildGranularidad(emocion);
+  }
+  pintarMomentos();
+  guardarMomento(fecha, m);
+}
+
+function setMomentoFina(m, palabra) {
+  const d = (momentosCache[fechaActiva] || {})[m];
+  if(!d || !d.emocion) return;
+  d.emocion_fina = d.emocion_fina === palabra ? '' : palabra;   // tocar de nuevo la quita
+  pintarMomentos();
+  guardarMomento(fechaActiva, m);
+}
+
+async function guardarMomento(fecha, m) {
+  const d = (momentosCache[fecha] || {})[m];
+  if(!d) return;
+  setSyncing(true);
+  momentosGuardando++;
+  try {
+    await sbLog('emociones_momento','POST',
+      {fecha, momento:m, emocion:d.emocion||null, emocion_fina:d.emocion_fina||null, hora:d.hora||null},
+      '?on_conflict=fecha,momento');
+    setSyncing(false);
+    clearSyncError();
+  } catch(e){
+    console.error('Error guardando momento:', e);
+    setSyncError();
+  } finally {
+    momentosGuardando--;
+  }
+}
+
+// Devuelve true si algo cambió. Lo local que el servidor aún no tiene se conserva.
+async function cargarMomentos(fecha) {
+  try {
+    const filas = await sbLog('emociones_momento','GET',null,`?fecha=eq.${fecha}`);
+    if(!Array.isArray(filas) || momentosGuardando > 0) return false;
+    const antes = JSON.stringify(momentosCache[fecha] || {});
+    const dia = {};
+    filas.forEach(r => { dia[r.momento] = {emocion:r.emocion||'', emocion_fina:r.emocion_fina||'', hora:r.hora||''}; });
+    const local = momentosCache[fecha] || {};
+    Object.keys(local).forEach(k => { if(!dia[k]) dia[k] = local[k]; });
+    momentosCache[fecha] = dia;
+    return JSON.stringify(dia) !== antes;
+  } catch(e){
+    console.error('Error cargando momentos:', e);
+    return false;
+  }
+}
+
 let starState={agua:0,energia:0,sueno:0,movimiento:0};
 
 function setStars(key,val) {
@@ -3838,6 +3954,7 @@ function restoreTodayUI() {
     }
     // La capa de granularidad se repinta siempre: si no hay emoción, se cierra sola
     buildGranularidad(todayData.emocion);
+    pintarMomentos();
     if(todayData.pasos) document.getElementById('input-pasos').value=todayData.pasos;
     if(todayData.agua) {
       document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
@@ -3952,6 +4069,7 @@ function selectDay(panel,idx) {
 function cambiarFechaActiva(fecha) {
   fechaActiva = fecha;
   restoreTodayUI();
+  cargarMomentos(fecha).then(cambio => { if(cambio && fechaActiva===fecha) pintarMomentos(); });
 }
 
 function buildHabits(panel) {
@@ -4405,6 +4523,7 @@ async function refrescoAutomatico() {
 
     await cargarUltimaVezGatos();
     await cargarUltimaVezHabitos();
+    if(await cargarMomentos(fechaActiva)) pintarMomentos();
 
     const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
 
@@ -4484,6 +4603,7 @@ async function init() {
   buildStrip('m'); buildStrip('n');
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
+  construirMomentos();
   restoreTodayUI();
   buildAncla();
   updateSnaps();
@@ -4501,6 +4621,7 @@ async function init() {
   await cargarGastosHoy();
   await cargarGastosSemana();
   await cargarCigarrillosSemana();
+  await cargarMomentos(fechaActiva);
   setSyncing(false);
   iniciarCrono();
   restoreTodayUI();
