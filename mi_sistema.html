@@ -909,6 +909,35 @@ body.night .ciclo-btn { border-color: var(--night-accent); color: var(--night-ac
   text-align: center;
   margin-top: 8px;
 }
+.ciclo-fechas-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.ciclo-fecha-input {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 10px;
+  padding: 2px 4px;
+}
+body.night .ciclo-fecha-input { border-color: rgba(255,255,255,0.15); }
+.ciclo-btn-fin {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 /* Algo de más (extras de comida) */
 .extras-block {
@@ -1991,6 +2020,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="ciclo-info" id="ciclo-info"></div>
 
     <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
+    <button class="ciclo-btn-fin" id="ciclo-btn-fin" style="display:none;" onclick="terminarPeriodo()">Hoy terminó</button>
     <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
   </div>
 
@@ -3812,8 +3842,8 @@ function calcularLongitudCiclo() {
   if(periodos.length < 2) return 28;
   const difs = [];
   for(let i=0; i<Math.min(periodos.length-1, 6); i++) {
-    const a = new Date(periodos[i]+'T00:00:00');
-    const b = new Date(periodos[i+1]+'T00:00:00');
+    const a = new Date(periodos[i].fecha_inicio+'T00:00:00');
+    const b = new Date(periodos[i+1].fecha_inicio+'T00:00:00');
     const dias = Math.round((a-b)/(1000*60*60*24));
     if(dias >= 21 && dias <= 40) difs.push(dias); // descarta registros atípicos
   }
@@ -3821,26 +3851,42 @@ function calcularLongitudCiclo() {
   return Math.round(difs.reduce((s,x)=>s+x,0)/difs.length);
 }
 
+// Cuánto duró de verdad el sangrado en los periodos ya cerrados (fecha_fin conocida).
+// Sirve de estimado para el periodo actual mientras sigue abierto.
+function duracionMenstrualPromedio() {
+  const cerrados = periodos.filter(p=>p.fecha_fin).map(p=>{
+    const ini=new Date(p.fecha_inicio+'T00:00:00'), fin=new Date(p.fecha_fin+'T00:00:00');
+    return Math.round((fin-ini)/(1000*60*60*24)) + 1;
+  });
+  if(!cerrados.length) return 5;
+  return Math.round(cerrados.reduce((s,x)=>s+x,0)/cerrados.length);
+}
+
 function calcularCiclo(paraFecha) {
   if(!periodos.length) return null;
   const fechaRef = paraFecha || todayStr;
   // Se busca el periodo más reciente que empezó en o antes de la fecha consultada,
   // para que al navegar a días pasados no se muestre el ciclo de hoy.
-  const inicioStr = periodos.find(p => p <= fechaRef);
-  if(!inicioStr) return null;
-  const inicio = new Date(inicioStr+'T00:00:00');
+  const p = periodos.find(p => p.fecha_inicio <= fechaRef);
+  if(!p) return null;
+  const inicio = new Date(p.fecha_inicio+'T00:00:00');
   const ref = new Date(fechaRef+'T00:00:00');
   const dia = Math.round((ref-inicio)/(1000*60*60*24)) + 1;
   if(dia < 1) return null;
   const L = calcularLongitudCiclo();
   // La fase lútea es la constante (~14 días); la folicular es la que varía
   const diaOvulacion = L - 14;
+  // Si ya se registró cuándo terminó el sangrado, la fase menstrual dura eso.
+  // Si sigue abierto, se usa el promedio de los que sí se cerraron.
+  const duracionMenstrual = p.fecha_fin
+    ? Math.round((new Date(p.fecha_fin+'T00:00:00')-inicio)/(1000*60*60*24)) + 1
+    : duracionMenstrualPromedio();
   let fase;
-  if(dia <= 5) fase = 'Menstrual';
+  if(dia <= duracionMenstrual) fase = 'Menstrual';
   else if(dia < diaOvulacion - 1) fase = 'Folicular';
   else if(dia <= diaOvulacion + 1) fase = 'Ovulatoria';
   else fase = 'Lútea';
-  return {dia, fase, longitud:L, diaOvulacion, inicio:inicioStr, faltan: Math.max(0, L - dia + 1)};
+  return {dia, fase, longitud:L, diaOvulacion, duracionMenstrual, inicio:p.fecha_inicio, fin:p.fecha_fin, id:p.id, esElMasReciente: p===periodos[0], faltan: Math.max(0, L - dia + 1)};
 }
 
 function buildCiclo() {
@@ -3851,6 +3897,7 @@ function buildCiclo() {
   const barraEl = document.getElementById('ciclo-barra');
   const infoEl = document.getElementById('ciclo-info');
   const ultimoEl = document.getElementById('ciclo-ultimo');
+  const btnFin = document.getElementById('ciclo-btn-fin');
   if(!numEl) return;
 
   if(!c) {
@@ -3860,6 +3907,7 @@ function buildCiclo() {
     barraEl.innerHTML = '';
     infoEl.innerHTML = '';
     ultimoEl.textContent = '';
+    if(btnFin) btnFin.style.display = 'none';
     return;
   }
 
@@ -3871,8 +3919,8 @@ function buildCiclo() {
 
   // Barra con las 4 fases proporcionales y un marcador en el día de hoy
   const tramos = [
-    {n:'Menstrual', ini:1, fin:5},
-    {n:'Folicular', ini:6, fin:c.diaOvulacion-2},
+    {n:'Menstrual', ini:1, fin:c.duracionMenstrual},
+    {n:'Folicular', ini:c.duracionMenstrual+1, fin:c.diaOvulacion-2},
     {n:'Ovulatoria', ini:c.diaOvulacion-1, fin:c.diaOvulacion+1},
     {n:'Lútea', ini:c.diaOvulacion+2, fin:c.longitud}
   ];
@@ -3907,28 +3955,62 @@ function buildCiclo() {
     </div>
     <div class="ciclo-disclaimer">Información general de fisiología del ciclo. No reemplaza a tu médica.</div>`;
 
-  ultimoEl.textContent = `Último periodo: ${formatFechaCorta(c.inicio)} · ciclo promedio ${c.longitud} días`;
+  // Fechas de inicio/fin editables directamente: para corregir un periodo mal
+  // registrado sin depender de la base de datos a mano.
+  ultimoEl.innerHTML = `
+    <div class="ciclo-fechas-row">
+      <input type="date" class="ciclo-fecha-input" value="${c.inicio}" max="${todayStr}" onchange="editarPeriodo('${c.id}','fecha_inicio',this.value)">
+      <span>–</span>
+      <input type="date" class="ciclo-fecha-input" value="${c.fin||''}" min="${c.inicio}" max="${todayStr}" onchange="editarPeriodo('${c.id}','fecha_fin',this.value)">
+    </div>
+    <div>ciclo promedio ${c.longitud} días</div>`;
+
+  if(btnFin) btnFin.style.display = (!c.fin && c.esElMasReciente) ? 'block' : 'none';
 }
 
 async function cargarPeriodos() {
   try {
-    const data = await sbLog('periodos','GET',null,'?order=fecha_inicio.desc&limit=12');
-    periodos = Array.isArray(data) ? data.map(x=>x.fecha_inicio) : [];
+    const data = await sbLog('periodos','GET',null,'?select=id,fecha_inicio,fecha_fin&order=fecha_inicio.desc&limit=12');
+    periodos = Array.isArray(data) ? data : [];
     buildCiclo();
   } catch(e){ console.error('Error cargando periodos:', e); }
 }
 
 async function registrarPeriodo() {
   const hoy = fechaDeAhora();
-  if(periodos[0] === hoy) { alert('Ya registraste que tu periodo empezó hoy.'); return; }
+  if(periodos[0] && periodos[0].fecha_inicio === hoy) { alert('Ya registraste que tu periodo empezó hoy.'); return; }
   if(!confirm('¿Hoy empezó tu periodo? Esto reinicia el conteo del ciclo.')) return;
   setSyncing(true);
   try {
-    await sbLog('periodos','POST',{fecha_inicio: hoy});
-    periodos.unshift(hoy);
+    const res = await sbLog('periodos','POST',{fecha_inicio: hoy});
+    periodos.unshift((Array.isArray(res)?res[0]:res) || {fecha_inicio:hoy, fecha_fin:null});
     buildCiclo();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
+}
+
+async function terminarPeriodo() {
+  const p = periodos[0];
+  if(!p) return;
+  const hoy = fechaDeAhora();
+  setSyncing(true);
+  try {
+    await sbLog('periodos','PATCH',{fecha_fin:hoy},`?id=eq.${p.id}`);
+    p.fecha_fin = hoy;
+    buildCiclo();
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error(e); setSyncError(); }
+}
+
+// Corrige a mano el inicio o el fin de un periodo ya guardado (por id).
+async function editarPeriodo(id, campo, valor) {
+  try {
+    await sbLog('periodos','PATCH',{[campo]: valor||null},`?id=eq.${id}`);
+    const p = periodos.find(x=>x.id===id);
+    if(p) p[campo] = valor||null;
+    buildCiclo();
+    clearSyncError();
+  } catch(e){ console.error('Error editando periodo:',e); setSyncError(); }
 }
 
 function restoreTodayUI() {
