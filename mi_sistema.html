@@ -2566,7 +2566,7 @@ async function sbLog(tabla, method, body=null, params='') {
 // RECUPERACIÓN — sección temporal (accidente de tránsito, 25 sep 2026, pie roto).
 // Cuando termine la recuperación: cambiar esto a false. La tarjeta desaparece
 // sola, sin borrar la tabla `recuperacion` ni los datos ya guardados.
-const RECUPERACION_ACTIVA = true;
+const RECUPERACION_ACTIVA = false;
 const RECUPERACION_VOCAB = {
   dolor:     ['leve', 'molesta', 'duele mucho', 'punzante'],
   movilidad: ['igual', 'peor', 'un poco mejor'],
