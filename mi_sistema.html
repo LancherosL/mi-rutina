@@ -230,7 +230,7 @@ body.night .emotion-bar { background: var(--night-card); }
   color: var(--muted);
   font-weight: 500;
 }
-.emo-pill, .mom-pill {
+.emo-pill, .mom-pill, .recup-pill {
   padding: 6px 12px;
   border-radius: 20px;
   border: 1.5px solid var(--line);
@@ -240,8 +240,8 @@ body.night .emotion-bar { background: var(--night-card); }
   transition: all .18s;
   font-family: 'DM Sans', sans-serif;
 }
-body.night .emo-pill, body.night .mom-pill { border-color: rgba(255,255,255,0.1); }
-.emo-pill.selected, .mom-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
+body.night .emo-pill, body.night .mom-pill, body.night .recup-pill { border-color: rgba(255,255,255,0.1); }
+.emo-pill.selected, .mom-pill.selected, .recup-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
 
 /* ── GRANULARIDAD EMOCIONAL (Barrett) ── */
 /* Segunda capa: aparece sólo después de elegir una emoción.
@@ -1427,6 +1427,10 @@ body.night .habit-card.done { background: linear-gradient(135deg, rgba(196,154,6
 }
 .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 
+/* ── RECUPERACIÓN (temporal) ── */
+.recuperacion-card .emotion-bar { margin-bottom: 10px; }
+.recuperacion-card .log-form-row { margin-top: 4px; margin-bottom: 0; }
+
 /* ── SEMANA PANEL ── */
 .resumen-card {
   background: var(--card);
@@ -1793,6 +1797,26 @@ body.night .habito-count { color: var(--night-accent); }
       </div>
     </div>
     <div class="ancla-razon" id="ancla-razon">—</div>
+  </div>
+
+  <!-- RECUPERACIÓN — temporal, se controla con RECUPERACION_ACTIVA. Oculta por defecto. -->
+  <div class="recuperacion-card" id="recuperacion-card" style="display:none;">
+    <div class="section-label">Recuperación 🦶</div>
+    <div class="emotion-bar">
+      <div class="emotion-title">Dolor</div>
+      <div class="emotion-pills" id="recup-pills-dolor"></div>
+    </div>
+    <div class="emotion-bar">
+      <div class="emotion-title">Movilidad</div>
+      <div class="emotion-pills" id="recup-pills-movilidad"></div>
+    </div>
+    <div class="emotion-bar">
+      <div class="emotion-title">Ánimo</div>
+      <div class="emotion-pills" id="recup-pills-animo"></div>
+    </div>
+    <div class="log-form-row">
+      <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
+    </div>
   </div>
 
   <div class="snapshot-row">
@@ -2538,6 +2562,16 @@ async function sbLog(tabla, method, body=null, params='') {
 // Todo el texto de granularidad y disparadores vive AQUÍ y sólo aquí.
 // Para cambiar una palabra, se edita esta lista. Nada más.
 // ═══════════════════════════════════════════════════════════════════
+
+// RECUPERACIÓN — sección temporal (accidente de tránsito, 25 sep 2026, pie roto).
+// Cuando termine la recuperación: cambiar esto a false. La tarjeta desaparece
+// sola, sin borrar la tabla `recuperacion` ni los datos ya guardados.
+const RECUPERACION_ACTIVA = true;
+const RECUPERACION_VOCAB = {
+  dolor:     ['leve', 'molesta', 'duele mucho', 'punzante'],
+  movilidad: ['igual', 'peor', 'un poco mejor'],
+  animo:     ['miedo', 'agobio', 'cansancio', 'nervios']
+};
 
 // Granularidad emocional (Barrett): la emoción gruesa abre opciones finas.
 // El objetivo no es clasificar bien — es que el cerebro tenga a mano una
@@ -3384,6 +3418,72 @@ async function cargarMomentos(fecha) {
     console.error('Error cargando momentos:', e);
     return false;
   }
+}
+
+// ── RECUPERACIÓN (temporal) ──
+// Un registro diario, siempre para hoy — no se navega por día como Mañana/Noche.
+// Todo opcional: dolor, movilidad, ánimo (pills de un solo tap, tocar de nuevo
+// deselecciona) y una nota libre. Se guarda con debounce, igual que el resto.
+let recuperacionHoy = {};
+let recuperacionTimer = null;
+
+function construirRecuperacion() {
+  Object.keys(RECUPERACION_VOCAB).forEach(campo => {
+    const cont = document.getElementById('recup-pills-'+campo);
+    if(!cont) return;
+    cont.innerHTML = RECUPERACION_VOCAB[campo].map(v =>
+      `<button class="recup-pill" data-v="${v}" onclick="setRecuperacion('${campo}',this.dataset.v)">${v}</button>`).join('');
+  });
+}
+
+function pintarRecuperacion() {
+  Object.keys(RECUPERACION_VOCAB).forEach(campo => {
+    document.querySelectorAll(`#recup-pills-${campo} .recup-pill`).forEach(p=>{
+      p.classList.toggle('selected', p.dataset.v === recuperacionHoy[campo]);
+    });
+  });
+  const notaEl = document.getElementById('recup-nota');
+  if(notaEl && document.activeElement !== notaEl) notaEl.value = recuperacionHoy.nota_libre || '';
+}
+
+function setRecuperacion(campo, valor) {
+  recuperacionHoy[campo] = recuperacionHoy[campo] === valor ? '' : valor;   // tocar de nuevo lo quita
+  pintarRecuperacion();
+  guardarRecuperacion();
+}
+
+function saveRecuperacionNota() {
+  recuperacionHoy.nota_libre = document.getElementById('recup-nota').value;
+  guardarRecuperacion();
+}
+
+function guardarRecuperacion() {
+  clearTimeout(recuperacionTimer);
+  recuperacionTimer = setTimeout(guardarRecuperacionAhora, 800);
+}
+
+async function guardarRecuperacionAhora() {
+  recuperacionTimer = null;
+  setSyncing(true);
+  try {
+    await sbLog('recuperacion','POST',{
+      fecha: fechaDeAhora(),
+      dolor: recuperacionHoy.dolor || null,
+      movilidad: recuperacionHoy.movilidad || null,
+      animo: recuperacionHoy.animo || null,
+      nota_libre: recuperacionHoy.nota_libre || null
+    },'?on_conflict=fecha');
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error('Error guardando recuperación:',e); setSyncError(); }
+}
+
+async function cargarRecuperacion() {
+  try {
+    const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
+    const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
+    recuperacionHoy = {dolor:r.dolor||'', movilidad:r.movilidad||'', animo:r.animo||'', nota_libre:r.nota_libre||''};
+    pintarRecuperacion();
+  } catch(e){ console.error('Error cargando recuperación:', e); }
 }
 
 let starState={agua:0,energia:0,sueno:0,movimiento:0};
@@ -4606,6 +4706,13 @@ async function refrescoAutomatico() {
     await cargarUltimaVezGatos();
     await cargarUltimaVezHabitos();
     if(await cargarMomentos(fechaActiva)) pintarMomentos();
+    if(RECUPERACION_ACTIVA && !recuperacionTimer) {
+      const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
+      const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
+      const merge = (c) => { if(!recuperacionHoy[c] && r[c]) recuperacionHoy[c]=r[c]; };
+      merge('dolor'); merge('movilidad'); merge('animo'); merge('nota_libre');
+      pintarRecuperacion();
+    }
 
     const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
 
@@ -4675,6 +4782,10 @@ function forzarGuardadoPendiente() {
     saveTimer=null;
     guardarRegistroDiario(fechaActiva);
   }
+  if(recuperacionTimer) {
+    clearTimeout(recuperacionTimer);
+    guardarRecuperacionAhora();
+  }
 }
 
 async function init() {
@@ -4686,6 +4797,10 @@ async function init() {
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   construirMomentos();
+  if(RECUPERACION_ACTIVA) {
+    document.getElementById('recuperacion-card').style.display = 'block';
+    construirRecuperacion();
+  }
   restoreTodayUI();
   buildAncla();
   updateSnaps();
@@ -4704,6 +4819,7 @@ async function init() {
   await cargarGastosSemana();
   await cargarCigarrillosSemana();
   await cargarMomentos(fechaActiva);
+  if(RECUPERACION_ACTIVA) await cargarRecuperacion();
   setSyncing(false);
   iniciarCrono();
   restoreTodayUI();
