@@ -542,6 +542,26 @@ body.night .hora-row input[type="time"] {
   border-bottom: 1px dotted var(--muted);
 }
 
+/* ── Ola que pasó sin fumar + capas de "afinar este registro" ── */
+.ola-btn {
+  display: block;
+  width: 100%;
+  margin: 2px 0 12px;
+  padding: 10px;
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ola-btn:active { background: var(--sky-soft); }
+body.night .ola-btn { border-color: rgba(255,255,255,0.15); }
+.afinar-sec { margin-top: 12px; }
+.disparador-box .capa-fila { flex-direction: column; align-items: flex-start; gap: 8px; }
+.log-item-ola .log-item-detalle { color: var(--muted); }
+
 /* Etiqueta del disparador dentro de la lista */
 .log-item-trigger {
   font-size: 10.5px;
@@ -1992,6 +2012,8 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="log-qbtn" onclick="registrarPausa(3)">3</button>
       <button class="log-qbtn" onclick="registrarPausaCustom()">Otro</button>
     </div>
+    <!-- Ganas que NO terminaron en consumo: un tap, y el detalle es opcional después -->
+    <button class="ola-btn" onclick="registrarOla()">🌊 Pasó la ola sin fumar</button>
 
     <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
     <div class="disparador-box" id="disparador-box">
@@ -2008,6 +2030,9 @@ body.night .habito-count { color: var(--night-accent); }
         <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
         <button class="micro-accion-listo" onclick="cerrarDisparador()">Listo ✓</button>
       </div>
+      <!-- Capas opcionales del registro (fuerza, lo vi venir, a la mano, qué buscaba, cuerpo) -->
+      <button class="capa-link" id="afinar-link" style="display:none;" onclick="toggleAfinar()">▸ Afinar este registro</button>
+      <div id="afinar-capas"></div>
     </div>
 
     <div class="log-list" id="cigarrillos-list"></div>
@@ -2662,7 +2687,38 @@ const DISPARADORES = [
   { id:'gusto',        label:'😌 Lo quería',    grupo:'mente' }
 ];
 
+// ── Capas del registro de consumo (y de las olas) ──
+// Función real: para QUÉ lo usaste. Distinto del disparador, que es qué pasó antes.
+const FUNCIONES = [
+  {id:'ruido_mental', label:'🧠 Bajar el ruido mental'},
+  {id:'dormir',       label:'🌙 Dormir'},
+  {id:'dolor',        label:'🦶 Aliviar dolor'},
+  {id:'energia',      label:'⚡ Energía / ánimo'},
+  {id:'disfrutar',    label:'🎶 Disfrutar / acompañarme'},
+  {id:'costumbre',    label:'🔁 Costumbre'},
+  {id:'no_se',        label:'🤷 No sé'}
+];
+// Qué ayudó a que la ola pasara sin fumar (la sustitución que funcionó).
+const AYUDAS_OLA = [
+  {id:'camine',   label:'🚶 Caminé'},
+  {id:'agua',     label:'💧 Agua'},
+  {id:'respire',  label:'🌬️ Respiré'},
+  {id:'comi',     label:'🍽️ Comí algo'},
+  {id:'espere',   label:'⏱️ Esperé'},
+  {id:'hable',    label:'💬 Hablé con alguien'},
+  {id:'distraje', label:'🎧 Me distraje'},
+  {id:'otro',     label:'✨ Otra cosa'}
+];
+// "Dónde lo sentías" usa la lista CUERPO de arriba (la misma de las emociones).
+
 let cigarrillosHoy = [];
+let olasHoy = [];               // ganas que pasaron sin fumar (tabla `olas`)
+let panelTipo = 'consumo';      // 'consumo' | 'ola': de cuál registro es el panel abierto
+let panelId = null;             // id del registro que se está afinando; se limpia al cerrar el panel
+let afinarAbierto = false;
+let afinarCambios = {};         // 'tabla|id' -> {columna: valor}: se mandan juntos tras 0,8 s
+let afinarTimer = null;
+let afinarGuardando = 0;
 let ultimoFumado = null; // {fecha, hora, created_at} del registro más reciente (cualquier día)
 let horaManualFumado = null;    // 'HH:MM' si eligió otra hora; null = ahora
 let ultimoRegistroId = null;    // id del último cigarrillo registrado, para adjuntarle el disparador
@@ -2821,6 +2877,43 @@ function horaParaRegistrar() {
   return horaActualHHMMSS();
 }
 
+// La hora manual es de un solo uso: el siguiente registro vuelve a ser "ahora"
+function terminarHoraManual() {
+  if(!horaManualFumado) return;
+  const row=document.getElementById('hora-row'), btn=document.getElementById('hora-toggle');
+  if(row) row.classList.remove('on');
+  if(btn) btn.textContent = '🕐 Fue a otra hora';
+  resetHoraFumado();
+}
+
+// Una ola es una gana que pasó SIN consumo. Va en su propia tabla: así no toca el
+// cronómetro de "tiempo sin fumar" ni los conteos. Un tap; el detalle es opcional.
+async function registrarOla() {
+  setSyncing(true);
+  const nuevo = {fecha:fechaDeAhora(), hora:horaParaRegistrar()};
+  try {
+    const r = await sbLog('olas','POST',nuevo);
+    const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
+    olasHoy.push(guardado);
+    olasHoy.sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+    buildCigarrillos();
+    terminarHoraManual();
+    setSyncing(false); clearSyncError();
+    ultimoRegistroId = guardado.id || null;
+    if(ultimoRegistroId) abrirDisparador('ola');
+  } catch(e){ console.error(e); setSyncError(); }
+}
+
+async function borrarOla(id) {
+  setSyncing(true);
+  try {
+    await sbLog('olas','DELETE',null,`?id=eq.${id}`);
+    olasHoy = olasHoy.filter(x=>x.id!==id);
+    buildCigarrillos();
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error(e); setSyncError(); }
+}
+
 async function registrarPausa(cantidad) {
   if(!cantidad || cantidad<1) return;
   setSyncing(true);
@@ -2835,14 +2928,7 @@ async function registrarPausa(cantidad) {
     await cargarUltimoFumado();
     buildCigarrillos();
     iniciarCrono();
-    // La hora manual es de un solo uso: el siguiente registro vuelve a ser "ahora"
-    const usoHoraManual = !!horaManualFumado;
-    if(usoHoraManual) {
-      const row=document.getElementById('hora-row'), btn=document.getElementById('hora-toggle');
-      if(row) row.classList.remove('on');
-      if(btn) btn.textContent = '🕐 Fue a otra hora';
-      resetHoraFumado();
-    }
+    terminarHoraManual();
     setSyncing(false); clearSyncError();
     // Se pregunta el disparador cuando la sensación aún está fresca
     ultimoRegistroId = guardado.id || null;
@@ -2853,9 +2939,12 @@ async function registrarPausa(cantidad) {
 // ── DISPARADOR (Barrett) ──
 // Se pregunta DESPUÉS de registrar, nunca antes: registrar tiene que seguir
 // costando un tap. Esto es opcional y se cierra solo al responder.
-function abrirDisparador() {
+function abrirDisparador(tipo='consumo') {
   const box = document.getElementById('disparador-box');
   if(!box) return;
+  panelTipo = tipo;
+  panelId = ultimoRegistroId;
+  afinarAbierto = false;
   const pinta = (grupo, contId) => {
     const cont = document.getElementById(contId);
     if(!cont) return;
@@ -2871,10 +2960,15 @@ function abrirDisparador() {
   const micro = document.getElementById('micro-accion');
   if(micro) micro.classList.remove('on');
   box.classList.add('on');
+  pintarAfinar();
   setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'center'}),120);
 }
 
 function cerrarDisparador() {
+  vaciarAfinar();   // lo que se haya marcado y aún no se mandó, se manda ahora
+  panelId = null;
+  afinarAbierto = false;
+  pintarAfinar();
   const box = document.getElementById('disparador-box');
   if(box) box.classList.remove('on');
   const micro = document.getElementById('micro-accion');
@@ -2896,8 +2990,8 @@ async function setDisparador(id) {
 
   setSyncing(true);
   try {
-    await sbLog('cigarrillos','PATCH',{disparador:id},`?id=eq.${registroId}`);
-    const local = cigarrillosHoy.find(x=>x.id===registroId);
+    await sbLog(panelTipo==='ola'?'olas':'cigarrillos','PATCH',{disparador:id},`?id=eq.${registroId}`);
+    const local = (panelTipo==='ola' ? olasHoy : cigarrillosHoy).find(x=>x.id===registroId);
     if(local) local.disparador = id;
     buildCigarrillos();
     setSyncing(false); clearSyncError();
@@ -2905,17 +2999,107 @@ async function setDisparador(id) {
 
   // Si hay micro-intervención (Suzuki) se queda visible hasta que la cierre;
   // si no hay nada que leer, se cierra todo solo.
+  // La micro-intervención es para cuando SÍ consumió; en una ola no se muestra.
   const micro = document.getElementById('micro-accion');
-  if(micro && d.accion) {
+  if(micro && d.accion && panelTipo==='consumo') {
     const txt = document.getElementById('micro-accion-texto');
     const por = document.getElementById('micro-accion-por-que');
     if(txt) txt.textContent = d.accion;
     if(por) por.textContent = d.porQue || '';
     micro.classList.add('on');
     ultimoRegistroId = null; // el registro ya está completo
+  } else if(afinarAbierto) {
+    ultimoRegistroId = null; // sigue abierto solo para terminar de afinar
   } else {
     cerrarDisparador();
   }
+}
+
+// ── AFINAR EL REGISTRO (opcional, después de guardar) ──
+// Fuerza de la gana, si lo vio venir, qué tan a la mano estaba, qué buscaba y dónde lo
+// sentía. Un tap por dato; el mismo tap otra vez lo quita. Nada es obligatorio.
+const registroPanel = () => panelId ? (panelTipo==='ola' ? olasHoy : cigarrillosHoy).find(x=>x.id===panelId) : null;
+const afinarOcupado = () => !!afinarTimer || afinarGuardando>0 || Object.keys(afinarCambios).length>0;
+
+function toggleAfinar() {
+  afinarAbierto = !afinarAbierto;
+  pintarAfinar();
+}
+
+function pintarAfinar() {
+  const link = document.getElementById('afinar-link');
+  const cont = document.getElementById('afinar-capas');
+  if(!link || !cont) return;
+  const r = registroPanel();
+  if(!r) { cont.innerHTML=''; link.style.display='none'; return; }
+  link.style.display = '';
+  link.textContent = (afinarAbierto ? '▾' : '▸') + ' Afinar este registro';
+  if(!afinarAbierto) { cont.innerHTML=''; return; }
+
+  const esOla = panelTipo==='ola';
+  const sec = (titulo, html) => `<div class="afinar-sec"><div class="granular-label">${titulo}</div>${html}</div>`;
+  const pills = (campo, lista, actual) => `<div class="granular-pills">${lista.map(o =>
+    `<button class="granular-pill${o.id===actual?' selected':''}" onclick="setAfinar('${campo}','${o.id}')">${o.label}</button>`).join('')}</div>`;
+  const cuerpoSel = (r.cuerpo||'').split('|').filter(Boolean);
+
+  cont.innerHTML = `
+    <div class="capa-fila">
+      <span class="granular-label">Qué tan fuerte</span>
+      <div class="capa-int">${[1,2,3,4,5].map(n =>
+        `<button class="int-pill${n===Number(r.fuerza)?' selected':''}" onclick="setAfinar('fuerza',${n})">${n}</button>`).join('')}</div>
+    </div>
+    ${esOla ? '' : sec('¿Lo viste venir?', pills('lo_vi_venir', [{id:'si',label:'Lo vi venir'},{id:'no',label:'Fue automático'}],
+        r.lo_vi_venir===true ? 'si' : r.lo_vi_venir===false ? 'no' : ''))}
+    ${sec('¿Qué tan a la mano estaba?', pills('acceso', [{id:'mano',label:'A la mano'},{id:'costo',label:'Me costó'}], r.acceso))}
+    ${sec(esOla ? '¿Qué buscaba la gana?' : '¿Qué buscabas?', pills('funcion', FUNCIONES, r.funcion))}
+    ${esOla ? sec('¿Qué ayudó a que pasara?', pills('que_ayudo', AYUDAS_OLA, r.que_ayudo)) : ''}
+    ${sec('¿Dónde lo sentías en el cuerpo?', `<div class="granular-pills">${CUERPO.map(c =>
+      `<button class="granular-pill${cuerpoSel.includes(c)?' selected':''}" data-p="${c}" onclick="setAfinar('cuerpo',this.dataset.p)">${c}</button>`).join('')}</div>`)}
+    <button class="micro-accion-listo" onclick="cerrarDisparador()">Listo ✓</button>`;
+}
+
+function setAfinar(campo, valor) {
+  const r = registroPanel();
+  if(!r) return;
+  let v;
+  if(campo==='cuerpo') {
+    const lista = (r.cuerpo||'').split('|').filter(Boolean);
+    const i = lista.indexOf(valor);
+    if(i>=0) lista.splice(i,1); else lista.push(valor);
+    v = lista.join('|') || null;
+  } else if(campo==='fuerza') {
+    v = Number(r.fuerza)===valor ? null : valor;
+  } else if(campo==='lo_vi_venir') {
+    const nuevo = valor==='si';
+    v = r.lo_vi_venir===nuevo ? null : nuevo;
+  } else {
+    v = r[campo]===valor ? null : valor;
+  }
+  r[campo] = v;
+  const k = (panelTipo==='ola'?'olas':'cigarrillos')+'|'+r.id;
+  (afinarCambios[k] = afinarCambios[k] || {})[campo] = v;
+  clearTimeout(afinarTimer);
+  afinarTimer = setTimeout(vaciarAfinar, 800);   // junta toques seguidos en una sola petición
+  pintarAfinar();
+}
+
+async function vaciarAfinar() {
+  clearTimeout(afinarTimer);
+  afinarTimer = null;
+  const pendientes = afinarCambios;
+  afinarCambios = {};
+  const claves = Object.keys(pendientes);
+  if(!claves.length) return;
+  setSyncing(true);
+  afinarGuardando++;
+  try {
+    for(const k of claves) {
+      const [tabla, id] = k.split('|');
+      await sbLog(tabla,'PATCH',pendientes[k],`?id=eq.${id}`);
+    }
+    setSyncing(false); clearSyncError();
+  } catch(e){ console.error('Error afinando registro:',e); setSyncError(); }
+  finally { afinarGuardando--; }
 }
 
 // Corregir la hora de un registro ya hecho, tocándola en la lista
@@ -2967,18 +3151,33 @@ function buildCigarrillos() {
   const totalEl = document.getElementById('cigarrillos-total');
   const totalVeces = cigarrillosHoy.length;
   const totalUnidades = cigarrillosHoy.reduce((s,x)=>s+Number(x.cantidad||0),0);
+  const totalOlas = olasHoy.length;
 
   if(totalEl) {
-    totalEl.textContent = totalVeces
-      ? `Hoy: ${totalVeces} vez${totalVeces===1?'':'es'} · ${totalUnidades} en total`
+    const base = totalVeces
+      ? `Hoy: ${totalVeces} ${totalVeces===1?'vez':'veces'} · ${totalUnidades} en total`
       : 'Hoy: nada registrado';
+    totalEl.textContent = base + (totalOlas ? ` · ${totalOlas} ola${totalOlas===1?'':'s'} pasada${totalOlas===1?'':'s'}` : '');
   }
   if(list) {
-    if(!totalVeces) {
+    if(!totalVeces && !totalOlas) {
       list.innerHTML = '<div class="log-empty">Nada registrado hoy todavía</div>';
     } else {
-      list.innerHTML = cigarrillosHoy.map(x => {
+      const items = [
+        ...cigarrillosHoy.map(x => ({...x, _t:'c'})),
+        ...olasHoy.map(x => ({...x, _t:'o'}))
+      ].sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
+      list.innerHTML = items.map(x => {
         const disp = DISPARADORES.find(d=>d.id===x.disparador);
+        if(x._t==='o') return `
+        <div class="log-item log-item-ola">
+          <div class="log-item-info">
+            <span class="log-item-hora">${formatHora12(x.hora)||'—'}</span>
+            <span class="log-item-detalle">🌊 pasó la ola</span>
+            ${disp ? `<span class="log-item-trigger">${disp.label}</span>` : ''}
+          </div>
+          <button class="log-item-del" onclick="borrarOla('${x.id}')">✕</button>
+        </div>`;
         return `
         <div class="log-item">
           <div class="log-item-info">
@@ -2996,11 +3195,23 @@ function buildCigarrillos() {
 }
 
 async function cargarCigarrillosHoy() {
+  if(afinarOcupado()) return;   // hay datos sin mandar: releer ahora los pisaría
   try {
     const data = await sbLog('cigarrillos','GET',null,`?fecha=eq.${todayStr}&order=hora.asc`);
     cigarrillosHoy = Array.isArray(data) ? data : [];
     buildCigarrillos();
+    if(panelId) pintarAfinar();
   } catch(e){ console.error('Error cargando cigarrillos:', e); }
+}
+
+async function cargarOlasHoy() {
+  if(afinarOcupado()) return;
+  try {
+    const data = await sbLog('olas','GET',null,`?fecha=eq.${todayStr}&order=hora.asc`);
+    olasHoy = Array.isArray(data) ? data : [];
+    buildCigarrillos();
+    if(panelId) pintarAfinar();
+  } catch(e){ console.error('Error cargando olas:', e); }
 }
 
 // Busca el registro más reciente de cualquier día, para que el cronómetro
@@ -4830,6 +5041,7 @@ async function refrescoAutomatico() {
     // Cigarrillos y gastos son listas de eventos (no campos editables),
     // así que basta con releerlas completas para reflejar lo agregado desde otro dispositivo
     await cargarCigarrillosHoy();
+    await cargarOlasHoy();
     await cargarUltimoFumado();
     await cargarGastosHoy();
     await cargarGastosSemana();
@@ -4887,6 +5099,7 @@ function forzarGuardadoPendiente() {
     clearTimeout(recuperacionTimer);
     guardarRecuperacionAhora();
   }
+  if(afinarTimer || Object.keys(afinarCambios).length) vaciarAfinar();
   Object.keys(momentoTimers).forEach(k => {
     clearTimeout(momentoTimers[k]);
     const [f, m] = k.split('|');
@@ -4921,6 +5134,7 @@ async function init() {
   await cargarUltimaVezHabitos();
   await cargarSemana();
   await cargarCigarrillosHoy();
+  await cargarOlasHoy();
   await cargarUltimoFumado();
   await cargarPeriodos();
   await cargarGastosHoy();
