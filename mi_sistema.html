@@ -909,35 +909,7 @@ body.night .ciclo-btn { border-color: var(--night-accent); color: var(--night-ac
   text-align: center;
   margin-top: 8px;
 }
-.ciclo-fechas-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-.ciclo-fecha-input {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  font-family: inherit;
-  font-size: 10px;
-  padding: 2px 4px;
-}
-body.night .ciclo-fecha-input { border-color: rgba(255,255,255,0.15); }
-.ciclo-btn-fin {
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 12px;
-  text-decoration: underline;
-  cursor: pointer;
-}
+.ciclo-btn-terminar { margin-top: 8px; }
 
 /* Algo de más (extras de comida) */
 .extras-block {
@@ -1966,10 +1938,11 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="crono-time" id="crono-time">—</div>
       <div class="crono-desde" id="crono-desde">Sin registros todavía</div>
     </div>
-    <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo o pipa?</div>
+    <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo, pipa o vaporizador?</div>
     <div class="nivel-pills" id="metodo-pills" style="margin-bottom:14px;">
       <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
       <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')">🌬️ Pipa</button>
+      <button class="nivel-pill" id="metodo-vaporizador" onclick="setMetodoFumado('vaporizador')">💨 Vaporizador</button>
     </div>
     <!-- Hora manual: para cuando se te pasó anotarlo en el momento -->
     <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()">🕐 Fue a otra hora</button>
@@ -2044,7 +2017,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="ciclo-info" id="ciclo-info"></div>
 
     <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
-    <button class="ciclo-btn-fin" id="ciclo-btn-fin" style="display:none;" onclick="terminarPeriodo()">Hoy terminó</button>
+    <button class="ciclo-btn ciclo-btn-terminar" id="ciclo-btn-fin" style="display:none;" onclick="terminarPeriodo()">🩸 Hoy terminó mi periodo</button>
     <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
   </div>
 
@@ -2580,8 +2553,8 @@ const GRANULARIDAD = {
   '🌟 Excelente': ['vital', 'con impulso', 'lúcida', 'expansiva', 'agradecida'],
   '😊 Bien':      ['tranquila', 'conforme', 'liviana', 'acompañada', 'estable'],
   '😐 Regular':   ['plana', 'desconectada', 'a medias', 'esperando algo', 'sin ganas'],
-  '😔 Difícil':   ['triste', 'vacía', 'desanimada', 'sola', 'frustrada'],
-  '🌊 Cargada':   ['saturada', 'sin espacio', 'irritable', 'con mucho encima', 'sobreexigida'],
+  '😔 Difícil':   ['triste', 'vacía', 'desanimada', 'sola', 'frustrada', 'con dolor', 'limitada'],
+  '🌊 Cargada':   ['saturada', 'sin espacio', 'irritable', 'con mucho encima', 'sobreexigida', 'dolorida'],
   '⚡ Ansiosa':   ['inquieta', 'acelerada', 'impaciente', 'anticipando algo', 'alerta'],
   '🌿 En paz':    ['serena', 'presente', 'sin urgencia', 'asentada', 'liviana'],
   '🔥 Motivada':  ['con foco', 'decidida', 'con impulso', 'clara', 'lista']
@@ -2615,6 +2588,10 @@ const DISPARADORES = [
     accion:'Respiración de doble inhalación: dos inhalaciones cortas por nariz, una exhalación larga. 60 segundos.',
     porQue:'Suzuki: baja la activación de la amígdala más rápido que cualquier otra vía.' },
 
+  { id:'dolor_pie',    label:'🦶 Dolor del pie', grupo:'cuerpo',
+    accion:'Esto no era antojo: era el pie. Si dolió, tiene sentido. Nómbralo: dónde y cuánto, del 1 al 10.',
+    porQue:'Barrett: poner lugar y número separa el dolor del malestar emocional que se le pega.' },
+
   { id:'ansiedad',     label:'⚡ Ansiedad',     grupo:'mente',
     accion:'Antes del próximo: nombra en voz baja qué exactamente te preocupa. Una frase.',
     porQue:'Barrett: el etiquetado afectivo activa la prefrontal y reduce la reactividad.' },
@@ -2641,7 +2618,8 @@ let ultimoFumado = null; // {fecha, hora, created_at} del registro más reciente
 let horaManualFumado = null;    // 'HH:MM' si eligió otra hora; null = ahora
 let ultimoRegistroId = null;    // id del último cigarrillo registrado, para adjuntarle el disparador
 let cronoTimer = null;
-let metodoFumadoActual = 'cigarro'; // 'cigarro' | 'pipa' — se aplica al siguiente registro rápido
+let metodoFumadoActual = 'cigarro'; // 'cigarro' | 'pipa' | 'vaporizador' — se aplica al siguiente registro rápido
+const METODO_LABEL = {cigarro:'🚬 cigarrillo', pipa:'🌬️ pipa', vaporizador:'💨 vaporizador'};
 
 // Convierte un registro de fumado en un objeto Date.
 // Usamos SIEMPRE fecha + hora, que se guardan en hora local del teléfono.
@@ -2743,9 +2721,9 @@ function iniciarCrono() {
 
 function setMetodoFumado(m) {
   metodoFumadoActual = m;
-  const bCig=document.getElementById('metodo-cigarro'), bPipa=document.getElementById('metodo-pipa');
-  if(bCig) bCig.classList.toggle('selected', m==='cigarro');
-  if(bPipa) bPipa.classList.toggle('selected', m==='pipa');
+  document.querySelectorAll('#metodo-pills .nivel-pill').forEach(b => b.classList.toggle('selected', b.id === 'metodo-'+m));
+  // Se recuerda el último usado: si cambia de método, no debe costar un tap extra cada vez
+  try { localStorage.setItem('metodo_fumado', m); } catch(e){}
 }
 
 function scrollToFumado() {
@@ -2956,7 +2934,7 @@ function buildCigarrillos() {
         <div class="log-item">
           <div class="log-item-info">
             <span class="log-item-hora editable" onclick="editarHoraCigarrillo('${x.id}')">${formatHora12(x.hora)||'—'}</span>
-            <span class="log-item-detalle">${x.metodo==='pipa'?'🌬️ pipa':'🚬 cigarrillo'} · ${x.cantidad}</span>
+            <span class="log-item-detalle">${METODO_LABEL[x.metodo] || '🚬 cigarrillo'} · ${x.cantidad}</span>
             ${disp ? `<span class="log-item-trigger">${disp.label}</span>` : ''}
           </div>
           <button class="log-item-del" onclick="borrarCigarrillo('${x.id}')">✕</button>
@@ -4058,12 +4036,7 @@ function buildCiclo() {
   // Fechas de inicio/fin editables directamente: para corregir un periodo mal
   // registrado sin depender de la base de datos a mano.
   ultimoEl.innerHTML = `
-    <div class="ciclo-fechas-row">
-      <input type="date" class="ciclo-fecha-input" value="${c.inicio}" max="${todayStr}" onchange="editarPeriodo('${c.id}','fecha_inicio',this.value)">
-      <span>–</span>
-      <input type="date" class="ciclo-fecha-input" value="${c.fin||''}" min="${c.inicio}" max="${todayStr}" onchange="editarPeriodo('${c.id}','fecha_fin',this.value)">
-    </div>
-    <div>ciclo promedio ${c.longitud} días</div>`;
+    <div>Último periodo: ${formatFechaCorta(c.inicio)}${c.fin ? ' – '+formatFechaCorta(c.fin) : ''} · ciclo promedio ${c.longitud} días</div>`;
 
   if(btnFin) btnFin.style.display = (!c.fin && c.esElMasReciente) ? 'block' : 'none';
 }
@@ -4092,6 +4065,7 @@ async function registrarPeriodo() {
 async function terminarPeriodo() {
   const p = periodos[0];
   if(!p) return;
+  if(!confirm('¿Hoy terminó tu periodo?')) return;
   const hoy = fechaDeAhora();
   setSyncing(true);
   try {
@@ -4100,17 +4074,6 @@ async function terminarPeriodo() {
     buildCiclo();
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
-}
-
-// Corrige a mano el inicio o el fin de un periodo ya guardado (por id).
-async function editarPeriodo(id, campo, valor) {
-  try {
-    await sbLog('periodos','PATCH',{[campo]: valor||null},`?id=eq.${id}`);
-    const p = periodos.find(x=>x.id===id);
-    if(p) p[campo] = valor||null;
-    buildCiclo();
-    clearSyncError();
-  } catch(e){ console.error('Error editando periodo:',e); setSyncError(); }
 }
 
 function restoreTodayUI() {
@@ -4797,6 +4760,7 @@ async function init() {
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   construirMomentos();
+  try { const mg = localStorage.getItem('metodo_fumado'); if(METODO_LABEL[mg]) setMetodoFumado(mg); } catch(e){}
   if(RECUPERACION_ACTIVA) {
     document.getElementById('recuperacion-card').style.display = 'block';
     construirRecuperacion();
