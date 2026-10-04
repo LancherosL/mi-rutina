@@ -292,6 +292,51 @@ body.night .granular-pill { border-color: rgba(255,255,255,0.12); color: var(--n
 }
 body.night .granular-pill.selected { color: var(--night-accent); border-color: var(--night-accent); }
 
+/* ── Más emociones, intensidad y cuerpo: capas opcionales, sin peso hasta que se usan ── */
+.emo-extra, .mom-extra { display: none; }
+.mas-on .emo-extra, .mas-on .mom-extra { display: inline-block; }
+.emo-mas {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+body.night .emo-mas { border-color: rgba(255,255,255,0.15); }
+.capa-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; }
+.capa-fila .granular-label { margin: 0; }
+.capa-int { display: flex; gap: 6px; }
+.int-pill {
+  width: 34px;
+  height: 30px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.int-pill:active { transform: scale(0.94); }
+.int-pill.selected { background: var(--lavender-soft); border-color: var(--lavender); color: var(--lavender); font-weight: 500; }
+body.night .int-pill { border-color: rgba(255,255,255,0.12); color: var(--night-text); }
+body.night .int-pill.selected { color: var(--night-accent); border-color: var(--night-accent); }
+.capa-link {
+  background: none;
+  border: none;
+  padding: 12px 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.capa-cuerpo { margin-top: 8px; }
+
 /* ── TARJETA DE DISPARADOR (post-registro de fumado) ── */
 /* Aparece justo después de registrar, cuando la sensación aún está fresca.
    Se cierra sola al responder. No deja peso visual permanente. */
@@ -1817,22 +1862,10 @@ body.night .habito-count { color: var(--night-accent); }
   <!-- Emoción -->
   <div class="emotion-bar">
     <div class="emotion-title">¿Cómo estás hoy?</div>
-    <div class="emotion-pills">
-      <button class="emo-pill" onclick="setEmocion(this,'🌟 Excelente')">🌟 Excelente</button>
-      <button class="emo-pill" onclick="setEmocion(this,'😊 Bien')">😊 Bien</button>
-      <button class="emo-pill" onclick="setEmocion(this,'😐 Regular')">😐 Regular</button>
-      <button class="emo-pill" onclick="setEmocion(this,'😔 Difícil')">😔 Difícil</button>
-      <button class="emo-pill" onclick="setEmocion(this,'🌊 Cargada')">🌊 Cargada</button>
-      <button class="emo-pill" onclick="setEmocion(this,'⚡ Ansiosa')">⚡ Ansiosa</button>
-      <button class="emo-pill" onclick="setEmocion(this,'🌿 En paz')">🌿 En paz</button>
-      <button class="emo-pill" onclick="setEmocion(this,'🔥 Motivada')">🔥 Motivada</button>
-    </div>
+    <div class="emotion-pills" id="emo-pills-hoy"></div>
 
-    <!-- Granularidad emocional (Barrett): segunda capa, sólo aparece al elegir arriba -->
-    <div class="granular-box" id="granular-box">
-      <div class="granular-label" id="granular-label">Si tuvieras que afinarlo</div>
-      <div class="granular-pills" id="granular-pills"></div>
-    </div>
+    <!-- Capas opcionales (palabra fina, intensidad, cuerpo): las pinta pintarCapas('hoy') -->
+    <div class="granular-box" id="granular-box"></div>
 
     <div class="emotion-energia-row">
       <span class="emotion-energia-label">Energía general</span>
@@ -2550,15 +2583,31 @@ const RECUPERACION_VOCAB = {
 // El objetivo no es clasificar bien — es que el cerebro tenga a mano una
 // palabra más precisa la próxima vez que sienta lo mismo.
 const GRANULARIDAD = {
-  '🌟 Excelente': ['vital', 'con impulso', 'lúcida', 'expansiva', 'agradecida'],
-  '😊 Bien':      ['tranquila', 'conforme', 'liviana', 'acompañada', 'estable'],
-  '😐 Regular':   ['plana', 'desconectada', 'a medias', 'esperando algo', 'sin ganas'],
-  '😔 Difícil':   ['triste', 'vacía', 'desanimada', 'sola', 'frustrada', 'con dolor', 'limitada'],
-  '🌊 Cargada':   ['saturada', 'sin espacio', 'irritable', 'con mucho encima', 'sobreexigida', 'dolorida'],
-  '⚡ Ansiosa':   ['inquieta', 'acelerada', 'impaciente', 'anticipando algo', 'alerta'],
-  '🌿 En paz':    ['serena', 'presente', 'sin urgencia', 'asentada', 'liviana'],
-  '🔥 Motivada':  ['con foco', 'decidida', 'con impulso', 'clara', 'lista']
+  '🌟 Excelente': ['vital', 'con impulso', 'lúcida', 'expansiva', 'agradecida', 'plena', 'ligera', 'capaz', 'entusiasmada', 'orgullosa'],
+  '😊 Bien':      ['tranquila', 'conforme', 'liviana', 'acompañada', 'estable', 'contenta', 'cómoda', 'a gusto', 'segura'],
+  '😐 Regular':   ['plana', 'desconectada', 'a medias', 'esperando algo', 'sin ganas', 'neutra', 'distraída', 'dispersa', 'en pausa'],
+  '😔 Difícil':   ['triste', 'vacía', 'desanimada', 'sola', 'frustrada', 'con dolor', 'limitada', 'decepcionada', 'impotente', 'herida'],
+  '🌊 Cargada':   ['saturada', 'sin espacio', 'irritable', 'con mucho encima', 'sobreexigida', 'dolorida', 'agobiada', 'tensa', 'abrumada'],
+  '⚡ Ansiosa':   ['inquieta', 'acelerada', 'impaciente', 'anticipando algo', 'alerta', 'nerviosa', 'preocupada', 'en vilo', 'insegura'],
+  '🌿 En paz':    ['serena', 'presente', 'sin urgencia', 'asentada', 'liviana', 'en calma', 'suave', 'conectada', 'agradecida'],
+  '🔥 Motivada':  ['con foco', 'decidida', 'con impulso', 'clara', 'lista', 'entusiasmada', 'curiosa', 'con ganas', 'creativa'],
+
+  // Las de abajo no se ven de entrada: aparecen detrás de "＋ más".
+  '😢 Triste':    ['apagada', 'melancólica', 'nostálgica', 'con ganas de llorar', 'herida', 'decepcionada', 'extrañando', 'sin ánimo'],
+  '😤 Enojada':   ['irritada', 'molesta', 'indignada', 'resentida', 'harta', 'frustrada', 'impotente', 'con rabia'],
+  '😨 Con miedo': ['asustada', 'vulnerable', 'insegura', 'paralizada', 'desprotegida', 'amenazada', 'con incertidumbre'],
+  '😑 Aburrida':  ['sin estímulo', 'inquieta', 'estancada', 'apática', 'sin curiosidad', 'impaciente', 'en espera'],
+  '🙏 Agradecida':['querida', 'acompañada', 'afortunada', 'conmovida', 'cuidada', 'satisfecha', 'reconocida'],
+  '😴 Agotada':   ['sin batería', 'pesada', 'agotada de aguantar', 'sin fuerza', 'somnolienta', 'drenada', 'al límite']
 };
+
+// Las que se ven de entrada. Todo lo demás de GRANULARIDAD queda detrás de "＋ más".
+const EMOCIONES_BASICAS = ['🌟 Excelente', '😊 Bien', '😐 Regular', '😔 Difícil', '🌊 Cargada', '⚡ Ansiosa', '🌿 En paz', '🔥 Motivada'];
+
+// Dónde se siente en el cuerpo (Barrett: presupuesto corporal). Se pueden marcar varios.
+// No uses el signo | dentro de una palabra: es el separador con el que se guarda.
+const CUERPO = ['pecho apretado', 'nudo en la garganta', 'estómago cerrado', 'hombros tensos', 'mandíbula apretada',
+                'cabeza pesada', 'cuerpo pesado', 'calor', 'temblor', 'dolor del pie'];
 
 // Emoción por momento: la pregunta que se hace en cada panel. Las palabras salen
 // de GRANULARIDAD, así que no hay un segundo vocabulario que mantener.
@@ -3182,6 +3231,8 @@ async function guardarRegistroDiario(fecha) {
 
   poner('emocion');
   poner('emocion_fina');
+  poner('emocion_intensidad', 'emocion_intensidad', v=>parseInt(v));
+  poner('emocion_cuerpo');
   poner('energia', 'energia', v=>parseInt(v));
   poner('agua');
   poner('pasos', 'pasos', v=>parseInt(v));
@@ -3224,6 +3275,9 @@ async function cargarRegistroDesdeSupabase() {
       if(!existente || Object.keys(existente).length===0){
         const d = {};
         if(row.emocion) d.emocion=row.emocion;
+        if(row.emocion_fina) d.emocion_fina=row.emocion_fina;
+        if(row.emocion_intensidad) d.emocion_intensidad=row.emocion_intensidad;
+        if(row.emocion_cuerpo) d.emocion_cuerpo=row.emocion_cuerpo;
         if(row.energia) d.energia=row.energia;
         if(row.agua) d.agua=row.agua;
         if(row.pasos) d.pasos=String(row.pasos);
@@ -3256,48 +3310,127 @@ function setEmocion(el, val) {
   document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
   el.classList.add('selected');
   todayData.emocion=val;
-  // Si cambia la emoción gruesa, el matiz anterior ya no aplica
+  // Si cambia la emoción gruesa, el matiz anterior ya no aplica. La intensidad y el
+  // cuerpo se conservan: si fue un toque equivocado, no se pierde lo ya marcado.
   if(cambioDeEmocion) todayData.emocion_fina = '';
   saveTodayLocal();
   updateSnaps();
-  buildGranularidad(val);
+  buildGranularidad();
 }
 
-// ── GRANULARIDAD EMOCIONAL (Barrett) ──
-// Pinta la segunda capa de palabras para la emoción elegida.
-// Es opcional por diseño: un tap más, nunca obligatorio.
-function buildGranularidad(emocion) {
-  const box = document.getElementById('granular-box');
-  const cont = document.getElementById('granular-pills');
-  if(!box || !cont) return;
+// ── EMOCIONES: emoción principal + 3 capas opcionales ──
+// Palabra fina (granularidad, Barrett), qué tan fuerte, y dónde se siente en el cuerpo.
+// Las mismas capas funcionan en Hoy ('hoy') y en cada momento ('manana', 'noche').
+// Nada es obligatorio: un tap elige, el mismo tap otra vez quita.
 
-  const opciones = GRANULARIDAD[emocion];
-  if(!emocion || !opciones) { box.classList.remove('on'); cont.innerHTML=''; return; }
+const esExtra = e => !!e && !EMOCIONES_BASICAS.includes(e);
 
-  const actual = todayData.emocion_fina || '';
-  cont.innerHTML = opciones.map(p => `
-    <button class="granular-pill${p===actual?' selected':''}"
-            onclick="setEmocionFina('${p.replace(/'/g,"\\'")}')">${p}</button>
-  `).join('');
-  box.classList.add('on');
+// Las emociones que no son básicas quedan detrás de "＋ más": peso visual cero hasta que se piden.
+function pillsEmociones(clase, claseExtra, onclick) {
+  return Object.keys(GRANULARIDAD).map(e =>
+    `<button class="${clase}${EMOCIONES_BASICAS.includes(e)?'':' '+claseExtra}" data-e="${e}" onclick="${onclick}">${e}</button>`).join('')
+    + `<button class="emo-mas" onclick="toggleMas(this)">＋ más</button>`;
 }
 
-function setEmocionFina(palabra) {
-  // Volver a tocar la misma la deselecciona: puede que ninguna encaje
-  const yaEstaba = todayData.emocion_fina === palabra;
-  todayData.emocion_fina = yaEstaba ? '' : palabra;
-  document.querySelectorAll('#granular-pills .granular-pill').forEach(b=>{
-    b.classList.toggle('selected', !yaEstaba && b.textContent.trim()===palabra);
-  });
-  saveTodayLocal();
-  updateSnaps();
+function toggleMas(btn) {
+  const abierto = btn.parentElement.classList.toggle('mas-on');
+  btn.textContent = abierto ? '− menos' : '＋ más';
+}
+
+// Si la emoción elegida es de las ocultas, se muestran para que se vea cuál es
+function abrirMas(cont) {
+  if(!cont || cont.classList.contains('mas-on')) return;
+  cont.classList.add('mas-on');
+  const b = cont.querySelector('.emo-mas');
+  if(b) b.textContent = '− menos';
+}
+
+function construirEmocionesHoy() {
+  const cont = document.getElementById('emo-pills-hoy');
+  if(cont) cont.innerHTML = pillsEmociones('emo-pill', 'emo-extra', 'setEmocion(this,this.dataset.e)');
+}
+
+// En Hoy los campos viven en registro_diario; en los momentos, en emociones_momento.
+const CAMPO_CAPA = {
+  hoy:     {fina:'emocion_fina', int:'emocion_intensidad', cuerpo:'emocion_cuerpo'},
+  momento: {fina:'emocion_fina', int:'intensidad',         cuerpo:'cuerpo'}
+};
+const campoCapa = (scope, capa) => CAMPO_CAPA[scope==='hoy' ? 'hoy' : 'momento'][capa];
+
+function objetoCapas(scope) {
+  if(scope === 'hoy') return todayData;
+  return (momentosCache[fechaActiva] || {})[scope] || null;
+}
+
+let cuerpoAbierto = {};   // scope+fecha -> bool; sin valor = abierto solo si ya hay algo marcado
+
+function pintarCapas(scope) {
+  const caja = document.getElementById(scope==='hoy' ? 'granular-box' : 'granular-'+scope);
+  if(!caja) return;
+  const d = objetoCapas(scope) || {};
+  const opciones = GRANULARIDAD[d.emocion];
+  if(!opciones) { caja.classList.remove('on'); caja.innerHTML=''; return; }
+
+  const fina = d[campoCapa(scope,'fina')] || '';
+  const inten = Number(d[campoCapa(scope,'int')]) || 0;
+  const cuerpo = (d[campoCapa(scope,'cuerpo')] || '').split('|').filter(Boolean);
+  const k = scope + fechaActiva;
+  const abierto = cuerpoAbierto[k] === undefined ? cuerpo.length > 0 : cuerpoAbierto[k];
+
+  caja.innerHTML = `
+    <div class="granular-label">Si tuvieras que afinarlo</div>
+    <div class="granular-pills">${opciones.map(p =>
+      `<button class="granular-pill${p===fina?' selected':''}" data-p="${p}" onclick="setCapa('${scope}','fina',this.dataset.p)">${p}</button>`).join('')}</div>
+    <div class="capa-fila">
+      <span class="granular-label">Qué tan fuerte</span>
+      <div class="capa-int">${[1,2,3,4,5].map(n =>
+        `<button class="int-pill${n===inten?' selected':''}" onclick="setCapa('${scope}','int',${n})">${n}</button>`).join('')}</div>
+    </div>
+    <button class="capa-link" onclick="toggleCuerpo('${scope}')">${abierto?'▾':'▸'} Dónde lo siento en el cuerpo${cuerpo.length && !abierto ? ' ('+cuerpo.length+')' : ''}</button>
+    ${abierto ? `<div class="granular-pills capa-cuerpo">${CUERPO.map(c =>
+      `<button class="granular-pill${cuerpo.includes(c)?' selected':''}" data-p="${c}" onclick="setCapa('${scope}','cuerpo',this.dataset.p)">${c}</button>`).join('')}</div>` : ''}`;
+  caja.classList.add('on');
+}
+
+function toggleCuerpo(scope) {
+  const d = objetoCapas(scope) || {};
+  const hay = ((d[campoCapa(scope,'cuerpo')] || '').length) > 0;
+  const k = scope + fechaActiva;
+  const actual = cuerpoAbierto[k] === undefined ? hay : cuerpoAbierto[k];
+  cuerpoAbierto[k] = !actual;
+  pintarCapas(scope);
+}
+
+function setCapa(scope, capa, valor) {
+  const d = objetoCapas(scope);
+  if(!d || !d.emocion) return;      // las capas existen solo después de elegir una emoción
+  const c = campoCapa(scope, capa);
+  if(capa === 'cuerpo') {
+    const lista = (d[c] || '').split('|').filter(Boolean);
+    const i = lista.indexOf(valor);
+    if(i >= 0) lista.splice(i, 1); else lista.push(valor);
+    d[c] = lista.join('|');
+  } else if(capa === 'int') {
+    d[c] = Number(d[c]) === valor ? '' : valor;
+  } else {
+    d[c] = d[c] === valor ? '' : valor;
+  }
+  if(scope === 'hoy') { saveTodayLocal(); updateSnaps(); }
+  else guardarMomento(fechaActiva, scope);
+  pintarCapas(scope);
+}
+
+// Se llama desde restoreTodayUI: repinta las capas de Hoy y abre "más" si la emoción es de las ocultas
+function buildGranularidad() {
+  pintarCapas('hoy');
+  if(esExtra(todayData.emocion)) abrirMas(document.getElementById('emo-pills-hoy'));
 }
 
 // ── EMOCIÓN POR MOMENTO (fase 2) ──
 // Una etiqueta diaria promedia mañana y noche y borra justo lo que se quiere ver.
 // Cada momento se guarda aparte en `emociones_momento`; ninguno es obligatorio.
 // `registro_diario.emocion` sigue existiendo: el primer momento del día la llena.
-let momentosCache = {};     // fecha -> { manana:{emocion,emocion_fina,hora}, noche:{...} }
+let momentosCache = {};     // fecha -> { manana:{emocion,emocion_fina,intensidad,cuerpo,hora}, noche:{...} }
 let momentosGuardando = 0;  // guardados en vuelo: mientras haya, la carga no pisa lo local
 
 function construirMomentos() {
@@ -3306,12 +3439,8 @@ function construirMomentos() {
     if(!cont) return;
     cont.innerHTML = `
       <div class="emotion-title">${MOMENTOS[m].titulo}</div>
-      <div class="emotion-pills">${Object.keys(GRANULARIDAD).map(e =>
-        `<button class="mom-pill" data-e="${e}" onclick="setMomentoEmocion('${m}',this.dataset.e)">${e}</button>`).join('')}</div>
-      <div class="granular-box" id="granular-${m}">
-        <div class="granular-label">Si tuvieras que afinarlo</div>
-        <div class="granular-pills" id="granular-pills-${m}"></div>
-      </div>`;
+      <div class="emotion-pills" id="mom-pills-${m}">${pillsEmociones('mom-pill', 'mom-extra', `setMomentoEmocion('${m}',this.dataset.e)`)}</div>
+      <div class="granular-box" id="granular-${m}"></div>`;
   });
 }
 
@@ -3320,14 +3449,8 @@ function pintarMomentos() {
   Object.keys(MOMENTOS).forEach(m => {
     const d = dia[m] || {};
     document.querySelectorAll(`#momento-${m} .mom-pill`).forEach(p => p.classList.toggle('selected', p.dataset.e === d.emocion));
-    const box = document.getElementById('granular-'+m);
-    const cont = document.getElementById('granular-pills-'+m);
-    if(!box || !cont) return;
-    const opciones = GRANULARIDAD[d.emocion];
-    if(!opciones) { box.classList.remove('on'); cont.innerHTML=''; return; }
-    cont.innerHTML = opciones.map(p =>
-      `<button class="granular-pill${p===d.emocion_fina?' selected':''}" data-p="${p}" onclick="setMomentoFina('${m}',this.dataset.p)">${p}</button>`).join('');
-    box.classList.add('on');
+    if(esExtra(d.emocion)) abrirMas(document.getElementById('mom-pills-'+m));
+    pintarCapas(m);
   });
 }
 
@@ -3346,30 +3469,43 @@ function setMomentoEmocion(m, emocion) {
     diario.emocion = emocion;
     saveTodayLocal();
     updateSnaps();
-    document.querySelectorAll('.emo-pill').forEach(p => p.classList.toggle('selected', p.textContent === emocion));
-    buildGranularidad(emocion);
+    document.querySelectorAll('.emo-pill').forEach(p => p.classList.toggle('selected', p.dataset.e === emocion));
+    buildGranularidad();
   }
   pintarMomentos();
   guardarMomento(fecha, m);
 }
 
-function setMomentoFina(m, palabra) {
-  const d = (momentosCache[fechaActiva] || {})[m];
-  if(!d || !d.emocion) return;
-  d.emocion_fina = d.emocion_fina === palabra ? '' : palabra;   // tocar de nuevo la quita
-  pintarMomentos();
-  guardarMomento(fechaActiva, m);
+// Cada toque no manda su propia petición: se espera 0,8 s y se manda el estado final.
+// Sin esto, peticiones seguidas podían llegar desordenadas y ganaba la más vieja.
+let momentoTimers = {};
+function guardarMomento(fecha, m) {
+  const k = fecha+'|'+m;
+  clearTimeout(momentoTimers[k]);
+  momentoTimers[k] = setTimeout(()=>guardarMomentoAhora(fecha, m), 800);
 }
 
-async function guardarMomento(fecha, m) {
+async function guardarMomentoAhora(fecha, m) {
+  delete momentoTimers[fecha+'|'+m];
   const d = (momentosCache[fecha] || {})[m];
   if(!d) return;
+  // Solo se envía lo que este dispositivo conoce: lo que nunca se cargó ni se tocó
+  // (undefined) no se manda, para no pisar con vacío lo que otro dispositivo guardó.
+  const payload = {fecha, momento:m};
+  const poner = (col, v, f) => {
+    if(v === undefined) return;
+    payload[col] = (v === '' || v === null) ? null : (f ? f(v) : v);
+  };
+  poner('emocion', d.emocion);
+  poner('emocion_fina', d.emocion_fina);
+  poner('intensidad', d.intensidad, v=>parseInt(v));
+  poner('cuerpo', d.cuerpo);
+  poner('hora', d.hora);
+
   setSyncing(true);
   momentosGuardando++;
   try {
-    await sbLog('emociones_momento','POST',
-      {fecha, momento:m, emocion:d.emocion||null, emocion_fina:d.emocion_fina||null, hora:d.hora||null},
-      '?on_conflict=fecha,momento');
+    await sbLog('emociones_momento','POST', payload, '?on_conflict=fecha,momento');
     setSyncing(false);
     clearSyncError();
   } catch(e){
@@ -3384,10 +3520,10 @@ async function guardarMomento(fecha, m) {
 async function cargarMomentos(fecha) {
   try {
     const filas = await sbLog('emociones_momento','GET',null,`?fecha=eq.${fecha}`);
-    if(!Array.isArray(filas) || momentosGuardando > 0) return false;
+    if(!Array.isArray(filas) || momentosGuardando > 0 || Object.keys(momentoTimers).length) return false;
     const antes = JSON.stringify(momentosCache[fecha] || {});
     const dia = {};
-    filas.forEach(r => { dia[r.momento] = {emocion:r.emocion||'', emocion_fina:r.emocion_fina||'', hora:r.hora||''}; });
+    filas.forEach(r => { dia[r.momento] = {emocion:r.emocion||'', emocion_fina:r.emocion_fina||'', intensidad:r.intensidad||'', cuerpo:r.cuerpo||'', hora:r.hora||''}; });
     const local = momentosCache[fecha] || {};
     Object.keys(local).forEach(k => { if(!dia[k]) dia[k] = local[k]; });
     momentosCache[fecha] = dia;
@@ -4624,6 +4760,8 @@ async function refrescoAutomatico() {
         };
         merge('emocion', row.emocion);
         merge('emocion_fina', row.emocion_fina);
+        merge('emocion_intensidad', row.emocion_intensidad);
+        merge('emocion_cuerpo', row.emocion_cuerpo);
         merge('energia', row.energia);
         merge('agua', row.agua);
         merge('pasos', row.pasos!=null?String(row.pasos):null);
@@ -4749,6 +4887,11 @@ function forzarGuardadoPendiente() {
     clearTimeout(recuperacionTimer);
     guardarRecuperacionAhora();
   }
+  Object.keys(momentoTimers).forEach(k => {
+    clearTimeout(momentoTimers[k]);
+    const [f, m] = k.split('|');
+    guardarMomentoAhora(f, m);
+  });
 }
 
 async function init() {
@@ -4759,6 +4902,7 @@ async function init() {
   buildStrip('m'); buildStrip('n');
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
+  construirEmocionesHoy();
   construirMomentos();
   try { const mg = localStorage.getItem('metodo_fumado'); if(METODO_LABEL[mg]) setMetodoFumado(mg); } catch(e){}
   if(RECUPERACION_ACTIVA) {
