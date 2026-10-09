@@ -2196,7 +2196,13 @@ const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
 const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const SHORT = ['L','M','X','J','V','S','D'];
 
-const HABITS = {
+// Hábitos EN PAUSA mientras dura la recuperación del pie (accidente 25 sep 2026).
+// Desaparecen del día y de todos los contadores (para que no se vean como algo que falta),
+// sin borrar nada de lo ya registrado. Para que vuelvan: dejar la lista vacía → []
+// Se identifican por NOMBRE, así que aplica a la mañana y a la noche.
+const HABITOS_EN_PAUSA = ['Tiendo mi cama', 'Alisto mi almuerzo', 'Lavo mis tápers'];
+
+const HABITS_TODOS = {
   m:[
     {icon:'🛏️',name:'Tiendo mi cama'},
     {icon:'💧',name:'Lavo mi cara'},
@@ -2210,6 +2216,11 @@ const HABITS = {
     {icon:'🫙',name:'Lavo mis tápers'},
     {icon:'📓',name:'Escribo en mi cuaderno'},
   ]
+};
+// Lo que usa el resto de la app: sin los pausados. Todo lo que cuenta hábitos sale de aquí.
+const HABITS = {
+  m: HABITS_TODOS.m.filter(h => !HABITOS_EN_PAUSA.includes(h.name)),
+  n: HABITS_TODOS.n.filter(h => !HABITOS_EN_PAUSA.includes(h.name))
 };
 
 // Hábitos de los gatos (sección propia)
@@ -3922,8 +3933,13 @@ function getAnclaHoy() {
   const now=new Date();
   const start=new Date(now.getFullYear(),0,0);
   const dayOfYear=Math.floor((now-start)/(1000*60*60*24));
-  return ANCLAS[dayOfYear % ANCLAS.length];
+  // Una ancla que sea un hábito en pausa no se ofrece (no podría hacerla)
+  const activas = ANCLAS.filter(a => a.tipo!=='habito' || HABITS[a.panel].some(h=>h.name===a.texto));
+  return activas[dayOfYear % activas.length];
 }
+
+// Los hábitos del ancla se ubican por nombre, no por posición: al pausar algunos, las posiciones se corren.
+const idxAncla = a => a.tipo==='habito' ? HABITS[a.panel].findIndex(h=>h.name===a.texto) : a.idx;
 
 function buildAncla() {
   const a=getAnclaHoy();
@@ -3935,7 +3951,7 @@ function buildAncla() {
 
 function anclaEstaHecha() {
   const a=getAnclaHoy();
-  if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][a.idx];
+  if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][idxAncla(a)];
   if(a.tipo==='gato') return todayData.gatos && todayData.gatos[a.idx];
   if(a.tipo==='emocion') return !!todayData.emocion;
   if(a.tipo==='comida') return todayData.comidas && todayData.comidas[a.idx];
@@ -3957,7 +3973,7 @@ function updateAnclaUI() {
 async function toggleAncla() {
   const a=getAnclaHoy();
   if(a.tipo==='habito') {
-    await toggleHabitQuick(a.panel,todayIdx,a.idx);
+    await toggleHabitQuick(a.panel,todayIdx,idxAncla(a));
   } else if(a.tipo==='gato') {
     toggleGato(a.idx);
   } else if(a.tipo==='comida') {
