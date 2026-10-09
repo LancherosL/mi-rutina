@@ -2023,15 +2023,12 @@ body.night .habito-count { color: var(--night-accent); }
         <div class="disparador-pills" id="disparador-cuerpo"></div>
         <div class="disparador-grupo-label">De la mente</div>
         <div class="disparador-pills" id="disparador-mente"></div>
-        <button class="disparador-skip" onclick="cerrarDisparador()">Ahora no</button>
       </div>
       <div class="micro-accion" id="micro-accion">
         <div class="micro-accion-texto" id="micro-accion-texto"></div>
         <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
-        <button class="micro-accion-listo" onclick="cerrarDisparador()">Listo ✓</button>
       </div>
-      <!-- Capas opcionales del registro (fuerza, lo vi venir, a la mano, qué buscaba, cuerpo) -->
-      <button class="capa-link" id="afinar-link" style="display:none;" onclick="toggleAfinar()">▸ Afinar este registro</button>
+      <!-- Fuerza (siempre visible), "afinar más" (lo vi venir, a la mano, qué buscaba, cuerpo) y cierre -->
       <div id="afinar-capas"></div>
     </div>
 
@@ -2666,6 +2663,14 @@ const DISPARADORES = [
     accion:'Esto no era antojo: era el pie. Si dolió, tiene sentido. Nómbralo: dónde y cuánto, del 1 al 10.',
     porQue:'Barrett: poner lugar y número separa el dolor del malestar emocional que se le pega.' },
 
+  { id:'dolor_otro',   label:'🤕 Otro dolor', grupo:'cuerpo',
+    accion:'Esto no era antojo: era el cuerpo pidiendo alivio. Nómbralo: dónde y cuánto, del 1 al 10.',
+    porQue:'Barrett: poner lugar y número separa el dolor del malestar emocional que se le pega.' },
+
+  { id:'estomago',     label:'🔥 Estómago / gastritis', grupo:'cuerpo',
+    accion:'Esto no era antojo: era el estómago. Anotarlo así te deja ver cuántas veces es cuerpo y cuántas no.',
+    porQue:'Barrett: separar la fisiología de la emoción es media batalla.' },
+
   { id:'ansiedad',     label:'⚡ Ansiedad',     grupo:'mente',
     accion:'Antes del próximo: nombra en voz baja qué exactamente te preocupa. Una frase.',
     porQue:'Barrett: el etiquetado afectivo activa la prefrontal y reduce la reactividad.' },
@@ -2693,6 +2698,7 @@ const FUNCIONES = [
   {id:'ruido_mental', label:'🧠 Bajar el ruido mental'},
   {id:'dormir',       label:'🌙 Dormir'},
   {id:'dolor',        label:'🦶 Aliviar dolor'},
+  {id:'estomago',     label:'🔥 Calmar el estómago'},
   {id:'energia',      label:'⚡ Energía / ánimo'},
   {id:'disfrutar',    label:'🎶 Disfrutar / acompañarme'},
   {id:'costumbre',    label:'🔁 Costumbre'},
@@ -2942,6 +2948,7 @@ async function registrarPausa(cantidad) {
 function abrirDisparador(tipo='consumo') {
   const box = document.getElementById('disparador-box');
   if(!box) return;
+  clearTimeout(cierreAutoTimer);
   panelTipo = tipo;
   panelId = ultimoRegistroId;
   afinarAbierto = false;
@@ -2965,6 +2972,7 @@ function abrirDisparador(tipo='consumo') {
 }
 
 function cerrarDisparador() {
+  clearTimeout(cierreAutoTimer);
   vaciarAfinar();   // lo que se haya marcado y aún no se mandó, se manda ahora
   panelId = null;
   afinarAbierto = false;
@@ -2983,8 +2991,9 @@ async function setDisparador(id) {
   if(!d || !ultimoRegistroId) return;
 
   const registroId = ultimoRegistroId; // se captura: el cierre lo pone en null
+  clearTimeout(cierreAutoTimer);
 
-  // Ya respondió: las preguntas se van. El registro terminó acá.
+  // Ya respondió el motivo: esa pregunta se va, pero el panel sigue para marcar la fuerza.
   const preguntas = document.getElementById('disparador-preguntas');
   if(preguntas) preguntas.style.display = 'none';
 
@@ -2997,9 +3006,9 @@ async function setDisparador(id) {
     setSyncing(false); clearSyncError();
   } catch(e){ console.error(e); setSyncError(); }
 
-  // Si hay micro-intervención (Suzuki) se queda visible hasta que la cierre;
-  // si no hay nada que leer, se cierra todo solo.
-  // La micro-intervención es para cuando SÍ consumió; en una ola no se muestra.
+  // La micro-intervención (Suzuki) es para cuando SÍ consumió; en una ola no se muestra.
+  // Se queda hasta que cierre el panel con "Listo".
+  ultimoRegistroId = null; // el motivo ya está respondido
   const micro = document.getElementById('micro-accion');
   if(micro && d.accion && panelTipo==='consumo') {
     const txt = document.getElementById('micro-accion-texto');
@@ -3007,12 +3016,24 @@ async function setDisparador(id) {
     if(txt) txt.textContent = d.accion;
     if(por) por.textContent = d.porQue || '';
     micro.classList.add('on');
-    ultimoRegistroId = null; // el registro ya está completo
-  } else if(afinarAbierto) {
-    ultimoRegistroId = null; // sigue abierto solo para terminar de afinar
-  } else {
-    cerrarDisparador();
   }
+  pintarAfinar();          // el botón de abajo pasa de "Ahora no" a "Listo ✓"
+  revisarCierreAuto();
+}
+
+// El panel se cierra solo cuando ya respondió las dos preguntas centrales (motivo + fuerza),
+// con una pausa corta para poder corregir un toque. No se cierra si está leyendo la
+// micro-intervención o si abrió "afinar más". Si responde solo una, se queda abierto.
+let cierreAutoTimer = null;
+function revisarCierreAuto() {
+  clearTimeout(cierreAutoTimer);
+  const r = registroPanel();
+  if(!r || !r.disparador || !r.fuerza) return;
+  cierreAutoTimer = setTimeout(() => {
+    const micro = document.getElementById('micro-accion');
+    if(!registroPanel() || afinarAbierto || (micro && micro.classList.contains('on'))) return;
+    cerrarDisparador();
+  }, 1200);
 }
 
 // ── AFINAR EL REGISTRO (opcional, después de guardar) ──
@@ -3022,40 +3043,43 @@ const registroPanel = () => panelId ? (panelTipo==='ola' ? olasHoy : cigarrillos
 const afinarOcupado = () => !!afinarTimer || afinarGuardando>0 || Object.keys(afinarCambios).length>0;
 
 function toggleAfinar() {
+  clearTimeout(cierreAutoTimer);
   afinarAbierto = !afinarAbierto;
   pintarAfinar();
 }
 
 function pintarAfinar() {
-  const link = document.getElementById('afinar-link');
   const cont = document.getElementById('afinar-capas');
-  if(!link || !cont) return;
+  if(!cont) return;
   const r = registroPanel();
-  if(!r) { cont.innerHTML=''; link.style.display='none'; return; }
-  link.style.display = '';
-  link.textContent = (afinarAbierto ? '▾' : '▸') + ' Afinar este registro';
-  if(!afinarAbierto) { cont.innerHTML=''; return; }
+  if(!r) { cont.innerHTML=''; return; }
 
   const esOla = panelTipo==='ola';
   const sec = (titulo, html) => `<div class="afinar-sec"><div class="granular-label">${titulo}</div>${html}</div>`;
   const pills = (campo, lista, actual) => `<div class="granular-pills">${lista.map(o =>
     `<button class="granular-pill${o.id===actual?' selected':''}" onclick="setAfinar('${campo}','${o.id}')">${o.label}</button>`).join('')}</div>`;
   const cuerpoSel = (r.cuerpo||'').split('|').filter(Boolean);
+  const respondido = !!(r.disparador || r.fuerza || r.acceso || r.funcion || r.cuerpo || r.que_ayudo ||
+                        r.lo_vi_venir===true || r.lo_vi_venir===false);
 
+  // Fuerza: siempre a la vista, una línea. Lo demás queda detrás de "afinar más".
   cont.innerHTML = `
     <div class="capa-fila">
       <span class="granular-label">Qué tan fuerte</span>
       <div class="capa-int">${[1,2,3,4,5].map(n =>
         `<button class="int-pill${n===Number(r.fuerza)?' selected':''}" onclick="setAfinar('fuerza',${n})">${n}</button>`).join('')}</div>
     </div>
-    ${esOla ? '' : sec('¿Lo viste venir?', pills('lo_vi_venir', [{id:'si',label:'Lo vi venir'},{id:'no',label:'Fue automático'}],
-        r.lo_vi_venir===true ? 'si' : r.lo_vi_venir===false ? 'no' : ''))}
-    ${sec('¿Qué tan a la mano estaba?', pills('acceso', [{id:'mano',label:'A la mano'},{id:'costo',label:'Me costó'}], r.acceso))}
-    ${sec(esOla ? '¿Qué buscaba la gana?' : '¿Qué buscabas?', pills('funcion', FUNCIONES, r.funcion))}
-    ${esOla ? sec('¿Qué ayudó a que pasara?', pills('que_ayudo', AYUDAS_OLA, r.que_ayudo)) : ''}
-    ${sec('¿Dónde lo sentías en el cuerpo?', `<div class="granular-pills">${CUERPO.map(c =>
-      `<button class="granular-pill${cuerpoSel.includes(c)?' selected':''}" data-p="${c}" onclick="setAfinar('cuerpo',this.dataset.p)">${c}</button>`).join('')}</div>`)}
-    <button class="micro-accion-listo" onclick="cerrarDisparador()">Listo ✓</button>`;
+    <button class="capa-link" onclick="toggleAfinar()">${afinarAbierto?'▾':'▸'} Afinar más</button>
+    ${afinarAbierto ? `
+      ${esOla ? '' : sec('¿Lo viste venir?', pills('lo_vi_venir', [{id:'si',label:'Lo vi venir'},{id:'no',label:'Fue automático'}],
+          r.lo_vi_venir===true ? 'si' : r.lo_vi_venir===false ? 'no' : ''))}
+      ${sec('¿Qué tan a la mano estaba?', pills('acceso', [{id:'mano',label:'A la mano'},{id:'costo',label:'Me costó'}], r.acceso))}
+      ${sec(esOla ? '¿Qué buscaba la gana?' : '¿Qué buscabas?', pills('funcion', FUNCIONES, r.funcion))}
+      ${esOla ? sec('¿Qué ayudó a que pasara?', pills('que_ayudo', AYUDAS_OLA, r.que_ayudo)) : ''}
+      ${sec('¿Dónde lo sentías en el cuerpo?', `<div class="granular-pills">${CUERPO.map(c =>
+        `<button class="granular-pill${cuerpoSel.includes(c)?' selected':''}" data-p="${c}" onclick="setAfinar('cuerpo',this.dataset.p)">${c}</button>`).join('')}</div>`)}
+    ` : ''}
+    <div><button class="${respondido?'micro-accion-listo':'disparador-skip'}" onclick="cerrarDisparador()">${respondido?'Listo ✓':'Ahora no'}</button></div>`;
 }
 
 function setAfinar(campo, valor) {
@@ -3081,6 +3105,7 @@ function setAfinar(campo, valor) {
   clearTimeout(afinarTimer);
   afinarTimer = setTimeout(vaciarAfinar, 800);   // junta toques seguidos en una sola petición
   pintarAfinar();
+  if(campo==='fuerza') revisarCierreAuto(); else clearTimeout(cierreAutoTimer);
 }
 
 async function vaciarAfinar() {
