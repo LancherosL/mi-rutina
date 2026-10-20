@@ -375,6 +375,7 @@ body.night .disparador-box { background: rgba(123,174,200,0.10); }
   line-height: 1.25;
 }
 
+.disparador-hint { font-size: 11px; color: var(--muted); margin: -4px 0 10px; }
 .disparador-grupo-label {
   font-size: 9px;
   color: var(--muted);
@@ -582,7 +583,7 @@ body.night .ola-btn { border-color: rgba(255,255,255,0.15); }
 .log-item-trigger {
   font-size: 10.5px;
   color: var(--muted);
-  margin-left: 6px;
+  white-space: nowrap;
 }
 
 /* Quick log */
@@ -1101,9 +1102,9 @@ body.night .log-form-row .log-nota-input { border-color: rgba(255,255,255,0.1); 
 }
 .log-item:last-child { border-bottom: none; }
 body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
-.log-item-info { flex: 1; display: flex; gap: 8px; align-items: baseline; }
+.log-item-info { flex: 1; display: flex; flex-wrap: wrap; gap: 3px 8px; align-items: baseline; }
 .log-item-hora { font-size: 12px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
-.log-item-detalle { font-size: 13px; font-weight: 500; }
+.log-item-detalle { font-size: 13px; font-weight: 500; white-space: nowrap; }
 .log-item-del {
   border: none;
   background: transparent;
@@ -2009,6 +2010,7 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="disparador-box" id="disparador-box">
       <div id="disparador-preguntas">
         <div class="disparador-pregunta">¿Qué había justo antes?</div>
+        <div class="disparador-hint">Puedes marcar uno del cuerpo y uno de la mente</div>
         <div class="disparador-grupo-label">Del cuerpo</div>
         <div class="disparador-pills" id="disparador-cuerpo"></div>
         <div class="disparador-grupo-label">De la mente</div>
@@ -2702,7 +2704,7 @@ const DISPARADORES = [
 const FUNCIONES = [
   {id:'ruido_mental', label:'🧠 Bajar el ruido mental'},
   {id:'dormir',       label:'🌙 Dormir'},
-  {id:'dolor',        label:'🦶 Aliviar dolor'},
+  {id:'dolor',        label:'🩹 Aliviar dolor'},
   {id:'estomago',     label:'🔥 Calmar el estómago'},
   {id:'energia',      label:'⚡ Energía / ánimo'},
   {id:'disfrutar',    label:'🎶 Disfrutar / acompañarme'},
@@ -2721,6 +2723,12 @@ const AYUDAS_OLA = [
   {id:'otro',     label:'✨ Otra cosa'}
 ];
 // "Dónde lo sentías" usa la lista CUERPO de arriba (la misma de las emociones).
+
+// Un registro puede tener un motivo del cuerpo y uno de la mente: se guardan en la misma
+// columna `disparador` como 'id|id' (los registros viejos, con un solo id, siguen valiendo).
+const idsDisparador = x => ((x && x.disparador) || '').split('|').filter(Boolean);
+const grupoDisparador = id => (DISPARADORES.find(d=>d.id===id) || {}).grupo;
+const etiquetasDisparador = x => idsDisparador(x).map(id => DISPARADORES.find(d=>d.id===id)).filter(Boolean);
 
 let cigarrillosHoy = [];
 let olasHoy = [];               // ganas que pasaron sin fumar (tabla `olas`)
@@ -2961,11 +2969,12 @@ function abrirDisparador(tipo='consumo') {
     const cont = document.getElementById(contId);
     if(!cont) return;
     cont.innerHTML = DISPARADORES.filter(d=>d.grupo===grupo).map(d=>`
-      <button class="disparador-pill" onclick="setDisparador('${d.id}')">${d.label}</button>
+      <button class="disparador-pill" data-id="${d.id}" onclick="setDisparador('${d.id}')">${d.label}</button>
     `).join('');
   };
   pinta('cuerpo','disparador-cuerpo');
   pinta('mente','disparador-mente');
+  pintarDisparadores();
   // Se reabre siempre en limpio: preguntas visibles, micro-acción oculta
   const preguntas = document.getElementById('disparador-preguntas');
   if(preguntas) preguntas.style.display = '';
@@ -2991,49 +3000,58 @@ function cerrarDisparador() {
   ultimoRegistroId = null;
 }
 
-async function setDisparador(id) {
-  const d = DISPARADORES.find(x=>x.id===id);
-  if(!d || !ultimoRegistroId) return;
+function pintarDisparadores() {
+  const ids = idsDisparador(registroPanel());
+  document.querySelectorAll('#disparador-preguntas .disparador-pill').forEach(b =>
+    b.classList.toggle('selected', ids.includes(b.dataset.id)));
+}
 
-  const registroId = ultimoRegistroId; // se captura: el cierre lo pone en null
+// Se puede marcar UN motivo del cuerpo y UNO de la mente (los dos, si así lo siente).
+// Tocar el que ya está lo quita; tocar otro del mismo lado lo reemplaza.
+function setDisparador(id) {
+  const d = DISPARADORES.find(x=>x.id===id);
+  const r = registroPanel();
+  if(!d || !r) return;
   clearTimeout(cierreAutoTimer);
 
-  // Ya respondió el motivo: esa pregunta se va, pero el panel sigue para marcar la fuerza.
-  const preguntas = document.getElementById('disparador-preguntas');
-  if(preguntas) preguntas.style.display = 'none';
-
-  setSyncing(true);
-  try {
-    await sbLog(panelTipo==='ola'?'olas':'cigarrillos','PATCH',{disparador:id},`?id=eq.${registroId}`);
-    const local = (panelTipo==='ola' ? olasHoy : cigarrillosHoy).find(x=>x.id===registroId);
-    if(local) local.disparador = id;
-    buildCigarrillos();
-    setSyncing(false); clearSyncError();
-  } catch(e){ console.error(e); setSyncError(); }
+  const ids = idsDisparador(r);
+  const yaEstaba = ids.includes(id);
+  const resto = ids.filter(x => grupoDisparador(x) !== d.grupo);   // sale el que hubiera de ese lado
+  if(!yaEstaba) resto.push(id);
+  r.disparador = resto.join('|') || null;
+  marcarCambio('disparador', r.disparador);
 
   // La micro-intervención (Suzuki) es para cuando SÍ consumió; en una ola no se muestra.
-  // Se queda hasta que cierre el panel con "Listo".
-  ultimoRegistroId = null; // el motivo ya está respondido
+  // Muestra la del último motivo marcado (si tiene); si se quita o no tiene, se esconde.
   const micro = document.getElementById('micro-accion');
-  if(micro && d.accion && panelTipo==='consumo') {
-    const txt = document.getElementById('micro-accion-texto');
-    const por = document.getElementById('micro-accion-por-que');
-    if(txt) txt.textContent = d.accion;
-    if(por) por.textContent = d.porQue || '';
-    micro.classList.add('on');
+  if(micro) {
+    if(!yaEstaba && d.accion && panelTipo==='consumo') {
+      const txt = document.getElementById('micro-accion-texto');
+      const por = document.getElementById('micro-accion-por-que');
+      if(txt) txt.textContent = d.accion;
+      if(por) por.textContent = d.porQue || '';
+      micro.classList.add('on');
+    } else {
+      micro.classList.remove('on');
+    }
   }
+  buildCigarrillos();
+  pintarDisparadores();
   pintarAfinar();          // el botón de abajo pasa de "Ahora no" a "Listo ✓"
   revisarCierreAuto();
 }
 
-// El panel se cierra solo cuando ya respondió las dos preguntas centrales (motivo + fuerza),
-// con una pausa corta para poder corregir un toque. No se cierra si está leyendo la
-// micro-intervención o si abrió "afinar más". Si responde solo una, se queda abierto.
+// Como ahora puede marcar un motivo del cuerpo Y uno de la mente, el panel NO se cierra solo
+// al marcar el primero: se queda abierto hasta que ella toque "Listo ✓" ... o hasta que ya
+// tenga los dos lados + la fuerza (ahí no hay nada más que preguntar). Pausa corta para
+// corregir un toque; no se cierra si está leyendo la micro-intervención o con "afinar más" abierto.
 let cierreAutoTimer = null;
 function revisarCierreAuto() {
   clearTimeout(cierreAutoTimer);
   const r = registroPanel();
-  if(!r || !r.disparador || !r.fuerza) return;
+  if(!r || !r.fuerza) return;
+  const grupos = idsDisparador(r).map(grupoDisparador);
+  if(!(grupos.includes('cuerpo') && grupos.includes('mente'))) return;
   cierreAutoTimer = setTimeout(() => {
     const micro = document.getElementById('micro-accion');
     if(!registroPanel() || afinarAbierto || (micro && micro.classList.contains('on'))) return;
@@ -3061,8 +3079,10 @@ function pintarAfinar() {
 
   const esOla = panelTipo==='ola';
   const sec = (titulo, html) => `<div class="afinar-sec"><div class="granular-label">${titulo}</div>${html}</div>`;
+  // `actual` es un id suelto o, en las de varias opciones, una lista de ids
   const pills = (campo, lista, actual) => `<div class="granular-pills">${lista.map(o =>
-    `<button class="granular-pill${o.id===actual?' selected':''}" onclick="setAfinar('${campo}','${o.id}')">${o.label}</button>`).join('')}</div>`;
+    `<button class="granular-pill${(Array.isArray(actual) ? actual.includes(o.id) : o.id===actual)?' selected':''}" onclick="setAfinar('${campo}','${o.id}')">${o.label}</button>`).join('')}</div>`;
+  const lista = v => (v||'').split('|').filter(Boolean);
   const cuerpoSel = (r.cuerpo||'').split('|').filter(Boolean);
   const respondido = !!(r.disparador || r.fuerza || r.acceso || r.funcion || r.cuerpo || r.que_ayudo ||
                         r.lo_vi_venir===true || r.lo_vi_venir===false);
@@ -3079,8 +3099,8 @@ function pintarAfinar() {
       ${esOla ? '' : sec('¿Lo viste venir?', pills('lo_vi_venir', [{id:'si',label:'Lo vi venir'},{id:'no',label:'Fue automático'}],
           r.lo_vi_venir===true ? 'si' : r.lo_vi_venir===false ? 'no' : ''))}
       ${sec('¿Qué tan a la mano estaba?', pills('acceso', [{id:'mano',label:'A la mano'},{id:'costo',label:'Me costó'}], r.acceso))}
-      ${sec(esOla ? '¿Qué buscaba la gana?' : '¿Qué buscabas?', pills('funcion', FUNCIONES, r.funcion))}
-      ${esOla ? sec('¿Qué ayudó a que pasara?', pills('que_ayudo', AYUDAS_OLA, r.que_ayudo)) : ''}
+      ${sec(esOla ? '¿Qué buscaba la gana? (puedes marcar varias)' : '¿Qué buscabas? (puedes marcar varias)', pills('funcion', FUNCIONES, lista(r.funcion)))}
+      ${esOla ? sec('¿Qué ayudó a que pasara? (puedes marcar varias)', pills('que_ayudo', AYUDAS_OLA, lista(r.que_ayudo))) : ''}
       ${sec('¿Dónde lo sentías en el cuerpo?', `<div class="granular-pills">${CUERPO.map(c =>
         `<button class="granular-pill${cuerpoSel.includes(c)?' selected':''}" data-p="${c}" onclick="setAfinar('cuerpo',this.dataset.p)">${c}</button>`).join('')}</div>`)}
     ` : ''}
@@ -3091,8 +3111,8 @@ function setAfinar(campo, valor) {
   const r = registroPanel();
   if(!r) return;
   let v;
-  if(campo==='cuerpo') {
-    const lista = (r.cuerpo||'').split('|').filter(Boolean);
+  if(campo==='cuerpo' || campo==='funcion' || campo==='que_ayudo') {   // varias opciones, guardadas como 'a|b'
+    const lista = (r[campo]||'').split('|').filter(Boolean);
     const i = lista.indexOf(valor);
     if(i>=0) lista.splice(i,1); else lista.push(valor);
     v = lista.join('|') || null;
@@ -3105,12 +3125,19 @@ function setAfinar(campo, valor) {
     v = r[campo]===valor ? null : valor;
   }
   r[campo] = v;
+  marcarCambio(campo, v);
+  pintarAfinar();
+  if(campo==='fuerza') revisarCierreAuto(); else clearTimeout(cierreAutoTimer);
+}
+
+// Anota el cambio y lo manda tras 0,8 s: junta toques seguidos en una sola petición por registro.
+function marcarCambio(campo, v) {
+  const r = registroPanel();
+  if(!r) return;
   const k = (panelTipo==='ola'?'olas':'cigarrillos')+'|'+r.id;
   (afinarCambios[k] = afinarCambios[k] || {})[campo] = v;
   clearTimeout(afinarTimer);
-  afinarTimer = setTimeout(vaciarAfinar, 800);   // junta toques seguidos en una sola petición
-  pintarAfinar();
-  if(campo==='fuerza') revisarCierreAuto(); else clearTimeout(cierreAutoTimer);
+  afinarTimer = setTimeout(vaciarAfinar, 800);
 }
 
 async function vaciarAfinar() {
@@ -3198,13 +3225,14 @@ function buildCigarrillos() {
         ...olasHoy.map(x => ({...x, _t:'o'}))
       ].sort((a,b)=>(a.hora||'').localeCompare(b.hora||''));
       list.innerHTML = items.map(x => {
-        const disp = DISPARADORES.find(d=>d.id===x.disparador);
+        const disps = etiquetasDisparador(x);
+        const etiquetas = disps.map(d => `<span class="log-item-trigger">${d.label}</span>`).join('');
         if(x._t==='o') return `
         <div class="log-item log-item-ola">
           <div class="log-item-info">
             <span class="log-item-hora">${formatHora12(x.hora)||'—'}</span>
             <span class="log-item-detalle">🌊 pasó la ola</span>
-            ${disp ? `<span class="log-item-trigger">${disp.label}</span>` : ''}
+            ${etiquetas}
           </div>
           <button class="log-item-del" onclick="borrarOla('${x.id}')">✕</button>
         </div>`;
@@ -3213,7 +3241,7 @@ function buildCigarrillos() {
           <div class="log-item-info">
             <span class="log-item-hora editable" onclick="editarHoraCigarrillo('${x.id}')">${formatHora12(x.hora)||'—'}</span>
             <span class="log-item-detalle">${METODO_LABEL[x.metodo] || '🚬 cigarrillo'} · ${x.cantidad}</span>
-            ${disp ? `<span class="log-item-trigger">${disp.label}</span>` : ''}
+            ${etiquetas}
           </div>
           <button class="log-item-del" onclick="borrarCigarrillo('${x.id}')">✕</button>
         </div>`;
@@ -4909,13 +4937,11 @@ function buildSemana() {
         let bloqueDisparadores = '';
         if(conDisparador.length >= 3) {
           const conteo = {};
-          conDisparador.forEach(x=>{ conteo[x.disparador] = (conteo[x.disparador]||0)+1; });
+          conDisparador.forEach(x=>{ idsDisparador(x).forEach(id => { conteo[id] = (conteo[id]||0)+1; }); });
           const orden = Object.entries(conteo).sort((a,b)=>b[1]-a[1]);
           const totalD = conDisparador.length;
-          const cuerpo = conDisparador.filter(x=>{
-            const d = DISPARADORES.find(y=>y.id===x.disparador);
-            return d && d.grupo==='cuerpo';
-          }).length;
+          // Cuenta los registros donde hubo algo del cuerpo (aunque también hubiera algo de la mente)
+          const cuerpo = conDisparador.filter(x => idsDisparador(x).some(id => grupoDisparador(id)==='cuerpo')).length;
           const pctCuerpo = Math.round(cuerpo/totalD*100);
 
           const filas = orden.map(([id,n])=>{
