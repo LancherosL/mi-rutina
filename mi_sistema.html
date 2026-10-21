@@ -1811,8 +1811,8 @@ body.night .habito-count { color: var(--night-accent); }
 .comida-item .nu-input-row { margin: 8px 0 0 40px; }
 .nu-input-row .comida-texto { margin: 0; width: auto; flex: 1; min-width: 0; }
 .nu-scan {
-  background: none; border: none; font-size: 15px; padding: 4px 6px;
-  cursor: pointer; opacity: .5; line-height: 1;
+  background: none; border: none; padding: 4px 6px; color: var(--muted);
+  cursor: pointer; line-height: 0;
 }
 .nu-scan:active { transform: scale(.85); }
 .comida-item .nu-zona { margin-left: 40px; }
@@ -1958,7 +1958,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <button class="comida-skip" id="skip-0" onclick="toggleOmitida(0)">No desayuné</button>
       <div class="nu-input-row">
         <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('0')" aria-label="Escanear código de barras">📷</button>
+        <button class="nu-scan" onclick="nuEscanear('0')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
       </div>
       <div class="nu-zona" id="nu-0"></div>
     </div>
@@ -1977,7 +1977,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <button class="comida-skip" id="skip-1" onclick="toggleOmitida(1)">No almorcé</button>
       <div class="nu-input-row">
         <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('1')" aria-label="Escanear código de barras">📷</button>
+        <button class="nu-scan" onclick="nuEscanear('1')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
       </div>
       <div class="nu-zona" id="nu-1"></div>
     </div>
@@ -1996,7 +1996,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <button class="comida-skip" id="skip-2" onclick="toggleOmitida(2)">No cené</button>
       <div class="nu-input-row">
         <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('2')" aria-label="Escanear código de barras">📷</button>
+        <button class="nu-scan" onclick="nuEscanear('2')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
       </div>
       <div class="nu-zona" id="nu-2"></div>
     </div>
@@ -2009,7 +2009,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <div class="extras-input-row">
         <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('extra')" aria-label="Escanear código de barras">📷</button>
+        <button class="nu-scan" onclick="nuEscanear('extra')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
         <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
       </div>
       <div class="nu-zona" id="nu-extra"></div>
@@ -4219,14 +4219,43 @@ function nuPintarTodo() {
 }
 
 // ── Buscador ──
-function nuCoincidencias(texto) {
+const NU_NO_CLAVE = ['cocido','cocida','cocidos','cocidas','crudo','cruda','frito','frita','asado','asada','blanco','blanca','integral','natural','maduro','rojos','firme','entero','tierno','curado','fresco','peso','unidad','griego','negro','agua','aceite','escurrido','escurridas','calcio','tajadas','hojuelas','tajado','crema','oliva','vegetal','molida','lactosa'];
+
+// Raíz de una palabra: sin diminutivo (arepita→arep, cafecito→cafe) ni plural (huevos→huevo)
+function nuRaiz(w) {
+  const sinDim = w.replace(/(cit|it)(a|o)s?$/, '');
+  if(sinDim!==w && sinDim.length>=3) return sinDim;
+  return w.length>3 ? w.replace(/s$/, '') : w;
+}
+
+// Busca palabra por palabra contra la palabra principal de cada alimento
+// ("Arepita pequeña, dos huevos fritos" → Arepa, Huevo). La última palabra, si
+// todavía se está escribiendo, se busca como prefijo ("are" → Arepa).
+// No sugiere lo que ya está agregado en esa comida.
+function nuCoincidencias(texto, excluir=[]) {
   const q = nuNorm(texto);
-  if(q.length<2) return {lista:[], completo:true};
-  const busca = t => nuAlimentos.filter(a => nuNorm(a.nombre).includes(t) || String(a.norm||'').includes(t));
-  let lista = busca(q), completo = true;
-  const ult = q.split(/\s+/).pop();
-  if(!lista.length && ult!==q && ult.length>=2) { lista = busca(ult); completo = false; }
-  return {lista: lista.slice(0,5), completo};
+  if(q.length<2) return {lista:[]};
+  const palabras = q.split(/[^a-zñ]+/).filter(Boolean);
+  const escribiendo = !/[\s,.;]$/.test(texto) ? palabras[palabras.length-1] : null;
+  // Palabras que cuentan: la primera del nombre siempre; las demás si no son descriptivas
+  // ("Pechuga de pollo cocida" → pechuga, pollo; "Atún en agua" → atun)
+  const clave = a => {
+    const ws = nuNorm(a.nombre).split(/[^a-zñ]+/).filter(Boolean);
+    return [ws[0], String(a.norm||'').split(' ')[0]].concat(ws.slice(1).filter(x => x.length>=4 && !NU_NO_CLAVE.includes(x)));
+  };
+  const lista = [];
+  palabras.forEach(w => {
+    const raiz = nuRaiz(w);
+    nuAlimentos.forEach(a => {
+      if(lista.includes(a) || excluir.includes(String(a.id))) return;
+      const ok = clave(a).some(k => k && (
+        (w===escribiendo && w.length>=2 && w.length<=3 && k.startsWith(w)) ||
+        (raiz.length>=3 && ((k.startsWith(raiz) && k.length-raiz.length<=1) || raiz.startsWith(k) && k.length>=4))
+      ));
+      if(ok) lista.push(a);
+    });
+  });
+  return {lista: lista.slice(0,6)};
 }
 
 function nuBuscar(zona) {
@@ -4237,13 +4266,7 @@ function nuBuscar(zona) {
 function nuElegir(zona, id) {
   const a = nuAlimentos.find(x => String(x.id)===String(id));
   if(!a) return;
-  const input = document.getElementById(nuInputId(zona));
-  if(input) {   // lo escrito para buscar se quita; el resto del texto libre se queda
-    const {completo} = nuCoincidencias(input.value);
-    input.value = completo ? '' : input.value.replace(/\S+\s*$/, '').trimEnd();
-    if(zona!=='extra') saveComidaTexto(Number(zona));
-  }
-  nuSel[zona] = {a, u:0};
+  nuSel[zona] = {a, u:0};   // el texto que escribiste no se toca
   nuPintarZona(zona);
 }
 
@@ -4262,7 +4285,8 @@ function nuPintarZona(zona) {
     html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div></div>`;
   } else {
     const input = document.getElementById(nuInputId(zona));
-    const {lista} = nuCoincidencias(input ? input.value : '');
+    const ya = nuItems.filter(x => x.comida===zona && x.alimento_id).map(x => String(x.alimento_id));
+    const {lista} = nuCoincidencias(input ? input.value : '', zona==='extra' ? [] : ya);
     if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}</button>`).join('')}</div>`;
   }
   if(zona!=='extra') {
@@ -4296,6 +4320,7 @@ async function nuAgregar(zona, cant) {
     fila.extra_ref = nuIdExtra();
     todayData.extras.push({id: fila.extra_ref, hora: horaActualHHMM(), texto: `${a.nombre} · ${nuFmtCant(cant)} ${u.u}`});
     saveTodayLocal();
+    const inEx = document.getElementById('input-extra'); if(inEx) inEx.value = '';
   } else if(!(todayData.comidas||{})[Number(zona)]) {
     toggleComida(Number(zona));   // anotar lo que comiste también marca la comida
   }
@@ -4377,7 +4402,7 @@ async function nuFotoElegida(input) {
   if(!file) return;
   let codigo = null;
   try { codigo = await nuLeerCodigo(file); } catch(e) { console.error('No se pudo leer el código:', e); }
-  if(!codigo) codigo = (prompt('No pude leer el código. Escribe los números de abajo:') || '').replace(/\D/g, '');
+  if(!codigo) codigo = (prompt('No vi un código de barras en la foto. Esto es sólo para empacados: si tienes uno, escribe los números de abajo del código.') || '').replace(/\D/g, '');
   if(codigo) await nuBuscarCodigo(nuZonaScan, codigo);
 }
 

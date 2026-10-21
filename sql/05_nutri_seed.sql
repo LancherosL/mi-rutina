@@ -51,6 +51,8 @@ values
 ('Fresas','fresas','fruta','[{"u":"taza","g":152}]',32,0.7,7.7,0.3,2.0,16,0,false,false,'USDA 09316'),
 ('Arándanos','arandanos','fruta','[{"u":"taza","g":148}]',57,0.7,14.5,0.3,2.4,6,0,false,false,'USDA 09050'),
 ('Naranja','naranja','fruta','[{"u":"unidad","g":131}]',47,0.9,11.8,0.1,2.4,40,0,false,false,'USDA 09200'),
+('Uvas','uvas','fruta','[{"u":"taza","g":151},{"u":"10 uvas","g":49}]',69,0.7,18.1,0.2,0.9,10,0,false,false,'USDA 09132'),
+('Kiwi','kiwi','fruta','[{"u":"unidad","g":69}]',61,1.1,14.7,0.5,3.0,34,0,false,false,'USDA 09148'),
 ('Guayaba','guayaba','fruta','[{"u":"unidad","g":55}]',68,2.6,14.3,1.0,5.4,18,0,false,false,'USDA 09139'),
 -- Verduras
 ('Tomate','tomate','verdura','[{"u":"unidad","g":123}]',18,0.9,3.9,0.2,1.2,10,0,false,false,'USDA 11529'),
