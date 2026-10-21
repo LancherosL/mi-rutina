@@ -1466,8 +1466,19 @@ body.night .habit-card.done { background: linear-gradient(135deg, rgba(196,154,6
 .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 
 /* ── RECUPERACIÓN (temporal) ── */
-.recuperacion-card .emotion-bar { margin-bottom: 10px; }
-.recuperacion-card .log-form-row { margin-top: 4px; margin-bottom: 0; }
+.recuperacion-card {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.night .recuperacion-card { background: var(--night-card); }
+.recup-fila { padding: 12px 0; border-top: 1px solid var(--line); }
+.recuperacion-card .ql-title + .recup-fila { border-top: none; padding-top: 4px; }
+body.night .recup-fila { border-top-color: rgba(255,255,255,0.08); }
+.recup-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+.recuperacion-card .recup-nota-fila { margin: 4px 0 0; }
 
 /* ── SEMANA PANEL ── */
 .resumen-card {
@@ -1837,26 +1848,6 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="ancla-razon" id="ancla-razon">—</div>
   </div>
 
-  <!-- RECUPERACIÓN — temporal, se controla con RECUPERACION_ACTIVA. Oculta por defecto. -->
-  <div class="recuperacion-card" id="recuperacion-card" style="display:none;">
-    <div class="section-label">Recuperación 🦶</div>
-    <div class="emotion-bar">
-      <div class="emotion-title">Dolor</div>
-      <div class="emotion-pills" id="recup-pills-dolor"></div>
-    </div>
-    <div class="emotion-bar">
-      <div class="emotion-title">Movilidad</div>
-      <div class="emotion-pills" id="recup-pills-movilidad"></div>
-    </div>
-    <div class="emotion-bar">
-      <div class="emotion-title">Ánimo</div>
-      <div class="emotion-pills" id="recup-pills-animo"></div>
-    </div>
-    <div class="log-form-row">
-      <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
-    </div>
-  </div>
-
   <div class="snapshot-row">
     <div class="snap-card c-sage" onclick="switchPanel('manana')">
       <div class="snap-label">Sueño</div>
@@ -1963,6 +1954,27 @@ body.night .habito-count { color: var(--night-accent); }
       </div>
       <div class="extras-list" id="extras-list"></div>
       <div class="extras-nota">Sin juicio. Solo información sobre tus patrones 🌿</div>
+    </div>
+  </div>
+
+  <!-- RECUPERACIÓN — temporal, se controla con RECUPERACION_ACTIVA. Oculta por defecto.
+       Una sola tarjeta, mismo estilo que Mis comidas / Mis gatos. Los ids no cambian. -->
+  <div class="recuperacion-card" id="recuperacion-card" style="display:none;">
+    <div class="ql-title">Mi pie 🦶</div>
+    <div class="recup-fila">
+      <div class="recup-label">Dolor</div>
+      <div class="emotion-pills" id="recup-pills-dolor"></div>
+    </div>
+    <div class="recup-fila">
+      <div class="recup-label">Movilidad</div>
+      <div class="emotion-pills" id="recup-pills-movilidad"></div>
+    </div>
+    <div class="recup-fila">
+      <div class="recup-label">Ánimo</div>
+      <div class="emotion-pills" id="recup-pills-animo"></div>
+    </div>
+    <div class="log-form-row recup-nota-fila">
+      <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
     </div>
   </div>
 
