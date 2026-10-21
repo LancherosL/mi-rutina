@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nova">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Nova</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #F2EDE4;
+  --card: #FAFAF7;
+  --ink: #1A1612;
+  --muted: #8C7E6E;
+  --terra: #B85C35;
+  --terra-soft: rgba(184,92,53,0.10);
+  --sage: #5C8A65;
+  --sage-soft: rgba(92,138,101,0.12);
+  --lavender: #7B6FA0;
+  --lavender-soft: rgba(123,111,160,0.10);
+  --line: rgba(26,22,18,0.08);
+  --r: 22px;
+  --r-sm: 14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+button { font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; }
+input, select { font-family:inherit; font-size:16px; }
+
+.wrap { max-width:520px; margin:0 auto; padding:18px 16px 60px; }
+
+.header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+.titulo { font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:600; letter-spacing:.5px; }
+.fecha { font-size:13px; color:var(--muted); }
+.fase-chip { font-size:12px; font-weight:600; color:var(--lavender); background:var(--lavender-soft);
+  padding:5px 10px; border-radius:20px; }
+
+.card { background:var(--card); border-radius:var(--r); padding:18px; margin-bottom:12px;
+  box-shadow:0 1px 0 var(--line); }
+.label { font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+
+/* ReX */
+.rex { display:flex; gap:12px; align-items:flex-start; }
+.rex-avatar { flex:0 0 38px; height:38px; border-radius:50%; background:var(--ink); color:var(--bg);
+  display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; }
+.rex-texto { font-family:'Cormorant Garamond',serif; font-size:20px; line-height:1.35; }
+.rex-texto p + p { margin-top:6px; }
+.rex-datos { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+.dato { font-size:12px; color:var(--muted); background:var(--bg); padding:4px 9px; border-radius:20px; }
+
+/* Dolor */
+.escala { display:grid; grid-template-columns:repeat(11,1fr); gap:4px; }
+.escala button { height:40px; border-radius:10px; background:var(--bg); font-size:14px; font-weight:500; }
+.escala button.sel { background:var(--ink); color:var(--bg); }
+.escala-ext { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:6px; }
+.pie-resumen { display:flex; justify-content:space-between; align-items:center; font-size:15px; }
+.link { font-size:13px; color:var(--muted); text-decoration:underline; text-underline-offset:3px; padding:6px 0; }
+
+/* Sesión */
+.sesion-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.sesion-nombre { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; }
+.sesion-min { font-size:13px; color:var(--muted); }
+.ej-lista { list-style:none; }
+.ej { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:15px; }
+.ej:first-child { border-top:none; }
+.ej-dosis { color:var(--muted); font-size:13px; white-space:nowrap; }
+.botones { display:flex; gap:8px; margin-top:14px; }
+.btn { flex:1; height:52px; border-radius:var(--r-sm); font-size:16px; font-weight:600; }
+.btn-1 { background:var(--ink); color:var(--bg); }
+.btn-2 { background:var(--bg); color:var(--ink); }
+.btn:disabled { opacity:.4; }
+.aviso { font-size:12px; color:var(--muted); margin-top:10px; }
+.hecho-resumen { font-size:15px; line-height:1.5; }
+
+/* Vista sesión en curso */
+.ej-run { display:flex; gap:12px; padding:14px 0; border-top:1px solid var(--line); }
+.ej-run:first-child { border-top:none; }
+.check { flex:0 0 34px; height:34px; border-radius:50%; border:2px solid var(--line); background:var(--bg);
+  font-size:16px; display:flex; align-items:center; justify-content:center; }
+.ej-run.ok .check { background:var(--sage); border-color:var(--sage); color:#fff; }
+.ej-run.ok .ej-run-nombre { color:var(--muted); }
+.ej-run-nombre { font-weight:600; font-size:16px; }
+.ej-run-dosis { font-size:13px; color:var(--terra); font-weight:600; margin-left:6px; }
+.ej-run-desc { font-size:14px; line-height:1.45; margin-top:3px; color:#3d352d; }
+.ej-run-ojo { font-size:12.5px; color:var(--terra); margin-top:4px; }
+
+.senti { display:flex; gap:8px; }
+.senti button { flex:1; height:56px; border-radius:var(--r-sm); background:var(--bg); font-size:26px; }
+.senti button.sel { background:var(--sage-soft); outline:2px solid var(--sage); }
+.nota-input { width:100%; border:none; background:var(--bg); border-radius:var(--r-sm); padding:12px; margin-top:12px; }
+.sub { font-size:13px; color:var(--muted); margin:14px 0 8px; }
+
+/* Timeline */
+.tl { list-style:none; position:relative; padding-left:18px; }
+.tl::before { content:''; position:absolute; left:5px; top:6px; bottom:6px; width:2px; background:var(--line); }
+.tl li { position:relative; padding:6px 0 10px; }
+.tl li::before { content:''; position:absolute; left:-18px; top:10px; width:12px; height:12px; border-radius:50%; background:var(--ink); }
+.tl li.previsto::before { background:var(--card); border:2px solid var(--muted); box-sizing:border-box; }
+.tl li.fase::before { background:var(--lavender); }
+.tl-fecha { font-size:12px; color:var(--muted); }
+.tl-desc { font-size:15px; }
+.tl li.previsto .tl-desc { color:var(--muted); }
+.tl-accion { font-size:12px; color:var(--muted); text-decoration:underline; margin-left:6px; }
+.hito-form { display:none; margin-top:10px; }
+.hito-form.abierto { display:block; }
+.hito-form input, .hito-form select { width:100%; border:none; background:var(--bg); border-radius:var(--r-sm); padding:11px; margin-bottom:8px; }
+.fila { display:flex; gap:8px; }
+
+.error { font-size:13px; color:var(--terra); margin-top:8px; }
+.oculto { display:none !important; }
+</style>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div>
+      <div class="titulo">Nova</div>
+      <div class="fecha" id="fecha"></div>
+    </div>
+    <div class="fase-chip" id="fase-chip">Fase …</div>
+  </div>
+
+  <!-- ═══ PANTALLA PRINCIPAL ═══ -->
+  <div id="vista-inicio">
+
+    <div class="card">
+      <div class="rex">
+        <div class="rex-avatar">ReX</div>
+        <div>
+          <div class="rex-texto" id="rex-texto"><p>Leyendo cómo amaneciste…</p></div>
+          <div class="rex-datos" id="rex-datos"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="card-sesion">
+      <div class="label" id="sesion-label">Sesión de hoy</div>
+      <div id="sesion-cuerpo"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">Recuperación</div>
+      <ul class="tl" id="timeline"></ul>
+      <button class="link" id="btn-hito" onclick="abrirHito()">+ anotar un hito</button>
+      <div class="hito-form" id="hito-form">
+        <input id="hito-desc" placeholder="Qué pasó (ej. radiografía: consolidando bien)">
+        <div class="fila">
+          <input type="date" id="hito-fecha">
+          <select id="hito-fase"></select>
+        </div>
+        <div class="botones" style="margin-top:4px">
+          <button class="btn btn-2" onclick="cerrarHito()">Cancelar</button>
+          <button class="btn btn-1" onclick="guardarHito()">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="error oculto" id="error"></div>
+  </div>
+
+  <!-- ═══ SESIÓN EN CURSO ═══ -->
+  <div id="vista-sesion" class="oculto">
+    <div class="card">
+      <div class="sesion-head">
+        <div class="sesion-nombre" id="run-titulo">Sesión</div>
+        <button class="link" onclick="salirSesion()">salir</button>
+      </div>
+      <div class="aviso" id="run-aviso" style="margin:0 0 6px">Si algo le pide al pie, se para ahí.</div>
+      <div id="run-lista"></div>
+      <div class="botones">
+        <button class="btn btn-1" onclick="terminarSesion()">Terminé</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CIERRE ═══ -->
+  <div id="vista-cierre" class="oculto">
+    <div class="card">
+      <div class="label">¿Cómo te sentiste?</div>
+      <div class="senti" id="senti">
+        <button data-v="bien" onclick="setSenti(this)">👍</button>
+        <button data-v="regular" onclick="setSenti(this)">😐</button>
+        <button data-v="mal" onclick="setSenti(this)">👎</button>
+      </div>
+      <div class="sub">Fatiga ahora (0 = fresca, 10 = agotada)</div>
+      <div class="escala" id="escala-fatiga"></div>
+      <input class="nota-input" id="cierre-nota" placeholder="Algo que quieras anotar (opcional)">
+      <div class="botones">
+        <button class="btn btn-1" id="btn-guardar-cierre" onclick="guardarCierre()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// NOVA — entrenador de Laura, con ReX. Spec: claude/nova-sistema.md
+// Lee de Mi Sistema (registro_diario, recuperacion). NUNCA escribe ahí.
+// Escribe sólo en tablas nova_*.
+// ═══════════════════════════════════════════════════════════════════
+
+const SUPABASE_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
+
+// Día en que arranca Nova. Antes de esto todo es vista previa: no se guarda.
+const INICIO = '2026-10-22';
+
+const FASES = {
+  '1A': 'Bota, sin apoyo',
+  '1B': 'Transición',
+  '2':  'Fisioterapia',
+  '3':  'Reintroducción',
+  '4':  'Fortalecimiento'
+};
+
+// Umbrales de ReX. Se ajustan aquí.
+const SUENO_POCO_H = 5.5;  // < → versión suave
+const SUENO_MALA = 2;      // calidad ≤ → versión suave
+const ENERGIA_BAJA = 2;    // ≤ → versión suave
+
+// El dolor del pie vive en un solo lugar: tarjeta Recuperación de Mi Sistema
+// (tabla `recuperacion`, en palabras). Nova sólo lo lee. Así lo interpreto:
+const DOLOR_PALABRAS = { 'nada': 'bajo', 'leve': 'bajo', 'molesta': 'medio', 'duele mucho': 'alto', 'punzante': 'alto' };
+const MI_SISTEMA_URL = 'mi_sistema.html';
+
+const VERSIONES = {
+  completa: 'Sesión completa',
+  suave:    'Versión suave',
+  minima:   'Sólo respirar y moverte'
+};
+
+// ── utilidades ──
+function fechaLocal(d) {
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+const hoy = fechaLocal(new Date());
+const ayer = fechaLocal(new Date(Date.now() - 864e5));
+const PREVIA = hoy < INICIO;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function sb(tabla, method='GET', body=null, params='') {
+  const headers = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};
+  if (method !== 'GET') headers['Prefer'] = 'return=representation'+(params.includes('on_conflict')?',resolution=merge-duplicates':'');
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}${params}`, {method, headers, body: body?JSON.stringify(body):null});
+  if (!res.ok) throw new Error(tabla+' HTTP '+res.status);
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+function mostrarError(msg) { const e=$('error'); e.textContent=msg; e.classList.remove('oculto'); }
+
+function fechaBonita(f) {
+  if (!f) return '';
+  const [y,m,d] = f.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('es', {day:'numeric', month:'short'});
+}
+
+// Minutos estimados a partir de la dosis: "2 min", "2 × 12" (≈4 s/rep + 30 s pausa), "5 × 10 s" (+10 s pausa).
+function minutosDe(dosis) {
+  if (!dosis) return 0;
+  let m;
+  if ((m = dosis.match(/^(\d+(?:\.\d+)?)\s*min/))) return +m[1];
+  if ((m = dosis.match(/^(\d+)\s*×\s*(\d+)\s*s/))) return +m[1] * (+m[2] + 10) / 60;
+  if ((m = dosis.match(/^(\d+)\s*×\s*(\d+)/))) return (+m[1] * (+m[2] * 4 + 30)) / 60;
+  return 0;
+}
+
+// ── estado ──
+let reg = null;          // registro_diario de hoy (Mi Sistema)
+let recup = null;        // recuperacion de hoy (Mi Sistema)
+let sesionHoy = null;    // nova_sesiones de hoy
+let sesionAyer = null;
+let catalogo = [];       // ejercicios de la fase actual
+let hitos = [];
+let fase = '1A';
+let plan = [];           // ejercicios de la versión de hoy
+let version = 'completa';
+let hechos = new Set();  // nombres marcados en la sesión en curso
+let inicioSesion = null;
+let sentiSel = null, fatigaSel = null;
+
+// ═══ CARGA ═══
+async function init() {
+  $('fecha').textContent = new Date().toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long'});
+  construirEscala('escala-fatiga', v => { fatigaSel = v; pintarEscala('escala-fatiga', v); });
+  $('hito-fase').innerHTML = '<option value="">Sin cambio de fase</option>' +
+    Object.entries(FASES).map(([k,v]) => `<option value="${k}">Paso a Fase ${k} · ${v}</option>`).join('');
+  await cargar();
+  // Al volver de Mi Sistema (donde se anota el pie), releer sin recargar la página.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !$('vista-inicio').classList.contains('oculto')) cargar();
+  });
+}
+
+async function cargar() {
+  try {
+    const [r, rc, ses, hs] = await Promise.all([
+      sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
+      sb('recuperacion','GET',null,`?fecha=eq.${hoy}&select=dolor,movilidad,animo`),
+      sb('nova_sesiones','GET',null,`?fecha=in.(${ayer},${hoy})`),
+      sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc')
+    ]);
+    reg = r?.[0] || null;
+    recup = rc?.[0] || null;
+    sesionHoy = ses.find(s => s.fecha === hoy) || null;
+    sesionAyer = ses.find(s => s.fecha === ayer) || null;
+    hitos = hs || [];
+    fase = faseActual();
+    catalogo = await sb('nova_catalogo_ejercicios','GET',null,`?fase=eq.${encodeURIComponent(fase)}&order=orden.asc.nullslast`);
+  } catch (e) {
+    console.error(e);
+    mostrarError('No pude conectar con la base. Revisa la conexión y recarga.');
+  }
+  pintarTodo();
+}
+
+function faseActual() {
+  const cambios = hitos.filter(h => h.fase_nueva && !h.previsto && h.fecha && h.fecha <= hoy);
+  return cambios.length ? cambios[cambios.length-1].fase_nueva : '1A';
+}
+
+// ═══ ReX ═══
+function dolorNivel() { return recup?.dolor ? (DOLOR_PALABRAS[recup.dolor] || null) : null; }
+function suenoMalo() {
+  if (!reg) return false;
+  return (reg.sueno_horas != null && +reg.sueno_horas < SUENO_POCO_H) ||
+         (reg.sueno_calidad != null && reg.sueno_calidad <= SUENO_MALA);
+}
+function energiaBaja() { return reg?.energia != null && reg.energia <= ENERGIA_BAJA; }
+
+function elegirVersion() {
+  const d = dolorNivel();
+  if (d === 'alto') return 'minima';
+  if (d === 'medio' || suenoMalo() || energiaBaja()) return 'suave';
+  return 'completa';
+}
+
+function horasTexto(h) {
+  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  return mm ? `${hh} h ${mm} min` : `${hh} h`;
+}
+
+function textoRex() {
+  const lineas = [];
+  const d = dolorNivel();
+
+  // 1. Lo que sé de hoy
+  const obs = [];
+  if (reg?.sueno_horas != null) {
+    let s = `Dormiste ${horasTexto(+reg.sueno_horas)}`;
+    if (reg.sueno_calidad != null) s += reg.sueno_calidad <= SUENO_MALA ? ' y no muy bien' : reg.sueno_calidad >= 4 ? ' y bien' : '';
+    obs.push(s + '.');
+  }
+  if (reg?.emocion) obs.push(`Tu ánimo: ${reg.emocion.replace(/^\S+\s/, '').toLowerCase()}${reg.emocion_fina ? ', ' + reg.emocion_fina : ''}.`);
+  if (obs.length) lineas.push(obs.join(' '));
+
+  // 2. Ayer
+  if (sesionAyer?.estado === 'hecha') {
+    let s = 'Ayer hiciste la sesión';
+    if (sesionAyer.fatiga_percibida != null) s += ` y quedaste en fatiga ${sesionAyer.fatiga_percibida}`;
+    lineas.push(s + '.');
+  } else if (sesionAyer?.estado === 'descanso') {
+    lineas.push('Ayer descansaste.');
+  }
+
+  // 3. Lo que propongo
+  if (sesionHoy?.estado === 'hecha') {
+    lineas.push('La de hoy ya está. Lo que queda del día es para el cuerpo.');
+  } else if (sesionHoy?.estado === 'descanso') {
+    lineas.push('Hoy es descanso. Si más tarde te provoca moverte, la sesión sigue aquí.');
+  } else if (PREVIA) {
+    lineas.push('Mañana arrancamos. Te dejo la primera sesión lista abajo para que la mires.');
+  } else if (d === 'alto') {
+    lineas.push(`Con el pie ${recup.dolor === 'punzante' ? 'punzante' : 'doliendo así'}, hoy no hay nada que demostrar. Si quieres, sólo respirar y mover cuello y hombros. Descansar también está bien.`);
+  } else if (d === 'medio') {
+    lineas.push('El pie molesta hoy. Te propongo la versión suave.');
+  } else if (suenoMalo() || energiaBaja()) {
+    lineas.push('Con ese descanso, va la versión suave. Corta y sin exigirte.');
+  } else if (d === null) {
+    lineas.push('No sé cómo está el pie hoy. Si lo anotas en Recuperación, ajusto la sesión.');
+  } else {
+    lineas.push(`Si te provoca, la sesión de hoy está lista. Unos ${minutosPlan()} minutos.`);
+  }
+  if (reg?.ciclo_fase === 'Menstrual' && !sesionHoy?.estado && !PREVIA) {
+    lineas.push('Estás en fase menstrual: si el cuerpo pide menos, se le da menos.');
+  }
+  return lineas;
+}
+
+function datosRex() {
+  const out = [];
+  if (recup?.dolor) out.push(`🦶 ${recup.dolor === 'nada' ? 'sin dolor' : recup.dolor}`);
+  if (reg?.sueno_horas != null) out.push(`😴 ${horasTexto(+reg.sueno_horas)}`);
+  if (reg?.energia != null) out.push(`⚡ energía ${reg.energia}/5`);
+  if (reg?.ciclo_fase) out.push(`🌙 ${reg.ciclo_fase.toLowerCase()}`);
+  return out;
+}
+
+// ═══ PINTAR ═══
+function pintarTodo() {
+  armarPlan();
+  $('fase-chip').textContent = `Fase ${fase} · ${FASES[fase] || ''}`;
+  $('rex-texto').innerHTML = textoRex().map(l => `<p>${esc(l)}</p>`).join('') +
+    (dolorNivel() === null && !PREVIA && !sesionHoy?.estado ? `<a class="link" href="${MI_SISTEMA_URL}">anotar el pie en Mi Sistema</a>` : '');
+  $('rex-datos').innerHTML = datosRex().map(d => `<span class="dato">${esc(d)}</span>`).join('');
+  pintarSesion();
+  pintarTimeline();
+}
+
+function construirEscala(id, fn) {
+  const cont = $(id);
+  cont.innerHTML = Array.from({length:11}, (_,i) => `<button data-v="${i}">${i}</button>`).join('');
+  cont.querySelectorAll('button').forEach(b => b.onclick = () => fn(+b.dataset.v));
+}
+function pintarEscala(id, v) {
+  $(id).querySelectorAll('button').forEach(b => b.classList.toggle('sel', v !== null && +b.dataset.v === v));
+}
+
+function armarPlan() {
+  version = elegirVersion();
+  const base = catalogo.filter(e => e.orden != null);
+  plan = version === 'minima' ? base.filter(e => e.minima)
+       : version === 'suave'  ? base.filter(e => e.suave)
+       : base;
+}
+
+function minutosPlan() { return Math.round(plan.reduce((s,e) => s + minutosDe(e.dosis), 0)); }
+
+function pintarSesion() {
+  $('sesion-label').textContent = PREVIA ? `Sesión de mañana · ${fechaBonita(INICIO)}` : 'Sesión de hoy';
+  const c = $('sesion-cuerpo');
+
+  if (!plan.length) {
+    c.innerHTML = `<div class="hecho-resumen">Todavía no hay plan para la Fase ${esc(fase)}. Lo armamos cuando llegue.</div>`;
+    return;
+  }
+
+  if (sesionHoy?.estado === 'hecha') {
+    const caras = {bien:'👍', regular:'😐', mal:'👎'};
+    const partes = ['Hecha'];
+    if (sesionHoy.duracion_min) partes.push(`${sesionHoy.duracion_min} min`);
+    if (sesionHoy.como_me_senti) partes.push(caras[sesionHoy.como_me_senti]);
+    if (sesionHoy.fatiga_percibida != null) partes.push(`fatiga ${sesionHoy.fatiga_percibida}`);
+    c.innerHTML = `<div class="hecho-resumen">${partes.join(' · ')}</div>` +
+      (sesionHoy.nota ? `<div class="aviso">${esc(sesionHoy.nota)}</div>` : '');
+    return;
+  }
+
+  const min = minutosPlan();
+  c.innerHTML = `
+    <div class="sesion-head">
+      <div class="sesion-nombre">${VERSIONES[version]}</div>
+      <div class="sesion-min">≈ ${min} min</div>
+    </div>
+    <ul class="ej-lista">${plan.map(e => `<li class="ej"><span>${esc(e.nombre)}</span><span class="ej-dosis">${esc(e.dosis||'')}</span></li>`).join('')}</ul>
+    <div class="botones">
+      <button class="btn btn-2" onclick="descansar()" ${PREVIA?'disabled':''}>${sesionHoy?.estado==='descanso'?'Descansando':'Hoy descanso'}</button>
+      <button class="btn btn-1" onclick="empezarSesion()">${PREVIA?'Ver cómo es':'Hacer sesión'}</button>
+    </div>
+    ${PREVIA ? '<div class="aviso">Vista previa: hoy nada se guarda. Mañana sí.</div>' : ''}
+    ${version === 'suave' && !PREVIA ? `<button class="link" onclick="forzarVersion('completa')">prefiero la completa</button>` : ''}`;
+}
+
+function forzarVersion(v) {
+  version = v;
+  plan = catalogo.filter(e => e.orden != null);
+  empezarSesion(true);
+}
+
+function pintarTimeline() {
+  const fechados = hitos.filter(h => h.fecha);
+  const sinFecha = hitos.filter(h => !h.fecha);
+  $('timeline').innerHTML = [...fechados, ...sinFecha].map(h => {
+    const cls = [h.previsto ? 'previsto' : '', h.fase_nueva && !h.previsto ? 'fase' : ''].join(' ');
+    const fechaTxt = h.fecha ? fechaBonita(h.fecha) + (h.previsto ? ' · previsto' : '') : 'pendiente';
+    const accion = h.previsto && !PREVIA ? `<button class="tl-accion" onclick="marcarHito('${h.id}')">ya pasó</button>` : '';
+    const faseTxt = h.fase_nueva && !h.previsto ? ` <span class="tl-fecha">→ Fase ${esc(h.fase_nueva)}</span>` : '';
+    return `<li class="${cls}"><div class="tl-fecha">${esc(fechaTxt)}${accion}</div><div class="tl-desc">${esc(h.descripcion)}${faseTxt}</div></li>`;
+  }).join('');
+}
+
+// ═══ GUARDAR ═══
+async function asegurarSesionHoy(campos) {
+  const filas = await sb('nova_sesiones','POST', {fecha:hoy, fase, ...campos, updated_at:new Date().toISOString()}, '?on_conflict=fecha');
+  sesionHoy = filas[0];
+  return sesionHoy;
+}
+
+// ═══ DESCANSO ═══
+async function descansar() {
+  if (PREVIA) return;
+  try {
+    await asegurarSesionHoy({estado:'descanso'});
+    pintarTodo();
+  } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
+}
+
+// ═══ SESIÓN EN CURSO ═══
+function empezarSesion(yaArmado) {
+  if (!yaArmado) armarPlan();
+  hechos = new Set();
+  inicioSesion = Date.now();
+  $('run-titulo').textContent = VERSIONES[version];
+  $('run-lista').innerHTML = plan.map((e,i) => `
+    <div class="ej-run" id="ejr-${i}">
+      <button class="check" onclick="toggleEj(${i})" aria-label="Hecho">✓</button>
+      <div>
+        <div><span class="ej-run-nombre">${esc(e.nombre)}</span><span class="ej-run-dosis">${esc(e.dosis||'')}</span></div>
+        <div class="ej-run-desc">${esc(e.descripcion||'')}</div>
+        ${e.contraindicaciones ? `<div class="ej-run-ojo">${esc(e.contraindicaciones)}</div>` : ''}
+      </div>
+    </div>`).join('');
+  mostrarVista('vista-sesion');
+  window.scrollTo(0,0);
+}
+
+async function toggleEj(i) {
+  const e = plan[i];
+  const on = !hechos.has(e.nombre);
+  on ? hechos.add(e.nombre) : hechos.delete(e.nombre);
+  $('ejr-'+i).classList.toggle('ok', on);
+  if (PREVIA) return;
+  try {
+    const s = sesionHoy?.id ? sesionHoy : await asegurarSesionHoy({version});
+    if (on) {
+      const m = (e.dosis||'').match(/^(\d+)\s*×\s*(.+)$/);
+      await sb('nova_ejercicios_sesion','POST', {
+        sesion_id: s.id, catalogo_id: e.id, ejercicio: e.nombre,
+        series: m ? +m[1] : null, reps: m ? m[2] : (e.dosis || null)
+      }, '?on_conflict=sesion_id,ejercicio');
+    } else {
+      await sb('nova_ejercicios_sesion','DELETE', null, `?sesion_id=eq.${s.id}&ejercicio=eq.${encodeURIComponent(e.nombre)}`);
+    }
+  } catch (err) { console.error(err); }
+}
+
+function salirSesion() { mostrarVista('vista-inicio'); }
+
+function terminarSesion() {
+  sentiSel = null; fatigaSel = null;
+  document.querySelectorAll('#senti button').forEach(b => b.classList.remove('sel'));
+  pintarEscala('escala-fatiga', null);
+  $('cierre-nota').value = '';
+  $('btn-guardar-cierre').textContent = PREVIA ? 'Volver (vista previa)' : 'Guardar';
+  mostrarVista('vista-cierre');
+  window.scrollTo(0,0);
+}
+
+function setSenti(btn) {
+  sentiSel = sentiSel === btn.dataset.v ? null : btn.dataset.v;
+  document.querySelectorAll('#senti button').forEach(b => b.classList.toggle('sel', b.dataset.v === sentiSel));
+}
+
+async function guardarCierre() {
+  if (PREVIA) { mostrarVista('vista-inicio'); return; }
+  const btn = $('btn-guardar-cierre');
+  btn.disabled = true;
+  try {
+    await asegurarSesionHoy({
+      estado: 'hecha',
+      version,
+      duracion_min: Math.max(1, Math.round((Date.now() - inicioSesion) / 60000)),
+      completada: hechos.size === plan.length,
+      como_me_senti: sentiSel,
+      fatiga_percibida: fatigaSel,
+      nota: $('cierre-nota').value.trim() || null
+    });
+    mostrarVista('vista-inicio');
+    pintarTodo();
+  } catch (e) { console.error(e); mostrarError('No se guardó la sesión. Intenta otra vez.'); mostrarVista('vista-inicio'); }
+  btn.disabled = false;
+}
+
+function mostrarVista(id) {
+  ['vista-inicio','vista-sesion','vista-cierre'].forEach(v => $(v).classList.toggle('oculto', v !== id));
+}
+
+// ═══ HITOS ═══
+function abrirHito() {
+  $('hito-fecha').value = hoy;
+  $('hito-desc').value = '';
+  $('hito-fase').value = '';
+  $('hito-form').classList.add('abierto');
+  $('btn-hito').classList.add('oculto');
+}
+function cerrarHito() {
+  $('hito-form').classList.remove('abierto');
+  $('btn-hito').classList.remove('oculto');
+}
+
+async function guardarHito() {
+  const desc = $('hito-desc').value.trim();
+  if (!desc) return;
+  const f = $('hito-fecha').value || hoy;
+  try {
+    await sb('nova_hitos','POST', {
+      fecha: f, descripcion: desc,
+      fase_nueva: $('hito-fase').value || null,
+      previsto: f > hoy
+    });
+    cerrarHito();
+    await recargarHitos();
+  } catch (e) { console.error(e); mostrarError('No se guardó el hito.'); }
+}
+
+async function marcarHito(id) {
+  const h = hitos.find(x => x.id === id);
+  if (!h) return;
+  try {
+    await sb('nova_hitos','PATCH', {previsto:false, fecha: h.fecha && h.fecha <= hoy ? h.fecha : hoy}, `?id=eq.${id}`);
+    await recargarHitos();
+  } catch (e) { console.error(e); mostrarError('No se guardó.'); }
+}
+
+async function recargarHitos() {
+  hitos = await sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc');
+  const antes = fase;
+  fase = faseActual();
+  if (fase !== antes) catalogo = await sb('nova_catalogo_ejercicios','GET',null,`?fase=eq.${encodeURIComponent(fase)}&order=orden.asc.nullslast`);
+  pintarTodo();
+}
+
+init();
+</script>
+</body>
+</html>
