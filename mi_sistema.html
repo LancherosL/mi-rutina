@@ -1805,6 +1805,53 @@ body.night .habito-count { color: var(--night-accent); }
 .salud-icon { display: none; }
 .salud-val { display: none; }
 .salud-label { display: none; }
+
+/* ── Registro estructurado de comidas, digestión y baño (lo lee Nutri) ── */
+.nu-input-row { display: flex; align-items: center; gap: 4px; }
+.comida-item .nu-input-row { margin: 8px 0 0 40px; }
+.nu-input-row .comida-texto { margin: 0; width: auto; flex: 1; min-width: 0; }
+.nu-scan {
+  background: none; border: none; font-size: 15px; padding: 4px 6px;
+  cursor: pointer; opacity: .5; line-height: 1;
+}
+.nu-scan:active { transform: scale(.85); }
+.comida-item .nu-zona { margin-left: 40px; }
+.comida-item.bloqueada .nu-input-row, .comida-item.omitida .nu-input-row,
+.comida-item.bloqueada .nu-zona, .comida-item.omitida .nu-zona { display: none; }
+.nu-sug, .nu-items, .nu-sint { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.nu-chip {
+  border: 1px solid var(--line); background: transparent; border-radius: 999px;
+  padding: 5px 11px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+  color: inherit; cursor: pointer;
+}
+.nu-chip.on { background: var(--sage-soft); border-color: var(--sage); color: var(--sage); }
+.nu-chip:active { transform: scale(.95); }
+.nu-picker { margin-top: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--sage-soft); }
+.nu-picker .nu-sug:first-of-type { margin-top: 4px; }
+.nu-picker-tit { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; }
+.nu-x { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; padding: 2px 4px; }
+.nu-item {
+  display: flex; align-items: center; gap: 2px; font-size: 11px;
+  background: var(--gold-soft); border-radius: 999px; padding: 4px 4px 4px 10px;
+}
+.nu-item .nu-x { font-size: 10px; }
+.nu-dig { display: flex; align-items: center; gap: 2px; margin-top: 8px; }
+.nu-dig-lbl { font-size: 11px; color: var(--muted); margin-right: 4px; }
+.nu-dig-btn {
+  background: none; border: 1px solid transparent; border-radius: 10px;
+  font-size: 15px; padding: 2px 5px; cursor: pointer; opacity: .45; line-height: 1.2;
+}
+.nu-dig-btn.on { opacity: 1; border-color: var(--line); background: var(--card); }
+.extra-item .nu-dig { margin-top: 0; }
+.extra-item .nu-dig-btn { font-size: 13px; padding: 1px 3px; }
+.nu-extra-sint { margin: 0 0 6px 66px; }
+.nu-extra-sint .nu-sint { margin-top: 0; }
+.nu-bano-add { height: 34px; }
+.banos-list .extra-item { cursor: pointer; }
+.bano-panel { padding: 2px 0 10px 66px; }
+.bano-panel .nu-sint:first-child { margin-top: 0; }
+body.night .nu-chip { border-color: rgba(255,255,255,0.14); }
+body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,255,255,0.14); }
 </style>
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 </head>
@@ -1909,7 +1956,11 @@ body.night .habito-count { color: var(--night-accent); }
         </div>
       </div>
       <button class="comida-skip" id="skip-0" onclick="toggleOmitida(0)">No desayuné</button>
-      <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0)" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)">
+      <div class="nu-input-row">
+        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)" autocomplete="off">
+        <button class="nu-scan" onclick="nuEscanear('0')" aria-label="Escanear código de barras">📷</button>
+      </div>
+      <div class="nu-zona" id="nu-0"></div>
     </div>
 
     <!-- Almuerzo -->
@@ -1924,7 +1975,11 @@ body.night .habito-count { color: var(--night-accent); }
         <div class="comida-lock">🔒</div>
       </div>
       <button class="comida-skip" id="skip-1" onclick="toggleOmitida(1)">No almorcé</button>
-      <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1)" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)">
+      <div class="nu-input-row">
+        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)" autocomplete="off">
+        <button class="nu-scan" onclick="nuEscanear('1')" aria-label="Escanear código de barras">📷</button>
+      </div>
+      <div class="nu-zona" id="nu-1"></div>
     </div>
 
     <!-- Cena -->
@@ -1939,7 +1994,11 @@ body.night .habito-count { color: var(--night-accent); }
         <div class="comida-lock">🔒</div>
       </div>
       <button class="comida-skip" id="skip-2" onclick="toggleOmitida(2)">No cené</button>
-      <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2)" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)">
+      <div class="nu-input-row">
+        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)" autocomplete="off">
+        <button class="nu-scan" onclick="nuEscanear('2')" aria-label="Escanear código de barras">📷</button>
+      </div>
+      <div class="nu-zona" id="nu-2"></div>
     </div>
 
     <!-- Algo de más (fuera de las comidas principales) -->
@@ -1949,9 +2008,11 @@ body.night .habito-count { color: var(--night-accent); }
         <span class="extras-count" id="extras-count"></span>
       </div>
       <div class="extras-input-row">
-        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" onkeydown="if(event.key==='Enter')agregarExtra()">
+        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
+        <button class="nu-scan" onclick="nuEscanear('extra')" aria-label="Escanear código de barras">📷</button>
         <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
       </div>
+      <div class="nu-zona" id="nu-extra"></div>
       <div class="extras-list" id="extras-list"></div>
       <div class="extras-nota">Sin juicio. Solo información sobre tus patrones 🌿</div>
     </div>
@@ -1977,6 +2038,16 @@ body.night .habito-count { color: var(--night-accent); }
       <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
     </div>
   </div>
+
+  <!-- Baño: una fila por vez en la tabla `banos` -->
+  <div class="log-card" id="card-banos">
+    <div class="log-header" style="margin-bottom:0;">
+      <div class="ql-title" style="margin:0;">Baño 🚽 <span class="extras-count" id="banos-count"></span></div>
+      <button class="log-add-btn nu-bano-add" onclick="registrarBano()" aria-label="Registrar una vez">+</button>
+    </div>
+    <div class="banos-list" id="banos-list"></div>
+  </div>
+  <input type="file" id="nu-foto" accept="image/*" capture="environment" hidden onchange="nuFotoElegida(this)">
 
   <!-- Mis gatos -->
   <div class="gatos-card">
@@ -2611,7 +2682,7 @@ async function sbLog(tabla, method, body=null, params='') {
 // Para cambiar una palabra, se edita esta lista. Nada más.
 // ═══════════════════════════════════════════════════════════════════
 
-// RECUPERACIÓN — sección temporal (accidente de tránsito, 25 sep 2026, pie roto).
+// RECUPERACIÓN — sección temporal (contexto en Supabase, contexto_privado).
 // Cuando termine la recuperación: cambiar esto a false. La tarjeta desaparece
 // sola, sin borrar la tabla `recuperacion` ni los datos ya guardados.
 const RECUPERACION_ACTIVA = true;
@@ -3991,8 +4062,9 @@ function agregarExtra() {
   const texto=(input.value||'').trim();
   if(!texto) return;
   if(!Array.isArray(todayData.extras)) todayData.extras=[];
-  todayData.extras.push({hora:horaActualHHMM(), texto});
+  todayData.extras.push({id:nuIdExtra(), hora:horaActualHHMM(), texto});
   input.value='';
+  delete nuSel.extra;
   buildExtras();
   saveTodayLocal();
   input.focus();
@@ -4000,7 +4072,8 @@ function agregarExtra() {
 
 function borrarExtra(i) {
   if(!Array.isArray(todayData.extras)) return;
-  todayData.extras.splice(i,1);
+  const quitado = todayData.extras.splice(i,1)[0];
+  if(quitado && quitado.id) nuBorrarDeExtra(quitado.id);
   buildExtras();
   saveTodayLocal();
 }
@@ -4011,13 +4084,409 @@ function buildExtras() {
   if(!lista) return;
   const extras=Array.isArray(todayData.extras)?todayData.extras:[];
   if(contador) contador.textContent = extras.length ? `${extras.length}` : '';
+  nuPintarZona('extra');
   if(!extras.length) { lista.innerHTML=''; return; }
-  lista.innerHTML=extras.map((x,i)=>`
+  lista.innerHTML=extras.map((x,i)=>{
+    const dig = x.id ? nuDigestionHtml('extra', x.id) : null;
+    return `
     <div class="extra-item">
       <span class="extra-hora">${formatHora12(x.hora)||''}</span>
       <span class="extra-texto">${escapeHtml(x.texto||'')}</span>
+      ${dig ? dig.botones : ''}
       <button class="log-del" onclick="borrarExtra(${i})">✕</button>
-    </div>`).join('');
+    </div>${dig && dig.sintomas ? `<div class="nu-extra-sint">${dig.sintomas}</div>` : ''}`;
+  }).join('');
+}
+
+// ══ REGISTRO ESTRUCTURADO DE COMIDAS · DIGESTIÓN · BAÑO ══
+// Mi Sistema es el único lugar donde se registra; Nutri sólo lee. Todo es opcional:
+// el texto libre sigue igual (Nutri lo toma como "aprox"). Son filas aparte
+// (comidas_items, comidas_digestion, banos): no tocan registro_diario ni su helper.
+// Si no hay conexión, la fila queda en una cola local (`nu_cola`) y se manda después.
+
+// Palabras editables
+const NU_CANTIDADES = [0.5, 1, 1.5, 2, 3];
+const DIGESTION = [{id:'bien',e:'👍'}, {id:'regular',e:'😐'}, {id:'mal',e:'👎'}];
+const DIGESTION_SINTOMAS = ['gases', 'inflamación', 'dolor', 'reflujo', 'acidez', 'náusea', 'urgencia'];
+const BANO_TIPOS = [{id:'dura',t:'dura',bristol:2}, {id:'normal',t:'normal',bristol:4}, {id:'blanda',t:'blanda',bristol:6}];
+const BANO_MOLESTIAS = [{id:'inflamacion',t:'inflamación'}, {id:'colico',t:'cólico'}, {id:'urgencia',t:'urgencia'}, {id:'incompleta',t:'sensación incompleta'}];
+// Lector de códigos para el iPhone (Safari no trae uno propio). Se carga sólo al tocar 📷.
+const ZXING_URL = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+
+let nuAlimentos = [];
+let nuItems = [];      // comidas_items de la fecha activa
+let nuDig = [];        // comidas_digestion de la fecha activa
+let banosDia = [];     // banos de la fecha activa
+let nuSel = {};        // zona ('0','1','2','extra') -> {a: alimento, u: índice de porción}
+let banoAbierto = null;
+let nuZonaScan = null;
+
+const nuNorm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+const nuFmtCant = c => ({0.5:'½', 1.5:'1½'}[c] || String(c));
+const nuRed = (v,f) => (v==null ? null : Math.round(v*f*10)/10);
+const nuTmpId = () => 'tmp-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+const nuIdExtra = () => 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const nuEsTmp = id => String(id||'').startsWith('tmp-');
+const nuInputId = z => z==='extra' ? 'input-extra' : `texto-${z}`;
+const nuClaveDig = (comida, ref) => `${comida}|${ref||''}`;
+const nuPorciones = a => (Array.isArray(a.porciones) && a.porciones.length) ? a.porciones : [{u:'100 g', g:100}];
+const nuHoraSiHoy = () => fechaActiva===fechaDeAhora() ? horaActualHHMM() : null;
+
+// ── Cola local ──
+function nuColaLeer() { try { return JSON.parse(localStorage.getItem('nu_cola')||'[]'); } catch(e){ return []; } }
+function nuColaGuardar(c) { try { localStorage.setItem('nu_cola', JSON.stringify(c)); } catch(e){} }
+
+async function nuVaciarCola() {
+  const cola = nuColaLeer();
+  if(!cola.length) return;
+  const quedan = [];
+  for(const op of cola) {
+    const body = Object.assign({}, op.body); delete body.id;
+    try { await sbLog(op.tabla, 'POST', body, op.params||''); }
+    catch(e) { quedan.push(op); }
+  }
+  nuColaGuardar(quedan);
+}
+
+async function nuInsertar(tabla, fila, params='') {
+  setSyncing(true);
+  try {
+    const r = await sbLog(tabla, 'POST', fila, params);
+    setSyncing(false); clearSyncError();
+    return (Array.isArray(r) && r[0]) ? r[0] : fila;
+  } catch(e) {
+    console.error(e); setSyncError();
+    const tmp = Object.assign({id: nuTmpId()}, fila);
+    const cola = nuColaLeer(); cola.push({tabla, params, body: tmp}); nuColaGuardar(cola);
+    return tmp;
+  }
+}
+
+async function nuActualizar(tabla, fila, cambios) {
+  if(nuEsTmp(fila.id)) {   // aún en la cola: se corrige ahí mismo
+    nuColaGuardar(nuColaLeer().map(o => o.body.id===fila.id ? Object.assign(o, {body: Object.assign(o.body, cambios)}) : o));
+    return;
+  }
+  setSyncing(true);
+  try { await sbLog(tabla, 'PATCH', cambios, `?id=eq.${fila.id}`); setSyncing(false); clearSyncError(); }
+  catch(e) { console.error(e); setSyncError(); }
+}
+
+async function nuBorrarFila(tabla, id) {
+  if(!id) return;
+  if(nuEsTmp(id)) { nuColaGuardar(nuColaLeer().filter(o => o.body.id!==id)); return; }
+  setSyncing(true);
+  try { await sbLog(tabla, 'DELETE', null, `?id=eq.${id}`); setSyncing(false); clearSyncError(); }
+  catch(e) { console.error(e); setSyncError(); }
+}
+
+// ── Carga ──
+async function nuCargarAlimentos() {
+  try { const c = JSON.parse(localStorage.getItem('nu_alimentos')||'null'); if(Array.isArray(c)) nuAlimentos = c; } catch(e){}
+  try {
+    const data = await sbLog('nutri_alimentos', 'GET', null, '?select=*&order=nombre.asc');
+    if(Array.isArray(data)) { nuAlimentos = data; nuGuardarCacheAlimentos(); }
+  } catch(e) { console.error('Error cargando alimentos:', e); }
+}
+function nuGuardarCacheAlimentos() { try { localStorage.setItem('nu_alimentos', JSON.stringify(nuAlimentos)); } catch(e){} }
+
+async function nuCargarDia(fecha=fechaActiva) {
+  await nuVaciarCola();
+  const pend = t => nuColaLeer().filter(o => o.tabla===t && o.body.fecha===fecha).map(o => o.body);
+  try {
+    const [it, dg, bn] = await Promise.all([
+      sbLog('comidas_items', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`),
+      sbLog('comidas_digestion', 'GET', null, `?fecha=eq.${fecha}`),
+      sbLog('banos', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`)
+    ]);
+    if(fecha!==fechaActiva) return;
+    nuItems = (it||[]).concat(pend('comidas_items'));
+    nuDig = (dg||[]);
+    pend('comidas_digestion').forEach(d => { nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(d.comida,d.extra_ref)); nuDig.push(d); });
+    banosDia = (bn||[]).concat(pend('banos'));
+  } catch(e) {
+    console.error('Error cargando comidas/baño:', e);
+    if(fecha!==fechaActiva) return;
+    nuItems = pend('comidas_items'); nuDig = pend('comidas_digestion'); banosDia = pend('banos');
+  }
+  nuPintarTodo();
+}
+
+function nuPintarTodo() {
+  ['0','1','2'].forEach(nuPintarZona);
+  buildExtras();
+  buildBanos();
+}
+
+// ── Buscador ──
+function nuCoincidencias(texto) {
+  const q = nuNorm(texto);
+  if(q.length<2) return {lista:[], completo:true};
+  const busca = t => nuAlimentos.filter(a => nuNorm(a.nombre).includes(t) || String(a.norm||'').includes(t));
+  let lista = busca(q), completo = true;
+  const ult = q.split(/\s+/).pop();
+  if(!lista.length && ult!==q && ult.length>=2) { lista = busca(ult); completo = false; }
+  return {lista: lista.slice(0,5), completo};
+}
+
+function nuBuscar(zona) {
+  delete nuSel[zona];
+  nuPintarZona(zona);
+}
+
+function nuElegir(zona, id) {
+  const a = nuAlimentos.find(x => String(x.id)===String(id));
+  if(!a) return;
+  const input = document.getElementById(nuInputId(zona));
+  if(input) {   // lo escrito para buscar se quita; el resto del texto libre se queda
+    const {completo} = nuCoincidencias(input.value);
+    input.value = completo ? '' : input.value.replace(/\S+\s*$/, '').trimEnd();
+    if(zona!=='extra') saveComidaTexto(Number(zona));
+  }
+  nuSel[zona] = {a, u:0};
+  nuPintarZona(zona);
+}
+
+function nuUnidad(zona, k) { if(nuSel[zona]) { nuSel[zona].u = k; nuPintarZona(zona); } }
+function nuCancelar(zona) { delete nuSel[zona]; nuPintarZona(zona); }
+
+function nuPintarZona(zona) {
+  const el = document.getElementById(`nu-${zona}`);
+  if(!el) return;
+  let html = '';
+  const sel = nuSel[zona];
+  if(sel) {
+    const pors = nuPorciones(sel.a), u = pors[sel.u] || pors[0];
+    html += `<div class="nu-picker"><div class="nu-picker-tit"><span>${escapeHtml(sel.a.nombre)}</span><button class="nu-x" onclick="nuCancelar('${zona}')">✕</button></div>`;
+    if(pors.length>1) html += `<div class="nu-sug">${pors.map((p,k)=>`<button class="nu-chip${k===sel.u?' on':''}" onclick="nuUnidad('${zona}',${k})">${escapeHtml(p.u)}</button>`).join('')}</div>`;
+    html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div></div>`;
+  } else {
+    const input = document.getElementById(nuInputId(zona));
+    const {lista} = nuCoincidencias(input ? input.value : '');
+    if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}</button>`).join('')}</div>`;
+  }
+  if(zona!=='extra') {
+    const items = nuItems.filter(x => x.comida===zona);
+    if(items.length) html += `<div class="nu-items">${items.map(x=>`<span class="nu-item">${escapeHtml(x.nombre)} · ${nuFmtCant(Number(x.cantidad))} ${escapeHtml(x.unidad||'')}<button class="nu-x" onclick="nuBorrarItem('${x.id}')">✕</button></span>`).join('')}</div>`;
+    // La digestión aparece sólo cuando ya comió: antes no hay nada que preguntar.
+    if((todayData.comidas||{})[zona] || items.length) {
+      const dig = nuDigestionHtml(zona, '');
+      html += `<div class="nu-dig"><span class="nu-dig-lbl">¿Cómo te cayó?</span>${dig.botones}</div>${dig.sintomas}`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+async function nuAgregar(zona, cant) {
+  const sel = nuSel[zona];
+  if(!sel) return;
+  const a = sel.a, pors = nuPorciones(a), u = pors[sel.u] || pors[0];
+  const gramos = Math.round(cant*u.g*10)/10, f = gramos/100;
+  const fila = {
+    fecha: fechaActiva, comida: zona, extra_ref: null,
+    alimento_id: (a.id && !nuEsTmp(a.id)) ? a.id : null, codigo_barras: a.codigo_barras || null,
+    nombre: a.nombre, cantidad: cant, unidad: u.u, gramos,
+    kcal: nuRed(a.kcal,f), proteina: nuRed(a.proteina,f), carbo: nuRed(a.carbo,f), grasa: nuRed(a.grasa,f),
+    fibra: nuRed(a.fibra,f), calcio_mg: nuRed(a.calcio_mg,f), vitd_ui: nuRed(a.vitd_ui,f),
+    lactosa: !!a.lactosa, cafeina: !!a.cafeina
+  };
+  delete nuSel[zona];
+  if(zona==='extra') {
+    if(!Array.isArray(todayData.extras)) todayData.extras = [];
+    fila.extra_ref = nuIdExtra();
+    todayData.extras.push({id: fila.extra_ref, hora: horaActualHHMM(), texto: `${a.nombre} · ${nuFmtCant(cant)} ${u.u}`});
+    saveTodayLocal();
+  } else if(!(todayData.comidas||{})[Number(zona)]) {
+    toggleComida(Number(zona));   // anotar lo que comiste también marca la comida
+  }
+  nuItems.push(fila);
+  zona==='extra' ? buildExtras() : nuPintarZona(zona);
+  Object.assign(fila, await nuInsertar('comidas_items', fila));
+  if(zona!=='extra') nuPintarZona(zona);
+}
+
+async function nuBorrarItem(id) {
+  const x = nuItems.find(y => String(y.id)===String(id));
+  if(!x) return;
+  nuItems = nuItems.filter(y => y!==x);
+  nuPintarZona(x.comida);
+  await nuBorrarFila('comidas_items', x.id);
+}
+
+async function nuBorrarDeExtra(ref) {
+  const items = nuItems.filter(x => x.extra_ref===ref);
+  const digs = nuDig.filter(x => x.comida==='extra' && x.extra_ref===ref);
+  nuItems = nuItems.filter(x => !items.includes(x));
+  nuDig = nuDig.filter(x => !digs.includes(x));
+  for(const x of items) await nuBorrarFila('comidas_items', x.id);
+  for(const d of digs) await nuBorrarFila('comidas_digestion', d.id);
+}
+
+// ── Digestión: 👍😐👎 y, si no fue bien, síntomas opcionales ──
+function nuDigestionHtml(comida, ref) {
+  const d = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
+  const r = d ? d.reaccion : null;
+  const botones = `<span class="nu-dig">${DIGESTION.map(o=>`<button class="nu-dig-btn${r===o.id?' on':''}" onclick="nuDigestion('${comida}','${ref}','${o.id}')">${o.e}</button>`).join('')}</span>`;
+  const s = (d && d.sintomas) || [];
+  const sintomas = (r && r!=='bien')
+    ? `<div class="nu-sint">${DIGESTION_SINTOMAS.map(t=>`<button class="nu-chip${s.includes(t)?' on':''}" onclick="nuSintoma('${comida}','${ref}','${t}')">${t}</button>`).join('')}</div>`
+    : '';
+  return {botones, sintomas};
+}
+
+function nuRepintarDig(comida) { comida==='extra' ? buildExtras() : nuPintarZona(comida); }
+
+async function nuGuardarDig(previo, cambios) {
+  const fila = Object.assign({
+    fecha: fechaActiva, comida: previo.comida, extra_ref: previo.extra_ref||'',
+    reaccion: previo.reaccion||null, sintomas: previo.sintomas||[], hora: previo.hora||nuHoraSiHoy()
+  }, cambios);
+  nuDig = nuDig.filter(x => x!==previo);
+  nuDig.push(fila);
+  nuRepintarDig(fila.comida);
+  Object.assign(fila, await nuInsertar('comidas_digestion', fila, '?on_conflict=fecha,comida,extra_ref'));
+}
+
+async function nuDigestion(comida, ref, reaccion) {
+  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
+  if(previo && previo.reaccion===reaccion) {   // tocar el mismo otra vez lo quita
+    nuDig = nuDig.filter(x => x!==previo);
+    nuRepintarDig(comida);
+    await nuBorrarFila('comidas_digestion', previo.id);
+    return;
+  }
+  await nuGuardarDig(previo || {comida, extra_ref: ref}, {reaccion, sintomas: reaccion==='bien' ? [] : ((previo && previo.sintomas) || [])});
+}
+
+async function nuSintoma(comida, ref, s) {
+  const d = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
+  if(!d) return;
+  const actual = d.sintomas || [];
+  await nuGuardarDig(d, {sintomas: actual.includes(s) ? actual.filter(x => x!==s) : actual.concat(s)});
+}
+
+// ── Escáner (foto del código → Open Food Facts) ──
+function nuEscanear(zona) {
+  nuZonaScan = zona;
+  const f = document.getElementById('nu-foto');
+  if(f) { f.value = ''; f.click(); }
+}
+
+async function nuFotoElegida(input) {
+  const file = input.files && input.files[0];
+  if(!file) return;
+  let codigo = null;
+  try { codigo = await nuLeerCodigo(file); } catch(e) { console.error('No se pudo leer el código:', e); }
+  if(!codigo) codigo = (prompt('No pude leer el código. Escribe los números de abajo:') || '').replace(/\D/g, '');
+  if(codigo) await nuBuscarCodigo(nuZonaScan, codigo);
+}
+
+async function nuLeerCodigo(file) {
+  if('BarcodeDetector' in window) {
+    try {
+      const det = new BarcodeDetector({formats: ['ean_13','ean_8','upc_a','upc_e']});
+      const r = await det.detect(await createImageBitmap(file));
+      if(r && r[0]) return r[0].rawValue;
+    } catch(e) {}
+  }
+  if(!window.ZXing) await new Promise((ok, mal) => {
+    const s = document.createElement('script'); s.src = ZXING_URL; s.onload = ok; s.onerror = mal; document.head.appendChild(s);
+  });
+  // Las fotos del celular son enormes: se achican antes de leerlas
+  const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = URL.createObjectURL(file); });
+  const esc = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(img.naturalWidth*esc); cv.height = Math.round(img.naturalHeight*esc);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  URL.revokeObjectURL(img.src);
+  const r = await new ZXing.BrowserMultiFormatReader().decodeFromImageUrl(cv.toDataURL('image/jpeg', 0.9));
+  return r ? r.getText() : null;
+}
+
+async function nuBuscarCodigo(zona, codigo) {
+  let a = nuAlimentos.find(x => x.codigo_barras===codigo);
+  if(!a) {
+    let p = null;
+    try {
+      const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${codigo}.json?fields=product_name,product_name_es,product_name_fr,brands,nutriments,serving_quantity,allergens_tags`);
+      const j = await res.json();
+      if(j && j.status===1) p = j.product;
+    } catch(e) { console.error(e); }
+    if(!p) { mostrarRecompensa('No encontré ese código en Open Food Facts'); return; }
+    const n = p.nutriments || {};
+    const num = v => (v===undefined || v===null || v==='') ? null : Number(v);
+    const nombre = [p.product_name_es || p.product_name_fr || p.product_name, p.brands && p.brands.split(',')[0].trim()].filter(Boolean).join(' · ') || `Producto ${codigo}`;
+    const kcal = num(n['energy-kcal_100g']) ?? (num(n['energy_100g'])!=null ? Math.round(num(n['energy_100g'])/4.184) : null);
+    const calcio = num(n['calcium_100g']), vitd = num(n['vitamin-d_100g']);   // OFF los da en gramos
+    const sinLactosa = /sans lactose|lactose[- ]free|sin lactosa|deslactosad/i.test(nombre);
+    a = await nuInsertar('nutri_alimentos', {
+      nombre, norm: nuNorm(nombre)+' '+codigo, categoria: 'empacado',
+      porciones: [p.serving_quantity ? {u:'porción', g:Number(p.serving_quantity)} : null, {u:'100 g', g:100}].filter(Boolean),
+      kcal, proteina: num(n.proteins_100g), carbo: num(n.carbohydrates_100g), grasa: num(n.fat_100g), fibra: num(n.fiber_100g),
+      calcio_mg: calcio==null ? null : Math.round(calcio*1000), vitd_ui: vitd==null ? null : Math.round(vitd*4e7),
+      lactosa: !sinLactosa && (p.allergens_tags||[]).includes('en:milk'), cafeina: false,
+      fuente: 'Open Food Facts', codigo_barras: codigo
+    });
+    nuAlimentos.push(a);
+    nuGuardarCacheAlimentos();
+  }
+  nuSel[zona] = {a, u:0};
+  nuPintarZona(zona);
+}
+
+// ── 🚽 Baño: un tap = una vez, con hora. Tipo y molestias se afinan después, si quiere ──
+async function registrarBano() {
+  const fila = {fecha: fechaActiva, hora: nuHoraSiHoy(), tipo: null, bristol: null, molestias: []};
+  banosDia.push(fila);
+  banoAbierto = fila;
+  buildBanos();
+  Object.assign(fila, await nuInsertar('banos', fila));
+}
+
+function buildBanos() {
+  const lista = document.getElementById('banos-list');
+  const cont = document.getElementById('banos-count');
+  if(!lista) return;
+  if(cont) cont.textContent = banosDia.length ? `· ${banosDia.length}` : '';
+  lista.innerHTML = banosDia.map((b,i) => {
+    const tipo = BANO_TIPOS.find(t => t.id===b.tipo);
+    const mol = (b.molestias||[]).map(m => (BANO_MOLESTIAS.find(x => x.id===m) || {t:m}).t).join(', ');
+    let h = `<div class="extra-item" onclick="abrirBano(${i})">
+      <span class="extra-hora">${b.hora ? formatHora12(b.hora) : '—'}</span>
+      <span class="extra-texto">${tipo ? tipo.t : ''}${tipo && mol ? ' · ' : ''}${escapeHtml(mol)}</span>
+      <button class="log-del" onclick="event.stopPropagation();borrarBano(${i})">✕</button>
+    </div>`;
+    if(b===banoAbierto) h += `<div class="bano-panel">
+      <div class="nu-sint">${BANO_TIPOS.map(t=>`<button class="nu-chip${t.id===b.tipo?' on':''}" onclick="tipoBano(${i},'${t.id}')">${t.t}</button>`).join('')}</div>
+      <div class="nu-sint">${BANO_MOLESTIAS.map(m=>`<button class="nu-chip${(b.molestias||[]).includes(m.id)?' on':''}" onclick="molestiaBano(${i},'${m.id}')">${m.t}</button>`).join('')}</div>
+    </div>`;
+    return h;
+  }).join('');
+}
+
+function abrirBano(i) { banoAbierto = banosDia[i]===banoAbierto ? null : banosDia[i]; buildBanos(); }
+
+async function tipoBano(i, id) {
+  const b = banosDia[i]; if(!b) return;
+  const t = b.tipo===id ? null : BANO_TIPOS.find(x => x.id===id);
+  b.tipo = t ? t.id : null; b.bristol = t ? t.bristol : null;
+  buildBanos();
+  await nuActualizar('banos', b, {tipo: b.tipo, bristol: b.bristol});
+}
+
+async function molestiaBano(i, id) {
+  const b = banosDia[i]; if(!b) return;
+  const m = b.molestias || [];
+  b.molestias = m.includes(id) ? m.filter(x => x!==id) : m.concat(id);
+  buildBanos();
+  await nuActualizar('banos', b, {molestias: b.molestias});
+}
+
+async function borrarBano(i) {
+  const b = banosDia.splice(i,1)[0]; if(!b) return;
+  if(b===banoAbierto) banoAbierto = null;
+  buildBanos();
+  await nuBorrarFila('banos', b.id);
 }
 
 // ── ANCLA DEL DÍA ──
@@ -4366,6 +4835,7 @@ function updateComidasUI(recienDesbloqueada=-1) {
 
   const prog=document.getElementById('meal-progress');
   if(prog) prog.textContent=`${hechas} / 3`;
+  ['0','1','2'].forEach(nuPintarZona);   // la digestión aparece al marcar la comida
 }
 
 function saveComidaTexto(i) {
@@ -4731,6 +5201,8 @@ function selectDay(panel,idx) {
 
 function cambiarFechaActiva(fecha) {
   fechaActiva = fecha;
+  nuItems = []; nuDig = []; banosDia = []; banoAbierto = null; nuSel = {};
+  nuCargarDia(fecha);
   restoreTodayUI();
   cargarMomentos(fecha).then(cambio => { if(cambio && fechaActiva===fecha) pintarMomentos(); });
 }
@@ -5217,6 +5689,7 @@ async function refrescoAutomatico() {
     await cargarGastosHoy();
     await cargarGastosSemana();
     await cargarCigarrillosSemana();
+    await nuCargarDia();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
   } catch(e){
     console.error('Error en refresco automático:', e);
@@ -5311,6 +5784,8 @@ async function init() {
   await cargarPeriodos();
   await cargarGastosHoy();
   await cargarGastosSemana();
+  await nuCargarAlimentos();
+  await nuCargarDia();
   await cargarCigarrillosSemana();
   await cargarMomentos(fechaActiva);
   if(RECUPERACION_ACTIVA) await cargarRecuperacion();
