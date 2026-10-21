@@ -81,6 +81,23 @@ input, select { font-family:inherit; font-size:16px; color:inherit; }
 .seg button.on { background:var(--ink); color:var(--bg); }
 
 .vacio { color:var(--muted); font-size:14px; }
+
+/* Despensa */
+.busca { display:flex; align-items:center; gap:8px; }
+.busca input { flex:1; min-width:0; border:none; border-bottom:1.5px solid var(--line); background:transparent; padding:6px 0; outline:none;
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px; }
+.busca input:focus { border-color:var(--sage); }
+.scan { color:var(--muted); padding:6px; line-height:0; }
+.sug { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.sug:empty { display:none; }
+.sug button { font-size:12px; border:1px solid var(--line); border-radius:20px; padding:5px 11px; }
+.item { display:flex; align-items:center; gap:8px; padding:9px 0; border-top:1px solid var(--line); font-size:14px; }
+.item:first-of-type { border-top:none; }
+.item span { flex:1; }
+.item .accion { font-size:12px; color:var(--sage); font-weight:600; }
+.item .x { font-size:12px; color:var(--muted); padding:0 4px; }
+.grupo { font-size:11px; color:var(--muted); margin:12px 0 2px; }
+.grupo:first-of-type { margin-top:0; }
 .oculto { display:none; }
 </style>
 </head>
@@ -94,11 +111,23 @@ input, select { font-family:inherit; font-size:16px; color:inherit; }
   <div class="tabs">
     <button class="tab on" data-tab="hoy" onclick="verTab('hoy')">Hoy</button>
     <button class="tab" data-tab="semana" onclick="verTab('semana')">Semana</button>
+    <button class="tab" data-tab="despensa" onclick="verTab('despensa')">Despensa</button>
     <button class="tab" data-tab="perfil" onclick="verTab('perfil')">Perfil</button>
   </div>
 
   <div id="tab-hoy"></div>
   <div id="tab-semana" class="oculto"></div>
+  <div id="tab-despensa" class="oculto">
+    <div class="card"><div class="label">¿Qué tienes en casa?</div>
+      <div class="busca">
+        <input id="desp-input" type="text" placeholder="arroz, huevos, pollo…" autocomplete="off" oninput="pintarDespSug()">
+        <button class="scan" onclick="escanear()" aria-label="Escanear código de barras"><svg width="22" height="16" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+      </div>
+      <div class="sug" id="desp-sug"></div>
+    </div>
+    <div id="desp-listas"></div>
+  </div>
+  <input type="file" id="foto-codigo" accept="image/*" capture="environment" hidden onchange="fotoCodigo(this)">
   <div id="tab-perfil" class="oculto"></div>
 </div>
 
@@ -132,6 +161,7 @@ const MIN_COMIDAS_DETONANTE = 3;
 
 let perfil = null;
 let items = [], digestion = [], banos = [], registros = [];
+let nuAlimentos = [], despensa = [];
 let tab = 'hoy';
 
 // ── utilidades ──
@@ -145,6 +175,7 @@ const nombreDia = f => ['dom','lun','mar','mié','jue','vie','sáb'][new Date(f+
 
 async function sb(tabla, method='GET', body=null, params='') {
   const headers = {'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'};
+  if(method==='POST') headers['Prefer'] = 'return=representation';
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabla}${params}`, {method, headers, body: body?JSON.stringify(body):null});
   if(!res.ok) throw new Error('HTTP '+res.status);
   const t = await res.text();
@@ -154,13 +185,16 @@ async function sb(tabla, method='GET', body=null, params='') {
 // ── carga ──
 async function cargar() {
   const desde = haceDias(9);   // 7 días + los 2 anteriores para cruzar con baño
-  const [p, it, dg, bn, rd] = await Promise.all([
+  const [p, it, dg, bn, rd, al, de] = await Promise.all([
     sb('nutri_perfil','GET',null,'?id=eq.laura'),
     sb('comidas_items','GET',null,`?fecha=gte.${desde}&order=fecha.asc,created_at.asc`),
     sb('comidas_digestion','GET',null,`?fecha=gte.${desde}`),
     sb('banos','GET',null,`?fecha=gte.${desde}&order=fecha.asc,created_at.asc`),
-    sb('registro_diario','GET',null,`?fecha=gte.${desde}&select=fecha,comidas,comidas_texto,comidas_omitidas,extras,agua,sueno_horas,energia,emocion,ciclo_fase`)
+    sb('registro_diario','GET',null,`?fecha=gte.${desde}&select=fecha,comidas,comidas_texto,comidas_omitidas,extras,agua,sueno_horas,energia,emocion,ciclo_fase`),
+    sb('nutri_alimentos','GET',null,'?select=*&order=nombre.asc'),
+    sb('nutri_despensa','GET',null,'?order=nombre.asc')
   ]);
+  nuAlimentos = al || []; despensa = de || [];
   perfil = (p && p[0]) || null;
   items = it || []; digestion = dg || []; banos = bn || []; registros = rd || [];
 }
@@ -214,6 +248,247 @@ function metaFibra() {
   return {prom: r1(prom), meta: Math.min(meta, r0(prom + (vaBien ? paso : 0))), vaBien, final: meta};
 }
 
+// ── Buscador (el mismo de Mi Sistema) ──
+const nuNorm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+const NU_NO_CLAVE = ['cocido','cocida','cocidos','cocidas','crudo','cruda','frito','frita','asado','asada','blanco','blanca','integral','natural','maduro','rojos','firme','entero','tierno','curado','fresco','peso','unidad','griego','negro','agua','aceite','escurrido','escurridas','calcio','tajadas','hojuelas','tajado','crema','oliva','vegetal','molida','lactosa'];
+
+// Raíz de una palabra: sin diminutivo (arepita→arep, cafecito→cafe) ni plural (huevos→huevo)
+function nuRaiz(w) {
+  const sinDim = w.replace(/(cit|it)(a|o)s?$/, '');
+  if(sinDim!==w && sinDim.length>=3) return sinDim;
+  return w.length>3 ? w.replace(/s$/, '') : w;
+}
+
+// Busca palabra por palabra contra la palabra principal de cada alimento
+// ("Arepita pequeña, dos huevos fritos" → Arepa, Huevo). La última palabra, si
+// todavía se está escribiendo, se busca como prefijo ("are" → Arepa).
+// No sugiere lo que ya está agregado en esa comida.
+function nuCoincidencias(texto, excluir=[]) {
+  const q = nuNorm(texto);
+  if(q.length<2) return {lista:[]};
+  const palabras = q.split(/[^a-zñ]+/).filter(Boolean);
+  const escribiendo = !/[\s,.;]$/.test(texto) ? palabras[palabras.length-1] : null;
+  // Palabras que cuentan: la primera del nombre siempre; las demás si no son descriptivas
+  // ("Pechuga de pollo cocida" → pechuga, pollo; "Atún en agua" → atun)
+  const clave = a => {
+    const ws = nuNorm(a.nombre).split(/[^a-zñ]+/).filter(Boolean);
+    return [ws[0], String(a.norm||'').split(' ')[0]].concat(ws.slice(1).filter(x => x.length>=4 && !NU_NO_CLAVE.includes(x)));
+  };
+  const lista = [];
+  palabras.forEach(w => {
+    const raiz = nuRaiz(w);
+    nuAlimentos.forEach(a => {
+      if(lista.includes(a) || excluir.includes(String(a.id))) return;
+      const ok = clave(a).some(k => k && (
+        (w===escribiendo && w.length>=2 && w.length<=3 && k.startsWith(w)) ||
+        (raiz.length>=3 && ((k.startsWith(raiz) && k.length-raiz.length<=1) || raiz.startsWith(k) && k.length>=4))
+      ));
+      if(ok) lista.push(a);
+    });
+  });
+  return {lista: lista.slice(0,6)};
+}
+
+// ── Ahora: una sugerencia según el momento del día ──
+// Mira lo que ya comiste hoy, lo que falta para tus metas, lo que hay en la
+// despensa, cómo te cayó lo de hoy, cómo dormiste y tu ciclo. Una sola línea.
+const MOMENTOS = [{hasta:11, t:'el desayuno'}, {hasta:16, t:'el almuerzo'}, {hasta:21, t:'la cena'}];
+const MINIMO_UTIL = {proteina:8, fibra:2, calcio_mg:80};   // por porción, para que valga la pena sugerirlo
+const NO_SUGERIR = ['grasa','otro','bebida'];
+
+function porcionDe(a) { const p = (Array.isArray(a.porciones) && a.porciones[0]) || {u:'100 g', g:100}; return p; }
+
+function sugerencia() {
+  if(!perfil || !nuAlimentos.length) return null;
+  const h = new Date().getHours();
+  const m = MOMENTOS.find(x => h < x.hasta);
+  if(!m || h < 5) return null;                       // de noche no se sugiere comer
+  const f = hoy(), t = totalesDia(f);
+  const rd = registros.find(r => r.fecha===f) || {};
+  const malHoy = digestion.some(d => d.fecha===f && d.reaccion==='mal');
+  const restantes = MOMENTOS.filter(x => h < x.hasta).length;
+  const enCasa = new Set(despensa.filter(d => d.estado==='hay' && d.alimento_id).map(d => String(d.alimento_id)));
+
+  const pocoSueno = rd.sueno_horas && Number(rd.sueno_horas) < 6;
+  // Una sola nota de contexto, la más importante
+  let pre = '';
+  if(!t.n) pre = 'No veo nada anotado hoy. ';
+  else if(malHoy) pre = 'Algo de hoy te cayó mal: mejor suave. ';
+
+  if(t.kcal.total >= perfil.kcal) {
+    const livianos = nuAlimentos.filter(a => ['fruta','verdura'].includes(a.categoria) && !a.lactosa && Number(a.kcal) < 60)
+      .sort((x,y) => (enCasa.has(String(y.id))?1:0) - (enCasa.has(String(x.id))?1:0)).slice(0,2);
+    return {m: m.t, txt: pre + `Ya llegaste a tus calorías de hoy. Si te da hambre: ${livianos.map(a => a.nombre.toLowerCase()).join(' o ')}.`};
+  }
+
+  const fib = metaFibra();
+  const necesidades = [
+    {k:'proteina', nom:'proteína', u:'g', meta: perfil.proteina_g},
+    {k:'calcio_mg', nom:'calcio', u:'mg', meta: perfil.calcio_mg},
+    (fib && !malHoy) ? {k:'fibra', nom:'fibra', u:'g', meta: fib.meta} : null
+  ].filter(Boolean).map(n => Object.assign(n, {falta: n.meta - t[n.k].total}))
+   .filter(n => n.falta > 0).sort((a,b) => b.falta/b.meta - a.falta/a.meta);
+  if(!necesidades.length) return {m: m.t, txt: pre + 'Hoy ya cubriste proteína, calcio y fibra. Come lo que te provoque.'};
+
+  const n = necesidades[0];
+  const porComida = n.falta / restantes;
+  const candidatos = nuAlimentos.filter(a => !a.lactosa && !NO_SUGERIR.includes(a.categoria) && a[n.k]!=null
+      && !(malHoy && a.categoria==='legumbre') && !(m.t==='la cena' && a.cafeina))
+    .map(a => { const p = porcionDe(a); return {a, p, v: Number(a[n.k])*p.g/100, casa: enCasa.has(String(a.id))}; })
+    .filter(c => c.v >= MINIMO_UTIL[n.k])
+    .sort((x,y) => (y.casa-x.casa) || (y.v-x.v));
+  if(!candidatos.length) return null;
+  const elegidos = candidatos.slice(0,2);
+  const lista = elegidos.map(c => `${c.a.nombre.toLowerCase()} (${c.p.u}: ${r0(c.v)} ${n.u})`).join(' o ');
+  const opciones = elegidos.every(c => c.casa) ? `De lo que tienes: ${lista}` : lista.charAt(0).toUpperCase() + lista.slice(1);
+  if(!pre && pocoSueno && n.k==='proteina') pre = `Dormiste ${r1(Number(rd.sueno_horas))} h: la proteína te sostiene mejor que el azúcar. `;
+  let txt = pre + `Te faltan ${r0(n.falta)} ${n.u} de ${n.nom}; para ${m.t} te sirven unos ${r0(porComida)} ${n.u}. ${opciones}.`;
+  if(!pre && rd.ciclo_fase==='Menstrual' && n.k==='proteina') txt += ' En estos días, lentejas o carne también te reponen hierro.';
+  return {m: m.t, txt};
+}
+
+// ── Despensa: lo que hay en casa y lo que toca comprar ──
+// Agrupada por pasillo, con el nombre del súper en francés.
+const PASILLO = {
+  fruta:'Frutas y verduras · Fruits et légumes', verdura:'Frutas y verduras · Fruits et légumes',
+  platano:'Frutas y verduras · Fruits et légumes', tuberculo:'Frutas y verduras · Fruits et légumes',
+  proteina:'Carnes, pescado y huevos · Viandes et poissons', lacteo:'Lácteos · Produits laitiers',
+  grano:'Granos · Épicerie', legumbre:'Granos · Épicerie', arepa:'Granos · Épicerie',
+  grasa:'Despensa · Épicerie', 'fruto seco':'Despensa · Épicerie', otro:'Despensa · Épicerie', bebida:'Despensa · Épicerie',
+  empacado:'Empacados', plato:'Platos'
+};
+const pasilloDe = d => { const a = nuAlimentos.find(x => String(x.id)===String(d.alimento_id)); return PASILLO[a && a.categoria] || 'Otros'; };
+
+function pintarDespSug() {
+  const input = document.getElementById('desp-input');
+  const el = document.getElementById('desp-sug');
+  const txt = input.value.trim();
+  if(!txt) { el.innerHTML = ''; return; }
+  const ya = despensa.filter(d => d.estado==='hay').map(d => String(d.alimento_id));
+  const {lista} = nuCoincidencias(txt, ya);
+  const exacto = lista.some(a => nuNorm(a.nombre)===nuNorm(txt));
+  el.innerHTML = lista.map(a => `<button onmousedown="event.preventDefault()" onclick="despAgregar('${a.id}')">${esc(a.nombre)}</button>`).join('')
+    + (exacto ? '' : `<button onmousedown="event.preventDefault()" onclick="despAgregar(null)">+ ${esc(txt)}</button>`);
+}
+
+async function despAgregar(alimentoId) {
+  const input = document.getElementById('desp-input');
+  const a = alimentoId ? nuAlimentos.find(x => String(x.id)===String(alimentoId)) : null;
+  const nombre = a ? a.nombre : input.value.trim();
+  if(!nombre) return;
+  input.value = ''; pintarDespSug();
+  await despGuardar(a ? a.id : null, nombre);
+}
+
+async function despGuardar(alimentoId, nombre) {
+  const ya = despensa.find(d => (alimentoId && String(d.alimento_id)===String(alimentoId)) || nuNorm(d.nombre)===nuNorm(nombre));
+  if(ya) { if(ya.estado!=='hay') await despEstado(ya.id, 'hay'); return; }
+  try {
+    const r = await sb('nutri_despensa','POST',{alimento_id: alimentoId, nombre, estado:'hay'});
+    if(r && r[0]) despensa.push(r[0]);
+  } catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+  pintarDespensa(); pintarHoy();
+}
+
+async function despEstado(id, estado) {
+  const d = despensa.find(x => x.id===id); if(!d) return;
+  d.estado = estado; pintarDespensa(); pintarHoy();
+  try { await sb('nutri_despensa','PATCH',{estado, actualizado: new Date().toISOString()},`?id=eq.${id}`); }
+  catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+async function despBorrar(id) {
+  despensa = despensa.filter(x => x.id!==id); pintarDespensa(); pintarHoy();
+  try { await sb('nutri_despensa','DELETE',null,`?id=eq.${id}`); } catch(e) { console.error(e); }
+}
+
+function listaAgrupada(lista, accion, textoAccion) {
+  const grupos = {};
+  lista.forEach(d => { const g = pasilloDe(d); (grupos[g] = grupos[g] || []).push(d); });
+  return Object.keys(grupos).sort().map(g => `<div class="grupo">${esc(g)}</div>` + grupos[g].map(d =>
+    `<div class="item"><span>${esc(d.nombre)}</span><button class="accion" onclick="despEstado('${d.id}','${accion}')">${textoAccion}</button><button class="x" onclick="despBorrar('${d.id}')">✕</button></div>`).join('')).join('');
+}
+
+function pintarDespensa() {
+  const hay = despensa.filter(d => d.estado==='hay'), comprar = despensa.filter(d => d.estado==='comprar');
+  let h = '';
+  if(comprar.length) h += `<div class="card"><div class="label">Para comprar · ${comprar.length}</div>${listaAgrupada(comprar,'hay','ya lo compré')}</div>`;
+  h += hay.length
+    ? `<div class="card"><div class="label">En casa · ${hay.length}</div>${listaAgrupada(hay,'comprar','se acabó')}
+       <div class="nota">Cuando algo se acabe, tócalo y pasa a la lista de compras. La sugerencia de Hoy prefiere lo que tienes aquí.</div></div>`
+    : `<div class="card vacio">Anota lo que tienes en casa y la sugerencia de Hoy va a usar eso primero.</div>`;
+  document.getElementById('desp-listas').innerHTML = h;
+}
+
+// ── Escáner de código de barras (empacados → Open Food Facts → despensa) ──
+const ZXING_URL = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+
+function escanear() { const f = document.getElementById('foto-codigo'); if(f) { f.value=''; f.click(); } }
+
+async function fotoCodigo(input) {
+  const file = input.files && input.files[0];
+  if(!file) return;
+  let codigo = null;
+  try { codigo = await leerCodigo(file); } catch(e) { console.error('No se pudo leer el código:', e); }
+  if(!codigo) codigo = (prompt('No vi un código de barras en la foto. Si lo tienes a mano, escribe los números de abajo del código:') || '').replace(/\D/g, '');
+  if(!codigo) return;
+  const a = await alimentoPorCodigo(codigo);
+  if(a) await despGuardar(a.id, a.nombre);
+}
+
+async function leerCodigo(file) {
+  if('BarcodeDetector' in window) {
+    try {
+      const det = new BarcodeDetector({formats: ['ean_13','ean_8','upc_a','upc_e']});
+      const r = await det.detect(await createImageBitmap(file));
+      if(r && r[0]) return r[0].rawValue;
+    } catch(e) {}
+  }
+  if(!window.ZXing) await new Promise((ok, mal) => {
+    const s = document.createElement('script'); s.src = ZXING_URL; s.onload = ok; s.onerror = mal; document.head.appendChild(s);
+  });
+  // Las fotos del celular son enormes: se achican antes de leerlas
+  const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = URL.createObjectURL(file); });
+  const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(img.naturalWidth*k); cv.height = Math.round(img.naturalHeight*k);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  URL.revokeObjectURL(img.src);
+  const r = await new ZXing.BrowserMultiFormatReader().decodeFromImageUrl(cv.toDataURL('image/jpeg', 0.9));
+  return r ? r.getText() : null;
+}
+
+async function alimentoPorCodigo(codigo) {
+  const ya = nuAlimentos.find(x => x.codigo_barras===codigo);
+  if(ya) return ya;
+  let p = null;
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${codigo}.json?fields=product_name,product_name_es,product_name_fr,brands,nutriments,serving_quantity,allergens_tags`);
+    const j = await res.json();
+    if(j && j.status===1) p = j.product;
+  } catch(e) { console.error(e); }
+  if(!p) { alert('No encontré ese código en Open Food Facts. Escríbelo con su nombre en el buscador.'); return null; }
+  const n = p.nutriments || {};
+  const num = v => (v===undefined || v===null || v==='') ? null : Number(v);
+  const nombre = [p.product_name_es || p.product_name_fr || p.product_name, p.brands && p.brands.split(',')[0].trim()].filter(Boolean).join(' · ') || `Producto ${codigo}`;
+  const kcal = num(n['energy-kcal_100g']) ?? (num(n['energy_100g'])!=null ? Math.round(num(n['energy_100g'])/4.184) : null);
+  const calcio = num(n['calcium_100g']), vitd = num(n['vitamin-d_100g']);   // OFF los da en gramos
+  const sinLactosa = /sans lactose|lactose[- ]free|sin lactosa|deslactosad/i.test(nombre);
+  try {
+    const r = await sb('nutri_alimentos','POST',{
+      nombre, norm: nuNorm(nombre)+' '+codigo, categoria: 'empacado',
+      porciones: [p.serving_quantity ? {u:'porción', g:Number(p.serving_quantity)} : null, {u:'100 g', g:100}].filter(Boolean),
+      kcal, proteina: num(n.proteins_100g), carbo: num(n.carbohydrates_100g), grasa: num(n.fat_100g), fibra: num(n.fiber_100g),
+      calcio_mg: calcio==null ? null : Math.round(calcio*1000), vitd_ui: vitd==null ? null : Math.round(vitd*4e7),
+      lactosa: !sinLactosa && (p.allergens_tags||[]).includes('en:milk'), cafeina: false,
+      fuente: 'Open Food Facts', codigo_barras: codigo
+    });
+    const a = r && r[0];
+    if(a) nuAlimentos.push(a);
+    return a || null;
+  } catch(e) { console.error(e); alert('No se pudo guardar el producto. Revisa la conexión.'); return null; }
+}
+
 // ── Hoy ──
 function barra(nombre, t, objetivo, unidad) {
   const v = t.total, pct = objetivo ? Math.min(100, v/objetivo*100) : 0;
@@ -230,6 +505,8 @@ function pintarHoy() {
   const t = totalesDia(f);
   const texto = soloTexto(f);
   let h = '';
+  const sg = sugerencia();
+  if(sg) h += `<div class="card"><div class="label">Para ${esc(sg.m)}</div><div class="voz">${esc(sg.txt)}</div></div>`;
 
   if(!t.n) {
     // Sin registro no se juzga: se pregunta.
@@ -415,7 +692,7 @@ function pintarPerfil() {
 function verTab(t) {
   tab = t;
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab===t));
-  ['hoy','semana','perfil'].forEach(k => document.getElementById('tab-'+k).classList.toggle('oculto', k!==t));
+  ['hoy','semana','despensa','perfil'].forEach(k => document.getElementById('tab-'+k).classList.toggle('oculto', k!==t));
 }
 
 async function init() {
@@ -428,12 +705,12 @@ async function init() {
     document.getElementById('tab-hoy').innerHTML = '<div class="card vacio">No pude leer los datos. Revisa la conexión y vuelve a abrir.</div>';
     return;
   }
-  pintarHoy(); pintarSemana(); pintarPerfil();
+  pintarHoy(); pintarSemana(); pintarDespensa(); pintarPerfil();
 }
 
 // Al volver a la app se relee: lo anotado en Mi Sistema aparece sin recargar.
 document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState==='visible') cargar().then(() => { pintarHoy(); pintarSemana(); pintarPerfil(); }).catch(console.error);
+  if(document.visibilityState==='visible') cargar().then(() => { pintarHoy(); pintarSemana(); pintarDespensa(); pintarPerfil(); }).catch(console.error);
 });
 
 init();

@@ -1810,11 +1810,6 @@ body.night .habito-count { color: var(--night-accent); }
 .nu-input-row { display: flex; align-items: center; gap: 4px; }
 .comida-item .nu-input-row { margin: 8px 0 0 40px; }
 .nu-input-row .comida-texto { margin: 0; width: auto; flex: 1; min-width: 0; }
-.nu-scan {
-  background: none; border: none; padding: 4px 6px; color: var(--muted);
-  cursor: pointer; line-height: 0;
-}
-.nu-scan:active { transform: scale(.85); }
 .comida-item .nu-zona { margin-left: 40px; }
 .comida-item.bloqueada .nu-input-row, .comida-item.omitida .nu-input-row,
 .comida-item.bloqueada .nu-zona, .comida-item.omitida .nu-zona { display: none; }
@@ -1847,6 +1842,10 @@ body.night .habito-count { color: var(--night-accent); }
 .nu-extra-sint { margin: 0 0 6px 66px; }
 .nu-extra-sint .nu-sint { margin-top: 0; }
 .nu-bano-add { height: 34px; }
+.nu-resumen { display: block; font-size: 12px; color: var(--muted); text-decoration: none; margin: -4px 0 10px; }
+.nu-resumen:empty { display: none; }
+.nu-resumen b { color: var(--ink); font-weight: 600; }
+body.night .nu-resumen b { color: var(--night-text); }
 .banos-list .extra-item { cursor: pointer; }
 .bano-panel { padding: 2px 0 10px 66px; }
 .bano-panel .nu-sint:first-child { margin-top: 0; }
@@ -1944,6 +1943,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <div class="ql-title" style="margin:0;">Mis comidas 🍽️</div>
       <div class="meal-progress" id="meal-progress">0 / 3</div>
     </div>
+    <a class="nu-resumen" id="nu-resumen" href="nutri.html"></a>
 
     <!-- Desayuno -->
     <div class="comida-item" id="comida-0">
@@ -1957,8 +1957,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-0" onclick="toggleOmitida(0)">No desayuné</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('0')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" onfocus="nuPintarZona('0')" onblur="nuSoltar('0')" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)" autocomplete="off">
       </div>
       <div class="nu-zona" id="nu-0"></div>
     </div>
@@ -1976,8 +1975,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-1" onclick="toggleOmitida(1)">No almorcé</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('1')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" onfocus="nuPintarZona('1')" onblur="nuSoltar('1')" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)" autocomplete="off">
       </div>
       <div class="nu-zona" id="nu-1"></div>
     </div>
@@ -1995,8 +1993,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-2" onclick="toggleOmitida(2)">No cené</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('2')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" onfocus="nuPintarZona('2')" onblur="nuSoltar('2')" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)" autocomplete="off">
       </div>
       <div class="nu-zona" id="nu-2"></div>
     </div>
@@ -2008,8 +2005,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
         <span class="extras-count" id="extras-count"></span>
       </div>
       <div class="extras-input-row">
-        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
-        <button class="nu-scan" onclick="nuEscanear('extra')" aria-label="Escanear código de barras de un empacado"><svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true"><path d="M1 1v12M3.5 1v12M7 1v12M9 1v12M12.5 1v12M15 1v12M16.8 1v12M19 1v12" stroke="currentColor" stroke-width="1.4" fill="none"/></svg></button>
+        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onfocus="nuPintarZona('extra')" onblur="nuSoltar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
         <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
       </div>
       <div class="nu-zona" id="nu-extra"></div>
@@ -2047,7 +2043,6 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
     </div>
     <div class="banos-list" id="banos-list"></div>
   </div>
-  <input type="file" id="nu-foto" accept="image/*" capture="environment" hidden onchange="nuFotoElegida(this)">
 
   <!-- Mis gatos -->
   <div class="gatos-card">
@@ -4110,16 +4105,14 @@ const DIGESTION = [{id:'bien',e:'👍'}, {id:'regular',e:'😐'}, {id:'mal',e:'�
 const DIGESTION_SINTOMAS = ['gases', 'inflamación', 'dolor', 'reflujo', 'acidez', 'náusea', 'urgencia'];
 const BANO_TIPOS = [{id:'dura',t:'dura',bristol:2}, {id:'normal',t:'normal',bristol:4}, {id:'blanda',t:'blanda',bristol:6}];
 const BANO_MOLESTIAS = [{id:'inflamacion',t:'inflamación'}, {id:'colico',t:'cólico'}, {id:'urgencia',t:'urgencia'}, {id:'incompleta',t:'sensación incompleta'}];
-// Lector de códigos para el iPhone (Safari no trae uno propio). Se carga sólo al tocar 📷.
-const ZXING_URL = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
 
 let nuAlimentos = [];
+let nuPerfil = null;   // metas de Nutri, para la línea de "cómo vas"
 let nuItems = [];      // comidas_items de la fecha activa
 let nuDig = [];        // comidas_digestion de la fecha activa
 let banosDia = [];     // banos de la fecha activa
 let nuSel = {};        // zona ('0','1','2','extra') -> {a: alimento, u: índice de porción}
 let banoAbierto = null;
-let nuZonaScan = null;
 
 const nuNorm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const nuFmtCant = c => ({0.5:'½', 1.5:'1½'}[c] || String(c));
@@ -4186,7 +4179,20 @@ async function nuCargarAlimentos() {
   try {
     const data = await sbLog('nutri_alimentos', 'GET', null, '?select=*&order=nombre.asc');
     if(Array.isArray(data)) { nuAlimentos = data; nuGuardarCacheAlimentos(); }
+    const p = await sbLog('nutri_perfil', 'GET', null, '?id=eq.laura&select=kcal,proteina_g');
+    nuPerfil = (Array.isArray(p) && p[0]) || null;
   } catch(e) { console.error('Error cargando alimentos:', e); }
+}
+
+// Una línea neutra, sin colores de alerta: cuánto llevas, no cuánto te falta.
+function nuPintarResumen() {
+  const el = document.getElementById('nu-resumen');
+  if(!el) return;
+  const kc = nuItems.reduce((a,x) => a + (Number(x.kcal)||0), 0);
+  const pr = nuItems.reduce((a,x) => a + (Number(x.proteina)||0), 0);
+  el.innerHTML = (nuItems.length && nuPerfil)
+    ? `Llevas <b>${Math.round(kc)}</b> de ${nuPerfil.kcal} kcal · <b>${Math.round(pr)}</b> de ${nuPerfil.proteina_g} g de proteína · Nutri →`
+    : '';
 }
 function nuGuardarCacheAlimentos() { try { localStorage.setItem('nu_alimentos', JSON.stringify(nuAlimentos)); } catch(e){} }
 
@@ -4270,10 +4276,14 @@ function nuElegir(zona, id) {
   nuPintarZona(zona);
 }
 
+// Al salir del campo, las sugerencias desaparecen: no quedan colgadas de una comida que ya pasó.
+function nuSoltar(zona) { setTimeout(() => nuPintarZona(zona), 250); }
+
 function nuUnidad(zona, k) { if(nuSel[zona]) { nuSel[zona].u = k; nuPintarZona(zona); } }
 function nuCancelar(zona) { delete nuSel[zona]; nuPintarZona(zona); }
 
 function nuPintarZona(zona) {
+  nuPintarResumen();
   const el = document.getElementById(`nu-${zona}`);
   if(!el) return;
   let html = '';
@@ -4285,9 +4295,12 @@ function nuPintarZona(zona) {
     html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div></div>`;
   } else {
     const input = document.getElementById(nuInputId(zona));
-    const ya = nuItems.filter(x => x.comida===zona && x.alimento_id).map(x => String(x.alimento_id));
-    const {lista} = nuCoincidencias(input ? input.value : '', zona==='extra' ? [] : ya);
-    if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}</button>`).join('')}</div>`;
+    if(input && document.activeElement===input) {
+      const ya = nuItems.filter(x => x.comida===zona && x.alimento_id).map(x => String(x.alimento_id));
+      const {lista} = nuCoincidencias(input.value, zona==='extra' ? [] : ya);
+      // onmousedown evita que el campo pierda el foco antes de que el toque llegue al chip
+      if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onmousedown="event.preventDefault()" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}</button>`).join('')}</div>`;
+    }
   }
   if(zona!=='extra') {
     const items = nuItems.filter(x => x.comida===zona);
@@ -4388,75 +4401,6 @@ async function nuSintoma(comida, ref, s) {
   if(!d) return;
   const actual = d.sintomas || [];
   await nuGuardarDig(d, {sintomas: actual.includes(s) ? actual.filter(x => x!==s) : actual.concat(s)});
-}
-
-// ── Escáner (foto del código → Open Food Facts) ──
-function nuEscanear(zona) {
-  nuZonaScan = zona;
-  const f = document.getElementById('nu-foto');
-  if(f) { f.value = ''; f.click(); }
-}
-
-async function nuFotoElegida(input) {
-  const file = input.files && input.files[0];
-  if(!file) return;
-  let codigo = null;
-  try { codigo = await nuLeerCodigo(file); } catch(e) { console.error('No se pudo leer el código:', e); }
-  if(!codigo) codigo = (prompt('No vi un código de barras en la foto. Esto es sólo para empacados: si tienes uno, escribe los números de abajo del código.') || '').replace(/\D/g, '');
-  if(codigo) await nuBuscarCodigo(nuZonaScan, codigo);
-}
-
-async function nuLeerCodigo(file) {
-  if('BarcodeDetector' in window) {
-    try {
-      const det = new BarcodeDetector({formats: ['ean_13','ean_8','upc_a','upc_e']});
-      const r = await det.detect(await createImageBitmap(file));
-      if(r && r[0]) return r[0].rawValue;
-    } catch(e) {}
-  }
-  if(!window.ZXing) await new Promise((ok, mal) => {
-    const s = document.createElement('script'); s.src = ZXING_URL; s.onload = ok; s.onerror = mal; document.head.appendChild(s);
-  });
-  // Las fotos del celular son enormes: se achican antes de leerlas
-  const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = URL.createObjectURL(file); });
-  const esc = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
-  const cv = document.createElement('canvas');
-  cv.width = Math.round(img.naturalWidth*esc); cv.height = Math.round(img.naturalHeight*esc);
-  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-  URL.revokeObjectURL(img.src);
-  const r = await new ZXing.BrowserMultiFormatReader().decodeFromImageUrl(cv.toDataURL('image/jpeg', 0.9));
-  return r ? r.getText() : null;
-}
-
-async function nuBuscarCodigo(zona, codigo) {
-  let a = nuAlimentos.find(x => x.codigo_barras===codigo);
-  if(!a) {
-    let p = null;
-    try {
-      const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${codigo}.json?fields=product_name,product_name_es,product_name_fr,brands,nutriments,serving_quantity,allergens_tags`);
-      const j = await res.json();
-      if(j && j.status===1) p = j.product;
-    } catch(e) { console.error(e); }
-    if(!p) { mostrarRecompensa('No encontré ese código en Open Food Facts'); return; }
-    const n = p.nutriments || {};
-    const num = v => (v===undefined || v===null || v==='') ? null : Number(v);
-    const nombre = [p.product_name_es || p.product_name_fr || p.product_name, p.brands && p.brands.split(',')[0].trim()].filter(Boolean).join(' · ') || `Producto ${codigo}`;
-    const kcal = num(n['energy-kcal_100g']) ?? (num(n['energy_100g'])!=null ? Math.round(num(n['energy_100g'])/4.184) : null);
-    const calcio = num(n['calcium_100g']), vitd = num(n['vitamin-d_100g']);   // OFF los da en gramos
-    const sinLactosa = /sans lactose|lactose[- ]free|sin lactosa|deslactosad/i.test(nombre);
-    a = await nuInsertar('nutri_alimentos', {
-      nombre, norm: nuNorm(nombre)+' '+codigo, categoria: 'empacado',
-      porciones: [p.serving_quantity ? {u:'porción', g:Number(p.serving_quantity)} : null, {u:'100 g', g:100}].filter(Boolean),
-      kcal, proteina: num(n.proteins_100g), carbo: num(n.carbohydrates_100g), grasa: num(n.fat_100g), fibra: num(n.fiber_100g),
-      calcio_mg: calcio==null ? null : Math.round(calcio*1000), vitd_ui: vitd==null ? null : Math.round(vitd*4e7),
-      lactosa: !sinLactosa && (p.allergens_tags||[]).includes('en:milk'), cafeina: false,
-      fuente: 'Open Food Facts', codigo_barras: codigo
-    });
-    nuAlimentos.push(a);
-    nuGuardarCacheAlimentos();
-  }
-  nuSel[zona] = {a, u:0};
-  nuPintarZona(zona);
 }
 
 // ── 🚽 Baño: un tap = una vez, con hora. Tipo y molestias se afinan después, si quiere ──
