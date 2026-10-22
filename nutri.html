@@ -102,6 +102,7 @@ input, select { font-family:inherit; font-size:16px; color:inherit; }
   transition:transform .18s ease, box-shadow .18s ease; animation:subir .45s cubic-bezier(.2,.8,.2,1) both; }
 .card:active { transform:scale(.985); box-shadow:var(--shadow-press); }
 .card:nth-child(2) { animation-delay:.05s; } .card:nth-child(3) { animation-delay:.1s; } .card:nth-child(4) { animation-delay:.15s; } .card:nth-child(5) { animation-delay:.2s; }
+#tab-hoy[data-pintado] .card { animation:none; }
 @keyframes subir { from { opacity:0; transform:translateY(14px) scale(.98); } to { opacity:1; transform:none; } }
 .label { font-family:var(--display); font-size:13px; font-weight:600; letter-spacing:.01em; color:var(--muted); margin-bottom:14px; }
 .voz { font-size:15px; line-height:1.55; font-weight:500; }
@@ -212,6 +213,14 @@ input, select { font-family:inherit; font-size:16px; color:inherit; }
 .grupo { font-family:var(--display); font-size:12px; font-weight:600; color:var(--muted); margin:16px 0 2px; }
 .grupo:first-of-type { margin-top:0; }
 
+/* Suplementos */
+.sug button.tomado { background:var(--fresh); color:#fff; box-shadow:0 8px 18px -10px rgba(34,178,107,0.9); }
+.sup-edit { padding:6px 0 10px; border-top:1px solid var(--line); }
+.sup-edit:first-of-type { border-top:none; }
+.sup-edit .campo input, .sup-edit .campo select { width:160px; font-family:var(--text); font-weight:500; font-size:14px; }
+.sup-num { width:100%; border:none; background:transparent; outline:none; font-family:var(--display); font-size:18px; font-weight:700; color:var(--ink); }
+.sup-num::placeholder { color:var(--muted); }
+
 /* Aviso que entra desde arriba */
 .toast { position:fixed; left:50%; top:calc(14px + env(safe-area-inset-top)); transform:translate(-50%, -140%); z-index:30;
   background:var(--ink); color:var(--bg); padding:11px 18px; border-radius:18px; font-size:13px; font-weight:600;
@@ -290,6 +299,8 @@ const MIN_COMIDAS_DETONANTE = 3;
 let perfil = null;
 let items = [], digestion = [], banos = [], registros = [];
 let nuAlimentos = [], despensa = [];
+let suplementos = [], tomas = [];
+let supEditando = false;   // la tarjeta de suplementos en modo editar
 let tab = 'hoy';
 
 // ── utilidades ──
@@ -313,36 +324,55 @@ async function sb(tabla, method='GET', body=null, params='') {
 // ── carga ──
 async function cargar() {
   const desde = haceDias(9);   // 7 días + los 2 anteriores para cruzar con baño
-  const [p, it, dg, bn, rd, al, de] = await Promise.all([
+  const [p, it, dg, bn, rd, al, de, su, to] = await Promise.all([
     sb('nutri_perfil','GET',null,'?id=eq.laura'),
     sb('comidas_items','GET',null,`?fecha=gte.${desde}&order=fecha.asc,created_at.asc`),
     sb('comidas_digestion','GET',null,`?fecha=gte.${desde}`),
     sb('banos','GET',null,`?fecha=gte.${desde}&order=fecha.asc,created_at.asc`),
     sb('registro_diario','GET',null,`?fecha=gte.${desde}&select=fecha,comidas,comidas_texto,comidas_omitidas,extras,agua,sueno_horas,energia,emocion,ciclo_fase`),
     sb('nutri_alimentos','GET',null,'?select=*&order=nombre.asc'),
-    sb('nutri_despensa','GET',null,'?order=nombre.asc')
+    sb('nutri_despensa','GET',null,'?order=nombre.asc'),
+    sb('suplementos','GET',null,'?activo=eq.true&order=orden.asc,created_at.asc'),
+    sb('suplementos_tomas','GET',null,`?fecha=gte.${desde}&order=created_at.asc`)
   ]);
   nuAlimentos = al || []; despensa = de || [];
+  suplementos = su || []; tomas = to || [];
   perfil = (p && p[0]) || null;
   items = it || []; digestion = dg || []; banos = bn || []; registros = rd || [];
 }
 
 // ── cálculos ──
 // Suma un nutriente. Si algún alimento no tiene el dato, el total es "al menos".
+// Suma un nutriente. faltan = alimentos sin ese dato (el total es "al menos");
+// est = algo de lo sumado es estimado (IA o plato de restaurante) y se muestra con *.
 function sumar(lista, campo) {
-  let total = 0, faltan = 0;
-  lista.forEach(x => { if(x[campo]==null) faltan++; else total += Number(x[campo]); });
-  return {total, faltan};
+  let total = 0, faltan = 0, est = false;
+  lista.forEach(x => {
+    if(x[campo]==null) faltan++;
+    else { total += Number(x[campo]); if(x.estimado && Number(x[campo])) est = true; }
+  });
+  return {total, faltan, est};
+}
+
+// Lo que aporta una toma de suplemento. Clave ausente = no aporta; null = no se sabe cuánto.
+const NUTRIENTES = ['kcal','proteina','carbo','grasa','fibra','calcio_mg','vitd_ui'];
+function tomaComoItem(tm) {
+  const n = tm.nutrientes || {}, it = {fecha: tm.fecha, estimado: false};
+  NUTRIENTES.forEach(c => it[c] = (c in n) ? n[c] : 0);
+  return it;
 }
 
 function totalesDia(fecha) {
   const del = items.filter(x => x.fecha===fecha);
-  const t = {n: del.length};
-  ['kcal','proteina','carbo','grasa','fibra','calcio_mg','vitd_ui'].forEach(c => t[c] = sumar(del, c));
+  const sup = tomas.filter(x => x.fecha===fecha).map(tomaComoItem);
+  const t = {n: del.length, sup: sup.length};
+  NUTRIENTES.forEach(c => t[c] = sumar(del.concat(sup), c));
   return t;
 }
 
-// Comidas que sólo están en texto (no suman: Nutri las marca "aprox")
+// Comidas descritas en texto. ia=true: la IA ya las leyó y suman aprox (con *).
+// ia=false: todavía no suman; se calculan con ✨ en Mi Sistema.
+// Si una comida tiene alimentos del buscador, su texto es sólo descripción y no aparece aquí.
 function soloTexto(fecha) {
   const rd = registros.find(r => r.fecha===fecha);
   if(!rd) return [];
@@ -350,10 +380,12 @@ function soloTexto(fecha) {
   const textos = rd.comidas_texto || {};
   ['0','1','2'].forEach(k => {
     const tx = (textos[k]||'').trim();
-    if(tx && !items.some(x => x.fecha===fecha && x.comida===k)) out.push({nombre: COMIDAS_NOMBRE[k], texto: tx});
+    const its = items.filter(x => x.fecha===fecha && x.comida===k);
+    if(tx && !its.some(x => x.origen!=='texto')) out.push({nombre: COMIDAS_NOMBRE[k], texto: tx, ia: its.length>0});
   });
   (Array.isArray(rd.extras) ? rd.extras : []).forEach(e => {
-    if(!e.id || !items.some(x => x.fecha===fecha && x.extra_ref===e.id)) out.push({nombre: 'Algo de más', texto: e.texto||''});
+    const its = e.id ? items.filter(x => x.fecha===fecha && x.extra_ref===e.id) : [];
+    if(!its.some(x => x.origen!=='texto')) out.push({nombre: 'Algo de más', texto: e.texto||'', ia: its.length>0});
   });
   return out;
 }
@@ -721,20 +753,25 @@ async function elegirOFF(k) {
 // ── Anillos ──
 const CIRC = r => 2 * Math.PI * r;
 // Arranca vacío y se llena con animación en el siguiente cuadro (ver animarAnillos)
-function arco(r, grosor, clase, pct) {
-  const c = CIRC(r);
+// Cada anillo recuerda dónde quedó: al repintar se mueve desde ahí, no desde cero
+const ultimosArcos = {};
+function arco(r, grosor, clase, pct, clave) {
+  const c = CIRC(r), k = clave || clase;
+  const desde = (k in ultimosArcos) ? ultimosArcos[k] : c;
   return `<circle class="pista" r="${r}" cx="50%" cy="50%" stroke-width="${grosor}"/>
-    <circle class="arco ${clase}" r="${r}" cx="50%" cy="50%" stroke-width="${grosor}" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c*(1-Math.min(1,pct))}"/>`;
+    <circle class="arco ${clase}" r="${r}" cx="50%" cy="50%" stroke-width="${grosor}" stroke-dasharray="${c}" stroke-dashoffset="${desde}" data-off="${c*(1-Math.min(1,pct))}" data-k="${k}"/>`;
 }
 function animarAnillos() {
   requestAnimationFrame(() => requestAnimationFrame(() =>
-    document.querySelectorAll('circle.arco[data-off]').forEach(el => el.setAttribute('stroke-dashoffset', el.dataset.off))));
+    document.querySelectorAll('circle.arco[data-off]').forEach(el => { el.setAttribute('stroke-dashoffset', el.dataset.off); ultimosArcos[el.dataset.k] = el.dataset.off; })));
 }
 // Cuenta hacia arriba el número grande
+let ultimoNumero = 0;
 function contar(el, hasta) {
   if(!el) return;
+  const desde = ultimoNumero; ultimoNumero = hasta;
   const t0 = performance.now(), dur = 900;
-  const paso = t => { const k = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1-k, 3); el.textContent = Math.round(hasta*e); if(k < 1) requestAnimationFrame(paso); };
+  const paso = t => { const k = Math.min(1, (t - t0)/dur), e = 1 - Math.pow(1-k, 3); el.textContent = Math.round(desde + (hasta-desde)*e); if(k < 1) requestAnimationFrame(paso); };
   requestAnimationFrame(paso);
 }
 
@@ -742,9 +779,10 @@ const COLOR_MINI = {carbo:'var(--orange)', grasa:'var(--sun)', fibra:'var(--fres
 function mini(nombre, t, meta, unidad, color) {
   const pct = meta ? t.total/meta : 0;
   const pre = t.faltan ? '≥' : '';
+  const ast = t.est ? '*' : '';
   return `<div class="mini">
-    <svg viewBox="0 0 52 52">${arco(22, 6, '', pct).replace('class="arco ', `style="stroke:${color}" class="arco `)}</svg>
-    <div class="mini-num">${pre}${r0(t.total)}<span style="font-size:11px;font-weight:500;color:var(--muted)">${meta ? '/'+meta : ''}</span></div>
+    <svg viewBox="0 0 52 52">${arco(22, 6, '', pct, nombre).replace('class="arco ', `style="stroke:${color}" class="arco `)}</svg>
+    <div class="mini-num">${pre}${r0(t.total)}${ast}<span style="font-size:11px;font-weight:500;color:var(--muted)">${meta ? '/'+meta : ''}</span></div>
     <div class="mini-nom">${nombre} · ${unidad}</div>
   </div>`;
 }
@@ -763,14 +801,14 @@ function pintarHoy() {
     h += `<div class="card heroe" id="heroe"><div class="label">Hoy</div>
       <div class="heroe-fila">
         <div class="anillos"><svg viewBox="0 0 168 168">${arco(74, 14, 'kcal', pk)}${arco(52, 12, 'prot', pp)}</svg>
-          <div class="anillos-centro"><div class="num-grande" id="num-kcal">0</div><div class="num-sub">de ${perfil.kcal} kcal</div></div>
+          <div class="anillos-centro"><div class="num-grande">${t.kcal.faltan?'≥':''}<span id="num-kcal">0</span>${t.kcal.est?'*':''}</div><div class="num-sub">de ${perfil.kcal} kcal</div></div>
         </div>
         <div class="leyenda">
           <div><span class="punto" style="background:#FFF8EA"></span>Calorías<b>${t.n ? Math.max(0, r0(perfil.kcal - t.kcal.total)) : perfil.kcal}</b>quedan</div>
-          <div><span class="punto" style="background:var(--sun)"></span>Proteína<b>${r0(t.proteina.total)} g</b>de ${perfil.proteina_g} g</div>
+          <div><span class="punto" style="background:var(--sun)"></span>Proteína<b>${t.proteina.faltan?'≥':''}${r0(t.proteina.total)}${t.proteina.est?'*':''} g</b>de ${perfil.proteina_g} g</div>
         </div>
       </div>
-      ${items.some(x => x.fecha===f && x.estimado) ? '<div class="aprox">Incluye estimados de foto o restaurante: aprox.</div>' : ''}
+      ${NUTRIENTES.some(c => t[c].est) ? '<div class="aprox">Los números con * son estimados por IA (texto o foto) o de platos de restaurante.</div>' : ''}
     </div>`;
   }
 
@@ -800,10 +838,14 @@ function pintarHoy() {
   }
 
   if(texto.length) {
-    h += `<div class="card"><div class="label">Sólo en texto · aprox</div>
-      ${texto.map(x => `<div class="fila"><span>${esc(x.nombre)}</span><span class="der">${esc(x.texto)}</span></div>`).join('')}
-      <div class="nota">No suman a los anillos.</div></div>`;
+    h += `<div class="card"><div class="label">Descrito en texto · aprox</div>
+      ${texto.map(x => `<div class="fila"><span>${esc(x.nombre)} ${x.ia ? '✨' : ''}</span><span class="der">${esc(x.texto)}</span></div>`).join('')}
+      <div class="nota">${texto.every(x => x.ia) ? 'Suman aprox a los anillos (procesado por IA).'
+        : texto.some(x => x.ia) ? 'Los que tienen ✨ suman aprox a los anillos (procesado por IA). Los demás todavía no: tócalos con ✨ en Mi Sistema.'
+        : 'Todavía no suman: en Mi Sistema toca ✨ Calcular con IA.'}</div></div>`;
   }
+
+  h += htmlSuplementos(f);
 
   const dg = digestion.filter(d => d.fecha===f && d.reaccion);
   const bn = banos.filter(b => b.fecha===f);
@@ -822,7 +864,9 @@ function pintarHoy() {
     h += `</div>`;
   }
 
-  document.getElementById('tab-hoy').innerHTML = h;
+  const tabHoy = document.getElementById('tab-hoy');
+  tabHoy.innerHTML = h;
+  requestAnimationFrame(() => { tabHoy.dataset.pintado = '1'; });   // las tarjetas entran animadas sólo la primera vez
   animarAnillos();
   contar(document.getElementById('num-kcal'), r0(t.kcal.total));
 
@@ -839,6 +883,99 @@ function pintarHoy() {
     if(hora >= 20 && t.kcal.total >= perfil.kcal*0.85 && t.kcal.total <= perfil.kcal*1.1 && t.proteina.total >= perfil.proteina_g*0.9)
       celebrar('dia', 'Día cerrado en tu objetivo');
   }
+}
+
+// ── 💊 Suplementos: un toque = tomado ahora (suma a los anillos) ──
+// Excepción a "Nutri no registra": los suplementos no son comidas y no se anotan en otro lado.
+const NUT_CAMPOS = [['kcal','kcal'], ['proteina','proteína g'], ['carbo','carbos g'], ['grasa','grasa g'], ['fibra','fibra g'], ['calcio_mg','calcio mg'], ['vitd_ui','vit D UI'], ['magnesio_mg','magnesio mg']];
+const horaAhora = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+
+function htmlSuplementos(f) {
+  if(!suplementos.length && !supEditando) return `<div class="card"><div class="label">💊 Suplementos</div>
+    <button class="boton" style="margin-top:0" onclick="supAgregar()">+ Agregar suplemento</button></div>`;
+  let h = `<div class="card"><div class="label" style="display:flex;justify-content:space-between">💊 Suplementos
+    <button class="link" style="font-size:12px" onclick="supEditar()">${supEditando ? 'Listo' : 'Editar'}</button></div>`;
+  if(!supEditando) {
+    h += `<div class="sug" style="margin-top:0">${suplementos.map(sp => {
+      const tm = tomas.filter(x => x.fecha===f && x.suplemento_id===sp.id);
+      const ult = tm[tm.length-1];
+      return `<button class="${tm.length ? 'tomado' : ''}" onclick="supTomar('${sp.id}')">${tm.length ? '✓ ' : ''}${esc(sp.nombre)}${ult ? ` · ${ult.hora}` : (sp.horario ? ` · ${esc(sp.horario)}` : '')}${!sp.diario ? ' <span style="opacity:.6">(a veces)</span>' : ''}</button>`;
+    }).join('')}</div>
+    <div class="nota">Un toque lo marca como tomado ahora; otro toque lo deshace.</div>`;
+  } else {
+    h += suplementos.map(sp => {
+      const n = sp.nutrientes || {};
+      return `<div class="sup-edit">
+        <div class="campo"><span>Nombre</span><input value="${esc(sp.nombre)}" onchange="supCampo('${sp.id}','nombre',this.value.trim())"></div>
+        <div class="campo"><span>Marca</span><input value="${esc(sp.marca||'')}" onchange="supCampo('${sp.id}','marca',this.value.trim()||null)"></div>
+        <div class="campo"><span>Dosis</span><input value="${esc(sp.dosis||'')}" onchange="supCampo('${sp.id}','dosis',this.value.trim()||null)"></div>
+        <div class="campo"><span>Horario</span><input value="${esc(sp.horario||'')}" placeholder="ej. mañana" onchange="supCampo('${sp.id}','horario',this.value.trim()||null)"></div>
+        <div class="campo"><span>¿Es diario?</span><select onchange="supCampo('${sp.id}','diario',this.value==='si')"><option value="si"${sp.diario?' selected':''}>sí</option><option value="no"${!sp.diario?' selected':''}>a veces</option></select></div>
+        <div class="nota" style="margin:6px 0 2px">Lo que aporta por dosis (vacío = no aporta · ? = aporta pero no sé cuánto)</div>
+        <div class="metas">${NUT_CAMPOS.map(([c,t]) => `<label class="meta-c"><input class="sup-num" inputmode="decimal" value="${(c in n) ? (n[c]==null ? '?' : n[c]) : ''}" onchange="supNutriente('${sp.id}','${c}',this.value)"><span>${t}</span></label>`).join('')}</div>
+        <button class="link" style="font-size:12px;margin:10px 0 4px;color:var(--berry)" onclick="supQuitar('${sp.id}')">Quitar ${esc(sp.nombre)}</button>
+      </div>`;
+    }).join('') + `<button class="boton" onclick="supAgregar()">+ Agregar suplemento</button>`;
+  }
+  return h + `</div>`;
+}
+
+async function supTomar(id) {
+  const f = hoy();
+  const sp = suplementos.find(x => x.id===id); if(!sp) return;
+  const tm = tomas.filter(x => x.fecha===f && x.suplemento_id===id);
+  try {
+    if(tm.length) {   // ya estaba: el toque lo deshace
+      const ult = tm[tm.length-1];
+      tomas = tomas.filter(x => x!==ult); pintarHoy();
+      if(ult.id) await sb('suplementos_tomas','DELETE',null,`?id=eq.${ult.id}`);
+    } else {
+      const fila = {suplemento_id: id, fecha: f, hora: horaAhora(), nutrientes: sp.nutrientes || {}};
+      tomas.push(fila); pintarHoy(); avisar(`✓ ${sp.nombre}`);
+      const r = await sb('suplementos_tomas','POST',fila);
+      if(r && r[0]) Object.assign(fila, r[0]);
+    }
+  } catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+function supEditar() { supEditando = !supEditando; pintarHoy(); }
+
+async function supAgregar() {
+  const nombre = (prompt('¿Cómo se llama el suplemento?') || '').trim();
+  if(!nombre) return;
+  try {
+    const r = await sb('suplementos','POST',{nombre, nutrientes: {}, diario: true, orden: suplementos.length+1});
+    if(r && r[0]) suplementos.push(r[0]);
+    supEditando = true; pintarHoy();
+  } catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+async function supCampo(id, campo, valor) {
+  const sp = suplementos.find(x => x.id===id); if(!sp) return;
+  if(campo==='nombre' && !valor) return;
+  sp[campo] = valor;
+  try { await sb('suplementos','PATCH',{[campo]: valor},`?id=eq.${id}`); }
+  catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+async function supNutriente(id, campo, texto) {
+  const sp = suplementos.find(x => x.id===id); if(!sp) return;
+  const n = Object.assign({}, sp.nutrientes || {});
+  const v = String(texto).trim().replace(',', '.');
+  if(v==='') delete n[campo];
+  else if(v==='?') n[campo] = null;
+  else if(!isNaN(Number(v))) n[campo] = Number(v);
+  else return;
+  sp.nutrientes = n;
+  try { await sb('suplementos','PATCH',{nutrientes: n},`?id=eq.${id}`); }
+  catch(e) { console.error(e); alert('No se pudo guardar. Revisa la conexión.'); }
+}
+
+async function supQuitar(id) {
+  const sp = suplementos.find(x => x.id===id); if(!sp) return;
+  if(!confirm(`¿Quitar ${sp.nombre} de tu lista? Lo que ya tomaste se queda en el historial.`)) return;
+  suplementos = suplementos.filter(x => x!==sp); pintarHoy();
+  try { await sb('suplementos','PATCH',{activo: false},`?id=eq.${id}`); } catch(e) { console.error(e); }
 }
 
 // ── Avisos y confeti sutil (una vez por meta y por día) ──

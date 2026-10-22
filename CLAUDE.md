@@ -163,6 +163,9 @@ lenguaje de Laura).
   Digestión 👍😐👎 + síntoma → `comidas_digestion`. Tarjeta 🚽 Baño → `banos`.
 - **Nutri no registra comidas**: lee lo de Mi Sistema y hace análisis, detonantes,
   plan semanal, despensa, compras y coach.
+  Excepción aprobada por Laura (22 oct 2026): los **suplementos** se configuran y se
+  marcan como tomados en Nutri (`suplementos`, `suplementos_tomas`); no son comidas y
+  no se anotan en otro lado. Suman a los anillos.
 
 ## Se queda del original
 
@@ -177,6 +180,10 @@ lenguaje de Laura).
 
 - Los totales **siempre** cuadran con el objetivo (se calcula, no se estima).
 - Nada de resultados inventados: si no hay dato, no se muestra.
+  Excepción aprobada por Laura (22 oct 2026): lo que estima la IA (texto libre o foto,
+  `origen` texto/foto) y los platos de restaurante SÍ suman a los anillos, siempre
+  marcados con * y la leyenda "estimados por IA". Un dato desconocido sigue siendo null
+  (se muestra con ≥), nunca un número inventado.
 - Sin registro no se juzga: se pregunta.
 - Tuteo siempre.
 - La IA tiene **un solo nombre**.
