@@ -4209,11 +4209,13 @@ async function nuCargarDia(fecha=fechaActiva) {
     nuItems = (it||[]).concat(pend('comidas_items'));
     nuDig = (dg||[]);
     pend('comidas_digestion').forEach(d => { nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(d.comida,d.extra_ref)); nuDig.push(d); });
+    nuDigAplicarPendientes(fecha);
     banosDia = (bn||[]).concat(pend('banos'));
   } catch(e) {
     console.error('Error cargando comidas/baño:', e);
     if(fecha!==fechaActiva) return;
     nuItems = pend('comidas_items'); nuDig = pend('comidas_digestion'); banosDia = pend('banos');
+    nuDigAplicarPendientes(fecha);
   }
   nuPintarTodo();
 }
@@ -4357,7 +4359,11 @@ async function nuBorrarDeExtra(ref) {
   nuItems = nuItems.filter(x => !items.includes(x));
   nuDig = nuDig.filter(x => !digs.includes(x));
   for(const x of items) await nuBorrarFila('comidas_items', x.id);
-  for(const d of digs) await nuBorrarFila('comidas_digestion', d.id);
+  // Si había un guardado de digestión en espera para este extra, ya no aplica: se borra por clave
+  const kDig = fechaActiva+'|'+nuClaveDig('extra', ref);
+  clearTimeout(nuDigTimers[kDig]); delete nuDigTimers[kDig]; delete nuDigSucio[kDig];
+  nuDigSucio[kDig] = {fecha: fechaActiva, comida: 'extra', ref, fila: null, ver: 1};
+  nuDigVolcar(kDig);
 }
 
 // ── Digestión: 👍😐👎 y, si no fue bien, síntomas opcionales ──
@@ -4374,33 +4380,88 @@ function nuDigestionHtml(comida, ref) {
 
 function nuRepintarDig(comida) { comida==='extra' ? buildExtras() : nuPintarZona(comida); }
 
-async function nuGuardarDig(previo, cambios) {
-  const fila = Object.assign({
-    fecha: fechaActiva, comida: previo.comida, extra_ref: previo.extra_ref||'',
-    reaccion: previo.reaccion||null, sintomas: previo.sintomas||[], hora: previo.hora||nuHoraSiHoy()
-  }, cambios);
-  nuDig = nuDig.filter(x => x!==previo);
-  nuDig.push(fila);
-  nuRepintarDig(fila.comida);
-  Object.assign(fila, await nuInsertar('comidas_digestion', fila, '?on_conflict=fecha,comida,extra_ref'));
+// Cada toque sólo cambia la pantalla. La escritura sale UNA vez, cuando dejas de tocar
+// (o al salir de la app). Antes cada toque mandaba su propia escritura: varias en vuelo a
+// la vez podían llegar desordenadas y dejar en la base menos síntomas de los que veías,
+// y el refresco de 45 s traía de vuelta ese estado viejo.
+const NU_DIG_ESPERA = 1200;
+let nuDigSucio = {};   // fecha|comida|ref -> {fecha, comida, ref, fila|null, ver}: aún no está en la base
+let nuDigTimers = {};
+let nuDigCadena = {};  // un guardado a la vez por comida
+
+function nuDigMarcar(fecha, comida, ref, fila) {
+  const k = fecha+'|'+nuClaveDig(comida, ref);
+  const ver = ((nuDigSucio[k]||{}).ver||0) + 1;
+  nuDigSucio[k] = {fecha, comida, ref: ref||'', fila, ver};
+  clearTimeout(nuDigTimers[k]);
+  nuDigTimers[k] = setTimeout(() => nuDigVolcar(k), NU_DIG_ESPERA);
 }
 
-async function nuDigestion(comida, ref, reaccion) {
-  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  if(previo && previo.reaccion===reaccion) {   // tocar el mismo otra vez lo quita
-    nuDig = nuDig.filter(x => x!==previo);
-    nuRepintarDig(comida);
-    await nuBorrarFila('comidas_digestion', previo.id);
+function nuDigVolcar(k) {
+  clearTimeout(nuDigTimers[k]); delete nuDigTimers[k];
+  nuDigCadena[k] = (nuDigCadena[k] || Promise.resolve()).then(async () => {
+    const e = nuDigSucio[k];
+    if(!e) return;
+    try { await nuDigEscribir(e); }
+    finally { if(nuDigSucio[k] && nuDigSucio[k].ver===e.ver) delete nuDigSucio[k]; }
+  }).catch(err => console.error('Error guardando digestión:', err));
+  return nuDigCadena[k];
+}
+
+function nuDigVolcarTodo() { Object.keys(nuDigSucio).forEach(nuDigVolcar); }
+
+async function nuDigEscribir(e) {
+  const mismaClave = o => o.body.fecha===e.fecha && o.body.comida===e.comida && (o.body.extra_ref||'')===e.ref;
+  if(!e.fila) {   // reacción quitada
+    nuColaGuardar(nuColaLeer().filter(o => !(o.tabla==='comidas_digestion' && mismaClave(o))));
+    setSyncing(true);
+    try {
+      const r = await sbLog('comidas_digestion', 'DELETE', null,
+        `?fecha=eq.${e.fecha}&comida=eq.${encodeURIComponent(e.comida)}&extra_ref=eq.${encodeURIComponent(e.ref)}`);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      setSyncing(false); clearSyncError();
+    } catch(err) { console.error(err); setSyncError(); }
     return;
   }
-  await nuGuardarDig(previo || {comida, extra_ref: ref}, {reaccion, sintomas: reaccion==='bien' ? [] : ((previo && previo.sintomas) || [])});
+  const f = e.fila;
+  const r = await nuInsertar('comidas_digestion',
+    {fecha: e.fecha, comida: e.comida, extra_ref: e.ref, reaccion: f.reaccion||null, sintomas: f.sintomas||[], hora: f.hora||null},
+    '?on_conflict=fecha,comida,extra_ref');
+  if(r && r.id) f.id = r.id;
 }
 
-async function nuSintoma(comida, ref, s) {
+// Lo que todavía no llegó a la base gana sobre lo que trae el servidor
+function nuDigAplicarPendientes(fecha) {
+  Object.values(nuDigSucio).filter(e => e.fecha===fecha).forEach(e => {
+    nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(e.comida,e.ref));
+    if(e.fila) nuDig.push(e.fila);
+  });
+}
+
+function nuDigCambiar(comida, ref, cambios) {   // cambios === null quita la reacción
+  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
+  nuDig = nuDig.filter(x => x!==previo);
+  let fila = null;
+  if(cambios) {
+    fila = Object.assign({fecha: fechaActiva, comida, extra_ref: ref||'', reaccion: null, sintomas: []}, previo, cambios);
+    fila.hora = (previo && previo.hora) || nuHoraSiHoy();
+    nuDig.push(fila);
+  }
+  nuRepintarDig(comida);
+  nuDigMarcar(fechaActiva, comida, ref, fila);
+}
+
+function nuDigestion(comida, ref, reaccion) {
+  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
+  if(previo && previo.reaccion===reaccion) return nuDigCambiar(comida, ref, null);   // tocar el mismo otra vez lo quita
+  nuDigCambiar(comida, ref, {reaccion, sintomas: reaccion==='bien' ? [] : ((previo && previo.sintomas) || [])});
+}
+
+function nuSintoma(comida, ref, s) {
   const d = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
   if(!d) return;
   const actual = d.sintomas || [];
-  await nuGuardarDig(d, {sintomas: actual.includes(s) ? actual.filter(x => x!==s) : actual.concat(s)});
+  nuDigCambiar(comida, ref, {sintomas: actual.includes(s) ? actual.filter(x => x!==s) : actual.concat(s)});
 }
 
 // ── 🚽 Baño: un tap = una vez, con hora. Tipo y molestias se afinan después, si quiere ──
@@ -5703,6 +5764,7 @@ function iniciarAutoRefresco() {
 // Esto evita perder datos cuando se cambia de pestaña, se apaga la pantalla,
 // o se cierra la app justo antes de que el temporizador normal dispare.
 function forzarGuardadoPendiente() {
+  nuDigVolcarTodo();
   if(saveTimer) {
     clearTimeout(saveTimer);
     saveTimer=null;
