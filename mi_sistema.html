@@ -4372,7 +4372,8 @@ function nuDigestionHtml(comida, ref) {
   const r = d ? d.reaccion : null;
   const botones = `<span class="nu-dig">${DIGESTION.map(o=>`<button class="nu-dig-btn${r===o.id?' on':''}" onclick="nuDigestion('${comida}','${ref}','${o.id}')">${o.e}</button>`).join('')}</span>`;
   const s = (d && d.sintomas) || [];
-  const sintomas = (r && r!=='bien')
+  // Los síntomas se ven sólo mientras los estás escogiendo; al guardar se esconden y queda la carita
+  const sintomas = (r && r!=='bien' && nuDigAbierto[fechaActiva+'|'+nuClaveDig(comida,ref)])
     ? `<div class="nu-sint">${DIGESTION_SINTOMAS.map(t=>`<button class="nu-chip${s.includes(t)?' on':''}" onclick="nuSintoma('${comida}','${ref}','${t}')">${t}</button>`).join('')}</div>`
     : '';
   return {botones, sintomas};
@@ -4388,6 +4389,7 @@ const NU_DIG_ESPERA = 1200;
 let nuDigSucio = {};   // fecha|comida|ref -> {fecha, comida, ref, fila|null, ver}: aún no está en la base
 let nuDigTimers = {};
 let nuDigCadena = {};  // un guardado a la vez por comida
+let nuDigAbierto = {}; // comidas cuyos síntomas se están escogiendo ahora (se cierran al guardar)
 
 function nuDigMarcar(fecha, comida, ref, fila) {
   const k = fecha+'|'+nuClaveDig(comida, ref);
@@ -4399,6 +4401,9 @@ function nuDigMarcar(fecha, comida, ref, fila) {
 
 function nuDigVolcar(k) {
   clearTimeout(nuDigTimers[k]); delete nuDigTimers[k];
+  const cerrar = nuDigAbierto[k] && nuDigSucio[k];
+  delete nuDigAbierto[k];
+  if(cerrar && cerrar.fecha===fechaActiva) nuRepintarDig(cerrar.comida);
   nuDigCadena[k] = (nuDigCadena[k] || Promise.resolve()).then(async () => {
     const e = nuDigSucio[k];
     if(!e) return;
@@ -4453,7 +4458,9 @@ function nuDigCambiar(comida, ref, cambios) {   // cambios === null quita la rea
 
 function nuDigestion(comida, ref, reaccion) {
   const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  if(previo && previo.reaccion===reaccion) return nuDigCambiar(comida, ref, null);   // tocar el mismo otra vez lo quita
+  const kAbierto = fechaActiva+'|'+nuClaveDig(comida,ref);
+  if(previo && previo.reaccion===reaccion) { delete nuDigAbierto[kAbierto]; return nuDigCambiar(comida, ref, null); }   // tocar el mismo otra vez lo quita
+  if(reaccion==='bien') delete nuDigAbierto[kAbierto]; else nuDigAbierto[kAbierto] = true;
   nuDigCambiar(comida, ref, {reaccion, sintomas: reaccion==='bien' ? [] : ((previo && previo.sintomas) || [])});
 }
 
