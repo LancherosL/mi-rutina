@@ -1851,6 +1851,12 @@ body.night .habito-count { color: var(--night-accent); }
 }
 .nu-accion.on { color: var(--terra); font-weight: 600; }
 .nu-accion:active { opacity: .6; }
+/* Comí afuera: se pliega y despliega en ~200 ms */
+.nu-afuera { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-4px);
+  transition: grid-template-rows .2s ease, opacity .2s ease, transform .2s ease; }
+.nu-afuera.abierto { grid-template-rows: 1fr; opacity: 1; transform: none; }
+.nu-afuera-in { overflow: hidden; min-height: 0; }
+.nu-afuera:not(.abierto) .nu-afuera-in { visibility: hidden; transition: visibility 0s .2s; }
 .nu-panel { margin-top: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--terra-soft); font-size: 12px; }
 .nu-panel-tit { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
 .nu-panel-nota { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
@@ -4192,8 +4198,17 @@ async function nuVaciarCola() {
   nuColaGuardar(quedan);
 }
 
+// Un upsert (on_conflict) reemplaza lo que hubiera pendiente en la cola para la misma
+// comida. Sin esto, un "afuera: sí" que falló se reenviaba después y pisaba el "no".
+function nuQuitarPendientesIguales(tabla, fila, params) {
+  if(!params.includes('on_conflict')) return;
+  const igual = b => b.fecha===fila.fecha && b.comida===fila.comida && (b.extra_ref||'')===(fila.extra_ref||'');
+  nuColaGuardar(nuColaLeer().filter(o => !(o.tabla===tabla && igual(o.body))));
+}
+
 async function nuInsertar(tabla, fila, params='') {
   setSyncing(true);
+  nuQuitarPendientesIguales(tabla, fila, params);
   try {
     const r = await sbLog(tabla, 'POST', fila, params);
     setSyncing(false); clearSyncError();
@@ -4587,19 +4602,27 @@ async function nuGuardarDetalle(zona, ref, cambios) {
 }
 
 async function nuAfuera(zona) {
-  await nuGuardarDetalle(zona, '', {afuera: !nuEsAfuera(zona)});
-  nuPintarZona(zona);
+  const abrir = !nuEsAfuera(zona);
+  // Desactivar = no comiste afuera: se borran restaurante, cocina y ocasión
+  const guardado = nuGuardarDetalle(zona, '', abrir ? {afuera: true} : {afuera: false, restaurante: null, cocina: null, ocasion: null});
+  const panel = document.getElementById(`afuera-${zona}`);
+  const btn = document.getElementById(`afuera-btn-${zona}`);
+  if(btn) btn.classList.toggle('on', abrir);
+  if(panel) {
+    if(!abrir) { panel.querySelectorAll('.nu-chip.on').forEach(c => c.classList.remove('on')); const r = panel.querySelector('.nu-campo'); if(r) r.value = ''; }
+    panel.classList.toggle('abierto', abrir);
+  } else nuPintarZona(zona);
+  await guardado;
 }
 
 function nuHtmlAfuera(zona) {
-  const d = nuDetDe(zona);
-  if(!d || !d.afuera) return '';
-  return `<div class="nu-panel">
+  const d = nuDetDe(zona) || {};
+  return `<div class="nu-afuera${d.afuera ? ' abierto' : ''}" id="afuera-${zona}"><div class="nu-afuera-in"><div class="nu-panel">
     <input class="nu-campo" type="text" placeholder="Restaurante" value="${escapeHtml(d.restaurante||'')}" onchange="nuDetCampo('${zona}','restaurante',this.value.trim()||null)">
     <div class="nu-sug">${COCINAS.map(c=>`<button class="nu-chip${d.cocina===c?' on':''}" onclick="nuDetCampo('${zona}','cocina','${c}')">${c}</button>`).join('')}</div>
     <div class="nu-sug">${OCASIONES.map(o=>`<button class="nu-chip${d.ocasion===o?' on':''}" onclick="nuDetCampo('${zona}','ocasion','${o}')">${o}</button>`).join('')}</div>
     <div class="nu-mini">Si sabes qué traía, búscalo arriba en la descripción y agrégalo.</div>
-  </div>`;
+  </div></div></div>`;
 }
 
 async function nuDetCampo(zona, campo, valor) {

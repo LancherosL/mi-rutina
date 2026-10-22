@@ -142,9 +142,18 @@ Si alguna falla, rediseñar:
 
 # Nutri
 
-App de nutrición. Mismo stack que Mi Sistema. Aplican las mismas reglas de diseño
-(sin gamificación, nada obligatorio, peso visual cero, lenguaje de Laura). Perfil,
-metas y contexto de salud: `nutri_perfil` y `contexto_privado`.
+App de nutrición. Mismo stack que Mi Sistema. Perfil, metas y contexto de salud:
+`nutri_perfil` y `contexto_privado`.
+
+**Identidad visual propia, distinta de Mi Sistema** (decisión de Laura, 22 oct 2026):
+paleta crema / verde fresco / naranja, tipografías Outfit + Plus Jakarta Sans, anillos
+animados en Hoy, barra de pestañas flotante abajo, modo oscuro propio (sigue al
+teléfono). No copiar tokens ni tipografía de `mi_sistema.html`.
+
+Excepción pedida por Laura: en Nutri sí hay micro-animaciones y confeti sutil al
+cumplir la proteína del día o cerrar el día en objetivo (una vez por día). El resto
+de reglas de Mi Sistema sigue aplicando (nada obligatorio, sin registro no se juzga,
+lenguaje de Laura).
 
 ## Reparto con Mi Sistema
 
