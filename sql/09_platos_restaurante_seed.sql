@@ -1,0 +1,55 @@
+-- Platos de restaurante típicos. Valores por UNA porción típica de restaurante:
+-- son estimados (recetas promedio), no medidos. Nutri los marca "aprox".
+insert into public.platos_restaurante (nombre, norm, cocina, ingredientes, porcion_g, calorias, proteina, carbohidratos, grasa, fibra, lactosa) values
+-- Colombiana
+('Bandeja paisa','bandeja paisa','colombiana','frijoles, arroz, carne molida, chicharrón, chorizo, huevo, plátano, arepa, aguacate',700,1450,60,120,80,15,false),
+('Ajiaco con crema y alcaparras','ajiaco con crema','colombiana','pollo, papas, mazorca, guascas, crema de leche',500,420,30,45,13,5,true),
+('Sancocho de gallina','sancocho','colombiana','gallina, papa, yuca, plátano, mazorca',550,450,32,50,12,6,false),
+('Arroz con pollo','arroz con pollo','colombiana','arroz, pollo, verduras',400,560,30,70,16,3,false),
+('Empanadas colombianas (2)','empanadas colombianas','colombiana','masa de maíz frita, papa, carne',160,420,9,45,23,3,false),
+('Arepa de choclo con queso','arepa de choclo','colombiana','maíz tierno, queso, mantequilla',180,470,14,55,22,3,true),
+('Mojarra frita con patacón y arroz','mojarra frita','colombiana','pescado frito, patacón, arroz, ensalada',600,950,50,95,40,8,false),
+('Lechona','lechona','colombiana','cerdo, arroz, arveja',350,700,35,50,40,3,false),
+('Tamal tolimense','tamal','colombiana','masa de maíz, pollo, cerdo, huevo, arveja',450,650,25,60,33,5,false),
+('Changua','changua','colombiana','leche, huevo, pan, cebolla',350,230,14,12,13,0,true),
+('Calentado con huevo','calentado','colombiana','arroz, frijoles, huevo, arepa',350,560,24,60,24,10,false),
+('Pandebono (2)','pandebono','colombiana','almidón de yuca, queso',100,330,9,38,16,1,true),
+-- Venezolana
+('Arepa reina pepiada','arepa reina pepiada','venezolana','arepa, pollo, aguacate, mayonesa',250,520,25,45,26,6,false),
+('Arepa de carne mechada','arepa mechada','venezolana','arepa, carne desmechada',230,450,26,44,17,3,false),
+('Arepa de queso venezolana','arepa de queso venezolana','venezolana','arepa, queso blanco',180,420,17,42,20,2,true),
+('Pabellón criollo','pabellon criollo','venezolana','carne mechada, caraotas, arroz, tajadas',550,900,45,110,28,15,false),
+('Cachapa con queso de mano','cachapa','venezolana','maíz tierno, queso de mano',280,650,22,70,30,4,true),
+('Tequeños (5)','tequenos','venezolana','masa de trigo frita, queso',175,560,18,50,32,2,true),
+('Empanadas venezolanas (2)','empanadas venezolanas','venezolana','masa de maíz frita, carne o pollo',200,480,15,50,24,3,false),
+('Hallaca','hallaca','venezolana','masa de maíz, guiso de carne y pollo, hoja de plátano',300,520,20,50,26,4,false),
+-- Latina
+('Burrito de pollo','burrito','mexicana','tortilla, pollo, arroz, frijoles, queso, crema',400,750,40,85,26,9,true),
+('Bowl de burrito sin queso','bowl de burrito','mexicana','arroz, frijoles, pollo, pico de gallo, guacamole',450,650,38,75,20,14,false),
+('Tacos al pastor (3)','tacos al pastor','mexicana','tortilla de maíz, cerdo, piña, cebolla',270,520,27,48,24,5,false),
+('Quesadilla de pollo','quesadilla','mexicana','tortilla, pollo, queso',250,600,34,45,31,3,true),
+('Ceviche de pescado','ceviche','peruana','pescado, limón, cebolla, maíz, camote',300,230,30,15,4,2,false),
+('Lomo saltado','lomo saltado','peruana','res, papas fritas, arroz, tomate, cebolla',450,720,38,70,30,5,false),
+('Pupusas revueltas (2)','pupusas','salvadoreña','masa de maíz, cerdo, frijoles, queso',260,540,20,60,24,5,true),
+-- Quebec
+('Poutine','poutine','quebequense','papas fritas, queso en grano, salsa gravy',450,950,25,100,50,8,true),
+('Poutine pequeña','poutine pequena','quebequense','papas fritas, queso en grano, salsa gravy',300,640,17,66,34,5,true),
+('Sándwich de smoked meat','smoked meat','quebequense','pan de centeno, carne ahumada, mostaza',300,650,40,45,33,3,false),
+('Bagel de Montreal con queso crema','bagel','quebequense','bagel, queso crema',150,420,12,60,14,2,true),
+('Tourtière','tourtiere','quebequense','masa, cerdo y res molidos, especias',200,550,18,40,35,2,false),
+('Pâté chinois','pate chinois','quebequense','carne molida, maíz, puré de papa',350,450,22,40,22,4,true),
+('Croissant','croissant','francesa','harina, mantequilla',60,250,5,28,13,1,true),
+-- Internacional
+('Pizza (2 porciones)','pizza','italiana','masa, salsa de tomate, queso, ingredientes',220,560,24,66,22,4,true),
+('Pasta boloñesa','pasta bolonesa','italiana','pasta, carne molida, salsa de tomate',400,650,30,80,22,6,false),
+('Pasta Alfredo con pollo','pasta alfredo','italiana','pasta, pollo, crema, queso parmesano',400,850,40,70,45,3,true),
+('Hamburguesa con papas fritas','hamburguesa','americana','pan, carne de res, vegetales, papas fritas',450,1050,40,100,52,7,false),
+('Fish and chips','fish and chips','británica','pescado apanado frito, papas fritas',450,900,35,85,48,7,false),
+('Ensalada César con pollo','ensalada cesar','americana','lechuga, pollo, crutones, parmesano, aderezo',350,520,35,15,36,4,true),
+('Pad thai con pollo','pad thai','tailandesa','fideos de arroz, pollo, huevo, maní, brotes',400,700,30,85,26,4,false),
+('Pho de res','pho','vietnamita','caldo, fideos de arroz, res, hierbas',650,450,30,55,10,2,false),
+('Sushi (8 piezas)','sushi','japonesa','arroz, pescado, alga, vegetales',250,380,14,70,5,3,false),
+('Poke bowl de salmón','poke','hawaiana','arroz, salmón, aguacate, edamame, salsa',450,650,32,75,24,6,false),
+('Shawarma de pollo en plato','shawarma','libanesa','pollo, arroz o papas, ensalada, salsa de ajo',500,850,45,80,38,6,false),
+('Pollo a la mantequilla con arroz','pollo a la mantequilla','india','pollo, salsa de tomate y crema, arroz',450,800,38,75,38,4,true)
+on conflict (norm) do nothing;

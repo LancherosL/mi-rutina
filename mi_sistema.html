@@ -1842,6 +1842,30 @@ body.night .habito-count { color: var(--night-accent); }
 .nu-extra-sint { margin: 0 0 6px 66px; }
 .nu-extra-sint .nu-sint { margin-top: 0; }
 .nu-bano-add { height: 34px; }
+.nu-acciones { display: flex; gap: 14px; margin-top: 8px; }
+.comida-item .nu-acciones { margin-left: 40px; }
+.comida-item.bloqueada .nu-acciones, .comida-item.omitida .nu-acciones { display: none; }
+.nu-accion {
+  display: inline-flex; align-items: center; gap: 5px; background: none; border: none; padding: 2px 0;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer;
+}
+.nu-accion.on { color: var(--terra); font-weight: 600; }
+.nu-accion:active { opacity: .6; }
+.nu-panel { margin-top: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--terra-soft); font-size: 12px; }
+.nu-panel-tit { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.nu-panel-nota { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+.nu-ing { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-top: 1px solid var(--line); }
+.nu-ing:first-of-type { border-top: none; }
+.nu-ing span { flex: 1; }
+.nu-ing.off span { text-decoration: line-through; color: var(--muted); }
+.nu-confirmar { margin-top: 8px; width: 100%; height: 36px; border: none; border-radius: 10px; background: var(--terra); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.nu-campo { width: 100%; border: none; border-bottom: 1.5px solid var(--line); background: transparent; padding: 5px 0;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: inherit; outline: none; margin-bottom: 4px; }
+.nu-mini { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.nu-ajuste { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--muted); }
+.nu-ajuste input { flex: 1; accent-color: var(--sage); }
+.nu-item.estimado { background: var(--terra-soft); }
 .nu-resumen { display: block; font-size: 12px; color: var(--muted); text-decoration: none; margin: -4px 0 10px; }
 .nu-resumen:empty { display: none; }
 .nu-resumen b { color: var(--ink); font-weight: 600; }
@@ -1957,7 +1981,11 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-0" onclick="toggleOmitida(0)">No desayuné</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" onfocus="nuPintarZona('0')" onblur="nuSoltar('0')" placeholder="¿Qué desayunaste?" onchange="saveComidaTexto(0)" autocomplete="off">
+        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" onfocus="nuPintarZona('0')" onblur="nuSoltar('0')" placeholder="¿Qué desayunaste? (o pega el menú)" onchange="saveComidaTexto(0)" autocomplete="off">
+      </div>
+      <div class="nu-acciones">
+        <button class="nu-accion" onclick="nuFoto('0')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
+        <button class="nu-accion" id="afuera-btn-0" onclick="nuAfuera('0')">🍴 <span>Comí afuera</span></button>
       </div>
       <div class="nu-zona" id="nu-0"></div>
     </div>
@@ -1975,7 +2003,11 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-1" onclick="toggleOmitida(1)">No almorcé</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" onfocus="nuPintarZona('1')" onblur="nuSoltar('1')" placeholder="¿Qué almorzaste?" onchange="saveComidaTexto(1)" autocomplete="off">
+        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" onfocus="nuPintarZona('1')" onblur="nuSoltar('1')" placeholder="¿Qué almorzaste? (o pega el menú)" onchange="saveComidaTexto(1)" autocomplete="off">
+      </div>
+      <div class="nu-acciones">
+        <button class="nu-accion" onclick="nuFoto('1')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
+        <button class="nu-accion" id="afuera-btn-1" onclick="nuAfuera('1')">🍴 <span>Comí afuera</span></button>
       </div>
       <div class="nu-zona" id="nu-1"></div>
     </div>
@@ -1993,7 +2025,11 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       </div>
       <button class="comida-skip" id="skip-2" onclick="toggleOmitida(2)">No cené</button>
       <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" onfocus="nuPintarZona('2')" onblur="nuSoltar('2')" placeholder="¿Qué cenaste?" onchange="saveComidaTexto(2)" autocomplete="off">
+        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" onfocus="nuPintarZona('2')" onblur="nuSoltar('2')" placeholder="¿Qué cenaste? (o pega el menú)" onchange="saveComidaTexto(2)" autocomplete="off">
+      </div>
+      <div class="nu-acciones">
+        <button class="nu-accion" onclick="nuFoto('2')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
+        <button class="nu-accion" id="afuera-btn-2" onclick="nuAfuera('2')">🍴 <span>Comí afuera</span></button>
       </div>
       <div class="nu-zona" id="nu-2"></div>
     </div>
@@ -2007,6 +2043,9 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <div class="extras-input-row">
         <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onfocus="nuPintarZona('extra')" onblur="nuSoltar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
         <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
+      </div>
+      <div class="nu-acciones">
+        <button class="nu-accion" onclick="nuFoto('extra')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
       </div>
       <div class="nu-zona" id="nu-extra"></div>
       <div class="extras-list" id="extras-list"></div>
@@ -2034,6 +2073,8 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
       <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
     </div>
   </div>
+
+  <input type="file" id="nu-plato-foto" accept="image/*" hidden onchange="nuPlatoElegido(this)">
 
   <!-- Baño: una fila por vez en la tabla `banos` -->
   <div class="log-card" id="card-banos">
@@ -4101,6 +4142,9 @@ function buildExtras() {
 
 // Palabras editables
 const NU_CANTIDADES = [0.5, 1, 1.5, 2, 3];
+const NU_TAMANOS = [{t:'pequeña', f:0.7}, {t:'mediana', f:1}, {t:'grande', f:1.35}];
+const COCINAS = ['colombiana', 'venezolana', 'latina', 'mexicana', 'italiana', 'asiática', 'quebequense', 'rápida', 'otra'];
+const OCASIONES = ['sola', 'con amigos', 'familia', 'trabajo', 'cita'];
 const DIGESTION = [{id:'bien',e:'👍'}, {id:'regular',e:'😐'}, {id:'mal',e:'👎'}];
 const DIGESTION_SINTOMAS = ['gases', 'inflamación', 'dolor', 'reflujo', 'acidez', 'náusea', 'urgencia'];
 const BANO_TIPOS = [{id:'dura',t:'dura',bristol:2}, {id:'normal',t:'normal',bristol:4}, {id:'blanda',t:'blanda',bristol:6}];
@@ -4108,6 +4152,13 @@ const BANO_MOLESTIAS = [{id:'inflamacion',t:'inflamación'}, {id:'colico',t:'có
 
 let nuAlimentos = [];
 let nuPerfil = null;   // metas de Nutri, para la línea de "cómo vas"
+let nuPlatos = [];     // platos de restaurante (estimados por porción típica)
+let nuEnCasa = [];     // despensa de Nutri: lo que hay en casa (sólo se lee)
+let nuDet = [];        // comidas_detalle de la fecha activa (afuera, foto, análisis)
+let nuRevision = {};   // zona -> análisis de la foto esperando que lo confirmes
+let nuAnalizando = {}; // zona -> true mientras la IA mira la foto
+let nuAjuste = null;   // {id, base} del alimento al que le estás moviendo la cantidad
+let nuZonaFoto = null;
 let nuItems = [];      // comidas_items de la fecha activa
 let nuDig = [];        // comidas_digestion de la fecha activa
 let banosDia = [];     // banos de la fecha activa
@@ -4179,8 +4230,14 @@ async function nuCargarAlimentos() {
   try {
     const data = await sbLog('nutri_alimentos', 'GET', null, '?select=*&order=nombre.asc');
     if(Array.isArray(data)) { nuAlimentos = data; nuGuardarCacheAlimentos(); }
-    const p = await sbLog('nutri_perfil', 'GET', null, '?id=eq.laura&select=kcal,proteina_g');
+    const [p, pl, de] = await Promise.all([
+      sbLog('nutri_perfil', 'GET', null, '?id=eq.laura&select=kcal,proteina_g'),
+      sbLog('platos_restaurante', 'GET', null, '?select=*&order=nombre.asc'),
+      sbLog('nutri_despensa', 'GET', null, '?estado=eq.hay&select=alimento_id,nombre')
+    ]);
     nuPerfil = (Array.isArray(p) && p[0]) || null;
+    nuPlatos = Array.isArray(pl) ? pl.map(nuPlatoComoAlimento) : [];
+    nuEnCasa = Array.isArray(de) ? de : [];
   } catch(e) { console.error('Error cargando alimentos:', e); }
 }
 
@@ -4200,12 +4257,14 @@ async function nuCargarDia(fecha=fechaActiva) {
   await nuVaciarCola();
   const pend = t => nuColaLeer().filter(o => o.tabla===t && o.body.fecha===fecha).map(o => o.body);
   try {
-    const [it, dg, bn] = await Promise.all([
+    const [it, dg, bn, dt] = await Promise.all([
       sbLog('comidas_items', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`),
       sbLog('comidas_digestion', 'GET', null, `?fecha=eq.${fecha}`),
-      sbLog('banos', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`)
+      sbLog('banos', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`),
+      sbLog('comidas_detalle', 'GET', null, `?fecha=eq.${fecha}`)
     ]);
     if(fecha!==fechaActiva) return;
+    nuDet = (dt||[]).concat(pend('comidas_detalle'));
     nuItems = (it||[]).concat(pend('comidas_items'));
     nuDig = (dg||[]);
     pend('comidas_digestion').forEach(d => { nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(d.comida,d.extra_ref)); nuDig.push(d); });
@@ -4254,7 +4313,7 @@ function nuCoincidencias(texto, excluir=[]) {
   const lista = [];
   palabras.forEach(w => {
     const raiz = nuRaiz(w);
-    nuAlimentos.forEach(a => {
+    nuCatalogo().forEach(a => {
       if(lista.includes(a) || excluir.includes(String(a.id))) return;
       const ok = clave(a).some(k => k && (
         (w===escribiendo && w.length>=2 && w.length<=3 && k.startsWith(w)) ||
@@ -4263,7 +4322,26 @@ function nuCoincidencias(texto, excluir=[]) {
       if(ok) lista.push(a);
     });
   });
+  // Lo que tienes en casa va primero
+  // Si escribiste el nombre completo de algo (un plato de restaurante), va antes que sus partes
+  const completo = a => (String(a.norm||'').includes(' ') && q.includes(String(a.norm).split(' ').slice(0,3).join(' '))) ? 1 : 0;
+  lista.sort((x,y) => (nuEstaEnCasa(y) - nuEstaEnCasa(x)) || (completo(y) - completo(x)));
   return {lista: lista.slice(0,6)};
+}
+
+const nuCatalogo = () => nuAlimentos.concat(nuPlatos);
+const nuEstaEnCasa = a => nuEnCasa.some(d => d.alimento_id && String(d.alimento_id)===String(a.id)) ? 1 : 0;
+
+// Un plato de restaurante se comporta como un alimento con porciones pequeña/mediana/grande.
+// Sus valores son estimados: se guardan con estimado=true y Nutri los marca "aprox".
+function nuPlatoComoAlimento(pl) {
+  const g = Number(pl.porcion_g) || 100, k = 100 / g;
+  return {
+    id: 'p:' + pl.id, nombre: pl.nombre, norm: pl.norm, categoria: 'plato_restaurante', estimado: true,
+    porciones: NU_TAMANOS.map(t => ({u: t.t, g: Math.round(g*t.f)})),
+    kcal: pl.calorias*k, proteina: pl.proteina*k, carbo: pl.carbohidratos*k, grasa: pl.grasa*k, fibra: pl.fibra*k,
+    calcio_mg: null, vitd_ui: null, lactosa: !!pl.lactosa, cafeina: false
+  };
 }
 
 function nuBuscar(zona) {
@@ -4272,9 +4350,9 @@ function nuBuscar(zona) {
 }
 
 function nuElegir(zona, id) {
-  const a = nuAlimentos.find(x => String(x.id)===String(id));
+  const a = nuCatalogo().find(x => String(x.id)===String(id));
   if(!a) return;
-  nuSel[zona] = {a, u:0};   // el texto que escribiste no se toca
+  nuSel[zona] = {a, u: a.estimado ? 1 : 0};   // un plato arranca en "mediana"   // el texto que escribiste no se toca
   nuPintarZona(zona);
 }
 
@@ -4288,25 +4366,34 @@ function nuPintarZona(zona) {
   nuPintarResumen();
   const el = document.getElementById(`nu-${zona}`);
   if(!el) return;
-  let html = '';
+  let html = nuHtmlFoto(zona) + (zona!=='extra' ? nuHtmlAfuera(zona) : '');
+  const btn = document.getElementById(`afuera-btn-${zona}`);
+  if(btn) btn.classList.toggle('on', nuEsAfuera(zona));
   const sel = nuSel[zona];
   if(sel) {
     const pors = nuPorciones(sel.a), u = pors[sel.u] || pors[0];
     html += `<div class="nu-picker"><div class="nu-picker-tit"><span>${escapeHtml(sel.a.nombre)}</span><button class="nu-x" onclick="nuCancelar('${zona}')">✕</button></div>`;
     if(pors.length>1) html += `<div class="nu-sug">${pors.map((p,k)=>`<button class="nu-chip${k===sel.u?' on':''}" onclick="nuUnidad('${zona}',${k})">${escapeHtml(p.u)}</button>`).join('')}</div>`;
-    html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div></div>`;
+    html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div>`;
+    // Tamaño a ojo, si las porciones no son ya pequeña/mediana/grande
+    if(!sel.a.estimado) html += `<div class="nu-sug">${NU_TAMANOS.map(t=>`<button class="nu-chip" onclick="nuAgregar('${zona}',1,'${t.t}')">${t.t}</button>`).join('')}</div>`;
+    html += `</div>`;
   } else {
     const input = document.getElementById(nuInputId(zona));
     if(input && document.activeElement===input) {
       const ya = nuItems.filter(x => x.comida===zona && x.alimento_id).map(x => String(x.alimento_id));
-      const {lista} = nuCoincidencias(input.value, zona==='extra' ? [] : ya);
+      let {lista} = nuCoincidencias(input.value, zona==='extra' ? [] : ya);
+      // Campo vacío en casa: lo que tienes en la despensa
+      if(!input.value.trim() && !nuEsAfuera(zona)) lista = nuAlimentos.filter(a => nuEstaEnCasa(a) && !ya.includes(String(a.id))).slice(0,6);
       // onmousedown evita que el campo pierda el foco antes de que el toque llegue al chip
-      if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onmousedown="event.preventDefault()" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}</button>`).join('')}</div>`;
+      if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onmousedown="event.preventDefault()" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}${a.estimado?' ~':''}${nuEstaEnCasa(a)?' · en casa':''}</button>`).join('')}</div>`;
     }
   }
   if(zona!=='extra') {
     const items = nuItems.filter(x => x.comida===zona);
-    if(items.length) html += `<div class="nu-items">${items.map(x=>`<span class="nu-item">${escapeHtml(x.nombre)} · ${nuFmtCant(Number(x.cantidad))} ${escapeHtml(x.unidad||'')}<button class="nu-x" onclick="nuBorrarItem('${x.id}')">✕</button></span>`).join('')}</div>`;
+    if(items.length) html += `<div class="nu-items">${items.map(x=>`<span class="nu-item${x.estimado?' estimado':''}" onclick="nuAbrirAjuste('${x.id}')">${escapeHtml(x.nombre)} · ${x.origen==='foto' ? Math.round(x.gramos)+' g' : nuFmtCant(Number(x.cantidad))+' '+escapeHtml(x.unidad||'')}<button class="nu-x" onclick="event.stopPropagation();nuBorrarItem('${x.id}')">✕</button></span>`).join('')}</div>`;
+    const aj = nuAjuste && items.find(x => String(x.id)===String(nuAjuste.id));
+    if(aj) html += `<div class="nu-ajuste"><span>menos</span><input type="range" min="50" max="150" step="10" value="${nuAjuste.pct}" oninput="nuMoverAjuste(this.value)" onchange="nuGuardarAjuste()"><span>más</span><span id="nu-ajuste-g">${Math.round(nuAjuste.base.gramos*nuAjuste.pct/100)} g</span></div>`;
     // La digestión aparece sólo cuando ya comió: antes no hay nada que preguntar.
     if((todayData.comidas||{})[zona] || items.length) {
       const dig = nuDigestionHtml(zona, '');
@@ -4316,14 +4403,18 @@ function nuPintarZona(zona) {
   el.innerHTML = html;
 }
 
-async function nuAgregar(zona, cant) {
+async function nuAgregar(zona, cant, tamano) {
   const sel = nuSel[zona];
   if(!sel) return;
-  const a = sel.a, pors = nuPorciones(a), u = pors[sel.u] || pors[0];
+  const a = sel.a, pors = nuPorciones(a);
+  let u = pors[sel.u] || pors[0];
+  // "pequeña / mediana / grande" sobre la porción elegida, cuando la cantidad es a ojo
+  if(tamano) { const t = NU_TAMANOS.find(x => x.t===tamano); u = {u: `${u.u} ${t.t}`, g: u.g*t.f}; cant = 1; }
   const gramos = Math.round(cant*u.g*10)/10, f = gramos/100;
   const fila = {
     fecha: fechaActiva, comida: zona, extra_ref: null,
-    alimento_id: (a.id && !nuEsTmp(a.id)) ? a.id : null, codigo_barras: a.codigo_barras || null,
+    alimento_id: (a.id && !nuEsTmp(a.id) && !String(a.id).startsWith('p:')) ? a.id : null, codigo_barras: a.codigo_barras || null,
+    estimado: !!a.estimado, origen: a.estimado ? 'plato' : (a.codigo_barras ? 'empacado' : 'base'),
     nombre: a.nombre, cantidad: cant, unidad: u.u, gramos,
     kcal: nuRed(a.kcal,f), proteina: nuRed(a.proteina,f), carbo: nuRed(a.carbo,f), grasa: nuRed(a.grasa,f),
     fibra: nuRed(a.fibra,f), calcio_mg: nuRed(a.calcio_mg,f), vitd_ui: nuRed(a.vitd_ui,f),
@@ -4364,6 +4455,186 @@ async function nuBorrarDeExtra(ref) {
   clearTimeout(nuDigTimers[kDig]); delete nuDigTimers[kDig]; delete nuDigSucio[kDig];
   nuDigSucio[kDig] = {fecha: fechaActiva, comida: 'extra', ref, fila: null, ver: 1};
   nuDigVolcar(kDig);
+}
+
+// ── 🍽️ Fotografiar plato: la IA mira la foto y precarga la comida ──
+// No es el escáner de códigos (ese vive en Nutri › Despensa). La foto va al bucket
+// privado "platos"; la función analizar-plato (Claude) devuelve ingredientes,
+// gramos y nutrientes estimados. Nada se guarda como comida hasta que confirmes.
+function nuFoto(zona) {
+  nuZonaFoto = zona;
+  const f = document.getElementById('nu-plato-foto');
+  if(f) { f.value = ''; f.click(); }
+}
+
+// Achica la foto (las del celular pesan varios MB) y la devuelve en JPEG
+async function nuAchicarFoto(file, lado=1280) {
+  const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = URL.createObjectURL(file); });
+  const k = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(img.naturalWidth*k); cv.height = Math.round(img.naturalHeight*k);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  URL.revokeObjectURL(img.src);
+  const blob = await new Promise(ok => cv.toBlob(ok, 'image/jpeg', 0.85));
+  const b64 = cv.toDataURL('image/jpeg', 0.85).split(',')[1];
+  return {blob, b64};
+}
+
+async function nuPlatoElegido(input) {
+  const file = input.files && input.files[0];
+  const zona = nuZonaFoto;
+  if(!file || zona==null) return;
+  nuAnalizando[zona] = true; delete nuRevision[zona];
+  nuPintarZona(zona);
+  let foto;
+  try { foto = await nuAchicarFoto(file); }
+  catch(e) { console.error(e); nuAnalizando[zona] = false; nuRevision[zona] = {error: 'No pude abrir esa foto.'}; nuPintarZona(zona); return; }
+
+  // 1. Guardar la foto (si falla, igual se analiza)
+  let ruta = `${fechaActiva}/${zona}-${Date.now()}.jpg`;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/platos/${ruta}`, {
+      method: 'POST', body: foto.blob,
+      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'image/jpeg'}
+    });
+    if(!r.ok) ruta = null;
+  } catch(e) { console.error(e); ruta = null; }
+
+  // 2. Que la IA la mire
+  let datos = null, error = null;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/analizar-plato`, {
+      method: 'POST', body: JSON.stringify({imagen: foto.b64, media_type: 'image/jpeg'}),
+      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json'}
+    });
+    const j = await r.json().catch(() => ({}));
+    if(r.ok) datos = j;
+    else error = ({falta_llave: 'Falta conectar la llave de la IA en Supabase.', llave_invalida: 'La llave de la IA no funciona: revísala en Supabase.',
+                   ocupado: 'La IA está ocupada; intenta en un minuto.', no_autorizado: 'Tu sesión venció: vuelve a entrar.'})[j.error]
+            || 'No pude analizar la foto. Puedes escribir la comida.';
+  } catch(e) { console.error(e); error = 'Sin conexión: no pude analizar la foto.'; }
+
+  nuAnalizando[zona] = false;
+  const ref = zona==='extra' ? nuIdExtra() : '';
+  await nuGuardarDetalle(zona, ref, {foto_path: ruta, analisis: datos || {error}});
+  if(error) { nuRevision[zona] = {error}; nuPintarZona(zona); return; }
+  const ings = (datos.ingredientes||[]).map(x => Object.assign({on: true}, x));
+  if(!ings.length) { nuRevision[zona] = {error: datos.nota || 'No vi comida en la foto.'}; nuPintarZona(zona); return; }
+  nuRevision[zona] = {plato: datos.plato || 'Plato', confianza: datos.confianza || '', nota: datos.nota || '', ings, ref};
+  nuPintarZona(zona);
+}
+
+function nuHtmlFoto(zona) {
+  if(nuAnalizando[zona]) return `<div class="nu-panel">Mirando la foto…</div>`;
+  const r = nuRevision[zona];
+  if(!r) return '';
+  if(r.error) return `<div class="nu-panel"><div class="nu-panel-tit"><span>${escapeHtml(r.error)}</span><button class="nu-x" onclick="nuDescartarFoto('${zona}')">✕</button></div></div>`;
+  const tot = r.ings.filter(x => x.on).reduce((a,x) => a + (Number(x.kcal)||0), 0);
+  return `<div class="nu-panel">
+    <div class="nu-panel-tit"><span>${escapeHtml(r.plato)} · aprox ${Math.round(tot)} kcal</span><button class="nu-x" onclick="nuDescartarFoto('${zona}')">✕</button></div>
+    <div class="nu-panel-nota">Estimado por la foto${r.confianza ? ' · confianza '+escapeHtml(r.confianza) : ''}${r.nota ? '. '+escapeHtml(r.nota) : ''}. Toca lo que no comiste.</div>
+    ${r.ings.map((x,k) => `<div class="nu-ing${x.on?'':' off'}" onclick="nuToggleIng('${zona}',${k})"><span>${escapeHtml(x.nombre)}</span><b>${Math.round(x.gramos||0)} g</b></div>`).join('')}
+    <button class="nu-confirmar" onclick="nuConfirmarFoto('${zona}')">Confirmar</button>
+  </div>`;
+}
+
+function nuToggleIng(zona, k) { const r = nuRevision[zona]; if(r && r.ings[k]) { r.ings[k].on = !r.ings[k].on; nuPintarZona(zona); } }
+function nuDescartarFoto(zona) { delete nuRevision[zona]; nuPintarZona(zona); }
+
+async function nuConfirmarFoto(zona) {
+  const r = nuRevision[zona];
+  if(!r || !r.ings) return;
+  const elegidos = r.ings.filter(x => x.on);
+  delete nuRevision[zona];
+  if(!elegidos.length) { nuPintarZona(zona); return; }
+  if(zona==='extra') {
+    if(!Array.isArray(todayData.extras)) todayData.extras = [];
+    todayData.extras.push({id: r.ref, hora: horaActualHHMM(), texto: `${r.plato} (foto)`});
+    saveTodayLocal();
+  } else {
+    if(!(todayData.comidas||{})[Number(zona)]) toggleComida(Number(zona));
+    // Si no escribiste nada, el nombre del plato queda como descripción
+    const input = document.getElementById(nuInputId(zona));
+    if(input && !input.value.trim()) { input.value = r.plato; saveComidaTexto(Number(zona)); }
+  }
+  const n = v => (v==null || v==='' || isNaN(Number(v))) ? null : Math.round(Number(v)*10)/10;
+  const filas = elegidos.map(x => ({
+    fecha: fechaActiva, comida: zona, extra_ref: zona==='extra' ? r.ref : null, alimento_id: null, codigo_barras: null,
+    nombre: x.nombre, cantidad: 1, unidad: 'foto', gramos: n(x.gramos),
+    kcal: n(x.kcal), proteina: n(x.proteina), carbo: n(x.carbo), grasa: n(x.grasa), fibra: n(x.fibra),
+    calcio_mg: null, vitd_ui: null, lactosa: !!x.lactosa, cafeina: false, estimado: true, origen: 'foto'
+  }));
+  filas.forEach(f => nuItems.push(f));
+  zona==='extra' ? buildExtras() : nuPintarZona(zona);
+  for(const f of filas) Object.assign(f, await nuInsertar('comidas_items', f));
+  if(zona!=='extra') nuPintarZona(zona);
+}
+
+// ── 🍴 Comí afuera: restaurante, tipo de cocina y ocasión (todo opcional) ──
+const nuDetDe = (zona, ref='') => nuDet.find(d => d.comida===zona && (d.extra_ref||'')===(ref||''));
+const nuEsAfuera = zona => !!(nuDetDe(zona) || {}).afuera;
+
+async function nuGuardarDetalle(zona, ref, cambios) {
+  const previo = nuDetDe(zona, ref) || {};
+  const fila = {
+    fecha: fechaActiva, comida: zona, extra_ref: ref || '',
+    afuera: !!previo.afuera, restaurante: previo.restaurante || null, cocina: previo.cocina || null, ocasion: previo.ocasion || null,
+    foto_path: previo.foto_path || null, analisis: previo.analisis || null,
+    ...cambios, actualizado: new Date().toISOString()
+  };
+  nuDet = nuDet.filter(d => d!==previo); nuDet.push(fila);
+  Object.assign(fila, await nuInsertar('comidas_detalle', fila, '?on_conflict=fecha,comida,extra_ref'));
+}
+
+async function nuAfuera(zona) {
+  await nuGuardarDetalle(zona, '', {afuera: !nuEsAfuera(zona)});
+  nuPintarZona(zona);
+}
+
+function nuHtmlAfuera(zona) {
+  const d = nuDetDe(zona);
+  if(!d || !d.afuera) return '';
+  return `<div class="nu-panel">
+    <input class="nu-campo" type="text" placeholder="Restaurante" value="${escapeHtml(d.restaurante||'')}" onchange="nuDetCampo('${zona}','restaurante',this.value.trim()||null)">
+    <div class="nu-sug">${COCINAS.map(c=>`<button class="nu-chip${d.cocina===c?' on':''}" onclick="nuDetCampo('${zona}','cocina','${c}')">${c}</button>`).join('')}</div>
+    <div class="nu-sug">${OCASIONES.map(o=>`<button class="nu-chip${d.ocasion===o?' on':''}" onclick="nuDetCampo('${zona}','ocasion','${o}')">${o}</button>`).join('')}</div>
+    <div class="nu-mini">Si sabes qué traía, búscalo arriba en la descripción y agrégalo.</div>
+  </div>`;
+}
+
+async function nuDetCampo(zona, campo, valor) {
+  const d = nuDetDe(zona) || {};
+  if((campo==='cocina' || campo==='ocasion') && d[campo]===valor) valor = null;   // tocar otra vez lo quita
+  await nuGuardarDetalle(zona, '', {[campo]: valor});
+  nuPintarZona(zona);
+}
+
+// ── Menos / más: ajustar a ojo la cantidad de algo ya anotado ──
+function nuAbrirAjuste(id) {
+  const x = nuItems.find(y => String(y.id)===String(id));
+  if(!x) return;
+  nuAjuste = (nuAjuste && String(nuAjuste.id)===String(id)) ? null : {id: x.id, pct: 100, base: Object.assign({}, x)};
+  nuPintarZona(x.comida);
+}
+
+function nuMoverAjuste(v) {
+  if(!nuAjuste) return;
+  nuAjuste.pct = Number(v);
+  const el = document.getElementById('nu-ajuste-g');
+  if(el) el.textContent = `${Math.round(nuAjuste.base.gramos*nuAjuste.pct/100)} g`;
+}
+
+async function nuGuardarAjuste() {
+  if(!nuAjuste) return;
+  const x = nuItems.find(y => String(y.id)===String(nuAjuste.id));
+  if(!x) return;
+  const f = nuAjuste.pct/100, b = nuAjuste.base;
+  const esc = v => v==null ? null : Math.round(Number(v)*f*10)/10;
+  const cambios = {cantidad: esc(b.cantidad), gramos: esc(b.gramos), kcal: esc(b.kcal), proteina: esc(b.proteina), carbo: esc(b.carbo),
+                   grasa: esc(b.grasa), fibra: esc(b.fibra), calcio_mg: esc(b.calcio_mg), vitd_ui: esc(b.vitd_ui)};
+  Object.assign(x, cambios);
+  nuPintarResumen();
+  await nuActualizar('comidas_items', x, cambios);
 }
 
 // ── Digestión: 👍😐👎 y, si no fue bien, síntomas opcionales ──
@@ -5238,7 +5509,7 @@ function selectDay(panel,idx) {
 
 function cambiarFechaActiva(fecha) {
   fechaActiva = fecha;
-  nuItems = []; nuDig = []; banosDia = []; banoAbierto = null; nuSel = {};
+  nuItems = []; nuDig = []; banosDia = []; banoAbierto = null; nuSel = {}; nuDet = []; nuRevision = {}; nuAjuste = null;
   nuCargarDia(fecha);
   restoreTodayUI();
   cargarMomentos(fecha).then(cambio => { if(cambio && fechaActiva===fecha) pintarMomentos(); });
