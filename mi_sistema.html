@@ -4887,11 +4887,12 @@ function buildBanos() {
   const cont = document.getElementById('banos-count');
   if(!lista) return;
   if(cont) cont.textContent = banosDia.length ? `· ${banosDia.length}` : '';
+  banosDia.sort((a,b) => (a.hora||'').localeCompare(b.hora||''));   // si corriges una hora, la lista sigue en orden
   lista.innerHTML = banosDia.map((b,i) => {
     const tipo = BANO_TIPOS.find(t => t.id===b.tipo);
     const mol = (b.molestias||[]).map(m => (BANO_MOLESTIAS.find(x => x.id===m) || {t:m}).t).join(', ');
     let h = `<div class="extra-item" onclick="abrirBano(${i})">
-      <span class="extra-hora">${b.hora ? formatHora12(b.hora) : '—'}</span>
+      <span class="extra-hora comida-hora" onclick="event.stopPropagation();editarHoraBano(${i})">${b.hora ? formatHora12(b.hora) : '—'}</span>
       <span class="extra-texto">${tipo ? tipo.t : ''}${tipo && mol ? ' · ' : ''}${escapeHtml(mol)}</span>
       <button class="log-del" onclick="event.stopPropagation();borrarBano(${i})">✕</button>
     </div>`;
@@ -4901,6 +4902,20 @@ function buildBanos() {
     </div>`;
     return h;
   }).join('');
+}
+
+// Corregir la hora de un baño, tocándola en la lista (mismo gesto que fumado y comidas)
+async function editarHoraBano(i) {
+  const b = banosDia[i]; if(!b) return;
+  const val = prompt('¿A qué hora fue? (formato 24h, ej. 14:30)', String(b.hora||'').slice(0,5));
+  if(val===null) return;
+  const limpio = val.trim();
+  if(!/^\d{1,2}:\d{2}$/.test(limpio)) { alert('Escribe la hora así: 14:30'); return; }
+  const [hh,mm] = limpio.split(':').map(n=>parseInt(n,10));
+  if(hh>23 || mm>59) { alert('Esa hora no existe.'); return; }
+  b.hora = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  buildBanos();
+  await nuActualizar('banos', b, {hora: b.hora});
 }
 
 function abrirBano(i) { banoAbierto = banosDia[i]===banoAbierto ? null : banosDia[i]; buildBanos(); }
