@@ -64,8 +64,9 @@ create table if not exists casa_semana (
 create table if not exists casa_registro (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz not null default now(),
+  fecha date not null,                 -- el día en que se hizo (lo elige quien anota; por defecto hoy)
   quien text not null check (quien in ('laura','roommate')),
-  tipo text not null check (tipo in ('tarea','basura','insumo_falta','insumo_comprado','libre')),
+  tipo text not null check (tipo in ('tarea','basura','loza','insumo_falta','insumo_comprado','libre')),
   tarea_id uuid references casa_tareas(id) on delete set null,
   insumo_id uuid,
   texto text,
@@ -122,16 +123,17 @@ insert into casa_config (clave, valor) values
 on conflict (clave) do nothing;
 
 insert into casa_tareas (orden, es, fr, nota_es, nota_fr, dia_def, hora_def, quien_base) values
-  (1, 'Barrer cocina, sala y pasillo', 'Balayer cuisine, salon et couloir', null, null, 1, null, 'laura'),
-  (2, 'Sacar el bac a la calle', 'Sortir le bac dans la rue', 'Desde las 19:00 (o el jueves antes de las 6:00)', 'Dès 19 h (ou jeudi avant 6 h)', 3, '19:00', 'roommate'),
-  (3, 'Entrar el bac y barrer cocina y sala', 'Rentrer le bac et balayer cuisine et salon', null, null, 4, null, 'laura'),
-  (4, 'Limpieza a fondo de la cocina', 'Grand ménage de la cuisine', '1 vez por semana', '1 fois par semaine', null, null, 'roommate'),
-  (5, 'Baño completo', 'Salle de bain complète', '1 vez por semana, nos turnamos', '1 fois par semaine, on alterne', 6, null, 'laura');
+  (1, 'Barrer cocina, sala y pasillo', 'Balayer la cuisine, le salon et le corridor', 'Piso de las zonas comunes, también debajo de la mesa.', 'Plancher des espaces communs, aussi sous la table.', 1, null, 'laura'),
+  (2, 'Sacar el bac de la calle', 'Sortir le bac de la rue', 'El bac que toca esta semana, al borde de la entrada.', 'Le bac de cette semaine, au bord de l''entrée.', 3, '19:00', 'roommate'),
+  (3, 'Entrar el bac y barrer', 'Rentrer le bac et balayer', 'Entrar el bac vacío y barrer cocina y sala.', 'Rentrer le bac vide et balayer la cuisine et le salon.', 4, null, 'laura'),
+  (4, 'Limpieza a fondo de la cocina', 'Ménage à fond de la cuisine', 'Mesones, estufa, lavaplatos y trapeada. Pasos en la sección 4.', 'Comptoirs, cuisinière, évier et vadrouille. Étapes à la section 4.', 6, null, 'roommate'),
+  (5, 'Limpiar el baño', 'Nettoyer la salle de bain', 'Turnándonos, 1 vez por semana. Pasos en la sección 4.', 'À tour de rôle, 1 fois par semaine. Étapes à la section 4.', 6, null, 'laura');
 
 insert into casa_insumos (orden, es, fr) values
-  (1, 'Bolsas de basura', 'Sacs à ordures'),
+  (1, 'Bolsas de basura', 'Sacs poubelle'),
   (2, 'Jabón de loza', 'Savon à vaisselle'),
   (3, 'Esponjas', 'Éponges'),
-  (4, 'Productos de baño', 'Produits pour la salle de bain'),
-  (5, 'Producto para el piso', 'Produit pour le plancher'),
-  (6, 'Papel higiénico (baño común)', 'Papier de toilette (salle de bain commune)');
+  (4, 'Producto para el baño', 'Produit pour la salle de bain'),
+  (5, 'Producto para pisos', 'Produit pour planchers'),
+  (6, 'Papel higiénico del baño común', 'Papier de toilette de la salle de bain commune'),
+  (7, 'Detergente / suavizante compartido', 'Détergent / assouplissant partagé');

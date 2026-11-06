@@ -1,362 +1,412 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Nuestra casa">
-<meta name="theme-color" content="#F2EDE4">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Nuestra casa" />
+<meta name="theme-color" content="#f7f5ef" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<link rel="icon" href="data:," />
 <title>Nuestra casa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg: #f7f5ef; --bg-soft: #efece2; --card: #ffffff; --ink: #22302a; --ink-soft: #55635c; --line: #ddd8c9;
+    --green: #1e6b4f; --green-deep: #14503a; --green-soft: #dcebe2;
+    --terra: #d96f47; --terra-soft: #fbe7dd; --amber: #b97f16; --amber-soft: #f7ecd2;
+    --blue-soft: #dde8f2; --blue: #2e5f87; --compost: #7a5c2e; --compost-soft: #efe4cf;
+    --on-accent: #fff;
+    --shadow: 0 2px 10px rgba(34, 48, 42, .07); --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141a17; --bg-soft: #1b231f; --card: #202a25; --ink: #eef3ef; --ink-soft: #a9b8af; --line: #37453d;
+      --green: #4cc38a; --green-deep: #7fd6ab; --green-soft: #24402f;
+      --terra: #f0946d; --terra-soft: #452e23; --amber: #e3b356; --amber-soft: #42381e;
+      --blue-soft: #24384c; --blue: #8db8dd; --compost: #d3ab6d; --compost-soft: #3d3320;
+      --on-accent: #0e241a;
+      --shadow: 0 2px 10px rgba(0, 0, 0, .35);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top)) 16px 64px; }
+  button { font: inherit; }
 
-:root {
-  --bg: #F2EDE4;
-  --card: #FAFAF7;
-  --ink: #1A1612;
-  --muted: #8C7E6E;
-  --terra: #B85C35;
-  --terra-soft: rgba(184,92,53,0.10);
-  --sage: #5C8A65;
-  --sage-soft: rgba(92,138,101,0.12);
-  --sky: #4A7FA5;
-  --sky-soft: rgba(74,127,165,0.12);
-  --gold: #C49A3C;
-  --gold-soft: rgba(196,154,60,0.12);
-  --brown: #8A5A3B;
-  --line: rgba(26,22,18,0.08);
-  --r: 22px;
-  --r-sm: 14px;
-}
+  /* ---------- Header ---------- */
+  header.top { padding: 14px 2px 6px; }
+  .langrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .yo { border: 0; background: transparent; color: var(--ink-soft); font-size: .88rem; cursor: pointer; padding: 6px 2px; text-align: left; }
+  .yo b { color: var(--ink); }
+  .langtoggle { display: inline-flex; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; gap: 4px; box-shadow: var(--shadow); margin-left: auto; }
+  .langtoggle button { border: 0; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: .9rem; padding: 7px 16px; border-radius: 999px; cursor: pointer; }
+  .langtoggle button[aria-pressed="true"] { background: var(--green); color: var(--on-accent); }
+  h1 { font-size: clamp(1.7rem, 5.4vw, 2.5rem); line-height: 1.12; margin: 0 0 10px; font-weight: 800; letter-spacing: -.01em; }
+  h1 .hl { color: var(--green); }
+  .lede { font-size: 1.06rem; color: var(--ink-soft); margin: 0 0 6px; max-width: 62ch; }
+  .handnote { font-family: "Caveat", cursive; font-size: 1.35rem; color: var(--terra); margin: 4px 0 0; }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { background: var(--bg); }
-body {
-  font-family: 'DM Sans', sans-serif;
-  color: var(--ink);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.4;
-  padding-bottom: calc(84px + env(safe-area-inset-bottom));
-}
-button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
-input, textarea { font: inherit; color: inherit; }
-.serif { font-family: 'Cormorant Garamond', serif; }
+  .namebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 13px 16px; margin-top: 16px; }
+  .namebar label { font-weight: 700; font-size: .95rem; }
+  .namebar input { font: inherit; font-weight: 700; padding: 9px 13px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 170px; max-width: 55vw; }
+  .namebar input[readonly] { background: transparent; }
+  .namebar .hint { color: var(--ink-soft); font-size: .88rem; flex: 1 1 220px; }
 
-/* ── HEADER ── */
-.header { padding: calc(14px + env(safe-area-inset-top)) 16px 8px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
-.header h1 { font-family:'Cormorant Garamond', serif; font-weight:600; font-size:28px; line-height:1.05; }
-.header .dir { color:var(--muted); font-size:12px; margin-top:2px; }
-.header-r { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
-.lang { display:flex; background:var(--card); border-radius:99px; padding:3px; border:1px solid var(--line); }
-.lang button { padding:4px 10px; border-radius:99px; font-size:12px; font-weight:600; color:var(--muted); }
-.lang button.on { background:var(--ink); color:var(--bg); }
-.yo { font-size:12px; color:var(--muted); padding:2px 4px; }
-.yo b { color:var(--ink); font-weight:600; }
+  nav.quick { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  nav.quick a { text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: .92rem; font-weight: 600; box-shadow: var(--shadow); }
+  nav.quick a:active { transform: scale(.97); }
 
-main { padding: 4px 16px 16px; max-width: 560px; margin: 0 auto; }
-.card { background:var(--card); border-radius:var(--r); padding:16px; margin-bottom:12px; border:1px solid var(--line); }
-.card h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600; margin-bottom:10px; }
-.muted { color:var(--muted); }
-.small { font-size:13px; }
-.tiny { font-size:12px; }
-.nota-fija { background:var(--gold-soft); border-radius:var(--r-sm); padding:12px 14px; font-size:13.5px; margin-bottom:12px; }
-.propuesta { font-size:13px; color:var(--muted); margin: 2px 2px 12px; }
+  section { margin-top: 34px; scroll-margin-top: 12px; }
+  h2 { font-size: 1.35rem; margin: 0 0 4px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  h2 .n { background: var(--green); color: var(--on-accent); width: 30px; height: 30px; flex: 0 0 30px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .sub { color: var(--ink-soft); margin: 0 0 16px; max-width: 64ch; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
 
-/* ── PILLS ── */
-.pill { display:inline-block; font-size:12px; font-weight:600; padding:3px 9px; border-radius:99px; white-space:nowrap; }
-.p-laura { background:var(--terra-soft); color:var(--terra); }
-.p-roommate { background:var(--sky-soft); color:var(--sky); }
+  /* ---------- Calendario ---------- */
+  .task { padding: 16px; margin-bottom: 12px; }
+  .task.hecha { border-color: var(--green); }
+  .task-head { display: flex; align-items: flex-start; gap: 12px; }
+  .task-ico { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; background: var(--green-soft); display: flex; align-items: center; justify-content: center; }
+  .task-ico svg { width: 24px; height: 24px; stroke: var(--green-deep); }
+  .task-title { font-weight: 700; font-size: 1.05rem; margin: 0; }
+  .task-desc { color: var(--ink-soft); font-size: .93rem; margin: 2px 0 0; }
+  .task-when { margin-left: auto; text-align: right; flex: 0 0 auto; }
+  .task-when .day { font-weight: 800; color: var(--green-deep); font-size: 1rem; }
+  .task-when .time, .task-when .turno { color: var(--ink-soft); font-size: .88rem; display: block; }
+  .task-edit { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  .edit-label { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin: 0 0 8px; }
+  .daychips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .daychips button, .whochips button { border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink); font-size: .88rem; font-weight: 600; padding: 7px 12px; border-radius: 999px; cursor: pointer; }
+  .daychips button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--on-accent); }
+  .whochips button[aria-pressed="true"] { background: var(--terra); border-color: var(--terra); color: var(--on-accent); }
+  .whochips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+  .whochips .lbl { font-size: .88rem; color: var(--ink-soft); margin-right: 2px; font-weight: 600; }
+  .timerow { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .timerow .lbl { font-size: .88rem; color: var(--ink-soft); font-weight: 600; }
+  .timerow input { font: inherit; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  .timerow button { border: 0; background: transparent; color: var(--ink-soft); font-size: .85rem; text-decoration: underline; cursor: pointer; }
+  .done-btn { margin-top: 14px; width: 100%; border: 0; cursor: pointer; font-weight: 700; background: var(--green); color: var(--on-accent); border-radius: 12px; padding: 12px; font-size: 1rem; }
+  .done-btn:active { transform: scale(.98); }
+  .done-btn:disabled { opacity: .6; }
+  .done-ok { margin-top: 14px; text-align: center; background: var(--green-soft); color: var(--green-deep); border-radius: 12px; padding: 11px; font-weight: 700; }
+  .daily-note { background: var(--amber-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; font-size: .97rem; }
+  .daily-note strong { color: var(--amber); }
 
-/* ── SEMANA ── */
-.weeknav { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
-.weeknav button { width:38px; height:38px; border-radius:50%; background:var(--card); border:1px solid var(--line); font-size:18px; }
-.weeknav .t { font-weight:600; text-align:center; }
-.dia { background:var(--card); border-radius:var(--r-sm); border:1px solid var(--line); padding:10px 12px; margin-bottom:8px; }
-.dia.hoy { border-color: var(--terra); box-shadow: 0 0 0 1px var(--terra) inset; }
-.dia-t { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; display:flex; justify-content:space-between; }
-.dia-vacio { font-size:13px; color:var(--muted); padding-top:2px; opacity:.6; }
-.tarea { display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
-.dia-t + .tarea { border-top:0; }
-.tarea .info { flex:1; min-width:0; }
-.tarea .nom { font-weight:500; }
-.tarea .det { font-size:12.5px; color:var(--muted); margin-top:2px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-.tarea.hecha .nom { text-decoration: line-through; text-decoration-color: rgba(26,22,18,.3); }
-.btn-hecha { flex-shrink:0; min-width:44px; height:44px; border-radius:14px; background:var(--sage); color:#fff; font-weight:600; font-size:13px; padding:0 12px; }
-.ok-hecha { flex-shrink:0; font-size:12px; color:var(--sage); font-weight:600; text-align:right; max-width:110px; }
-.diario { font-size:13.5px; }
+  /* ---------- Registro ---------- */
+  .score { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .score .card { padding: 16px; text-align: center; }
+  .score .who { font-weight: 700; font-size: 1rem; }
+  .score .num { font-size: 2.4rem; font-weight: 800; line-height: 1.1; }
+  .score .laura .num { color: var(--terra); }
+  .score .room .num { color: var(--green); }
+  .score .of { color: var(--ink-soft); font-size: .85rem; }
+  .score .sem { color: var(--ink-soft); font-size: .82rem; margin-top: 6px; border-top: 1px dashed var(--line); padding-top: 6px; }
+  .score .sem b { color: var(--ink); }
+  .balance { height: 12px; border-radius: 999px; overflow: hidden; display: flex; background: var(--bg-soft); border: 1px solid var(--line); margin-bottom: 16px; }
+  .balance .b-laura { background: var(--terra); transition: width .4s ease; }
+  .balance .b-room { background: var(--green); transition: width .4s ease; }
+  .regform { padding: 16px; margin-bottom: 12px; }
+  .regform .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .regform .grid { grid-template-columns: 1fr; } }
+  .regform label { font-size: .82rem; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 5px; }
+  .regform select, .regform input { width: 100%; font: inherit; padding: 11px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  .quickrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .quickrow button { flex: 1 1 150px; border: 1px dashed var(--green); background: var(--green-soft); color: var(--green-deep); font-weight: 700; padding: 11px 10px; border-radius: 12px; cursor: pointer; font-size: .95rem; }
+  .quickrow button:active { transform: scale(.97); }
+  .entries { list-style: none; margin: 0; padding: 0; }
+  .entries li { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 11px 14px; margin-bottom: 8px; box-shadow: var(--shadow); }
+  .entries .dot { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 11px; }
+  .entries .dot.laura { background: var(--terra); }
+  .entries .dot.roommate { background: var(--green); }
+  .entries .what { font-weight: 600; }
+  .entries .what .nota { color: var(--ink-soft); font-weight: 400; }
+  .entries .meta { color: var(--ink-soft); font-size: .88rem; margin-left: auto; text-align: right; flex: 0 0 auto; }
+  .entries .por { display: block; font-size: .78rem; }
+  .entries .del { border: 0; background: transparent; color: var(--ink-soft); cursor: pointer; font-size: 1.15rem; line-height: 1; padding: 6px; border-radius: 8px; }
+  .empty { color: var(--ink-soft); text-align: center; padding: 18px 10px; font-size: .95rem; }
+  .toast { position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(120px); background: var(--green-deep); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,.25); transition: transform .3s ease; z-index: 50; max-width: calc(100vw - 32px); text-align: center; }
+  @media (prefers-color-scheme: dark) { .toast { background: var(--green); color: #0e241a; } }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* ── BOTONES ── */
-.btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:11px 14px; border-radius:14px; font-weight:600; font-size:14px; background:var(--ink); color:var(--bg); }
-.btn.sec { background:transparent; color:var(--ink); border:1px solid var(--line); }
-.btn.verde { background:var(--sage); color:#fff; }
-.btn.full { width:100%; }
-.rapidos { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.rapidos .btn { font-size:13.5px; padding:12px 8px; line-height:1.2; }
-.rapidos .btn.l { background:var(--terra); }
-.rapidos .btn.r { background:var(--sky); }
-.seg { display:flex; gap:6px; flex-wrap:wrap; }
-.seg button { padding:8px 12px; border-radius:99px; border:1px solid var(--line); background:var(--card); font-size:13.5px; font-weight:500; }
-.seg button.on { background:var(--ink); color:var(--bg); border-color:var(--ink); }
-.seg.dias button { min-width:40px; padding:8px 0; flex:1; }
-.field { width:100%; border:1px solid var(--line); background:#fff; border-radius:12px; padding:11px 12px; font-size:15px; }
-textarea.field { resize:vertical; min-height:44px; }
-label.l { display:block; font-size:12px; color:var(--muted); font-weight:600; margin:12px 0 6px; }
-.row { display:flex; gap:8px; align-items:center; }
+  /* ---------- Bacs ---------- */
+  .bac-next { padding: 18px; margin-bottom: 12px; border-left: 6px solid var(--green); }
+  .bac-next .when { font-size: 1.25rem; font-weight: 800; margin: 0 0 2px; }
+  .bac-next .what { color: var(--ink-soft); margin: 0; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .pill { font-size: .85rem; font-weight: 700; padding: 5px 11px; border-radius: 999px; }
+  .pill.basura { background: var(--green-soft); color: var(--green-deep); }
+  .pill.reciclaje { background: var(--blue-soft); color: var(--blue); }
+  .pill.compost { background: var(--compost-soft); color: var(--compost); }
+  .bac-list { list-style: none; margin: 0; padding: 0; }
+  .bac-list li { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; padding: 11px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 8px; box-shadow: var(--shadow); }
+  .bac-list .d { font-weight: 700; min-width: 118px; }
+  .bac-list .out { margin-left: auto; color: var(--ink-soft); font-size: .87rem; text-align: right; }
+  .today-tag { background: var(--terra); color: #fff; font-size: .75rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; }
 
-/* ── CONTEO ── */
-.conteo { display:grid; grid-template-columns: 1fr auto auto; gap:6px 14px; font-size:14px; align-items:center; }
-.conteo .h { font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
-.conteo .n { font-weight:600; font-size:17px; text-align:center; min-width:44px; }
+  /* ---------- Cómo limpiar ---------- */
+  .howto { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .howto { grid-template-columns: 1fr; } }
+  .howto .card { padding: 18px; }
+  .howto h3 { margin: 0 0 4px; font-size: 1.08rem; }
+  .howto .freq { color: var(--terra); font-weight: 700; font-size: .88rem; margin: 0 0 12px; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: st; }
+  .steps li { counter-increment: st; position: relative; padding: 0 0 12px 40px; font-size: .96rem; }
+  .steps li::before { content: counter(st); position: absolute; left: 0; top: 0; width: 27px; height: 27px; border-radius: 50%; background: var(--green-soft); color: var(--green-deep); font-weight: 800; font-size: .85rem; display: flex; align-items: center; justify-content: center; }
+  .steps li:last-child { padding-bottom: 0; }
+  .cats-note { margin-top: 12px; background: var(--bg-soft); border-radius: 14px; padding: 13px 16px; font-size: .95rem; color: var(--ink-soft); }
+  .cats-note strong { color: var(--ink); }
 
-/* ── HISTORIAL ── */
-.hist-dia { font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin:14px 2px 6px; }
-.ent { background:var(--card); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; margin-bottom:6px; display:flex; gap:10px; align-items:flex-start; }
-.ent .hora { font-size:12.5px; color:var(--muted); width:42px; flex-shrink:0; padding-top:2px; }
-.ent .cuerpo { flex:1; min-width:0; }
-.ent .nota { font-size:13px; color:var(--muted); margin-top:2px; white-space:pre-wrap; }
-.ent .por { font-size:11.5px; color:var(--muted); margin-top:3px; }
-.ent .ed { font-size:12px; color:var(--muted); padding:4px 6px; border-radius:8px; border:1px solid var(--line); flex-shrink:0; }
+  /* ---------- Insumos ---------- */
+  .supplies { list-style: none; margin: 0; padding: 0; }
+  .supplies li { display: flex; align-items: center; gap: 6px 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; box-shadow: var(--shadow); flex-wrap: wrap; }
+  .supplies .item { font-weight: 600; }
+  .supplies .state { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+  .supplies .state button { border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink); font-size: .85rem; font-weight: 600; padding: 6px 11px; border-radius: 999px; cursor: pointer; }
+  .supplies .state button.on { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); font-weight: 800; }
+  .supplies .bought { font-size: .85rem; color: var(--green-deep); font-weight: 700; flex-basis: 100%; }
+  .supplies .falta-por { font-size: .85rem; color: var(--amber); font-weight: 600; flex-basis: 100%; }
 
-/* ── BACS ── */
-.bac-big { border-radius:var(--r); padding:18px; color:#fff; margin-bottom:12px; }
-.bac-big .q { font-size:12px; text-transform:uppercase; letter-spacing:.06em; opacity:.85; font-weight:600; }
-.bac-big .tipo { font-family:'Cormorant Garamond', serif; font-size:28px; font-weight:600; line-height:1.1; margin:4px 0 8px; }
-.bac-big .cuando { font-size:14px; opacity:.95; }
-.b-bleu { background: #3D6E9A; }
-.b-vert { background: linear-gradient(135deg, #4F7D57 0%, #4F7D57 55%, #8A5A3B 100%); }
-.bac-li { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:14px; }
-.bac-li:first-of-type { border-top:0; }
-.dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
-.d-bleu { background:#3D6E9A; }
-.d-vert { background:#4F7D57; }
-.d-brun { background:#8A5A3B; }
+  /* ---------- Mensaje ---------- */
+  .msgcard { padding: 18px; margin-bottom: 12px; }
+  .msgcard h3 { margin: 0 0 8px; font-size: 1rem; }
+  .msgcard pre { white-space: pre-wrap; font-family: inherit; font-size: .95rem; margin: 0 0 12px; background: var(--bg-soft); border-radius: 12px; padding: 14px; color: var(--ink); }
+  .copy-btn { border: 0; background: var(--terra); color: #fff; font-weight: 700; padding: 11px 18px; border-radius: 12px; cursor: pointer; width: 100%; }
+  .copy-btn:active { transform: scale(.98); }
+  .review { margin-top: 26px; background: var(--green-soft); border-radius: var(--radius); padding: 16px 18px; font-size: 1rem; }
+  .review strong { color: var(--green-deep); }
+  .review .fecha { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: .9rem; color: var(--ink-soft); font-weight: 600; }
+  .review .fecha input { font: inherit; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  footer { margin-top: 40px; color: var(--ink-soft); font-size: .88rem; text-align: center; }
 
-/* ── LISTAS ── */
-ul.pasos { list-style:none; }
-ul.pasos li { padding:8px 0 8px 22px; border-top:1px solid var(--line); position:relative; font-size:14.5px; }
-ul.pasos li:first-child { border-top:0; }
-ul.pasos li::before { content:''; position:absolute; left:4px; top:15px; width:7px; height:7px; border-radius:50%; background:var(--sage); }
-
-/* ── INSUMOS ── */
-.ins { display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--line); }
-.ins:first-of-type { border-top:0; }
-.ins .info { flex:1; min-width:0; }
-.ins .est { font-size:12.5px; color:var(--muted); margin-top:2px; }
-.ins.falta .nom { color:var(--terra); font-weight:600; }
-.ins .bt { padding:9px 11px; border-radius:12px; font-size:13px; font-weight:600; border:1px solid var(--line); }
-.ins .bt.falta { color:var(--terra); }
-.ins .bt.comprado { background:var(--sage); color:#fff; border-color:var(--sage); }
-
-/* ── MENSAJE ── */
-.msg { background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); padding:12px; font-size:14.5px; white-space:pre-wrap; margin-bottom:8px; }
-
-/* ── TABBAR ── */
-.tabbar { position:fixed; bottom:0; left:0; right:0; background:rgba(250,250,247,.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top:1px solid var(--line); display:flex; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); z-index:20; }
-.tabbar button { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; font-size:10.5px; color:var(--muted); font-weight:500; border-radius:12px; min-width:0; }
-.tabbar button .i { font-size:19px; line-height:1; }
-.tabbar button.on { color:var(--ink); font-weight:600; background:var(--bg); }
-
-/* ── SHEET ── */
-.velo { position:fixed; inset:0; background:rgba(26,22,18,.35); z-index:30; display:none; }
-.velo.on { display:block; }
-.sheet { position:fixed; left:0; right:0; bottom:0; background:var(--card); border-radius:24px 24px 0 0; padding:18px 16px calc(18px + env(safe-area-inset-bottom)); z-index:31; transform:translateY(105%); transition:transform .22s ease; max-height:88vh; overflow:auto; max-width:560px; margin:0 auto; }
-.sheet.on { transform:none; }
-.sheet h3 { font-size:18px; font-weight:600; margin-bottom:2px; }
-
-/* ── ENTRADA ── */
-.entrada { max-width:420px; margin: 0 auto; padding: calc(40px + env(safe-area-inset-top)) 20px 40px; }
-.entrada h1 { font-family:'Cormorant Garamond', serif; font-size:38px; font-weight:600; line-height:1; }
-.entrada .sub { color:var(--muted); margin:8px 0 26px; }
-.quien-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.quien-btns button { padding:18px 10px; border-radius:var(--r); font-size:17px; font-weight:600; color:#fff; }
-.quien-btns .l { background:var(--terra); }
-.quien-btns .r { background:var(--sky); }
-.err { color:var(--terra); font-size:13px; margin-top:8px; min-height:18px; }
-
-.toast { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(92px + env(safe-area-inset-bottom)); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:99px; font-size:13.5px; z-index:40; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; text-align:center; }
-.toast.on { opacity:1; }
-.oculto { display:none !important; }
+  /* ---------- Entrada ---------- */
+  .entrada { max-width: 460px; margin: 0 auto; }
+  .entrada .card { padding: 18px; margin-top: 20px; }
+  .entrada label { font-size: .82rem; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+  .entrada input { width: 100%; font: inherit; font-weight: 700; font-size: 1.1rem; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); letter-spacing: .15em; text-transform: uppercase; }
+  .quien-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quien-btns button { border: 0; padding: 18px 10px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; color: #fff; cursor: pointer; }
+  .quien-btns .laura { background: var(--terra); }
+  .quien-btns .roommate { background: var(--green); }
+  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .atras { border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink); border-radius: 12px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+  .err { color: var(--terra); font-size: .9rem; margin-top: 10px; min-height: 1.3em; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
-
-<div id="entrada" class="entrada oculto"></div>
-
-<div id="app" class="oculto">
-  <header class="header">
-    <div>
-      <h1 id="h-titulo"></h1>
-      <div class="dir">193, rue Constantine · Saint-Eustache</div>
-    </div>
-    <div class="header-r">
-      <div class="lang"><button data-act="lang" data-v="es">ES</button><button data-act="lang" data-v="fr">FR</button></div>
-      <button class="yo" data-act="salir" id="h-yo"></button>
-    </div>
-  </header>
-  <main id="vista"></main>
-  <nav class="tabbar" id="tabbar"></nav>
-</div>
-
-<div class="velo" id="velo" data-act="cerrar"></div>
-<div class="sheet" id="sheet"></div>
-<div class="toast" id="toast"></div>
+<div class="wrap" id="raiz"></div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
 // Nuestra casa, entre los dos — Laura y su roommate.
-// Datos en Supabase (proyecto mi-rutina, tablas casa_*). Cada pedido
-// manda el código de la casa (x-casa); Laura además su PIN (x-laura).
+// Diseño: el «Calendario de limpieza» aprobado. Datos: Supabase (tablas casa_*).
+// Cada pedido manda el código de la casa (x-casa); Laura además su PIN (x-laura).
 // Sin código no se lee ni se escribe nada (ver sql/12_casa.sql).
-// localStorage sólo guarda en este aparato: código, quién soy e idioma.
+// localStorage sólo guarda en este aparato: código, quién soy, PIN e idioma.
 // ══════════════════════════════════════════════════════════════
+(function () {
+"use strict";
 
 const SB_URL = 'https://snwnqjltfyqlwyeyfjba.supabase.co/rest/v1';
 const SB_KEY = 'sb_publishable_mHkufMizNWFEi1XUAbSAYA_Xs5-I_JH';
 const LUNES_ANCLA = '2026-11-02'; // semana par: cada tarea la hace su quien_base; la siguiente, el otro
+const BAC_ANCLA = '2026-11-05';   // jueves de basura (bac vert) + compost (bac brun); se alterna con reciclaje
 const REFRESCO_MS = 15000;
 
-// ── TEXTOS (ES / FR) ──
+// ── TEXTOS ──
 const T = {
   es: {
-    titulo: 'Nuestra casa, entre los dos',
-    entradaSub: 'Para repartir la limpieza de las zonas comunes. Todo es una propuesta que ajustamos entre los dos.',
+    titulo: "Nuestra casa, <span class='hl'>entre los dos</span>", tituloPlano: 'Nuestra casa, entre los dos',
+    lede: 'Una propuesta para repartirnos la limpieza de las zonas comunes sin discusiones. Nada es una orden: si un día u horario no te sirve, cámbialo aquí mismo por el que sí te sirva. Lo único importante es que lo que quede anotado se cumpla en la semana.',
+    handnote: 'Lo ajustamos entre los dos ✎',
+    nombreRm: 'Nombre del roommate',
+    nombreHint: 'Si en el futuro es otra persona, cámbialo aquí y se actualiza en toda la app: calendario, registro e insumos.',
+    nombreSoloLaura: 'Este nombre lo cambia Laura; se actualiza en toda la app.',
+    soy: 'Soy', cambiar: 'cambiar',
+    nav: ['Calendario', 'Registro', 'Bacs de la calle', 'Cómo limpiar', 'Insumos', 'Mensaje'],
+    // entrada
     codigo: 'Código de la casa', entrar: 'Entrar', codigoMal: 'Ese código no es. Revísalo en el mensaje de WhatsApp.',
     quienEres: '¿Quién eres?', pin: 'PIN de Laura', pinMal: 'PIN incorrecto.', sinRed: 'No hay conexión. Intenta de nuevo.',
-    soy: 'Soy', cambiar: 'cambiar',
-    tabs: ['Semana', 'Registro', 'Bacs', 'Cómo', 'Insumos', 'Mensaje'],
-    semanaDel: 'Semana del', estaSemana: 'esta semana',
-    dias: ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
-    diasC: ['L','M','M','J','V','S','D'],
-    cualquierDia: 'Cualquier día de la semana', nada: 'Nada este día',
-    propSemana: 'Es una propuesta: si un día no te sirve, toca la tarea y muévela. Lo que importa es que se haga dentro de la semana.',
-    diario: 'Todos los días: cada quien lava y guarda su loza después de comer y deja la cocina limpia.',
-    hecha: 'Hecha', hechaPor: 'Hecha', hoy: 'hoy',
-    mover: 'Mover esta tarea', soloSemana: 'Cambia sólo esta semana.', dia: 'Día', hora: 'Hora (opcional)', quien: '¿Quién la hace?', sinHora: 'sin hora', listo: 'Listo',
-    marcarHecha: 'Marcar hecha',
-    conteo: 'Quién hizo qué', semana: 'Esta semana', dosSem: '2 semanas', total: 'Total',
-    quienHizo: '¿Quién lo hizo?', anotar: 'Anotar algo', queHizo: '¿Qué se hizo?', queHizoPh: 'Ej.: limpié la nevera', nota: 'Nota (opcional)', guardar: 'Anotar',
-    sacoBasura: 'sacó la basura', historial: 'Historial completo', sinHist: 'Todavía no hay anotaciones.',
-    anotadoPor: 'anotado por', editado: 'corregido', editar: 'Corregir', borrar: 'Borrar', borrarSeguro: '¿Borrar esta anotación?',
-    corregir: 'Corregir anotación', soloLaura: 'Sólo Laura corrige o borra anotaciones.',
-    eTarea: (t) => t, eBasura: 'Sacó la bolsa de basura de la cocina', eFalta: (i) => `Marcó que falta: ${i}`, eCompro: (i) => `Compró: ${i}`,
-    proxBac: 'Próximo bac', bleu: 'Reciclaje · bac bleu', vert: 'Basura · bac vert + compost · bac brun',
-    sacar: (mie) => `Sacar el miércoles ${mie} desde las 19:00, o el jueves antes de las 6:00. El jueves se entra.`,
-    proximas: 'Próximas fechas', jueves: 'Jueves',
-    bacRefQ: (j) => `¿Qué bac sale el jueves ${j}?`, bacRefSub: 'La ciudad recoge los jueves (zona 3C), una semana reciclaje y la otra basura + compost. Con este dato la app calcula el resto.',
-    bacMal: 'Si la alternancia se corrió, toca para corregir',
-    bolsa: 'La bolsa de basura de la cocina se saca cuando se llena o 1 vez por semana, lo que pase primero. Quien la saque, la anota en el registro.',
-    cocina: 'Cocina', bano: 'Baño',
-    comoSub: 'El acuerdo, para que «limpiar» quiera decir lo mismo para los dos.',
-    gatos: 'Los gatos son de Laura: su arena, su comida y lo que ensucien lo limpia Laura. Esto es sólo de las zonas comunes.',
-    insSub: 'Lo que usamos los dos se comparte 50/50 o por turnos de compra. Lo personal es de cada uno.',
-    falta: 'Falta', comprado: 'Comprado', hay: 'Hay',
-    faltaDesde: (q, f) => `Falta · lo marcó ${q}, ${f}`, compro: (q, f) => `Lo compró ${q}, ${f}`,
-    compras: 'Compras anotadas',
-    ofrecimiento: 'La cama, el escritorio, la silla, las cobijas, la ropa de cama, las ollas, la vajilla y los electrodomésticos que ya están en la casa no se cobran: fueron un ofrecimiento de Laura al llegar.',
-    msgSub: 'Textos para mandar por WhatsApp. Cópialos y ajústalos como quieras.',
-    copiar: 'Copiar', copiado: 'Copiado', enviarWa: 'Abrir en WhatsApp',
-    revision: 'Revisión juntos', revTexto: 'El jueves miramos el registro de la semana y ajustamos lo que no haya funcionado, sin reclamos, sólo mirando lo anotado.',
-    fechaRev: 'Fecha de la revisión',
-    ajustes: 'Ajustes', nombreRm: 'Nombre del roommate', nombreSoloLaura: 'Sólo Laura cambia el nombre.',
-    guardado: 'Guardado', noGuardo: 'No se guardó. Revisa la conexión.',
-    msgEs: (r, link, f) => `Hola ${r} 🙂 Armé una app pequeña para repartirnos la limpieza de las zonas comunes, sin presión: es una propuesta y la ajustamos entre los dos.\n\nAhí vemos qué toca cada semana, cada quien mueve sus tareas al día que le sirva y anotamos lo que vamos haciendo.\n\nEntra aquí y eliges tu nombre: ${link}\n\n¿Te parece si el jueves ${f} lo miramos juntos?`,
+    // 1
+    s1: 'Calendario de la semana',
+    s1sub: 'Toca un día para mover la tarea a ese día, y elige quién la hace. Cuando la hagas, márcala con el botón verde y queda en el registro.',
+    days: ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'],
+    daysShort: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+    months: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
+    changeDay: 'Cambiar el día (toca el que te sirva)', cualquierDia: 'Cualquier día',
+    whoDoes: '¿Quién lo hace?', turns: 'Nos turnamos', tocaA: 'Esta semana:',
+    hora: 'Hora', sinHora: 'quitar hora',
+    mark: 'Ya lo hice — anotarlo', hechoPor: 'Hecho por',
+    diarioT: 'Todos los días:', diario: 'cada quien lava y guarda su loza después de comer y deja la cocina limpia. No es una tarea del calendario, es de cada comida.',
+    // 2
+    s2: 'Registro: quién hizo qué',
+    s2sub: 'Para hablar con hechos y con calma, no discutiendo. Cualquiera de los dos anota en 10 segundos lo que hizo: sacar la basura, barrer, limpiar. Arriba se cuenta solo.',
+    registradas: 'tareas registradas', estaSem: 'Esta semana', dosSem: '2 semanas',
+    queHizo: '¿Qué se hizo?', quienHizo: '¿Quién lo hizo?', fecha: 'Fecha', nota: 'Nota (opcional)', notaPh: 'Ej.: la bolsa estaba llena',
+    sacoBasura: (n) => `🗑 ${n} sacó la basura`, anotarBtn: 'Anotar en el registro',
+    vacio: 'Todavía no hay nada anotado. La primera tarea que se haga, se anota aquí.',
+    anotadoPor: 'anotó', borrarSeguro: '¿Borrar esta anotación del registro?',
+    tBasura: 'Sacar la basura de la cocina', tLoza: 'Lavar y guardar la loza',
+    tFalta: (i) => `Falta: ${i}`, tCompro: (i) => `Compró: ${i}`,
+    anotado: 'Anotado en el registro ✓', guardado: 'Guardado ✓', noGuardo: 'No se guardó. Revisa la conexión.',
+    // 3
+    s3: 'Los bacs de la calle',
+    s3sub: 'En esta casa (193, rue Constantine, Saint-Eustache, zona 3C) la ciudad recoge los jueves, una semana sí y otra no según el bac. Se saca el miércoles desde las 19:00, o el jueves antes de las 6:00.',
+    nextBac: 'Próxima recolección', today: 'HOY', takeOut: 'Sacar el miércoles desde las 19:00',
+    takeOutToday: 'Pasó hoy temprano — el bac debió salir anoche; hoy se entra.',
+    bacNames: { basura: 'Basura', reciclaje: 'Reciclaje', compost: 'Compost' },
+    bolsaT: 'La bolsa de la cocina es otra cosa:', bolsa: 'esa se saca cuando se llene o 1 vez por semana, lo que pase primero, y quien la saque lo anota en el registro de arriba.',
+    // 4
+    s4: 'Cómo se limpia (el acuerdo)',
+    s4sub: 'Para que «limpiar» quiera decir lo mismo para los dos, sin tener que adivinar. Si un paso no te funciona, lo hablamos y lo cambiamos aquí.',
+    cocina: 'La cocina', cocinaFreq: 'Barrer: 2 veces por semana · A fondo: 1 vez por semana',
+    bano: 'El baño', banoFreq: '1 vez por semana, nos turnamos',
+    pasosCocina: ['Recoger todo lo que esté sobre los mesones y guardarlo en su sitio.', 'Lavar la loza que haya y guardarla; nada queda en el lavaplatos.', 'Limpiar mesones, estufa y el frente de la nevera con la esponja y jabón de loza; enjuagar y secar.', 'Limpiar el lavaplatos y la llave; cambiar la esponja si ya huele mal.', 'Barrer todo el piso, también debajo de la mesa.', 'Trapear con agua y el producto de pisos (solo en la limpieza a fondo).', 'Revisar la bolsa de la basura: si está llena o ya es su día, se cambia y se anota en el registro.'],
+    pasosBano: ['Sacar la basura del baño y poner bolsa nueva.', 'Inodoro: producto por dentro, cepillar, y limpiar por fuera, la tapa y el asiento.', 'Lavamanos y espejo: limpiar con esponja, quitar manchas de pasta y salpicaduras.', 'Ducha o tina: restregar paredes y piso con el producto de baño, enjuagar.', 'Barrer y trapear el piso, también detrás del inodoro.', 'Revisar el papel higiénico y los productos: si algo se acabó, se anota en insumos.'],
+    gatosT: 'Los gatos son de Laura.', gatos: 'Su arena, su comida y lo que ensucien ellos lo limpia Laura. Esto es solo de las zonas comunes, que usamos los dos.',
+    // 5
+    s5: 'Insumos de la casa',
+    s5sub: 'Propuesta: lo que usamos los dos, lo compartimos 50/50, o nos turnamos para comprarlo. Lo personal es de cada uno. Toca «Falta» cuando algo se esté acabando y «Comprado» cuando alguien lo traiga.',
+    falta: 'Falta', hay: 'Hay', boughtBy: 'Último lo compró', faltaPor: 'Lo marcó', quienCompro: 'Comprado por:',
+    toastSupplyNeed: 'Marcado: falta comprar', toastSupplyOk: '¡Gracias! Queda registrado quién lo compró',
+    ofrecimiento: 'La cama, el escritorio, la silla, las cobijas, las ollas, la vajilla y los electrodomésticos que ya están en la casa no se cobran: fueron un ofrecimiento de Laura al llegar.',
+    // 6
+    s6: 'Mensaje para enviarle',
+    s6sub: 'Copia el mensaje y pégalo en WhatsApp: el enlace de esta página va incluido al final. Está en los dos idiomas para que no haya malentendidos.',
+    copiarEs: 'Copiar mensaje en español', copiarFr: 'Copiar mensaje en francés', copied: 'Mensaje copiado ✓', copyFail: 'No se pudo copiar; selecciona el texto y cópialo a mano',
+    revT: 'Revisión juntos:', rev: (d) => `el ${d} miramos el registro de la semana y ajustamos lo que no haya funcionado. Sin reclamos, solo mirando lo anotado.`,
+    revFecha: 'Fecha de la revisión:',
+    footer: '193, rue Constantine, Saint-Eustache · Zonas comunes: cocina, sala, baño y pasillo',
   },
   fr: {
-    titulo: 'Notre maison, à deux',
-    entradaSub: 'Pour se partager le ménage des espaces communs. Tout est une proposition qu’on ajuste ensemble.',
-    codigo: 'Code de la maison', entrar: 'Entrer', codigoMal: 'Ce n’est pas le bon code. Regarde le message WhatsApp.',
-    quienEres: 'Qui es-tu ?', pin: 'NIP de Laura', pinMal: 'NIP incorrect.', sinRed: 'Pas de connexion. Réessaie.',
+    titulo: "Notre maison, <span class='hl'>à deux</span>", tituloPlano: 'Notre maison, à deux',
+    lede: "Une proposition pour se partager le ménage des espaces communs, sans disputes. Rien n'est un ordre : si un jour ou un horaire ne te convient pas, change-le ici même pour celui qui te convient. L'important, c'est que ce qui est écrit soit fait dans la semaine.",
+    handnote: "On l'ajuste ensemble ✎",
+    nombreRm: 'Nom du colocataire',
+    nombreHint: "Si à l'avenir c'est une autre personne, change-le ici et il se met à jour partout : calendrier, registre et fournitures.",
+    nombreSoloLaura: "C'est Laura qui change ce nom ; il se met à jour partout.",
     soy: 'Je suis', cambiar: 'changer',
-    tabs: ['Semaine', 'Registre', 'Bacs', 'Comment', 'Fournitures', 'Message'],
-    semanaDel: 'Semaine du', estaSemana: 'cette semaine',
-    dias: ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'],
-    diasC: ['L','M','M','J','V','S','D'],
-    cualquierDia: 'N’importe quel jour de la semaine', nada: 'Rien ce jour-là',
-    propSemana: 'C’est une proposition : si un jour ne te convient pas, touche la tâche et déplace-la. L’important, c’est que ce soit fait dans la semaine.',
-    diario: 'Tous les jours : chacun lave et range sa vaisselle après avoir mangé et laisse la cuisine propre.',
-    hecha: 'Fait', hechaPor: 'Fait', hoy: 'aujourd’hui',
-    mover: 'Déplacer cette tâche', soloSemana: 'Ça change seulement cette semaine.', dia: 'Jour', hora: 'Heure (optionnelle)', quien: 'Qui la fait ?', sinHora: 'sans heure', listo: 'OK',
-    marcarHecha: 'Marquer comme fait',
-    conteo: 'Qui a fait quoi', semana: 'Cette semaine', dosSem: '2 semaines', total: 'Total',
-    quienHizo: 'Qui l’a fait ?', anotar: 'Noter quelque chose', queHizo: 'Qu’est-ce qui a été fait ?', queHizoPh: 'Ex. : j’ai nettoyé le frigo', nota: 'Note (optionnelle)', guardar: 'Noter',
-    sacoBasura: 'a sorti les ordures', historial: 'Historique complet', sinHist: 'Rien de noté pour l’instant.',
-    anotadoPor: 'noté par', editado: 'corrigé', editar: 'Corriger', borrar: 'Effacer', borrarSeguro: 'Effacer cette note ?',
-    corregir: 'Corriger la note', soloLaura: 'Seule Laura corrige ou efface les notes.',
-    eTarea: (t) => t, eBasura: 'A sorti le sac à ordures de la cuisine', eFalta: (i) => `A noté qu’il manque : ${i}`, eCompro: (i) => `A acheté : ${i}`,
-    proxBac: 'Prochain bac', bleu: 'Recyclage · bac bleu', vert: 'Déchets · bac vert + compost · bac brun',
-    sacar: (mie) => `Le sortir le mercredi ${mie} dès 19 h, ou le jeudi avant 6 h. On le rentre le jeudi.`,
-    proximas: 'Prochaines dates', jueves: 'Jeudi',
-    bacRefQ: (j) => `Quel bac sort le jeudi ${j} ?`, bacRefSub: 'La ville ramasse le jeudi (zone 3C) : une semaine recyclage, l’autre déchets + compost. Avec ça, l’app calcule le reste.',
-    bacMal: 'Si l’alternance s’est décalée, touche pour corriger',
-    bolsa: 'Le sac à ordures de la cuisine se sort quand il est plein ou 1 fois par semaine, le premier des deux. Qui le sort le note dans le registre.',
-    cocina: 'Cuisine', bano: 'Salle de bain',
-    comoSub: 'L’entente, pour que « nettoyer » veuille dire la même chose pour nous deux.',
-    gatos: 'Les chats sont à Laura : leur litière, leur nourriture et ce qu’ils salissent, c’est Laura qui s’en occupe. Ceci concerne seulement les espaces communs.',
-    insSub: 'Ce qu’on utilise tous les deux se partage 50/50 ou à tour de rôle. Ce qui est personnel, c’est à chacun.',
-    falta: 'Il manque', comprado: 'Acheté', hay: 'Il y en a',
-    faltaDesde: (q, f) => `Il manque · noté par ${q}, ${f}`, compro: (q, f) => `Acheté par ${q}, ${f}`,
-    compras: 'Achats notés',
-    ofrecimiento: 'Le lit, le bureau, la chaise, les couvertures, la literie, les casseroles, la vaisselle et les électroménagers déjà dans la maison ne se paient pas : Laura les a offerts à l’arrivée.',
-    msgSub: 'Des textes à envoyer par WhatsApp. Copie-les et ajuste-les comme tu veux.',
-    copiar: 'Copier', copiado: 'Copié', enviarWa: 'Ouvrir dans WhatsApp',
-    revision: 'Révision ensemble', revTexto: 'Le jeudi, on regarde le registre de la semaine et on ajuste ce qui n’a pas marché, sans reproches, juste en regardant ce qui est noté.',
-    fechaRev: 'Date de la révision',
-    ajustes: 'Réglages', nombreRm: 'Nom du coloc', nombreSoloLaura: 'Seule Laura change le nom.',
-    guardado: 'Enregistré', noGuardo: 'Pas enregistré. Vérifie la connexion.',
-    msgFr: (r, link, f) => `Salut ${r} 🙂 J’ai préparé une petite app pour se partager le ménage des espaces communs, sans pression : c’est une proposition qu’on ajuste ensemble.\n\nOn y voit ce qu’il y a à faire chaque semaine, chacun déplace ses tâches au jour qui lui convient et on note ce qu’on fait.\n\nEntre ici et choisis ton nom : ${link}\n\nÇa te va qu’on regarde ça ensemble jeudi ${f} ?`,
+    nav: ['Calendrier', 'Registre', 'Bacs de la rue', 'Comment nettoyer', 'Fournitures', 'Message'],
+    codigo: 'Code de la maison', entrar: 'Entrer', codigoMal: "Ce n'est pas le bon code. Regarde le message WhatsApp.",
+    quienEres: 'Qui es-tu ?', pin: 'NIP de Laura', pinMal: 'NIP incorrect.', sinRed: 'Pas de connexion. Réessaie.',
+    s1: 'Calendrier de la semaine',
+    s1sub: "Touche un jour pour déplacer la tâche, et choisis qui la fait. Quand c'est fait, appuie sur le bouton vert et ça reste dans le registre.",
+    days: ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'],
+    daysShort: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+    months: ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],
+    changeDay: 'Changer le jour (touche celui qui te convient)', cualquierDia: "N'importe quel jour",
+    whoDoes: 'Qui le fait ?', turns: 'À tour de rôle', tocaA: 'Cette semaine :',
+    hora: 'Heure', sinHora: "enlever l'heure",
+    mark: "C'est fait — le noter", hechoPor: 'Fait par',
+    diarioT: 'Tous les jours :', diario: "chacun lave et range sa vaisselle après avoir mangé et laisse la cuisine propre. Ce n'est pas une tâche du calendrier, c'est à chaque repas.",
+    s2: 'Registre : qui a fait quoi',
+    s2sub: "Pour parler avec des faits, calmement, sans se disputer. Chacun note en 10 secondes ce qu'il a fait : sortir la poubelle, balayer, nettoyer. Le compteur se fait tout seul en haut.",
+    registradas: 'tâches enregistrées', estaSem: 'Cette semaine', dosSem: '2 semaines',
+    queHizo: "Qu'est-ce qui a été fait ?", quienHizo: "Qui l'a fait ?", fecha: 'Date', nota: 'Note (optionnel)', notaPh: 'Ex. : le sac était plein',
+    sacoBasura: (n) => `🗑 ${n} a sorti la poubelle`, anotarBtn: 'Ajouter au registre',
+    vacio: "Rien n'est encore noté. La première tâche faite s'écrira ici.",
+    anotadoPor: 'noté par', borrarSeguro: 'Effacer cette note du registre ?',
+    tBasura: 'Sortir la poubelle de la cuisine', tLoza: 'Laver et ranger la vaisselle',
+    tFalta: (i) => `Il en manque : ${i}`, tCompro: (i) => `A acheté : ${i}`,
+    anotado: 'Ajouté au registre ✓', guardado: 'Enregistré ✓', noGuardo: 'Pas enregistré. Vérifie la connexion.',
+    s3: 'Les bacs de la rue',
+    s3sub: 'Dans cette maison (193, rue Constantine, Saint-Eustache, zone 3C), la ville ramasse les jeudis, une semaine sur deux selon le bac. On le sort le mercredi dès 19h00, ou le jeudi avant 6h00.',
+    nextBac: 'Prochaine collecte', today: "AUJOURD'HUI", takeOut: 'À sortir le mercredi dès 19h00',
+    takeOutToday: "C'était tôt ce matin — le bac devait sortir hier soir ; on le rentre aujourd'hui.",
+    bacNames: { basura: 'Ordures', reciclaje: 'Recyclage', compost: 'Compost' },
+    bolsaT: "Le sac de la cuisine, c'est autre chose :", bolsa: 'celui-là se sort quand il est plein ou 1 fois par semaine, ce qui arrive en premier, et celui qui le sort le note dans le registre ci-dessus.',
+    s4: "Comment on nettoie (l'entente)",
+    s4sub: 'Pour que « nettoyer » veuille dire la même chose pour nous deux, sans avoir à deviner. Si une étape ne te convient pas, on en parle et on la change ici.',
+    cocina: 'La cuisine', cocinaFreq: 'Balayer : 2 fois par semaine · À fond : 1 fois par semaine',
+    bano: 'La salle de bain', banoFreq: '1 fois par semaine, à tour de rôle',
+    pasosCocina: ["Ramasser tout ce qui est sur les comptoirs et le ranger à sa place.", "Laver la vaisselle qui reste et la ranger ; rien ne reste dans l'évier.", "Nettoyer les comptoirs, la cuisinière et le devant du frigo avec l'éponge et le savon à vaisselle ; rincer et essuyer.", "Nettoyer l'évier et le robinet ; changer l'éponge si elle sent mauvais.", 'Balayer tout le plancher, aussi sous la table.', "Passer la vadrouille avec de l'eau et le produit pour planchers (seulement pour le ménage à fond).", "Vérifier le sac poubelle : s'il est plein ou si c'est son jour, on le change et on le note dans le registre."],
+    pasosBano: ['Sortir la poubelle de la salle de bain et mettre un nouveau sac.', "Toilette : produit à l'intérieur, brosser, et nettoyer l'extérieur, le couvercle et le siège.", "Lavabo et miroir : nettoyer avec l'éponge, enlever les traces de dentifrice et les éclaboussures.", 'Douche ou bain : frotter les murs et le fond avec le produit pour salle de bain, rincer.', 'Balayer et passer la vadrouille, aussi derrière la toilette.', 'Vérifier le papier de toilette et les produits : si quelque chose est fini, on le note dans les fournitures.'],
+    gatosT: "Les chats, c'est Laura.", gatos: "Leur litière, leur nourriture et ce qu'ils salissent, c'est Laura qui s'en occupe. Ici, c'est seulement les espaces communs, qu'on utilise tous les deux.",
+    s5: 'Fournitures de la maison',
+    s5sub: "Proposition : ce qu'on utilise tous les deux, on le partage 50/50, ou on l'achète à tour de rôle. Ce qui est personnel est à chacun. Touche « Il en manque » quand quelque chose finit et « Acheté » quand quelqu'un l'apporte.",
+    falta: 'Il en manque', hay: 'Il y en a', boughtBy: 'Dernier achat par', faltaPor: 'Noté par', quienCompro: 'Acheté par :',
+    toastSupplyNeed: "Noté : il faut en acheter", toastSupplyOk: "Merci ! C'est noté qui l'a acheté",
+    ofrecimiento: "Le lit, le bureau, la chaise, les couvertures, les chaudrons, la vaisselle et les électroménagers déjà dans la maison ne se paient pas : c'était un prêt de Laura à l'arrivée.",
+    s6: 'Message à lui envoyer',
+    s6sub: 'Copie le message et colle-le dans WhatsApp : le lien de cette page est inclus à la fin. Il est dans les deux langues pour éviter les malentendus.',
+    copiarEs: 'Copier le message en espagnol', copiarFr: 'Copier le message en français', copied: 'Message copié ✓', copyFail: 'Copie impossible ; sélectionne le texte et copie-le à la main',
+    revT: 'On fait le point ensemble :', rev: (d) => `le ${d}, on regarde le registre de la semaine et on ajuste ce qui n'a pas fonctionné. Sans reproches, juste en regardant ce qui est noté.`,
+    revFecha: 'Date de la révision :',
+    footer: '193, rue Constantine, Saint-Eustache · Espaces communs : cuisine, salon, salle de bain et corridor',
   }
 };
 
-// El acuerdo de limpieza
-const COMO = {
-  cocina: {
-    es: ['Recoger y guardar lo que haya en los mesones.', 'Lavar y guardar la loza: nada se queda en el lavaplatos.', 'Limpiar mesones, estufa y el frente de la nevera.', 'Limpiar el lavaplatos y la llave.', 'Barrer todo el piso, también debajo de la mesa.', 'Trapear en la limpieza a fondo.', 'Revisar la bolsa de basura: cambiarla si está llena o si ya es su día, y anotarlo.'],
-    fr: ['Ramasser et ranger ce qu’il y a sur les comptoirs.', 'Laver et ranger la vaisselle : rien ne reste dans l’évier.', 'Nettoyer les comptoirs, la cuisinière et le devant du frigo.', 'Nettoyer l’évier et le robinet.', 'Balayer tout le plancher, aussi sous la table.', 'Passer la vadrouille lors du grand ménage.', 'Vérifier le sac à ordures : le changer s’il est plein ou si c’est le jour, et le noter.'],
-  },
-  bano: {
-    es: ['Sacar su basura y poner bolsa nueva.', 'Inodoro: producto por dentro, cepillar, y limpiar por fuera, tapa y asiento.', 'Lavamanos y espejo sin manchas de pasta ni salpicaduras.', 'Ducha o tina restregada y enjuagada.', 'Barrer y trapear el piso, también detrás del inodoro.', 'Revisar el papel higiénico y anotar en insumos lo que se haya acabado.'],
-    fr: ['Vider sa poubelle et mettre un sac neuf.', 'Toilette : produit à l’intérieur, brosser, et nettoyer l’extérieur, le couvercle et le siège.', 'Lavabo et miroir sans taches de dentifrice ni éclaboussures.', 'Douche ou bain frotté et rincé.', 'Balayer et passer la vadrouille, aussi derrière la toilette.', 'Vérifier le papier de toilette et noter dans les fournitures ce qui manque.'],
-  }
+// Los mensajes de WhatsApp (los de la versión aprobada)
+const MSG = {
+  es: `Hola, te quiero proponer algo para que la convivencia nos funcione mejor a los dos, sin malentendidos por el idioma.
+
+Te comparto un calendario que hice como propuesta base. No es para imponerte un horario: si un día no te sirve, cámbialo ahí mismo por el que sí te sirva. Lo importante es que lo que quede ahí se cumpla en la semana.
+
+También tiene un registro cortico, para que cualquiera de los dos anote cuando saque la basura o limpie algo. Así, si algo no funciona, lo miramos con calma y con hechos, no discutiendo.
+
+La basura de la cocina sería cuando se llene o 1 vez por semana, lo que pase primero. El bac de la calle es el miércoles en la noche, según el calendario de la ciudad.
+
+Y de los insumos, te propongo que las bolsas, el jabón de loza y los productos de limpieza de las zonas comunes los compartamos 50/50 o nos turnemos para comprarlos. ¿Te parece bien?
+
+Dime qué piensas y qué cambiarías, lo ajustamos entre los dos.`,
+  fr: `Salut, je veux te proposer quelque chose pour que la colocation fonctionne mieux pour nous deux, sans malentendu à cause de la langue.
+
+Je te partage un calendrier que j'ai fait comme proposition de base. Ce n'est pas pour t'imposer un horaire : si un jour ne te convient pas, change-le directement pour celui qui te convient. L'important, c'est que ce qui est écrit soit fait dans la semaine.
+
+Il y a aussi un petit registre, pour que chacun note quand il sort la poubelle ou nettoie quelque chose. Comme ça, si quelque chose ne fonctionne pas, on le regarde calmement, avec des faits, sans se disputer.
+
+La poubelle de la cuisine, ce serait quand elle est pleine ou 1 fois par semaine, ce qui arrive en premier. Le bac de la rue, c'est le mercredi soir, selon le calendrier de la ville.
+
+Et pour les fournitures, je te propose qu'on partage les sacs poubelle, le savon à vaisselle et les produits de nettoyage des espaces communs, 50/50 ou à tour de rôle pour les acheter. Ça te va ?
+
+Dis-moi ce que tu en penses et ce que tu changerais, on l'ajuste ensemble.`
 };
+
+const ICONS = {
+  broom: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l4 7"/><path d="M15.5 8.5L20 4"/><path d="M12 10c-2 3-5 5-8 6l1 4c3 0 7-2 9-5l-2-5z"/><path d="M7 16l-1 4M11 15l0 5M14.5 13.5L17 17"/></svg>',
+  bin: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/><path d="M10 11v5M14 11v5"/></svg>',
+  bath: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2z"/><path d="M6 12V6a3 3 0 0 1 6 0"/><path d="M7 21l-1 1M17 21l1 1"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/></svg>'
+};
+const ICONO_TAREA = { 1: 'broom', 2: 'bin', 3: 'broom', 4: 'spark', 5: 'bath' }; // por casa_tareas.orden
 
 // ── ESTADO ──
 const S = {
   codigo: lsGet('casa_codigo'), yo: lsGet('casa_yo'), pin: lsGet('casa_pin'),
-  lang: lsGet('casa_lang') || 'es',
-  tab: lsGet('casa_tab') || 'semana',
-  lunesVista: null,
-  cfg: { roommate: 'Adam' }, tareas: [], semana: [], registro: [], insumos: [],
-  cargado: false,
+  lang: lsGet('casa_lang') || 'es', paso: null,
+  cfg: { roommate: 'Adam' }, tareas: [], semana: [], registro: [], insumos: [], cargado: false,
 };
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 
-function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
-function lsSet(k,v){ try { v==null ? localStorage.removeItem(k) : localStorage.setItem(k,v); } catch(e){} }
-
-const t = (k) => (T[S.lang][k] ?? T.es[k]);
-const N = (rol) => rol === 'laura' ? 'Laura' : (S.cfg.roommate || 'Adam');
+const t = () => T[S.lang];
+const N = (rol) => rol === 'laura' ? 'Laura' : ((S.cfg.roommate || '').trim() || 'Adam');
 const otro = (rol) => rol === 'laura' ? 'roommate' : 'laura';
 const esLaura = () => S.yo === 'laura' && !!S.pin;
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (id) => document.getElementById(id);
 
 // ── FECHAS (hora local) ──
-const pad = (n) => String(n).padStart(2,'0');
-const key = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const parse = (k) => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
-const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
-const lunesDe = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay()+6)%7; return addD(x, -w); };
-const semanasEntre = (a, b) => Math.round((b - a) / (7*864e5));
-const loc = () => S.lang === 'fr' ? 'fr-CA' : 'es-CO';
-const fCorta = (d) => d.toLocaleDateString(loc(), { day:'numeric', month:'short' });
-const fDia = (d) => d.toLocaleDateString(loc(), { weekday:'short', day:'numeric', month:'short' });
-const fLarga = (d) => d.toLocaleDateString(loc(), { weekday:'long', day:'numeric', month:'long' });
-const fHora = (d) => d.toLocaleTimeString(loc(), { hour:'2-digit', minute:'2-digit', hour12:false });
+const pad = (n) => String(n).padStart(2, '0');
+const key = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const hoy0 = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+const lunesDe = (d) => addD(new Date(d.getFullYear(), d.getMonth(), d.getDate()), -((d.getDay() + 6) % 7));
+const semanasEntre = (a, b) => Math.round((b - a) / (7 * 864e5));
+const dow = (d) => (d.getDay() + 6) % 7; // lunes = 0
+const fmtDate = (d, anio) => `${t().days[dow(d)]} ${d.getDate()} ${t().months[d.getMonth()]}${anio ? ' ' + d.getFullYear() : ''}`;
+const fmtShort = (d) => `${d.getDate()} ${t().months[d.getMonth()]}`;
 
 // ── SUPABASE ──
-async function api(path, { method='GET', body, prefer } = {}) {
+async function api(path, { method = 'GET', body, prefer } = {}) {
   const h = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'x-casa': S.codigo || '', 'Content-Type': 'application/json' };
   if (S.yo === 'laura' && S.pin) h['x-laura'] = S.pin;
   if (prefer) h.Prefer = prefer;
@@ -367,328 +417,286 @@ async function api(path, { method='GET', body, prefer } = {}) {
 }
 
 async function cargar() {
-  const desde = key(addD(S.lunesVista, -7));
+  const lunesK = key(lunesDe(new Date()));
   const [cfg, tareas, semana, registro, insumos] = await Promise.all([
     api('casa_config?select=clave,valor'),
     api('casa_tareas?select=*&activa=eq.true&order=orden'),
-    api(`casa_semana?select=*&lunes=gte.${desde}`),
-    api('casa_registro?select=*&borrado_at=is.null&order=created_at.desc&limit=2000'),
+    api(`casa_semana?select=*&lunes=eq.${lunesK}`),
+    api('casa_registro?select=*&borrado_at=is.null&order=fecha.desc,created_at.desc&limit=3000'),
     api('casa_insumos?select=*&order=orden'),
   ]);
   S.cfg = { roommate: 'Adam' };
   cfg.forEach(r => S.cfg[r.clave] = r.valor);
-  S.tareas = tareas; S.semana = semana; S.registro = registro; S.insumos = insumos;
-  S.cargado = true;
+  Object.assign(S, { tareas, semana, registro, insumos, cargado: true });
 }
 
-async function refrescar() {
-  if (!S.codigo || !S.yo) return;
-  try { await cargar(); render(); } catch(e) { console.warn(e); }
+async function guardar(fn, okMsg) {
+  try { await fn(); await cargar(); pintar(); if (okMsg) toast(okMsg); return true; }
+  catch (e) { console.warn(e); toast(t().noGuardo); return false; }
 }
+const anotar = (row) => api('casa_registro', { method: 'POST', body: { creado_por: S.yo, fecha: key(new Date()), ...row }, prefer: 'return=minimal' });
 
-async function guardar(fn) {
-  try { await fn(); await cargar(); render(); return true; }
-  catch(e) { console.warn(e); toast(t('noGuardo')); return false; }
-}
-
-function anotar(row) {
-  return api('casa_registro', { method:'POST', body: { creado_por: S.yo, ...row }, prefer:'return=minimal' });
-}
-
-// ── LÓGICA DE TAREAS ──
-function tareaEnSemana(tarea, lunesK) {
-  const s = S.semana.find(x => x.tarea_id === tarea.id && x.lunes === lunesK);
+// ── TAREAS ──
+function tareaEnSemana(ta) {
+  const lunesK = key(lunesDe(new Date()));
+  const s = S.semana.find(x => x.tarea_id === ta.id && x.lunes === lunesK);
   const par = ((semanasEntre(parse(LUNES_ANCLA), parse(lunesK)) % 2) + 2) % 2 === 0;
-  return {
-    dia: s ? s.dia : tarea.dia_def,
-    hora: s && s.hora !== undefined ? s.hora : tarea.hora_def,
-    quien: (s && s.quien) || (par ? tarea.quien_base : otro(tarea.quien_base)),
-  };
+  const turno = par ? ta.quien_base : otro(ta.quien_base);
+  const dia = s ? s.dia : ta.dia_def;
+  return { dia, hora: s ? s.hora : ta.hora_def, modo: (s && s.quien) || 'turns', quien: (s && s.quien) || turno };
 }
-// Hecha = hay una anotación de esa tarea dentro de esa semana
-function hechaEn(tarea, lunesK) {
-  const a = parse(lunesK), b = addD(a, 7);
-  return S.registro.find(r => r.tipo === 'tarea' && r.tarea_id === tarea.id && new Date(r.created_at) >= a && new Date(r.created_at) < b);
+function hechaEstaSemana(ta) {
+  const a = key(lunesDe(new Date())), b = key(addD(lunesDe(new Date()), 6));
+  return S.registro.find(r => r.tipo === 'tarea' && r.tarea_id === ta.id && r.fecha >= a && r.fecha <= b);
+}
+function guardarSemana(ta, cambios) {
+  const e = tareaEnSemana(ta);
+  const body = { tarea_id: ta.id, lunes: key(lunesDe(new Date())), dia: e.dia, hora: e.hora, quien: e.modo === 'turns' ? null : e.modo, updated_at: new Date().toISOString(), updated_por: S.yo, ...cambios };
+  return guardar(() => api('casa_semana?on_conflict=tarea_id,lunes', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body }));
 }
 
 // ── BACS ──
-function proxJueves(desde) { let d = new Date(desde.getFullYear(), desde.getMonth(), desde.getDate()); while (d.getDay() !== 4) d = addD(d, 1); return d; }
-function bacDe(jueves) {
-  const ref = S.cfg.bac_ref; if (!ref) return null;
-  const n = semanasEntre(parse(ref.fecha), jueves);
-  return (((n % 2) + 2) % 2 === 0) ? ref.tipo : (ref.tipo === 'bleu' ? 'vert' : 'bleu');
+function bacSchedule() {
+  const ancla = parse(BAC_ANCLA), hoy = hoy0(), out = [];
+  let i = Math.max(0, Math.ceil((hoy - ancla) / (7 * 864e5) - 0.01)); // primer jueves desde hoy (hoy incluido)
+  for (let k = 0; k < 7; k++, i++) {
+    const d = addD(ancla, i * 7);
+    out.push({ date: d, types: i % 2 === 0 ? ['basura', 'compost'] : ['reciclaje'], isToday: key(d) === key(hoy) });
+  }
+  return out;
 }
 
 // ── TEXTO DE CADA ANOTACIÓN ──
 function textoEntrada(r) {
-  const T_ = T[S.lang];
-  if (r.tipo === 'tarea') { const ta = S.tareas.find(x => x.id === r.tarea_id); return ta ? (S.lang==='fr' ? ta.fr : ta.es) : (r.texto || '—'); }
-  if (r.tipo === 'basura') return T_.eBasura;
-  const ins = S.insumos.find(x => x.id === r.insumo_id); const nom = ins ? (S.lang==='fr' ? ins.fr : ins.es) : (r.texto || '');
-  if (r.tipo === 'insumo_falta') return T_.eFalta(nom);
-  if (r.tipo === 'insumo_comprado') return T_.eCompro(nom);
+  const nomIns = () => { const i = S.insumos.find(x => x.id === r.insumo_id); return i ? (S.lang === 'fr' ? i.fr : i.es) : ''; };
+  if (r.tipo === 'tarea') { const ta = S.tareas.find(x => x.id === r.tarea_id); return ta ? (S.lang === 'fr' ? ta.fr : ta.es) : (r.texto || '—'); }
+  if (r.tipo === 'basura') return t().tBasura;
+  if (r.tipo === 'loza') return t().tLoza;
+  if (r.tipo === 'insumo_falta') return t().tFalta(nomIns());
+  if (r.tipo === 'insumo_comprado') return t().tCompro(nomIns());
   return r.texto || '';
 }
-const cuentaComo = (r) => r.tipo !== 'insumo_falta';
+const cuentaComo = (r) => r.tipo !== 'insumo_falta' && r.tipo !== 'insumo_comprado';
 
 // ══════════════════════════════════════════════════════════════
-// RENDER
+// PINTAR
 // ══════════════════════════════════════════════════════════════
-const TABS = [['semana','📅'],['registro','📝'],['bacs','🗑️'],['como','🧽'],['insumos','🧴'],['mensaje','💬']];
-
-function render() {
-  if (!S.codigo || !S.yo) return renderEntrada();
-  document.getElementById('entrada').classList.add('oculto');
-  document.getElementById('app').classList.remove('oculto');
+function pintar() {
   document.documentElement.lang = S.lang;
-  document.title = t('titulo');
-  document.getElementById('h-titulo').textContent = t('titulo');
-  document.getElementById('h-yo').innerHTML = `${t('soy')} <b>${esc(N(S.yo))}</b> · ${t('cambiar')}`;
-  document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.v === S.lang));
-  document.getElementById('tabbar').innerHTML = TABS.map(([id,ic],i) =>
-    `<button data-act="tab" data-v="${id}" class="${S.tab===id?'on':''}"><span class="i">${ic}</span>${t('tabs')[i]}</button>`).join('');
-  if (!S.cargado) { document.getElementById('vista').innerHTML = ''; return; }
-  const v = { semana: vSemana, registro: vRegistro, bacs: vBacs, como: vComo, insumos: vInsumos, mensaje: vMensaje }[S.tab] || vSemana;
-  const vista = document.getElementById('vista');
-  // no pisar lo que se está escribiendo
-  const foco = document.activeElement && vista.contains(document.activeElement) && /INPUT|TEXTAREA/.test(document.activeElement.tagName);
-  if (foco) return;
-  const borrador = vista.querySelector('#r-texto')?.value, borradorNota = vista.querySelector('#r-nota')?.value;
-  vista.innerHTML = v();
-  if (borrador && vista.querySelector('#r-texto')) vista.querySelector('#r-texto').value = borrador;
-  if (borradorNota && vista.querySelector('#r-nota')) vista.querySelector('#r-nota').value = borradorNota;
+  document.title = t().tituloPlano;
+  if (!S.codigo || !S.yo) return pintarEntrada();
+  if (!$('calendario')) esqueleto();
+  pintarNombres(); pintarTareas(); pintarRegistro(); pintarBacs(); pintarInsumos(); pintarRevision();
 }
 
-function pillQuien(rol) { return `<span class="pill p-${rol}">${esc(N(rol))}</span>`; }
-
-function vSemana() {
-  const lunesK = key(S.lunesVista), hoyK = key(new Date());
-  const esActual = lunesK === key(lunesDe(new Date()));
-  const porDia = { 0: [] }; for (let i=1;i<=7;i++) porDia[i] = [];
-  S.tareas.forEach(ta => { const e = tareaEnSemana(ta, lunesK); (porDia[e.dia || 0]).push({ ta, e }); });
-  Object.values(porDia).forEach(l => l.sort((a,b) => (a.e.hora||'99').localeCompare(b.e.hora||'99') || a.ta.orden - b.ta.orden));
-
-  const filaTarea = ({ ta, e }) => {
-    const h = hechaEn(ta, lunesK);
-    const nom = S.lang==='fr' ? ta.fr : ta.es, nota = S.lang==='fr' ? ta.nota_fr : ta.nota_es;
-    let bac = '';
-    if (ta.orden === 2 || ta.orden === 3) { const tipo = bacDe(addD(S.lunesVista, 3)); if (tipo) bac = tipo === 'bleu' ? '<span class="dot d-bleu"></span>bleu' : '<span class="dot d-vert"></span><span class="dot d-brun"></span>vert + brun'; }
-    const der = h
-      ? `<div class="ok-hecha">✓ ${esc(N(h.quien))}<br><span class="muted" style="font-weight:400">${fDia(new Date(h.created_at))}</span></div>`
-      : (esActual ? `<button class="btn-hecha" data-act="hecha" data-id="${ta.id}" data-q="${e.quien}">${t('hecha')}</button>` : '');
-    return `<div class="tarea ${h?'hecha':''}">
-      <div class="info" data-act="mover" data-id="${ta.id}">
-        <div class="nom">${esc(nom)}</div>
-        <div class="det">${pillQuien(e.quien)}${e.hora ? `<span>${esc(e.hora)}</span>` : ''}${nota ? `<span>${esc(nota)}</span>` : ''}${bac ? `<span class="row" style="gap:4px">${bac}</span>` : ''}</div>
-      </div>${der}</div>`;
-  };
-
-  let html = `<div class="weeknav">
-    <button data-act="sem" data-v="-1">‹</button>
-    <div class="t">${t('semanaDel')} ${fCorta(S.lunesVista)}${esActual ? `<div class="tiny muted">${t('estaSemana')}</div>` : `<div class="tiny"><button data-act="sem" data-v="0" class="muted" style="text-decoration:underline">${t('estaSemana')}</button></div>`}</div>
-    <button data-act="sem" data-v="1">›</button></div>
-    <p class="propuesta">${t('propSemana')}</p>`;
-  for (let i=1;i<=7;i++) {
-    const d = addD(S.lunesVista, i-1), esHoy = key(d) === hoyK;
-    html += `<div class="dia ${esHoy?'hoy':''}"><div class="dia-t"><span>${t('dias')[i-1]} ${d.getDate()}</span>${esHoy?`<span style="color:var(--terra)">${t('hoy')}</span>`:''}</div>
-      ${porDia[i].length ? porDia[i].map(filaTarea).join('') : `<div class="dia-vacio">${t('nada')}</div>`}</div>`;
-  }
-  if (porDia[0].length) html += `<div class="dia"><div class="dia-t"><span>${t('cualquierDia')}</span></div>${porDia[0].map(filaTarea).join('')}</div>`;
-  html += `<div class="nota-fija diario">🍽️ ${t('diario')}</div>`;
-  return html;
+function langToggle() {
+  return `<div class="langtoggle" role="group" aria-label="Idioma / Langue">
+    <button type="button" data-act="lang" data-v="es" aria-pressed="${S.lang === 'es'}">Español</button>
+    <button type="button" data-act="lang" data-v="fr" aria-pressed="${S.lang === 'fr'}">Français</button></div>`;
 }
 
-function vRegistro() {
-  const ahora = new Date(), lun = lunesDe(ahora), lun2 = addD(lun, -7);
-  const c = { laura:[0,0,0], roommate:[0,0,0] };
-  S.registro.filter(cuentaComo).forEach(r => {
-    const d = new Date(r.created_at), x = c[r.quien]; if (!x) return;
-    x[2]++; if (d >= lun2) x[1]++; if (d >= lun) x[0]++;
-  });
-  const filaC = (rol) => `<div>${pillQuien(rol)}</div>${[0,1,2].map(i => `<div class="n">${c[rol][i]}</div>`).join('')}`;
-  let html = `<div class="card"><h2>${t('conteo')}</h2>
-    <div class="conteo" style="grid-template-columns:1fr auto auto auto">
-      <div></div><div class="h">${t('semana')}</div><div class="h">${t('dosSem')}</div><div class="h">${t('total')}</div>
-      ${filaC('laura')}${filaC('roommate')}
-    </div></div>
-    <div class="rapidos" style="margin-bottom:12px">
-      <button class="btn l" data-act="basura" data-q="laura">Laura ${t('sacoBasura')}</button>
-      <button class="btn r" data-act="basura" data-q="roommate">${esc(N('roommate'))} ${t('sacoBasura')}</button>
+function pintarEntrada() {
+  const paso = !S.codigo ? 'codigo' : (S.paso === 'pin' ? 'pin' : 'quien');
+  let caja = '';
+  if (paso === 'codigo') caja = `<label for="e-cod">${t().codigo}</label><input id="e-cod" autocomplete="off" autocapitalize="characters">
+    <button type="button" class="done-btn" data-act="e-cod">${t().entrar}</button>`;
+  if (paso === 'quien') caja = `<label>${t().quienEres}</label><div class="quien-btns">
+    <button type="button" class="laura" data-act="e-yo" data-v="laura">Laura</button>
+    <button type="button" class="roommate" data-act="e-yo" data-v="roommate">${esc(N('roommate'))}</button></div>`;
+  if (paso === 'pin') caja = `<label for="e-pin">${t().pin}</label><input id="e-pin" type="password" inputmode="numeric" autocomplete="off">
+    <div class="row"><button type="button" class="atras" data-act="e-atras">‹</button><button type="button" class="done-btn" style="margin:0" data-act="e-pin">${t().entrar}</button></div>`;
+  $('raiz').innerHTML = `<div class="entrada"><header class="top"><div class="langrow">${langToggle()}</div>
+    <h1>${t().titulo}</h1><p class="lede">${t().lede}</p><p class="handnote">${t().handnote}</p></header>
+    <div class="card">${caja}<div class="err" id="e-err"></div></div></div>`;
+  const inp = $('raiz').querySelector('input');
+  if (inp) { inp.focus(); inp.addEventListener('keydown', e => { if (e.key === 'Enter') $('raiz').querySelector('.done-btn').click(); }); }
+}
+
+function esqueleto() {
+  const T_ = t(), ids = ['calendario', 'registro', 'bacs', 'como', 'insumos', 'mensaje'];
+  const form = { f: $('f-task')?.value, n: $('f-note')?.value, d: $('f-date')?.value, w: $('f-who')?.value };
+  $('raiz').innerHTML = `
+  <header class="top">
+    <div class="langrow"><button type="button" class="yo" data-act="salir" id="yo"></button>${langToggle()}</div>
+    <h1>${T_.titulo}</h1>
+    <p class="lede">${T_.lede}</p>
+    <p class="handnote">${T_.handnote}</p>
+    <div class="card namebar">
+      <label for="room-name">${T_.nombreRm}</label>
+      <input type="text" id="room-name" autocomplete="off" maxlength="30" ${esLaura() ? '' : 'readonly'} />
+      <span class="hint">${esLaura() ? T_.nombreHint : T_.nombreSoloLaura}</span>
     </div>
-    <div class="card"><h2>${t('anotar')}</h2>
-      <input class="field" id="r-texto" placeholder="${esc(t('queHizoPh'))}" aria-label="${esc(t('queHizo'))}">
-      <label class="l">${t('quienHizo')}</label>
-      <div class="seg" id="r-quien"><button data-act="rq" data-v="laura" class="${(S.rq||S.yo)==='laura'?'on':''}">Laura</button><button data-act="rq" data-v="roommate" class="${(S.rq||S.yo)==='roommate'?'on':''}">${esc(N('roommate'))}</button></div>
-      <label class="l">${t('nota')}</label>
-      <textarea class="field" id="r-nota" rows="1"></textarea>
-      <button class="btn full" style="margin-top:12px" data-act="anotar">${t('guardar')}</button>
+  </header>
+  <nav class="quick">${ids.map((id, i) => `<a href="#${id}">${T_.nav[i]}</a>`).join('')}</nav>
+
+  <section id="calendario">
+    <h2><span class="n">1</span><span>${T_.s1}</span></h2>
+    <p class="sub">${T_.s1sub}</p>
+    <div id="task-list"></div>
+    <div class="daily-note"><strong>${T_.diarioT}</strong> ${T_.diario}</div>
+  </section>
+
+  <section id="registro">
+    <h2><span class="n">2</span><span>${T_.s2}</span></h2>
+    <p class="sub">${T_.s2sub}</p>
+    <div class="score" id="score"></div>
+    <div class="balance" aria-hidden="true"><div class="b-laura" id="bar-laura" style="width:50%"></div><div class="b-room" id="bar-room" style="width:50%"></div></div>
+    <div class="card regform">
+      <div class="grid">
+        <div><label for="f-task">${T_.queHizo}</label><select id="f-task"></select></div>
+        <div><label for="f-who">${T_.quienHizo}</label><select id="f-who"></select></div>
+        <div><label for="f-date">${T_.fecha}</label><input type="date" id="f-date" /></div>
+        <div><label for="f-note">${T_.nota}</label><input type="text" id="f-note" placeholder="${esc(T_.notaPh)}" /></div>
+      </div>
+      <div class="quickrow" id="quickrow"></div>
+      <button type="button" class="done-btn" data-act="f-add">${T_.anotarBtn}</button>
     </div>
-    <div class="card" style="padding-bottom:8px"><h2>${t('historial')}</h2>`;
-  if (!S.registro.length) html += `<p class="muted small" style="padding-bottom:8px">${t('sinHist')}</p>`;
-  html += `</div>`;
-  let diaAnt = '';
-  S.registro.forEach(r => {
-    const d = new Date(r.created_at), dk = key(d);
-    if (dk !== diaAnt) { html += `<div class="hist-dia">${fLarga(d)}</div>`; diaAnt = dk; }
-    const por = r.creado_por !== r.quien ? `<div class="por">${t('anotadoPor')} ${esc(N(r.creado_por))}</div>` : '';
-    html += `<div class="ent"><div class="hora">${fHora(d)}</div><div class="cuerpo">
-      <div>${pillQuien(r.quien)} ${esc(textoEntrada(r))}</div>
-      ${r.nota ? `<div class="nota">${esc(r.nota)}</div>` : ''}${por}${r.editado_at ? `<div class="por">${t('editado')}</div>` : ''}</div>
-      ${esLaura() ? `<button class="ed" data-act="corregir" data-id="${r.id}">✎</button>` : ''}</div>`;
-  });
-  return html;
+    <ul class="entries" id="entries"></ul>
+    <p class="empty" id="entries-empty">${T_.vacio}</p>
+  </section>
+
+  <section id="bacs">
+    <h2><span class="n">3</span><span>${T_.s3}</span></h2>
+    <p class="sub">${T_.s3sub}</p>
+    <div class="card bac-next" id="bac-next"></div>
+    <ul class="bac-list" id="bac-list"></ul>
+    <div class="daily-note" style="margin-top:12px"><strong>${T_.bolsaT}</strong> ${T_.bolsa}</div>
+  </section>
+
+  <section id="como">
+    <h2><span class="n">4</span><span>${T_.s4}</span></h2>
+    <p class="sub">${T_.s4sub}</p>
+    <div class="howto">
+      <div class="card"><h3>${T_.cocina}</h3><p class="freq">${T_.cocinaFreq}</p><ol class="steps">${T_.pasosCocina.map(p => `<li>${p}</li>`).join('')}</ol></div>
+      <div class="card"><h3>${T_.bano}</h3><p class="freq">${T_.banoFreq}</p><ol class="steps">${T_.pasosBano.map(p => `<li>${p}</li>`).join('')}</ol></div>
+    </div>
+    <div class="cats-note"><strong>${T_.gatosT}</strong> ${T_.gatos}</div>
+  </section>
+
+  <section id="insumos">
+    <h2><span class="n">5</span><span>${T_.s5}</span></h2>
+    <p class="sub">${T_.s5sub}</p>
+    <ul class="supplies" id="supplies"></ul>
+    <p class="sub" style="margin-top:10px">${T_.ofrecimiento}</p>
+  </section>
+
+  <section id="mensaje">
+    <h2><span class="n">6</span><span>${T_.s6}</span></h2>
+    <p class="sub">${T_.s6sub}</p>
+    <div class="card msgcard"><h3>Español</h3><pre id="msg-es"></pre><button type="button" class="copy-btn" data-act="copiar" data-v="es">${T_.copiarEs}</button></div>
+    <div class="card msgcard"><h3>Français</h3><pre id="msg-fr"></pre><button type="button" class="copy-btn" data-act="copiar" data-v="fr">${T_.copiarFr}</button></div>
+    <div class="review"><strong>${T_.revT}</strong> <span id="rev-txt"></span>
+      <div class="fecha"><label for="rev">${T_.revFecha}</label><input type="date" id="rev" /></div></div>
+  </section>
+
+  <footer>${T_.footer}</footer>`;
+  $('msg-es').textContent = MSG.es + '\n\n' + linkCasa();
+  $('msg-fr').textContent = MSG.fr + '\n\n' + linkCasa();
+  $('f-date').value = form.d || key(new Date());
+  if (form.n) $('f-note').value = form.n;
+  S._form = form;
 }
 
-function vBacs() {
-  const hoy = new Date();
-  // el jueves hasta el mediodía todavía cuenta (hay que entrar el bac); después, ya es el de la otra semana
-  const j0 = proxJueves(hoy.getDay() === 4 && hoy.getHours() >= 12 ? addD(hoy, 1) : hoy);
-  if (!S.cfg.bac_ref) {
-    return `<div class="card"><h2>${t('proxBac')}</h2>
-      <p style="font-weight:600;margin-bottom:6px">${esc(t('bacRefQ')(fLarga(j0)))}</p>
-      <p class="muted small" style="margin-bottom:12px">${t('bacRefSub')}</p>
-      <div style="display:grid;gap:8px">
-        <button class="btn" style="background:#3D6E9A" data-act="bacref" data-v="bleu" data-f="${key(j0)}"><span class="dot d-bleu" style="border:2px solid #fff"></span> ${t('bleu')}</button>
-        <button class="btn" style="background:#4F7D57" data-act="bacref" data-v="vert" data-f="${key(j0)}"><span class="dot d-vert" style="border:2px solid #fff"></span> ${t('vert')}</button>
-      </div></div><div class="nota-fija">🛍️ ${t('bolsa')}</div>`;
-  }
-  const tipo = bacDe(j0), mie = addD(j0, -1);
-  let html = `<div class="bac-big b-${tipo}"><div class="q">${t('proxBac')} · ${fLarga(j0)}</div>
-    <div class="tipo">${t(tipo)}</div><div class="cuando">${esc(t('sacar')(fCorta(mie)))}</div></div>
-    <div class="card"><h2>${t('proximas')}</h2>`;
-  for (let i=1;i<=8;i++) {
-    const j = addD(j0, 7*i), tp = bacDe(j);
-    html += `<div class="bac-li">${tp==='bleu' ? '<span class="dot d-bleu"></span>' : '<span class="dot d-vert"></span><span class="dot d-brun"></span>'}
-      <span style="flex:1">${t('jueves')} ${fCorta(j)}</span><span class="muted small">${t(tp)}</span></div>`;
-  }
-  html += `</div><div class="nota-fija">🛍️ ${t('bolsa')}</div>
-    <p class="tiny muted" style="text-align:center"><button data-act="bacreset" style="text-decoration:underline" class="muted">${t('bacMal')}</button></p>`;
-  return html;
+function pintarNombres() {
+  $('yo').innerHTML = `${t().soy} <b>${esc(N(S.yo))}</b> · ${t().cambiar}`;
+  const rn = $('room-name'); if (document.activeElement !== rn) rn.value = N('roommate');
+  $('quickrow').innerHTML = `<button type="button" data-act="basura" data-q="laura">${esc(t().sacoBasura('Laura'))}</button>
+    <button type="button" data-act="basura" data-q="roommate">${esc(t().sacoBasura(N('roommate')))}</button>`;
+  // selects del formulario: se rehacen sin perder lo elegido
+  const ft = $('f-task'), fw = $('f-who');
+  const vt = ft.value || S._form?.f || 'basura', vw = fw.value || S._form?.w || S.yo;
+  ft.innerHTML = S.tareas.map(ta => `<option value="t:${ta.id}">${esc(S.lang === 'fr' ? ta.fr : ta.es)}</option>`).join('')
+    + `<option value="basura">${esc(t().tBasura)}</option><option value="loza">${esc(t().tLoza)}</option>`;
+  fw.innerHTML = `<option value="laura">Laura</option><option value="roommate">${esc(N('roommate'))}</option>`;
+  ft.value = [...ft.options].some(o => o.value === vt) ? vt : 'basura';
+  fw.value = vw;
 }
 
-function vComo() {
-  const lista = (k) => `<ul class="pasos">${COMO[k][S.lang].map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
-  return `<p class="propuesta">${t('comoSub')}</p>
-    <div class="card"><h2>🍳 ${t('cocina')}</h2>${lista('cocina')}</div>
-    <div class="card"><h2>🛁 ${t('bano')}</h2>${lista('bano')}</div>
-    <div class="nota-fija">🐈 ${t('gatos')}</div>`;
+function pintarTareas() {
+  const T_ = t();
+  const lista = S.tareas.map(ta => ({ ta, e: tareaEnSemana(ta) }))
+    .sort((a, b) => ((a.e.dia || 8) - (b.e.dia || 8)) || ((a.e.hora || '99').localeCompare(b.e.hora || '99')) || (a.ta.orden - b.ta.orden));
+  $('task-list').innerHTML = lista.map(({ ta, e }) => {
+    const h = hechaEstaSemana(ta);
+    const dia = e.dia ? T_.days[e.dia - 1] : T_.cualquierDia;
+    const chips = T_.daysShort.map((ds, i) => `<button type="button" data-act="dia" data-id="${ta.id}" data-v="${i + 1}" aria-pressed="${e.dia === i + 1}">${ds}</button>`).join('');
+    const quien = [['laura', 'Laura'], ['roommate', N('roommate')], ['turns', T_.turns]].map(([v, l]) =>
+      `<button type="button" data-act="quien" data-id="${ta.id}" data-v="${v}" aria-pressed="${e.modo === v}">${esc(l)}</button>`).join('');
+    return `<div class="card task ${h ? 'hecha' : ''}">
+      <div class="task-head">
+        <div class="task-ico">${ICONS[ICONO_TAREA[ta.orden] || 'spark']}</div>
+        <div><p class="task-title">${esc(S.lang === 'fr' ? ta.fr : ta.es)}</p><p class="task-desc">${esc(S.lang === 'fr' ? ta.nota_fr : ta.nota_es)}</p></div>
+        <div class="task-when"><span class="day">${dia}</span>${e.hora ? `<span class="time">${esc(e.hora)}</span>` : ''}<span class="turno">${e.modo === 'turns' ? T_.tocaA + ' ' : ''}${esc(N(e.quien))}</span></div>
+      </div>
+      <div class="task-edit">
+        <p class="edit-label">${T_.changeDay}</p>
+        <div class="daychips">${chips}</div>
+        <div class="whochips"><span class="lbl">${T_.whoDoes}</span>${quien}</div>
+        <div class="timerow"><label class="lbl" for="h-${ta.id}">${T_.hora}</label><input type="time" id="h-${ta.id}" data-hora="${ta.id}" value="${esc(e.hora || '')}">${e.hora ? `<button type="button" data-act="sinhora" data-id="${ta.id}">${T_.sinHora}</button>` : ''}</div>
+      </div>
+      ${h ? `<div class="done-ok">✓ ${T_.hechoPor} ${esc(N(h.quien))} · ${fmtDate(parse(h.fecha))}</div>`
+          : `<button type="button" class="done-btn" data-act="hecha" data-id="${ta.id}" data-q="${e.quien}">✓ ${T_.mark}</button>`}
+    </div>`;
+  }).join('');
 }
 
-function vInsumos() {
-  const compras = { laura:0, roommate:0 };
-  S.registro.filter(r => r.tipo === 'insumo_comprado').forEach(r => compras[r.quien] = (compras[r.quien]||0) + 1);
-  let html = `<p class="propuesta">${t('insSub')}</p><div class="card">`;
-  S.insumos.forEach(ins => {
-    const nom = S.lang==='fr' ? ins.fr : ins.es;
-    const ultCompra = S.registro.find(r => r.tipo === 'insumo_comprado' && r.insumo_id === ins.id);
-    const ultFalta = S.registro.find(r => r.tipo === 'insumo_falta' && r.insumo_id === ins.id);
-    let est = '';
-    if (ins.falta && ultFalta) est = t('faltaDesde')(esc(N(ultFalta.quien)), fDia(new Date(ultFalta.created_at)));
-    else if (ultCompra) est = t('compro')(esc(N(ultCompra.quien)), fDia(new Date(ultCompra.created_at)));
-    html += `<div class="ins ${ins.falta?'falta':''}"><div class="info"><div class="nom">${esc(nom)}</div>${est ? `<div class="est">${est}</div>` : ''}</div>
-      ${ins.falta
-        ? `<button class="bt comprado" data-act="comprado" data-id="${ins.id}">${t('comprado')}</button>`
-        : `<button class="bt falta" data-act="falta" data-id="${ins.id}">${t('falta')}</button>`}</div>`;
-  });
-  html += `</div>`;
-  if (compras.laura || compras.roommate) html += `<div class="card"><h2>${t('compras')}</h2><div class="row" style="gap:16px">${pillQuien('laura')} <b>${compras.laura}</b> ${pillQuien('roommate')} <b>${compras.roommate}</b></div></div>`;
-  html += `<div class="nota-fija">🛏️ ${t('ofrecimiento')}</div>`;
-  return html;
+function pintarRegistro() {
+  const T_ = t(), lun = key(lunesDe(new Date())), lun2 = key(addD(lunesDe(new Date()), -7));
+  const c = { laura: [0, 0, 0], roommate: [0, 0, 0] };
+  S.registro.filter(cuentaComo).forEach(r => { const x = c[r.quien]; if (!x) return; x[2]++; if (r.fecha >= lun2) x[1]++; if (r.fecha >= lun) x[0]++; });
+  const tarjeta = (rol, cls) => `<div class="card ${cls}"><div class="who">${esc(N(rol))}</div><div class="num">${c[rol][2]}</div><div class="of">${T_.registradas}</div>
+    <div class="sem">${T_.estaSem}: <b>${c[rol][0]}</b> · ${T_.dosSem}: <b>${c[rol][1]}</b></div></div>`;
+  $('score').innerHTML = tarjeta('laura', 'laura') + tarjeta('roommate', 'room');
+  const tot = c.laura[2] + c.roommate[2], pl = tot ? Math.round(c.laura[2] / tot * 100) : 50;
+  $('bar-laura').style.width = pl + '%'; $('bar-room').style.width = (100 - pl) + '%';
+  $('entries-empty').hidden = S.registro.length > 0;
+  $('entries').innerHTML = S.registro.map(r => {
+    const por = r.creado_por !== r.quien ? `<span class="por">${T_.anotadoPor} ${esc(N(r.creado_por))}</span>` : '';
+    return `<li><span class="dot ${r.quien}"></span>
+      <span class="what">${esc(textoEntrada(r))}${r.nota ? ` <span class="nota">— ${esc(r.nota)}</span>` : ''}</span>
+      <span class="meta">${esc(N(r.quien))}<br>${fmtShort(parse(r.fecha))}${por}</span>
+      ${esLaura() ? `<button type="button" class="del" data-act="borrar" data-id="${r.id}" aria-label="Borrar / Supprimer">×</button>` : ''}</li>`;
+  }).join('');
+}
+
+function pintarBacs() {
+  const T_ = t(), sched = bacSchedule(), next = sched[0];
+  const pills = (ty) => ty.map(x => `<span class="pill ${x}">${T_.bacNames[x]}</span>`).join('');
+  $('bac-next').innerHTML = `<p class="when">${T_.nextBac}: ${fmtDate(next.date, true)}${next.isToday ? ` <span class="today-tag">${T_.today}</span>` : ''}</p>
+    <p class="what">${next.isToday ? T_.takeOutToday : T_.takeOut}</p><div class="pills">${pills(next.types)}</div>`;
+  $('bac-list').innerHTML = sched.slice(0, 6).map(s => {
+    const wed = addD(s.date, -1);
+    return `<li><span class="d">${fmtDate(s.date)}</span>${pills(s.types)}${s.isToday ? `<span class="today-tag">${T_.today}</span>` : ''}
+      <span class="out">${T_.days[dow(wed)]} ${fmtShort(wed)}, 19:00 →</span></li>`;
+  }).join('');
+}
+
+function pintarInsumos() {
+  const T_ = t();
+  $('supplies').innerHTML = S.insumos.map(ins => {
+    const nom = S.lang === 'fr' ? ins.fr : ins.es;
+    const compra = S.registro.find(r => r.tipo === 'insumo_comprado' && r.insumo_id === ins.id);
+    const marca = S.registro.find(r => r.tipo === 'insumo_falta' && r.insumo_id === ins.id);
+    let estado = `<button type="button" data-act="falta" data-id="${ins.id}" class="${ins.falta ? 'on' : ''}">${ins.falta ? T_.falta + ' ⚠' : T_.hay}</button>`;
+    if (ins.falta) estado += [['laura', 'Laura'], ['roommate', N('roommate')]].map(([v, l]) =>
+      `<button type="button" data-act="comprado" data-id="${ins.id}" data-q="${v}">✓ ${esc(l)}</button>`).join('');
+    const nota = ins.falta
+      ? (marca ? `<span class="falta-por">${T_.faltaPor}: ${esc(N(marca.quien))} · ${fmtShort(parse(marca.fecha))} — ${T_.quienCompro}</span>` : '')
+      : (compra ? `<span class="bought">${T_.boughtBy}: ${esc(N(compra.quien))} · ${fmtShort(parse(compra.fecha))}</span>` : '');
+    return `<li><span class="item">${esc(nom)}</span><span class="state">${estado}</span>${nota}</li>`;
+  }).join('');
+}
+
+function pintarRevision() {
+  const rev = S.cfg.revision ? parse(S.cfg.revision) : addD(lunesDe(new Date()), 10);
+  $('rev-txt').textContent = t().rev(fmtDate(rev).replace(/^\S+/, m => m.toLowerCase()));
+  if (document.activeElement !== $('rev')) $('rev').value = key(rev);
 }
 
 function linkCasa() { return `${location.origin}${location.pathname}#${S.codigo}`; }
 
-function vMensaje() {
-  const rev = S.cfg.revision ? parse(S.cfg.revision) : proxJueves(new Date());
-  const r = N('roommate'), link = linkCasa();
-  const es = T.es.msgEs(r, link, rev.toLocaleDateString('es-CO', { day:'numeric', month:'long' }));
-  const fr = T.fr.msgFr(r, link, rev.toLocaleDateString('fr-CA', { day:'numeric', month:'long' }));
-  S._msgs = { es, fr };
-  return `<p class="propuesta">${t('msgSub')}</p>
-    <div class="card"><h2>Español</h2><div class="msg">${esc(es)}</div>
-      <div class="row"><button class="btn sec" data-act="copiar" data-v="es">${t('copiar')}</button><button class="btn verde" data-act="wa" data-v="es">${t('enviarWa')}</button></div></div>
-    <div class="card"><h2>Français</h2><div class="msg">${esc(fr)}</div>
-      <div class="row"><button class="btn sec" data-act="copiar" data-v="fr">${t('copiar')}</button><button class="btn verde" data-act="wa" data-v="fr">${t('enviarWa')}</button></div></div>
-    <div class="card"><h2>${t('revision')}</h2><p style="margin-bottom:10px">${t('revTexto')}</p>
-      <label class="l" for="rev">${t('fechaRev')}</label>
-      <input type="date" class="field" id="rev" value="${esc(S.cfg.revision || key(rev))}" data-chg="revision"></div>
-    <div class="card"><h2>${t('ajustes')}</h2>
-      <label class="l" for="rm" style="margin-top:0">${t('nombreRm')}</label>
-      ${esLaura()
-        ? `<div class="row"><input class="field" id="rm" value="${esc(N('roommate'))}" maxlength="30"><button class="btn" data-act="rm">${t('listo')}</button></div>`
-        : `<div class="field" style="background:transparent">${esc(N('roommate'))}</div><p class="tiny muted" style="margin-top:6px">${t('nombreSoloLaura')}</p>`}
-    </div>`;
-}
-
-// ── ENTRADA ──
-function renderEntrada() {
-  document.getElementById('app').classList.add('oculto');
-  const el = document.getElementById('entrada'); el.classList.remove('oculto');
-  const paso = S.codigo ? (S._pidePin ? 'pin' : 'quien') : 'codigo';
-  let html = `<div class="row" style="justify-content:flex-end;margin-bottom:20px"><div class="lang">
-    <button data-act="lang" data-v="es" class="${S.lang==='es'?'on':''}">ES</button><button data-act="lang" data-v="fr" class="${S.lang==='fr'?'on':''}">FR</button></div></div>
-    <h1>${t('titulo')}</h1><p class="sub">${t('entradaSub')}</p>`;
-  if (paso === 'codigo') html += `<label class="l" for="e-cod">${t('codigo')}</label>
-    <input class="field" id="e-cod" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:.2em;font-weight:600">
-    <button class="btn full" style="margin-top:10px" data-act="e-cod">${t('entrar')}</button>`;
-  if (paso === 'quien') html += `<label class="l">${t('quienEres')}</label>
-    <div class="quien-btns"><button class="l" data-act="e-yo" data-v="laura">Laura</button><button class="r" data-act="e-yo" data-v="roommate">${esc(N('roommate'))}</button></div>`;
-  if (paso === 'pin') html += `<label class="l" for="e-pin">${t('pin')}</label>
-    <input class="field" id="e-pin" inputmode="numeric" type="password" autocomplete="off" style="letter-spacing:.3em">
-    <div class="row" style="margin-top:10px"><button class="btn sec" data-act="e-atras">‹</button><button class="btn" style="flex:1" data-act="e-pin">${t('entrar')}</button></div>`;
-  html += `<div class="err" id="e-err"></div>`;
-  el.innerHTML = html;
-  const inp = el.querySelector('input'); if (inp) { inp.focus(); inp.addEventListener('keydown', e => { if (e.key === 'Enter') el.querySelector('.btn:not(.sec)').click(); }); }
-}
-
-async function probarCodigo(c) {
-  const prev = S.codigo; S.codigo = c;
-  try { const r = await api('casa_config?select=clave,valor'); if (!r.length) { S.codigo = prev; return false; } r.forEach(x => S.cfg[x.clave] = x.valor); return true; }
-  catch(e) { S.codigo = prev; throw e; }
-}
-
-// ── SHEET ──
-function abrirSheet(html) { const s = document.getElementById('sheet'); s.innerHTML = html; s.classList.add('on'); document.getElementById('velo').classList.add('on'); }
-function cerrarSheet() { document.getElementById('sheet').classList.remove('on'); document.getElementById('velo').classList.remove('on'); S._mover = null; S._corr = null; }
-
-function sheetMover(id) {
-  const ta = S.tareas.find(x => x.id === id), lunesK = key(S.lunesVista), e = tareaEnSemana(ta, lunesK);
-  S._mover = { id, lunesK, ...e };
-  const m = S._mover, esActual = lunesK === key(lunesDe(new Date())), h = hechaEn(ta, lunesK);
-  abrirSheet(`<h3>${esc(S.lang==='fr'?ta.fr:ta.es)}</h3><p class="tiny muted">${t('mover')} · ${t('soloSemana')}</p>
-    <label class="l">${t('dia')}</label>
-    <div class="seg dias">${t('diasC').map((c,i) => `<button data-act="m-dia" data-v="${i+1}" class="${m.dia===i+1?'on':''}" title="${t('dias')[i]}">${c}</button>`).join('')}</div>
-    <div class="seg" style="margin-top:6px"><button data-act="m-dia" data-v="0" class="${!m.dia?'on':''}">${t('cualquierDia')}</button></div>
-    <label class="l">${t('hora')}</label>
-    <div class="row"><input type="time" class="field" id="m-hora" value="${esc(m.hora||'')}" style="flex:1"><button class="btn sec" data-act="m-sinhora">${t('sinHora')}</button></div>
-    <label class="l">${t('quien')}</label>
-    <div class="seg"><button data-act="m-q" data-v="laura" class="${m.quien==='laura'?'on':''}">Laura</button><button data-act="m-q" data-v="roommate" class="${m.quien==='roommate'?'on':''}">${esc(N('roommate'))}</button></div>
-    <div class="row" style="margin-top:18px">
-      ${esActual && !h ? `<button class="btn verde" style="flex:1" data-act="m-hecha">${t('marcarHecha')}</button>` : ''}
-      <button class="btn" style="flex:1" data-act="m-ok">${t('listo')}</button></div>`);
-}
-
-async function guardarMover() {
-  const m = S._mover; if (!m) return;
-  const hora = document.getElementById('m-hora')?.value || null;
-  await guardar(() => api('casa_semana?on_conflict=tarea_id,lunes', { method:'POST', prefer:'resolution=merge-duplicates,return=minimal',
-    body: { tarea_id: m.id, lunes: m.lunesK, dia: m.dia || null, hora, quien: m.quien, updated_at: new Date().toISOString(), updated_por: S.yo } }));
-}
-
-function sheetCorregir(id) {
-  const r = S.registro.find(x => x.id === id); if (!r) return;
-  S._corr = { id, quien: r.quien };
-  abrirSheet(`<h3>${t('corregir')}</h3><p class="tiny muted">${fLarga(new Date(r.created_at))} · ${fHora(new Date(r.created_at))}</p>
-    ${r.tipo === 'libre' ? `<label class="l">${t('queHizo')}</label><input class="field" id="c-texto" value="${esc(r.texto)}">` : `<p style="margin-top:10px">${esc(textoEntrada(r))}</p>`}
-    <label class="l">${t('quien')}</label>
-    <div class="seg"><button data-act="c-q" data-v="laura" class="${r.quien==='laura'?'on':''}">Laura</button><button data-act="c-q" data-v="roommate" class="${r.quien==='roommate'?'on':''}">${esc(N('roommate'))}</button></div>
-    <label class="l">${t('nota')}</label><textarea class="field" id="c-nota" rows="2">${esc(r.nota||'')}</textarea>
-    <div class="row" style="margin-top:18px"><button class="btn sec" data-act="c-borrar" style="color:var(--terra)">${t('borrar')}</button><button class="btn" style="flex:1" data-act="c-ok">${t('listo')}</button></div>`);
-}
-
-// ── TOAST ──
 let toastT;
-function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2200); }
+function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2400); }
 
 // ══════════════════════════════════════════════════════════════
 // ACCIONES
@@ -696,125 +704,126 @@ function toast(msg) { const el = document.getElementById('toast'); el.textConten
 document.addEventListener('click', async (ev) => {
   const el = ev.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act, v = el.dataset.v, id = el.dataset.id;
-  const err = (m) => { const e = document.getElementById('e-err'); if (e) e.textContent = m; };
+  const err = (m) => { const e = $('e-err'); if (e) e.textContent = m; };
+  const ta = id ? S.tareas.find(x => x.id === id) : null;
 
-  if (a === 'lang') { S.lang = v; lsSet('casa_lang', v); render(); return; }
-  if (a === 'cerrar') { cerrarSheet(); return; }
+  if (a === 'lang') { S.lang = v; lsSet('casa_lang', v); if ($('calendario')) esqueleto(); pintar(); return; }
 
   // entrada
   if (a === 'e-cod') {
-    const c = document.getElementById('e-cod').value.trim().toUpperCase(); if (!c) return;
-    try { if (await probarCodigo(c)) { lsSet('casa_codigo', c); renderEntrada(); } else err(t('codigoMal')); } catch(e) { err(t('sinRed')); }
+    const c = $('e-cod').value.trim().toUpperCase(); if (!c) return;
+    try { if (await probarCodigo(c)) { lsSet('casa_codigo', c); pintar(); } else err(t().codigoMal); } catch (e) { err(t().sinRed); }
     return;
   }
-  if (a === 'e-yo') {
-    if (v === 'laura' && !S.pin) { S._pidePin = true; renderEntrada(); return; }
-    entrarComo(v); return;
-  }
-  if (a === 'e-atras') { S._pidePin = false; renderEntrada(); return; }
+  if (a === 'e-yo') { if (v === 'laura' && !S.pin) { S.paso = 'pin'; pintar(); } else entrarComo(v); return; }
+  if (a === 'e-atras') { S.paso = null; pintar(); return; }
   if (a === 'e-pin') {
-    const p = document.getElementById('e-pin').value.trim(); if (!p) return;
+    const p = $('e-pin').value.trim(); if (!p) return;
     S.yo = 'laura'; S.pin = p;
-    try { const ok = await api('rpc/casa_es_laura', { method:'POST', body:{} });
-      if (ok === true) { lsSet('casa_pin', p); S._pidePin = false; entrarComo('laura'); }
-      else { S.yo = null; S.pin = null; err(t('pinMal')); }
-    } catch(e) { S.yo = null; S.pin = null; err(t('sinRed')); }
+    try {
+      if (await api('rpc/casa_es_laura', { method: 'POST', body: {} }) === true) { lsSet('casa_pin', p); S.paso = null; entrarComo('laura'); }
+      else { S.yo = null; S.pin = null; err(t().pinMal); }
+    } catch (e) { S.yo = null; S.pin = null; err(t().sinRed); }
     return;
   }
-  if (a === 'salir') { S.yo = null; lsSet('casa_yo', null); render(); return; }
+  if (a === 'salir') { S.yo = null; lsSet('casa_yo', null); pintar(); return; }
 
-  // navegación
-  if (a === 'tab') { S.tab = v; lsSet('casa_tab', v); render(); window.scrollTo(0,0); return; }
-  if (a === 'sem') { S.lunesVista = v === '0' ? lunesDe(new Date()) : addD(S.lunesVista, 7*Number(v)); render(); refrescar(); return; }
-
-  // semana
-  if (a === 'hecha') { el.disabled = true; if (await guardar(() => anotar({ tipo:'tarea', tarea_id:id, quien: el.dataset.q }))) toast('✓'); return; }
-  if (a === 'mover') { sheetMover(id); return; }
-  if (a === 'm-dia') { S._mover.dia = Number(v) || null; el.parentElement.parentElement.querySelectorAll('[data-act="m-dia"]').forEach(b => b.classList.toggle('on', b === el)); return; }
-  if (a === 'm-q') { S._mover.quien = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); return; }
-  if (a === 'm-sinhora') { document.getElementById('m-hora').value = ''; return; }
-  if (a === 'm-ok') { await guardarMover(); cerrarSheet(); return; }
-  if (a === 'm-hecha') { const m = S._mover; await guardarMover(); cerrarSheet(); if (await guardar(() => anotar({ tipo:'tarea', tarea_id:m.id, quien:m.quien }))) toast('✓'); return; }
+  // calendario
+  if (a === 'dia') { await guardarSemana(ta, { dia: Number(v) }); return; }
+  if (a === 'quien') { await guardarSemana(ta, { quien: v === 'turns' ? null : v }); return; }
+  if (a === 'sinhora') { await guardarSemana(ta, { hora: null }); return; }
+  if (a === 'hecha') { el.disabled = true; await guardar(() => anotar({ tipo: 'tarea', tarea_id: id, quien: el.dataset.q }), t().anotado); return; }
 
   // registro
-  if (a === 'basura') { el.disabled = true; if (await guardar(() => anotar({ tipo:'basura', quien: el.dataset.q }))) toast('✓'); el.disabled = false; return; }
-  if (a === 'rq') { S.rq = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); return; }
-  if (a === 'anotar') {
-    const tx = document.getElementById('r-texto'), no = document.getElementById('r-nota');
-    const texto = tx.value.trim(); if (!texto) { tx.focus(); return; }
-    const nota = no.value.trim() || null; el.disabled = true;
-    tx.value = ''; no.value = ''; tx.blur(); no.blur();
-    if (await guardar(() => anotar({ tipo:'libre', texto, nota, quien: S.rq || S.yo }))) { S.rq = null; toast('✓'); render(); }
-    else { tx.value = texto; no.value = nota || ''; }
+  if (a === 'basura') { el.disabled = true; await guardar(() => anotar({ tipo: 'basura', quien: el.dataset.q }), t().anotado); el.disabled = false; return; }
+  if (a === 'f-add') {
+    const f = $('f-task').value, fecha = $('f-date').value || key(new Date()), nota = $('f-note').value.trim() || null;
+    const row = f.startsWith('t:') ? { tipo: 'tarea', tarea_id: f.slice(2) } : { tipo: f };
+    el.disabled = true;
+    if (await guardar(() => anotar({ ...row, quien: $('f-who').value, fecha, nota }), t().anotado)) { $('f-note').value = ''; $('f-date').value = key(new Date()); }
     el.disabled = false; return;
   }
-  if (a === 'corregir') { sheetCorregir(id); return; }
-  if (a === 'c-q') { S._corr.quien = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); return; }
-  if (a === 'c-ok') {
-    const c = S._corr, body = { quien: c.quien, nota: document.getElementById('c-nota').value.trim() || null, editado_at: new Date().toISOString() };
-    const ct = document.getElementById('c-texto'); if (ct) body.texto = ct.value.trim();
-    cerrarSheet(); if (await guardar(() => api(`casa_registro?id=eq.${c.id}`, { method:'PATCH', body, prefer:'return=minimal' }))) toast(t('guardado'));
-    return;
-  }
-  if (a === 'c-borrar') {
-    if (!confirm(t('borrarSeguro'))) return;
-    const c = S._corr; cerrarSheet();
+  if (a === 'borrar') {
+    if (!confirm(t().borrarSeguro)) return;
     // se marca como borrada: la fila queda en la base
-    await guardar(() => api(`casa_registro?id=eq.${c.id}`, { method:'PATCH', body:{ borrado_at: new Date().toISOString() }, prefer:'return=minimal' }));
+    await guardar(() => api(`casa_registro?id=eq.${id}`, { method: 'PATCH', body: { borrado_at: new Date().toISOString() }, prefer: 'return=minimal' }));
     return;
   }
-
-  // bacs
-  if (a === 'bacref') { await guardar(() => api('casa_config?on_conflict=clave', { method:'POST', prefer:'resolution=merge-duplicates,return=minimal', body:{ clave:'bac_ref', valor:{ fecha: el.dataset.f, tipo: v }, updated_at: new Date().toISOString(), updated_por: S.yo } })); return; }
-  if (a === 'bacreset') { S.cfg.bac_ref = null; document.getElementById('vista').innerHTML = vBacs(); return; }
 
   // insumos
-  if (a === 'falta' || a === 'comprado') {
-    el.disabled = true;
+  if (a === 'falta') {
+    const ins = S.insumos.find(x => x.id === id), falta = !ins.falta;
     await guardar(async () => {
-      await api(`casa_insumos?id=eq.${id}`, { method:'PATCH', body:{ falta: a === 'falta', updated_at: new Date().toISOString(), updated_por: S.yo }, prefer:'return=minimal' });
-      await anotar({ tipo: a === 'falta' ? 'insumo_falta' : 'insumo_comprado', insumo_id: id, quien: S.yo });
-    });
+      await api(`casa_insumos?id=eq.${id}`, { method: 'PATCH', body: { falta, updated_at: new Date().toISOString(), updated_por: S.yo }, prefer: 'return=minimal' });
+      if (falta) await anotar({ tipo: 'insumo_falta', insumo_id: id, quien: S.yo });
+    }, falta ? t().toastSupplyNeed : null);
+    return;
+  }
+  if (a === 'comprado') {
+    await guardar(async () => {
+      await api(`casa_insumos?id=eq.${id}`, { method: 'PATCH', body: { falta: false, updated_at: new Date().toISOString(), updated_por: S.yo }, prefer: 'return=minimal' });
+      await anotar({ tipo: 'insumo_comprado', insumo_id: id, quien: el.dataset.q });
+    }, t().toastSupplyOk);
     return;
   }
 
   // mensaje
-  if (a === 'copiar') { try { await navigator.clipboard.writeText(S._msgs[v]); toast(t('copiado')); } catch(e) { toast('—'); } return; }
-  if (a === 'wa') { window.open(`https://wa.me/?text=${encodeURIComponent(S._msgs[v])}`, '_blank'); return; }
-  if (a === 'rm') {
-    const n = document.getElementById('rm').value.trim(); if (!n) return;
-    if (await guardar(() => api('casa_config?clave=eq.roommate', { method:'PATCH', body:{ valor:n, updated_at:new Date().toISOString(), updated_por:S.yo }, prefer:'return=minimal' }))) toast(t('guardado'));
+  if (a === 'copiar') {
+    try { await navigator.clipboard.writeText($('msg-' + v).textContent); toast(t().copied); } catch (e) { toast(t().copyFail); }
     return;
   }
 });
 
 document.addEventListener('change', async (ev) => {
-  if (ev.target.dataset.chg === 'revision' && ev.target.value) {
-    const val = ev.target.value; ev.target.blur();
-    if (await guardar(() => api('casa_config?on_conflict=clave', { method:'POST', prefer:'resolution=merge-duplicates,return=minimal', body:{ clave:'revision', valor: val, updated_at:new Date().toISOString(), updated_por:S.yo } }))) toast(t('guardado'));
+  const el = ev.target;
+  if (el.dataset.hora) { const ta = S.tareas.find(x => x.id === el.dataset.hora); el.blur(); await guardarSemana(ta, { hora: el.value || null }); return; }
+  if (el.id === 'room-name' && esLaura()) {
+    const n = el.value.trim(); el.blur(); if (!n || n === N('roommate')) { el.value = N('roommate'); return; }
+    await guardar(() => api('casa_config?clave=eq.roommate', { method: 'PATCH', body: { valor: n, updated_at: new Date().toISOString(), updated_por: S.yo }, prefer: 'return=minimal' }), t().guardado);
+    return;
+  }
+  if (el.id === 'rev' && el.value) {
+    const val = el.value; el.blur();
+    await guardar(() => api('casa_config?on_conflict=clave', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: { clave: 'revision', valor: val, updated_at: new Date().toISOString(), updated_por: S.yo } }), t().guardado);
   }
 });
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'room-name') ev.target.blur(); });
+
+async function probarCodigo(c) {
+  const prev = S.codigo; S.codigo = c;
+  try { const r = await api('casa_config?select=clave,valor'); if (!r.length) { S.codigo = prev; return false; } r.forEach(x => S.cfg[x.clave] = x.valor); return true; }
+  catch (e) { S.codigo = prev; throw e; }
+}
 
 async function entrarComo(rol) {
   S.yo = rol; lsSet('casa_yo', rol);
   if (!lsGet('casa_lang')) { S.lang = rol === 'roommate' ? 'fr' : 'es'; lsSet('casa_lang', S.lang); }
-  render();
-  try { await cargar(); render(); } catch(e) { toast(t('sinRed')); }
+  try { await cargar(); } catch (e) { toast(t().sinRed); }
+  $('raiz').innerHTML = ''; pintar();
+}
+
+async function refrescar() {
+  if (!S.codigo || !S.yo) return;
+  const a = document.activeElement;
+  if (a && /INPUT|SELECT|TEXTAREA/.test(a.tagName)) return; // no pisar lo que se está escribiendo
+  try { await cargar(); pintar(); } catch (e) { console.warn(e); }
 }
 
 // ── ARRANQUE ──
 (async function () {
-  S.lunesVista = lunesDe(new Date());
   // el enlace de WhatsApp trae el código: …/casa.html#CODIGO
   const h = decodeURIComponent(location.hash.slice(1)).trim().toUpperCase();
-  if (h && h !== S.codigo) {
-    try { if (await probarCodigo(h)) { lsSet('casa_codigo', h); } } catch(e) {}
+  if (h && /^[A-Z0-9]{4,12}$/.test(h) && h !== S.codigo) { try { if (await probarCodigo(h)) lsSet('casa_codigo', h); } catch (e) {} }
+  // si el PIN guardado ya no sirve (se cambió), se vuelve a pedir
+  if (S.yo === 'laura') {
+    try { if (await api('rpc/casa_es_laura', { method: 'POST', body: {} }) !== true) { S.yo = null; S.pin = null; lsSet('casa_yo', null); lsSet('casa_pin', null); } } catch (e) {}
   }
-  if (S.codigo && S.yo) { render(); try { await cargar(); } catch(e) { toast(t('sinRed')); } }
-  else if (S.codigo) { try { await probarCodigo(S.codigo); } catch(e) {} }
-  render();
+  if (S.codigo && S.yo) { try { await cargar(); } catch (e) { toast(t().sinRed); } }
+  else if (S.codigo) { try { await probarCodigo(S.codigo); } catch (e) {} }
+  pintar();
   setInterval(() => { if (!document.hidden) refrescar(); }, REFRESCO_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
+})();
 })();
 </script>
 </body>
