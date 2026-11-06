@@ -22,6 +22,7 @@ nutri.html              Nutri: nutrición (en diseño)
 defile-v4-plus.html     Défile (francés)
 gatos-.html             Gatos
 mi_casa_2_2.html        Mi Casa
+casa.html               Nuestra casa: limpieza compartida con el roommate (ES/FR). Tablas casa_*, protegidas con el código de la casa (sql/12_casa.sql)
 manual-claude-v2.html   Manual para construir cosas con Claude
 sql/                    Migraciones (sólo esquema y datos genéricos)
 ```
