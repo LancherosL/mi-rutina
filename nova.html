@@ -127,6 +127,14 @@ input, select { font-family:inherit; font-size:16px; }
 .btn-tc { background:var(--lavender); color:#fff; }
 .tc-hecho { font-size:15px; margin-top:8px; }
 
+/* Pausa corta (Instagram): una línea, no sesión principal */
+.pausa { display:flex; align-items:center; gap:10px; margin-top:10px; padding:12px 14px; border-radius:var(--r-sm); background:var(--bg); }
+.pausa-txt { flex:1; color:inherit; text-decoration:none; min-width:0; }
+.pausa-tit { font-size:15px; font-weight:600; }
+.pausa-sub { font-size:12.5px; color:var(--muted); margin-top:1px; }
+.pausa-btn { flex:0 0 auto; height:38px; padding:0 14px; border-radius:20px; background:var(--card); font-size:14px; font-weight:600; }
+.pausa-ok { flex:0 0 auto; font-size:14px; color:var(--sage); font-weight:600; }
+
 .error { font-size:13px; color:var(--terra); margin-top:8px; }
 .oculto { display:none !important; }
 </style>
@@ -268,6 +276,18 @@ const TAICHI = [
   // Pendiente: zcryl225Miw (rutina 20 min) — entra sólo si se confirma que es toda sentada.
 ];
 
+// ── PAUSA CORTA — reels de Instagram, una al día, sentada tal cual ──
+// No es la sesión: es una línea aparte. `noche` = se ofrece desde HORA_NOCHE.
+// Entra aquí sólo lo que ya se vio completo y se hace sentada.
+// Por revisar antes de entrar: DXpx39AjQIJ (mandíbula/cuello), CRmGofPoQMH (pausa sentado).
+const PAUSA_PREFIJO = 'Pausa · ';
+const HORA_NOCHE = 18;
+const PAUSAS = [
+  { titulo:'Respiración: pranayamas', sub:'@radhi.yoga · en silla',     url:'https://www.instagram.com/reel/DDCqt0mReH6/' },
+  { titulo:'Manos',                   sub:'@pilatesmarcelapedraza',     url:'https://www.instagram.com/reel/DNTtOROgo3q/' },
+  { titulo:'2 mudras + respiración',  sub:'@angelpininito · antes de dormir', url:'https://www.instagram.com/reel/DSd4vzkDT5Y/', noche:true }
+];
+
 // ── utilidades ──
 function fechaLocal(d) {
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -320,6 +340,7 @@ let inicioSesion = null;
 let sentiSel = null, fatigaSel = null;
 let cierreModo = 'sesion'; // 'sesion' | 'video'
 let taichiUltimo = null;   // último Tai Chi marcado: {ejercicio, created_at}
+let pausasHoy = [];        // pausas marcadas hoy (nombres)
 
 // ═══ CARGA ═══
 async function init() {
@@ -336,14 +357,16 @@ async function init() {
 
 async function cargar() {
   try {
-    const [r, rc, ses, hs, tc] = await Promise.all([
+    const [r, rc, ses, hs, tc, pz] = await Promise.all([
       sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
       sb('recuperacion','GET',null,`?fecha=eq.${hoy}&select=dolor,movilidad,animo`),
       sb('nova_sesiones','GET',null,`?fecha=in.(${ayer},${hoy})`),
       sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc'),
-      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(TAICHI_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=1`)
+      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(TAICHI_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=1`),
+      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(PAUSA_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=10`)
     ]);
     taichiUltimo = tc?.[0] || null;
+    pausasHoy = (pz || []).filter(p => fechaLocal(new Date(p.created_at)) === hoy).map(p => p.ejercicio);
     reg = r?.[0] || null;
     recup = rc?.[0] || null;
     sesionHoy = ses.find(s => s.fecha === hoy) || null;
@@ -475,7 +498,7 @@ function pintarSesion() {
   const c = $('sesion-cuerpo');
 
   if (!plan.length) {
-    c.innerHTML = `<div class="hecho-resumen">Todavía no hay plan para la Fase ${esc(fase)}. Lo armamos cuando llegue.</div>` + tarjetaTaichi();
+    c.innerHTML = `<div class="hecho-resumen">Todavía no hay plan para la Fase ${esc(fase)}. Lo armamos cuando llegue.</div>` + tarjetaTaichi() + lineaPausa();
     return;
   }
 
@@ -486,7 +509,7 @@ function pintarSesion() {
     if (sesionHoy.como_me_senti) partes.push(caras[sesionHoy.como_me_senti]);
     if (sesionHoy.fatiga_percibida != null) partes.push(`fatiga ${sesionHoy.fatiga_percibida}`);
     c.innerHTML = `<div class="hecho-resumen">${partes.join(' · ')}</div>` +
-      (sesionHoy.nota ? `<div class="aviso">${esc(sesionHoy.nota)}</div>` : '') + tarjetaTaichi();
+      (sesionHoy.nota ? `<div class="aviso">${esc(sesionHoy.nota)}</div>` : '') + tarjetaTaichi() + lineaPausa();
     return;
   }
 
@@ -498,6 +521,7 @@ function pintarSesion() {
     </div>
     <ul class="ej-lista">${plan.map(e => `<li class="ej"><span>${esc(e.nombre)}</span><span class="ej-dosis">${esc(e.dosis||'')}</span></li>`).join('')}</ul>
     ${tarjetaTaichi()}
+    ${lineaPausa()}
     <div class="botones">
       <button class="btn btn-2" onclick="descansar()" ${PREVIA?'disabled':''}>${sesionHoy?.estado==='descanso'?'Descansando':'Hoy descanso'}</button>
       <button class="btn btn-1" onclick="empezarSesion()">${PREVIA?'Ver cómo es':'Hacer sesión'}</button>
@@ -564,6 +588,44 @@ async function hiceTaichi() {
     }, '?on_conflict=sesion_id,ejercicio');
     taichiUltimo = filas?.[0] || {ejercicio: TAICHI_PREFIJO + v.clase, created_at: new Date().toISOString()};
     abrirCierre('video');
+  } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
+}
+
+// ═══ PAUSA CORTA ═══
+// Una al día: rota por fecha entre las de día; desde HORA_NOCHE, la de noche.
+function pausaDeHoy() {
+  const noche = new Date().getHours() >= HORA_NOCHE;
+  const opciones = PAUSAS.filter(p => !!p.noche === noche);
+  if (!opciones.length) return null;
+  const [y,m,d] = hoy.split('-').map(Number);
+  const dia = Math.floor(Date.UTC(y, m-1, d) / 864e5);
+  return opciones[dia % opciones.length];
+}
+
+function lineaPausa() {
+  const p = pausaDeHoy();
+  if (!p || PREVIA) return '';
+  const hecha = pausasHoy.includes(PAUSA_PREFIJO + p.titulo);
+  return `
+    <div class="pausa">
+      <a class="pausa-txt" href="${p.url}" target="_blank" rel="noopener">
+        <div class="pausa-tit">Pausa corta · ${esc(p.titulo)} ↗</div>
+        <div class="pausa-sub">${esc(p.sub)} · sentada</div>
+      </a>
+      ${hecha ? '<span class="pausa-ok">✓ hecha</span>'
+              : '<button class="pausa-btn" onclick="hicePausa()">Lo hice</button>'}
+    </div>`;
+}
+
+// Un tap y listo. No cuenta como la sesión del día ni pregunta nada.
+async function hicePausa() {
+  const p = pausaDeHoy();
+  const nombre = PAUSA_PREFIJO + p.titulo;
+  try {
+    const s = sesionHoy?.id ? sesionHoy : await asegurarSesionHoy({});
+    await sb('nova_ejercicios_sesion','POST', {sesion_id: s.id, ejercicio: nombre}, '?on_conflict=sesion_id,ejercicio');
+    pausasHoy.push(nombre);
+    pintarSesion();
   } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
 }
 
