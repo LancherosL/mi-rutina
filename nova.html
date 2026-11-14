@@ -112,6 +112,21 @@ input, select { font-family:inherit; font-size:16px; }
 .hito-form input, .hito-form select { width:100%; border:none; background:var(--bg); border-radius:var(--r-sm); padding:11px; margin-bottom:8px; }
 .fila { display:flex; gap:8px; }
 
+/* Tai Chi en silla: un video al día */
+.tc { margin-top:14px; border-radius:var(--r-sm); background:var(--lavender-soft); overflow:hidden; }
+.tc-thumb { position:relative; display:block; aspect-ratio:16/9; background:#2a2520 center/cover no-repeat; }
+.tc-play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:58px; height:58px; border-radius:50%;
+  background:rgba(26,22,18,.72); color:#fff; font-size:22px; display:flex; align-items:center; justify-content:center; padding-left:4px; }
+.tc-min { position:absolute; right:8px; bottom:8px; font-size:12px; font-weight:600; color:#fff; background:rgba(26,22,18,.72);
+  padding:3px 7px; border-radius:6px; }
+.tc-info { padding:12px 14px 14px; }
+.tc-titulo { font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; line-height:1.2; }
+.tc-sub { font-size:13px; color:var(--lavender); font-weight:600; margin-top:3px; }
+.tc-clase { font-size:13px; color:var(--muted); margin-top:2px; }
+.tc .btn { width:100%; margin-top:12px; display:flex; align-items:center; justify-content:center; text-decoration:none; }
+.btn-tc { background:var(--lavender); color:#fff; }
+.tc-hecho { font-size:15px; margin-top:8px; }
+
 .error { font-size:13px; color:var(--terra); margin-top:8px; }
 .oculto { display:none !important; }
 </style>
@@ -196,6 +211,7 @@ input, select { font-family:inherit; font-size:16px; }
       <div class="botones">
         <button class="btn btn-1" id="btn-guardar-cierre" onclick="guardarCierre()">Guardar</button>
       </div>
+      <button class="link oculto" id="btn-saltar-cierre" onclick="saltarCierre()">saltar</button>
     </div>
   </div>
 
@@ -237,6 +253,20 @@ const VERSIONES = {
   suave:    'Versión suave',
   minima:   'Sólo respirar y moverte'
 };
+
+// ── TAI CHI EN SILLA — un video al día, rotando ──
+// Lista editable. Rota después del último que se marcó hecho: si un día no se hace,
+// al otro sigue el mismo. `min` = duración real del video (verificada en YouTube).
+// Un video entra aquí sólo si se puede hacer completo sentada.
+const TAICHI_AUTOR = 'Luis Duarte';
+const TAICHI_PREFIJO = 'Tai Chi en silla · ';   // así se guarda en nova_ejercicios_sesion
+const TAICHI = [
+  { id:'R9gfAxcHF34', clase:'Clase 1: la forma más fácil de empezar', url:'https://www.youtube.com/watch?v=R9gfAxcHF34', min:36 },
+  { id:'fMYfG5s0Iho', clase:'Rutina fácil, sentados en silla',       url:'https://www.youtube.com/live/fMYfG5s0Iho',     min:33 },
+  { id:'FdGrxjtNm8w', clase:'Clase 2: movilidad, coordinación y energía', url:'https://www.youtube.com/watch?v=FdGrxjtNm8w', min:36 },
+  { id:'qHm_OqhRmGM', clase:'Chi Kung, día 1: sentir la energía',    url:'https://www.youtube.com/watch?v=qHm_OqhRmGM', min:36 }
+  // Pendiente: zcryl225Miw (rutina 20 min) — entra sólo si se confirma que es toda sentada.
+];
 
 // ── utilidades ──
 function fechaLocal(d) {
@@ -288,6 +318,8 @@ let version = 'completa';
 let hechos = new Set();  // nombres marcados en la sesión en curso
 let inicioSesion = null;
 let sentiSel = null, fatigaSel = null;
+let cierreModo = 'sesion'; // 'sesion' | 'video'
+let taichiUltimo = null;   // último Tai Chi marcado: {ejercicio, created_at}
 
 // ═══ CARGA ═══
 async function init() {
@@ -304,12 +336,14 @@ async function init() {
 
 async function cargar() {
   try {
-    const [r, rc, ses, hs] = await Promise.all([
+    const [r, rc, ses, hs, tc] = await Promise.all([
       sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
       sb('recuperacion','GET',null,`?fecha=eq.${hoy}&select=dolor,movilidad,animo`),
       sb('nova_sesiones','GET',null,`?fecha=in.(${ayer},${hoy})`),
-      sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc')
+      sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc'),
+      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(TAICHI_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=1`)
     ]);
+    taichiUltimo = tc?.[0] || null;
     reg = r?.[0] || null;
     recup = rc?.[0] || null;
     sesionHoy = ses.find(s => s.fecha === hoy) || null;
@@ -441,7 +475,7 @@ function pintarSesion() {
   const c = $('sesion-cuerpo');
 
   if (!plan.length) {
-    c.innerHTML = `<div class="hecho-resumen">Todavía no hay plan para la Fase ${esc(fase)}. Lo armamos cuando llegue.</div>`;
+    c.innerHTML = `<div class="hecho-resumen">Todavía no hay plan para la Fase ${esc(fase)}. Lo armamos cuando llegue.</div>` + tarjetaTaichi();
     return;
   }
 
@@ -452,7 +486,7 @@ function pintarSesion() {
     if (sesionHoy.como_me_senti) partes.push(caras[sesionHoy.como_me_senti]);
     if (sesionHoy.fatiga_percibida != null) partes.push(`fatiga ${sesionHoy.fatiga_percibida}`);
     c.innerHTML = `<div class="hecho-resumen">${partes.join(' · ')}</div>` +
-      (sesionHoy.nota ? `<div class="aviso">${esc(sesionHoy.nota)}</div>` : '');
+      (sesionHoy.nota ? `<div class="aviso">${esc(sesionHoy.nota)}</div>` : '') + tarjetaTaichi();
     return;
   }
 
@@ -463,12 +497,74 @@ function pintarSesion() {
       <div class="sesion-min">≈ ${min} min</div>
     </div>
     <ul class="ej-lista">${plan.map(e => `<li class="ej"><span>${esc(e.nombre)}</span><span class="ej-dosis">${esc(e.dosis||'')}</span></li>`).join('')}</ul>
+    ${tarjetaTaichi()}
     <div class="botones">
       <button class="btn btn-2" onclick="descansar()" ${PREVIA?'disabled':''}>${sesionHoy?.estado==='descanso'?'Descansando':'Hoy descanso'}</button>
       <button class="btn btn-1" onclick="empezarSesion()">${PREVIA?'Ver cómo es':'Hacer sesión'}</button>
     </div>
     ${PREVIA ? '<div class="aviso">Vista previa: hoy nada se guarda. Mañana sí.</div>' : ''}
     ${version === 'suave' && !PREVIA ? `<button class="link" onclick="forzarVersion('completa')">prefiero la completa</button>` : ''}`;
+}
+
+// ═══ TAI CHI EN SILLA ═══
+// Abrir → hacer → marcar. Nada de lista ni feed: una tarjeta, un video.
+function videoDeHoy() {
+  if (!TAICHI.length) return null;
+  const ult = taichiUltimo ? TAICHI.findIndex(v => taichiUltimo.ejercicio === TAICHI_PREFIJO + v.clase) : -1;
+  const hechoHoy = !!taichiUltimo && fechaLocal(new Date(taichiUltimo.created_at)) === hoy;
+  if (hechoHoy && ult >= 0) return { v: TAICHI[ult], hecho: true };
+  return { v: TAICHI[ult >= 0 ? (ult + 1) % TAICHI.length : 0], hecho: false };
+}
+
+function videoAbiertoHoy(v) {
+  try { return localStorage.getItem('nova_tc_abierto') === hoy + '|' + v.id; } catch (e) { return false; }
+}
+
+function tarjetaTaichi() {
+  const d = videoDeHoy();
+  if (!d || PREVIA) return '';
+  const { v, hecho } = d;
+  const abierto = videoAbiertoHoy(v);
+  const accion = hecho
+    ? `<div class="tc-hecho">✓ Hecho hoy</div>`
+    : abierto
+      ? `<button class="btn btn-tc" onclick="hiceTaichi()">Lo hice</button>
+         <a class="link" href="${v.url}" target="_blank" rel="noopener" onclick="abrirVideo()">ver de nuevo</a>`
+      : `<a class="btn btn-tc" href="${v.url}" target="_blank" rel="noopener" onclick="abrirVideo()">▶ Ver video</a>
+         <button class="link" onclick="hiceTaichi()">ya lo hice</button>`;
+  return `
+    <div class="tc">
+      <a class="tc-thumb" href="${v.url}" target="_blank" rel="noopener" onclick="abrirVideo()"
+         style="background-image:url('https://i.ytimg.com/vi/${v.id}/mqdefault.jpg')" aria-label="Ver video">
+        <span class="tc-play">▶</span><span class="tc-min">${v.min} min</span>
+      </a>
+      <div class="tc-info">
+        <div class="tc-titulo">Tai Chi en silla — ${esc(TAICHI_AUTOR)}</div>
+        <div class="tc-sub">Sentado · sin pie · si no puedes, imagínalo</div>
+        <div class="tc-clase">${esc(v.clase)} · ${v.min} min</div>
+        ${accion}
+      </div>
+    </div>`;
+}
+
+function abrirVideo() {
+  const d = videoDeHoy();
+  try { localStorage.setItem('nova_tc_abierto', hoy + '|' + d.v.id); } catch (e) {}
+  // Al volver a Nova el botón ya dice "Lo hice".
+  setTimeout(pintarSesion, 300);
+}
+
+// Guarda primero; lo reflexivo (cómo te sentiste, fatiga) se pregunta después y es saltable.
+async function hiceTaichi() {
+  const { v } = videoDeHoy();
+  try {
+    const s = await asegurarSesionHoy({estado:'hecha'});
+    const filas = await sb('nova_ejercicios_sesion','POST', {
+      sesion_id: s.id, ejercicio: TAICHI_PREFIJO + v.clase, reps: v.min + ' min'
+    }, '?on_conflict=sesion_id,ejercicio');
+    taichiUltimo = filas?.[0] || {ejercicio: TAICHI_PREFIJO + v.clase, created_at: new Date().toISOString()};
+    abrirCierre('video');
+  } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
 }
 
 function forzarVersion(v) {
@@ -546,7 +642,11 @@ async function toggleEj(i) {
 
 function salirSesion() { mostrarVista('vista-inicio'); }
 
-function terminarSesion() {
+function terminarSesion() { abrirCierre('sesion'); }
+
+function abrirCierre(modo) {
+  cierreModo = modo;
+  $('btn-saltar-cierre').classList.toggle('oculto', modo !== 'video');
   sentiSel = null; fatigaSel = null;
   document.querySelectorAll('#senti button').forEach(b => b.classList.remove('sel'));
   pintarEscala('escala-fatiga', null);
@@ -565,21 +665,27 @@ async function guardarCierre() {
   if (PREVIA) { mostrarVista('vista-inicio'); return; }
   const btn = $('btn-guardar-cierre');
   btn.disabled = true;
+  const reflexion = {
+    como_me_senti: sentiSel,
+    fatiga_percibida: fatigaSel,
+    nota: $('cierre-nota').value.trim() || null
+  };
   try {
-    await asegurarSesionHoy({
+    // Video: ya quedó guardado como hecho; aquí sólo se suma lo reflexivo.
+    await asegurarSesionHoy(cierreModo === 'video' ? reflexion : {
       estado: 'hecha',
       version,
       duracion_min: Math.max(1, Math.round((Date.now() - inicioSesion) / 60000)),
       completada: hechos.size === plan.length,
-      como_me_senti: sentiSel,
-      fatiga_percibida: fatigaSel,
-      nota: $('cierre-nota').value.trim() || null
+      ...reflexion
     });
     mostrarVista('vista-inicio');
     pintarTodo();
   } catch (e) { console.error(e); mostrarError('No se guardó la sesión. Intenta otra vez.'); mostrarVista('vista-inicio'); }
   btn.disabled = false;
 }
+
+function saltarCierre() { mostrarVista('vista-inicio'); pintarTodo(); }
 
 function mostrarVista(id) {
   ['vista-inicio','vista-sesion','vista-cierre'].forEach(v => $(v).classList.toggle('oculto', v !== id));
