@@ -325,12 +325,16 @@ function fechaBonita(f) {
   return new Date(y,m-1,d).toLocaleDateString('es', {day:'numeric', month:'short'});
 }
 
-// Minutos estimados a partir de la dosis: "2 min", "2 × 12" (≈4 s/rep + 30 s pausa), "5 × 10 s" (+10 s pausa).
+// Minutos estimados a partir de la dosis: "2 min", "2 × 12" (≈4 s/rep + 30 s pausa), "5 × 10 s" (+10 s pausa),
+// "5 × 15 s · descanso 1 min" (el descanso indicado reemplaza la pausa de 10 s).
 function minutosDe(dosis) {
   if (!dosis) return 0;
   let m;
   if ((m = dosis.match(/^(\d+(?:\.\d+)?)\s*min/))) return +m[1];
-  if ((m = dosis.match(/^(\d+)\s*×\s*(\d+)\s*s/))) return +m[1] * (+m[2] + 10) / 60;
+  if ((m = dosis.match(/^(\d+)\s*×\s*(\d+)\s*s/))) {
+    const d = dosis.match(/descanso\s*(\d+(?:\.\d+)?)\s*min/);
+    return +m[1] * (+m[2] + (d ? +d[1] * 60 : 10)) / 60;
+  }
   if ((m = dosis.match(/^(\d+)\s*×\s*(\d+)/))) return (+m[1] * (+m[2] * 4 + 30)) / 60;
   return 0;
 }
