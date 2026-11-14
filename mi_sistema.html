@@ -2064,10 +2064,6 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
   <div class="recuperacion-card" id="recuperacion-card" style="display:none;">
     <div class="ql-title">Mi pie 🦶</div>
     <div class="recup-fila">
-      <div class="recup-label">Dolor</div>
-      <div class="emotion-pills" id="recup-pills-dolor"></div>
-    </div>
-    <div class="recup-fila">
       <div class="recup-label">Movilidad</div>
       <div class="emotion-pills" id="recup-pills-movilidad"></div>
     </div>
@@ -2728,8 +2724,9 @@ async function sbLog(tabla, method, body=null, params='') {
 // Cuando termine la recuperación: cambiar esto a false. La tarjeta desaparece
 // sola, sin borrar la tabla `recuperacion` ni los datos ya guardados.
 const RECUPERACION_ACTIVA = true;
+// El dolor ya no se anota aquí: vive en Nova (nova_sesiones.dolor_pie). La columna
+// `recuperacion.dolor` queda con lo ya guardado y no se vuelve a escribir.
 const RECUPERACION_VOCAB = {
-  dolor:     ['nada', 'leve', 'molesta', 'duele mucho', 'punzante'],
   movilidad: ['igual', 'peor', 'un poco mejor'],
   animo:     ['miedo', 'agobio', 'cansancio', 'nervios']
 };
@@ -4034,7 +4031,6 @@ async function guardarRecuperacionAhora() {
   try {
     await sbLog('recuperacion','POST',{
       fecha: fechaDeAhora(),
-      dolor: recuperacionHoy.dolor || null,
       movilidad: recuperacionHoy.movilidad || null,
       animo: recuperacionHoy.animo || null,
       nota_libre: recuperacionHoy.nota_libre || null
@@ -4047,7 +4043,7 @@ async function cargarRecuperacion() {
   try {
     const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
     const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
-    recuperacionHoy = {dolor:r.dolor||'', movilidad:r.movilidad||'', animo:r.animo||'', nota_libre:r.nota_libre||''};
+    recuperacionHoy = {movilidad:r.movilidad||'', animo:r.animo||'', nota_libre:r.nota_libre||''};
     pintarRecuperacion();
   } catch(e){ console.error('Error cargando recuperación:', e); }
 }
@@ -6119,7 +6115,7 @@ async function refrescoAutomatico() {
       const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
       const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
       const merge = (c) => { if(!recuperacionHoy[c] && r[c]) recuperacionHoy[c]=r[c]; };
-      merge('dolor'); merge('movilidad'); merge('animo'); merge('nota_libre');
+      merge('movilidad'); merge('animo'); merge('nota_libre');
       pintarRecuperacion();
     }
 

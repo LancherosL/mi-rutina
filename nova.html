@@ -49,10 +49,11 @@ input, select { font-family:inherit; font-size:16px; }
 .rex { display:flex; gap:12px; align-items:flex-start; }
 .rex-avatar { flex:0 0 38px; height:38px; border-radius:50%; background:var(--ink); color:var(--bg);
   display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; }
-.rex-texto { font-family:'Cormorant Garamond',serif; font-size:20px; line-height:1.35; }
+.rex-texto { font-family:'Cormorant Garamond',serif; font-size:22px; line-height:1.3; }
 .rex-texto p + p { margin-top:6px; }
 .rex-datos { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
-.dato { font-size:12px; color:var(--muted); background:var(--bg); padding:4px 9px; border-radius:20px; }
+.dato { font-size:13px; color:var(--muted); background:var(--bg); padding:5px 10px; border-radius:20px; }
+button.dato { text-decoration:underline; text-underline-offset:2px; }
 
 /* Dolor */
 .escala { display:grid; grid-template-columns:repeat(11,1fr); gap:4px; }
@@ -67,7 +68,7 @@ input, select { font-family:inherit; font-size:16px; }
 .sesion-nombre { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; }
 .sesion-min { font-size:13px; color:var(--muted); }
 .ej-lista { list-style:none; }
-.ej { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:15px; }
+.ej { display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:16px; }
 .ej:first-child { border-top:none; }
 .ej-dosis { color:var(--muted); font-size:13px; white-space:nowrap; }
 .botones { display:flex; gap:8px; margin-top:14px; }
@@ -106,6 +107,7 @@ input, select { font-family:inherit; font-size:16px; }
 .tl-fecha { font-size:12px; color:var(--muted); }
 .tl-desc { font-size:15px; }
 .tl li.previsto .tl-desc { color:var(--muted); }
+.tl-pend { font-size:14px; color:var(--muted); padding:6px 0; text-align:left; }
 .tl-accion { font-size:12px; color:var(--muted); text-decoration:underline; margin-left:6px; }
 .hito-form { display:none; margin-top:10px; }
 .hito-form.abierto { display:block; }
@@ -164,6 +166,13 @@ input, select { font-family:inherit; font-size:16px; }
       </div>
     </div>
 
+    <!-- Dolor del pie: sólo si no hay dato de hoy. Respondido, desaparece y queda en un chip. -->
+    <div class="card oculto" id="card-dolor">
+      <div class="label">¿Cómo está el pie hoy?</div>
+      <div class="escala" id="escala-dolor"></div>
+      <div class="escala-ext"><span>nada</span><span>lo peor</span></div>
+    </div>
+
     <div class="card" id="card-sesion">
       <div class="label" id="sesion-label">Sesión de hoy</div>
       <div id="sesion-cuerpo"></div>
@@ -213,6 +222,8 @@ input, select { font-family:inherit; font-size:16px; }
         <button data-v="regular" onclick="setSenti(this)">😐</button>
         <button data-v="mal" onclick="setSenti(this)">👎</button>
       </div>
+      <div class="sub">Pie ahora (0 = nada, 10 = lo peor)</div>
+      <div class="escala" id="escala-dolor-cierre"></div>
       <div class="sub">Fatiga ahora (0 = fresca, 10 = agotada)</div>
       <div class="escala" id="escala-fatiga"></div>
       <input class="nota-input" id="cierre-nota" placeholder="Algo que quieras anotar (opcional)">
@@ -228,7 +239,7 @@ input, select { font-family:inherit; font-size:16px; }
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // NOVA — entrenador de Laura, con ReX. Spec: claude/nova-sistema.md
-// Lee de Mi Sistema (registro_diario, recuperacion). NUNCA escribe ahí.
+// Lee de Mi Sistema (registro_diario). NUNCA escribe ahí.
 // Escribe sólo en tablas nova_*.
 // ═══════════════════════════════════════════════════════════════════
 
@@ -251,10 +262,9 @@ const SUENO_POCO_H = 5.5;  // < → versión suave
 const SUENO_MALA = 2;      // calidad ≤ → versión suave
 const ENERGIA_BAJA = 2;    // ≤ → versión suave
 
-// El dolor del pie vive en un solo lugar: tarjeta Recuperación de Mi Sistema
-// (tabla `recuperacion`, en palabras). Nova sólo lo lee. Así lo interpreto:
-const DOLOR_PALABRAS = { 'nada': 'bajo', 'leve': 'bajo', 'molesta': 'medio', 'duele mucho': 'alto', 'punzante': 'alto' };
-const MI_SISTEMA_URL = 'mi_sistema.html';
+// El dolor del pie vive sólo aquí: nova_sesiones.dolor_pie (0-10).
+const DOLOR_ALTO = 7;      // ≥ → sólo respirar y moverte, o descanso
+const DOLOR_MEDIO = 4;     // ≥ → versión suave
 
 const VERSIONES = {
   completa: 'Sesión completa',
@@ -327,7 +337,6 @@ function minutosDe(dosis) {
 
 // ── estado ──
 let reg = null;          // registro_diario de hoy (Mi Sistema)
-let recup = null;        // recuperacion de hoy (Mi Sistema)
 let sesionHoy = null;    // nova_sesiones de hoy
 let sesionAyer = null;
 let catalogo = [];       // ejercicios de la fase actual
@@ -337,7 +346,8 @@ let plan = [];           // ejercicios de la versión de hoy
 let version = 'completa';
 let hechos = new Set();  // nombres marcados en la sesión en curso
 let inicioSesion = null;
-let sentiSel = null, fatigaSel = null;
+let sentiSel = null, fatigaSel = null, dolorCierre = null;
+let verPendientes = false; // hitos pendientes desplegados
 let cierreModo = 'sesion'; // 'sesion' | 'video'
 let taichiUltimo = null;   // último Tai Chi marcado: {ejercicio, created_at}
 let pausasHoy = [];        // pausas marcadas hoy (nombres)
@@ -346,10 +356,12 @@ let pausasHoy = [];        // pausas marcadas hoy (nombres)
 async function init() {
   $('fecha').textContent = new Date().toLocaleDateString('es', {weekday:'long', day:'numeric', month:'long'});
   construirEscala('escala-fatiga', v => { fatigaSel = v; pintarEscala('escala-fatiga', v); });
+  construirEscala('escala-dolor', setDolor);
+  construirEscala('escala-dolor-cierre', v => { dolorCierre = dolorCierre === v ? null : v; pintarEscala('escala-dolor-cierre', dolorCierre); });
   $('hito-fase').innerHTML = '<option value="">Sin cambio de fase</option>' +
     Object.entries(FASES).map(([k,v]) => `<option value="${k}">Paso a Fase ${k} · ${v}</option>`).join('');
   await cargar();
-  // Al volver de Mi Sistema (donde se anota el pie), releer sin recargar la página.
+  // Al volver a la app (p. ej. desde un video), releer sin recargar la página.
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && !$('vista-inicio').classList.contains('oculto')) cargar();
   });
@@ -357,9 +369,8 @@ async function init() {
 
 async function cargar() {
   try {
-    const [r, rc, ses, hs, tc, pz] = await Promise.all([
+    const [r, ses, hs, tc, pz] = await Promise.all([
       sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
-      sb('recuperacion','GET',null,`?fecha=eq.${hoy}&select=dolor,movilidad,animo`),
       sb('nova_sesiones','GET',null,`?fecha=in.(${ayer},${hoy})`),
       sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc'),
       sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(TAICHI_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=1`),
@@ -368,7 +379,6 @@ async function cargar() {
     taichiUltimo = tc?.[0] || null;
     pausasHoy = (pz || []).filter(p => fechaLocal(new Date(p.created_at)) === hoy).map(p => p.ejercicio);
     reg = r?.[0] || null;
-    recup = rc?.[0] || null;
     sesionHoy = ses.find(s => s.fecha === hoy) || null;
     sesionAyer = ses.find(s => s.fecha === ayer) || null;
     hitos = hs || [];
@@ -387,7 +397,11 @@ function faseActual() {
 }
 
 // ═══ ReX ═══
-function dolorNivel() { return recup?.dolor ? (DOLOR_PALABRAS[recup.dolor] || null) : null; }
+function dolorNum() { return sesionHoy?.dolor_pie ?? null; }
+function dolorNivel() {
+  const n = dolorNum();
+  return n === null ? null : n >= DOLOR_ALTO ? 'alto' : n >= DOLOR_MEDIO ? 'medio' : 'bajo';
+}
 function suenoMalo() {
   if (!reg) return false;
   return (reg.sueno_horas != null && +reg.sueno_horas < SUENO_POCO_H) ||
@@ -407,59 +421,34 @@ function horasTexto(h) {
   return mm ? `${hh} h ${mm} min` : `${hh} h`;
 }
 
+// ReX dice UNA línea: lo que propone hoy. El contexto (sueño, ayer, ciclo) va en los chips.
 function textoRex() {
-  const lineas = [];
-  const d = dolorNivel();
-
-  // 1. Lo que sé de hoy
-  const obs = [];
-  if (reg?.sueno_horas != null) {
-    let s = `Dormiste ${horasTexto(+reg.sueno_horas)}`;
-    if (reg.sueno_calidad != null) s += reg.sueno_calidad <= SUENO_MALA ? ' y no muy bien' : reg.sueno_calidad >= 4 ? ' y bien' : '';
-    obs.push(s + '.');
-  }
-  if (reg?.emocion) obs.push(`Tu ánimo: ${reg.emocion.replace(/^\S+\s/, '').toLowerCase()}${reg.emocion_fina ? ', ' + reg.emocion_fina : ''}.`);
-  if (obs.length) lineas.push(obs.join(' '));
-
-  // 2. Ayer
-  if (sesionAyer?.estado === 'hecha') {
-    let s = 'Ayer hiciste la sesión';
-    if (sesionAyer.fatiga_percibida != null) s += ` y quedaste en fatiga ${sesionAyer.fatiga_percibida}`;
-    lineas.push(s + '.');
-  } else if (sesionAyer?.estado === 'descanso') {
-    lineas.push('Ayer descansaste.');
-  }
-
-  // 3. Lo que propongo
-  if (sesionHoy?.estado === 'hecha') {
-    lineas.push('La de hoy ya está. Lo que queda del día es para el cuerpo.');
-  } else if (sesionHoy?.estado === 'descanso') {
-    lineas.push('Hoy es descanso. Si más tarde te provoca moverte, la sesión sigue aquí.');
-  } else if (PREVIA) {
-    lineas.push('Mañana arrancamos. Te dejo la primera sesión lista abajo para que la mires.');
-  } else if (d === 'alto') {
-    lineas.push(`Con el pie ${recup.dolor === 'punzante' ? 'punzante' : 'doliendo así'}, hoy no hay nada que demostrar. Si quieres, sólo respirar y mover cuello y hombros. Descansar también está bien.`);
-  } else if (d === 'medio') {
-    lineas.push('El pie molesta hoy. Te propongo la versión suave.');
-  } else if (suenoMalo() || energiaBaja()) {
-    lineas.push('Con ese descanso, va la versión suave. Corta y sin exigirte.');
-  } else if (d === null) {
-    lineas.push('No sé cómo está el pie hoy. Si lo anotas en Recuperación, ajusto la sesión.');
-  } else {
-    lineas.push(`Si te provoca, la sesión de hoy está lista. Unos ${minutosPlan()} minutos.`);
-  }
-  if (reg?.ciclo_fase === 'Menstrual' && !sesionHoy?.estado && !PREVIA) {
-    lineas.push('Estás en fase menstrual: si el cuerpo pide menos, se le da menos.');
-  }
-  return lineas;
+  const d = dolorNivel(), n = dolorNum();
+  if (sesionHoy?.estado === 'hecha') return 'La de hoy ya está. Lo que queda del día es para el cuerpo.';
+  if (sesionHoy?.estado === 'descanso') return 'Hoy es descanso. Si más tarde te provoca moverte, la sesión sigue aquí.';
+  if (PREVIA) return 'Mañana arrancamos. Te dejo la primera sesión lista abajo para que la mires.';
+  if (d === 'alto') return `Con el pie en ${n}, hoy no hay nada que demostrar: respirar y mover cuello y hombros, o descansar.`;
+  if (d === 'medio') return `El pie está en ${n}. Te propongo la versión suave.`;
+  if (suenoMalo() || energiaBaja()) return 'Con ese descanso, va la versión suave. Corta y sin exigirte.';
+  if (d === null) return 'Antes de proponerte algo: ¿cómo está el pie?';
+  if (reg?.ciclo_fase === 'Menstrual') return 'Si el cuerpo pide menos hoy, se le da menos. La sesión está lista.';
+  return `Si te provoca, la sesión de hoy está lista. Unos ${minutosPlan()} minutos.`;
 }
 
 function datosRex() {
   const out = [];
-  if (recup?.dolor) out.push(`🦶 ${recup.dolor === 'nada' ? 'sin dolor' : recup.dolor}`);
-  if (reg?.sueno_horas != null) out.push(`😴 ${horasTexto(+reg.sueno_horas)}`);
-  if (reg?.energia != null) out.push(`⚡ energía ${reg.energia}/5`);
-  if (reg?.ciclo_fase) out.push(`🌙 ${reg.ciclo_fase.toLowerCase()}`);
+  const n = dolorNum();
+  if (n !== null) out.push({t:`🦶 pie ${n}/10`, fn:'cambiarDolor()'});
+  if (reg?.sueno_horas != null) {
+    let s = `😴 ${horasTexto(+reg.sueno_horas)}`;
+    if (reg.sueno_calidad != null && reg.sueno_calidad <= SUENO_MALA) s += ', no muy bien';
+    out.push({t:s});
+  }
+  if (reg?.energia != null) out.push({t:`⚡ energía ${reg.energia}/5`});
+  if (reg?.emocion) out.push({t:reg.emocion.split(' ')[0] + ' ' + (reg.emocion_fina || reg.emocion.replace(/^\S+\s/, '').toLowerCase())});
+  if (sesionAyer?.estado === 'hecha') out.push({t:`ayer: sesión${sesionAyer.fatiga_percibida != null ? ', fatiga ' + sesionAyer.fatiga_percibida : ''}`});
+  else if (sesionAyer?.estado === 'descanso') out.push({t:'ayer: descanso'});
+  if (reg?.ciclo_fase) out.push({t:`🌙 ${reg.ciclo_fase.toLowerCase()}`});
   return out;
 }
 
@@ -467,9 +456,13 @@ function datosRex() {
 function pintarTodo() {
   armarPlan();
   $('fase-chip').textContent = `Fase ${fase} · ${FASES[fase] || ''}`;
-  $('rex-texto').innerHTML = textoRex().map(l => `<p>${esc(l)}</p>`).join('') +
-    (dolorNivel() === null && !PREVIA && !sesionHoy?.estado ? `<a class="link" href="${MI_SISTEMA_URL}">anotar el pie en Mi Sistema</a>` : '');
-  $('rex-datos').innerHTML = datosRex().map(d => `<span class="dato">${esc(d)}</span>`).join('');
+  $('rex-texto').innerHTML = `<p>${esc(textoRex())}</p>`;
+  $('rex-datos').innerHTML = datosRex().map(d => d.fn
+    ? `<button class="dato" onclick="${d.fn}">${esc(d.t)}</button>`
+    : `<span class="dato">${esc(d.t)}</span>`).join('');
+  // Pregunta del pie: sólo si falta y el día no está cerrado. Respondida, desaparece.
+  $('card-dolor').classList.toggle('oculto', dolorNum() !== null || PREVIA || !!sesionHoy?.estado);
+  pintarEscala('escala-dolor', dolorNum());
   pintarSesion();
   pintarTimeline();
 }
@@ -524,7 +517,7 @@ function pintarSesion() {
     ${lineaPausa()}
     <div class="botones">
       <button class="btn btn-2" onclick="descansar()" ${PREVIA?'disabled':''}>${sesionHoy?.estado==='descanso'?'Descansando':'Hoy descanso'}</button>
-      <button class="btn btn-1" onclick="empezarSesion()">${PREVIA?'Ver cómo es':'Hacer sesión'}</button>
+      <button class="btn ${tarjetaTaichi() ? 'btn-2' : 'btn-1'}" onclick="empezarSesion()">${PREVIA?'Ver cómo es':'Hacer sesión'}</button>
     </div>
     ${PREVIA ? '<div class="aviso">Vista previa: hoy nada se guarda. Mañana sí.</div>' : ''}
     ${version === 'suave' && !PREVIA ? `<button class="link" onclick="forzarVersion('completa')">prefiero la completa</button>` : ''}`;
@@ -635,23 +628,46 @@ function forzarVersion(v) {
   empezarSesion(true);
 }
 
+// Lo que ya pasó, completo. Lo pendiente/previsto, en UNA línea que se despliega.
 function pintarTimeline() {
-  const fechados = hitos.filter(h => h.fecha);
-  const sinFecha = hitos.filter(h => !h.fecha);
-  $('timeline').innerHTML = [...fechados, ...sinFecha].map(h => {
+  const pasados = hitos.filter(h => !h.previsto);
+  const pendientes = hitos.filter(h => h.previsto);
+  const li = h => {
     const cls = [h.previsto ? 'previsto' : '', h.fase_nueva && !h.previsto ? 'fase' : ''].join(' ');
-    const fechaTxt = h.fecha ? fechaBonita(h.fecha) + (h.previsto ? ' · previsto' : '') : 'pendiente';
+    const fechaTxt = h.fecha ? fechaBonita(h.fecha) + (h.previsto ? ' · previsto' : '') : 'sin fecha';
     const accion = h.previsto && !PREVIA ? `<button class="tl-accion" onclick="marcarHito('${h.id}')">ya pasó</button>` : '';
     const faseTxt = h.fase_nueva && !h.previsto ? ` <span class="tl-fecha">→ Fase ${esc(h.fase_nueva)}</span>` : '';
     return `<li class="${cls}"><div class="tl-fecha">${esc(fechaTxt)}${accion}</div><div class="tl-desc">${esc(h.descripcion)}${faseTxt}</div></li>`;
-  }).join('');
+  };
+  let html = pasados.map(li).join('');
+  if (pendientes.length) {
+    html += verPendientes
+      ? pendientes.map(li).join('') + `<li class="previsto"><button class="tl-pend" onclick="togglePendientes()">ocultar pendientes</button></li>`
+      : `<li class="previsto"><button class="tl-pend" onclick="togglePendientes()">${pendientes.length} pendiente${pendientes.length>1?'s':''}: ${esc(pendientes.map(h => h.descripcion.replace(/\.$/,'')).join(' · '))} ›</button></li>`;
+  }
+  $('timeline').innerHTML = html;
 }
+function togglePendientes() { verPendientes = !verPendientes; pintarTimeline(); }
 
 // ═══ GUARDAR ═══
 async function asegurarSesionHoy(campos) {
   const filas = await sb('nova_sesiones','POST', {fecha:hoy, fase, ...campos, updated_at:new Date().toISOString()}, '?on_conflict=fecha');
   sesionHoy = filas[0];
   return sesionHoy;
+}
+
+// ═══ DOLOR ═══
+async function setDolor(v) {
+  if (PREVIA) return;
+  pintarEscala('escala-dolor', v);
+  try {
+    await asegurarSesionHoy({dolor_pie: v});
+    pintarTodo();
+  } catch (e) { console.error(e); mostrarError('No se guardó el dolor. Intenta otra vez.'); }
+}
+function cambiarDolor() {
+  $('card-dolor').classList.remove('oculto');
+  $('card-dolor').scrollIntoView({block:'center', behavior:'smooth'});
 }
 
 // ═══ DESCANSO ═══
@@ -709,7 +725,8 @@ function terminarSesion() { abrirCierre('sesion'); }
 function abrirCierre(modo) {
   cierreModo = modo;
   $('btn-saltar-cierre').classList.toggle('oculto', modo !== 'video');
-  sentiSel = null; fatigaSel = null;
+  sentiSel = null; fatigaSel = null; dolorCierre = dolorNum();
+  pintarEscala('escala-dolor-cierre', dolorCierre);
   document.querySelectorAll('#senti button').forEach(b => b.classList.remove('sel'));
   pintarEscala('escala-fatiga', null);
   $('cierre-nota').value = '';
@@ -732,6 +749,7 @@ async function guardarCierre() {
     fatiga_percibida: fatigaSel,
     nota: $('cierre-nota').value.trim() || null
   };
+  if (dolorCierre !== null) reflexion.dolor_pie = dolorCierre;
   try {
     // Video: ya quedó guardado como hecho; aquí sólo se suma lo reflexivo.
     await asegurarSesionHoy(cierreModo === 'video' ? reflexion : {
