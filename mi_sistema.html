@@ -2391,24 +2391,26 @@ function gatoSubtitulo(i) {
   return `${g.frecuencia} · ${base}`;
 }
 
+// Historial de gatos ya traído de la base (fecha desc). Con esto, desmarcar una tarea calcula
+// su "última vez" al instante. Para hoy manda lo que hay en este teléfono, no la base: si
+// acabas de desmarcar, la base todavía dice "hecho hoy" hasta que llega el guardado.
+let historialGatos = null;
+function ultimaVezGatoLocal(i) {
+  const hecho = g => { if(!g) return false; const v = g[i] !== undefined ? g[i] : g[String(i)]; return v === true || v === 'true'; };
+  const local = registroCache[todayStr];
+  if(local && local.gatos && hecho(local.gatos)) return todayStr;
+  const fila = (historialGatos || []).find(row => !(row.fecha===todayStr && local && local.gatos) && hecho(row.gatos));
+  return fila ? fila.fecha : null;
+}
+
 async function cargarUltimaVezGatos(indices) {
   // En vez de una consulta JSONB filtrada (frágil con claves numéricas en PostgREST),
   // traemos el historial reciente y calculamos en el cliente. Más confiable.
   try {
     const data = await sbRegistro('GET', null, `?select=fecha,gatos&order=fecha.desc&limit=120`);
     if(!data || !Array.isArray(data)) return;
-
-    const objetivo = indices || GATOS.map((g,idx)=>idx);
-    objetivo.forEach(i => {
-      // data ya viene ordenado de más reciente a más antiguo
-      const encontrado = data.find(row => {
-        const g = row.gatos;
-        if(!g) return false;
-        const v = g[i] !== undefined ? g[i] : g[String(i)];
-        return v === true || v === 'true';
-      });
-      ultimaVezGatos[i] = encontrado ? encontrado.fecha : null;
-    });
+    historialGatos = data;
+    (indices || GATOS.map((g,idx)=>idx)).forEach(i => { ultimaVezGatos[i] = ultimaVezGatoLocal(i); });
   } catch(e) {
     console.error('Error cargando historial de gatos:', e);
     (indices || GATOS.map((g,idx)=>idx)).forEach(i => {
@@ -2583,6 +2585,7 @@ async function sbFetch(method, body=null, params='') {
 async function cargarSemana() {
   try {
     const data=await sbFetch('GET',null,`?fecha=in.(${weekDates.join(',')})`);
+    if(!Array.isArray(data)) throw new Error('Respuesta inesperada al cargar hábitos');
     for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
     data.forEach(row=>{
       const di=weekDates.indexOf(row.fecha);
@@ -2590,6 +2593,7 @@ async function cargarSemana() {
       const hi=HABITS[row.momento].findIndex(h=>h.name===row.habito);
       if(hi!==-1) state[row.momento][di][hi]=row.completado;
     });
+    aplicarHabitosPendientes();
   } catch(e){console.error(e);}
 }
 
@@ -2597,13 +2601,50 @@ async function cargarSemana() {
 // en Supabase, reintenta sin ella para que el hábito se guarde igual.
 let columnaHoraDisponible = true;
 
-async function guardarHabito(panel,dayIdx,habitIdx,completado) {
+// Hábitos tocados que todavía no confirma la base: "fecha|momento|hábito" -> {completado, hora}.
+// Mientras estén aquí ninguna recarga los pisa (antes el refresco de 45 s los devolvía a como
+// estaban en la base), y si el guardado falla se reintenta en el siguiente refresco, aunque se
+// haya cerrado la app. Un guardado a la vez por hábito, siempre con el último valor tocado.
+let habitosPendientes = {};
+let habitosCadena = {};
+try { habitosPendientes = JSON.parse(localStorage.getItem('habitos_pendientes')||'{}') || {}; } catch(e){}
+function guardarHabitosPendientesLocal() {
+  try { localStorage.setItem('habitos_pendientes', JSON.stringify(habitosPendientes)); } catch(e){}
+}
+
+function aplicarHabitosPendientes() {
+  Object.keys(habitosPendientes).forEach(k => {
+    const [fecha, panel, habito] = k.split('|');
+    const di = weekDates.indexOf(fecha);
+    if(di===-1 || !HABITS[panel]) return;
+    const hi = HABITS[panel].findIndex(h => h.name===habito);
+    if(hi===-1) return;
+    if(!state[panel][di]) state[panel][di] = new Array(HABITS[panel].length).fill(false);
+    state[panel][di][hi] = habitosPendientes[k].completado;
+  });
+}
+
+function reintentarHabitosPendientes() {
+  Object.keys(habitosPendientes).forEach(k => {
+    habitosCadena[k] = (habitosCadena[k] || Promise.resolve()).then(() => escribirHabito(k)).catch(()=>{});
+  });
+}
+
+function guardarHabito(panel,dayIdx,habitIdx,completado) {
+  const fecha = weekDates[dayIdx], habito = HABITS[panel][habitIdx].name;
+  const k = `${fecha}|${panel}|${habito}`;
+  habitosPendientes[k] = {completado, hora: completado ? horaActualHHMM() : null};
+  guardarHabitosPendientesLocal();
+  habitosCadena[k] = (habitosCadena[k] || Promise.resolve()).then(() => escribirHabito(k)).catch(()=>{});
+  return habitosCadena[k];
+}
+
+async function escribirHabito(k) {
+  const p = habitosPendientes[k];
+  if(!p) return;   // ya está en la base
+  const [fecha, panel, habito] = k.split('|');
+  const {completado, hora} = p;
   setSyncing(true);
-  const fecha=weekDates[dayIdx], habito=HABITS[panel][habitIdx].name;
-  const ahora = new Date();
-  const hora = completado
-    ? String(ahora.getHours()).padStart(2,'0')+':'+String(ahora.getMinutes()).padStart(2,'0')
-    : null;
 
   const intentar = async (conHora) => {
     const ex=await sbFetch('GET',null,`?fecha=eq.${fecha}&momento=eq.${panel}&habito=eq.${encodeURIComponent(habito)}`);
@@ -2631,10 +2672,12 @@ async function guardarHabito(panel,dayIdx,habitIdx,completado) {
     } else {
       await intentar(false);
     }
+    // Confirmado: deja de estar pendiente, salvo que se haya vuelto a tocar mientras tanto
+    if(habitosPendientes[k] === p) { delete habitosPendientes[k]; guardarHabitosPendientesLocal(); }
     setSyncing(false);
     clearSyncError();
   } catch(e){
-    console.error(e);
+    console.error(e);   // queda pendiente: se reintenta en el siguiente refresco
     setSyncError();
   }
 }
@@ -4984,7 +5027,7 @@ function updateAnclaUI() {
 async function toggleAncla() {
   const a=getAnclaHoy();
   if(a.tipo==='habito') {
-    await toggleHabitQuick(a.panel,todayIdx,idxAncla(a));
+    await toggleHabitQuick(a.panel,todayIdx,idxAncla(a), document.getElementById('ancla-card').classList.contains('done'));
   } else if(a.tipo==='gato') {
     toggleGato(a.idx);
   } else if(a.tipo==='comida') {
@@ -5086,8 +5129,9 @@ function toggleGato(i) {
   if(activando) {
     ultimaVezGatos[i]=todayStr;
   } else {
-    ultimaVezGatos[i]=undefined; // deshacer: recalcular la fecha real desde Supabase
-    cargarUltimaVezGatos([i]);
+    // deshacer: la fecha real sale del historial ya cargado, sin esperar a la base
+    if(historialGatos) ultimaVezGatos[i] = ultimaVezGatoLocal(i);
+    else { ultimaVezGatos[i]=undefined; cargarUltimaVezGatos([i]); }
   }
 
   buildGatos();
@@ -5613,16 +5657,17 @@ function updateSnaps() {
   document.getElementById('snap-habitos-sub').textContent=done===tot?'¡Todos! 🎉':'completados';
 }
 
-async function toggleHabitQuick(panel,day,idx) {
+async function toggleHabitQuick(panel,day,idx,mostrado) {
   if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
-  const activando=!state[panel][day][idx];
+  const activando = mostrado===undefined ? !state[panel][day][idx] : !mostrado;   // ver toggleHabit
   state[panel][day][idx]=activando;
+  const guardado = guardarHabito(panel,day,idx,activando);
   buildHabits('m'); buildHabits('n');
   updateProgress('m'); updateProgress('n');
   updateSnaps();
   updateAnclaUI();
   if(activando && day===todayIdx) celebrarSiCompleto(panel);
-  await guardarHabito(panel,day,idx,state[panel][day][idx]);
+  await guardado;
 }
 
 // ── STRIPS & HABITS ──
@@ -5672,18 +5717,22 @@ function buildHabits(panel) {
         <div class="habit-name">${h.name}</div>
         <div class="habit-status">${habitoSubtitulo(panel,i,day,done)}</div>
       </div></div>`;
-    card.onclick=()=>toggleHabit(panel,day,i);
+    card.onclick=()=>toggleHabit(panel,day,i,!!done);
     c.appendChild(card);
   });
 }
 
-async function toggleHabit(panel,day,idx) {
+// `mostrado` = cómo se veía la tarjeta al tocarla. El toque hace lo que se ve: si se veía sin
+// marcar, marca. Antes se usaba el estado interno, que podía estar adelantado a la pantalla
+// mientras la app cargaba, y un toque para marcar terminaba desmarcando en la base.
+async function toggleHabit(panel,day,idx,mostrado) {
   if(!state[panel][day]) state[panel][day]=new Array(HABITS[panel].length).fill(false);
-  const activando=!state[panel][day][idx];
+  const activando = mostrado===undefined ? !state[panel][day][idx] : !mostrado;
   state[panel][day][idx]=activando;
+  const guardado = guardarHabito(panel,day,idx,activando);   // primero guardar, luego pintar
   buildHabits(panel); updateProgress(panel); updateSnaps(); updateAnclaUI();
   if(activando && day===todayIdx) celebrarSiCompleto(panel);
-  await guardarHabito(panel,day,idx,state[panel][day][idx]);
+  await guardado;
 }
 
 function updateProgress(panel) {
@@ -6097,8 +6146,10 @@ async function refrescoAutomatico() {
     }
 
     // Releer hábitos de la semana
+    reintentarHabitosPendientes();
     const dataHabitos = await sbFetch('GET', null, `?fecha=in.(${weekDates.join(',')})`);
-    if(dataHabitos){
+    // Sólo si llegó una lista: si la base respondió un error, no se borra lo que ya se ve
+    if(Array.isArray(dataHabitos)){
       for(let d=0;d<7;d++){state.m[d]=new Array(HABITS.m.length).fill(false);state.n[d]=new Array(HABITS.n.length).fill(false);}
       dataHabitos.forEach(row=>{
         const di=weekDates.indexOf(row.fecha);
@@ -6106,6 +6157,7 @@ async function refrescoAutomatico() {
         const hi=HABITS[row.momento].findIndex(h=>h.name===row.habito);
         if(hi!==-1) state[row.momento][di][hi]=row.completado;
       });
+      aplicarHabitosPendientes();
     }
 
     await cargarUltimaVezGatos();
@@ -6225,21 +6277,30 @@ async function init() {
   const gastoFechaEl = document.getElementById('input-gasto-fecha');
   if(gastoFechaEl) { gastoFechaEl.value = todayStr; gastoFechaEl.max = todayStr; onCambioFechaGasto(); }
   setSyncing(true);
-  await cargarRegistroDesdeSupabase();
-  await cargarUltimaVezGatos();
-  await cargarUltimaVezHabitos();
-  await cargarSemana();
-  await cargarCigarrillosHoy();
-  await cargarOlasHoy();
-  await cargarUltimoFumado();
-  await cargarPeriodos();
-  await cargarGastosHoy();
-  await cargarGastosSemana();
-  await nuCargarAlimentos();
-  await nuCargarDia();
-  await cargarCigarrillosSemana();
-  await cargarMomentos(fechaActiva);
-  if(RECUPERACION_ACTIVA) await cargarRecuperacion();
+  // Todo en paralelo: antes eran 15 consultas una detrás de otra y en el teléfono tardaba
+  // varios segundos. Los hábitos se pintan apenas llegan: mientras tanto se veían "sin
+  // marcar" aunque estuvieran hechos. Cada carga maneja sus propios errores.
+  await Promise.allSettled([
+    cargarRegistroDesdeSupabase(),
+    cargarUltimaVezGatos(),
+    cargarUltimaVezHabitos(),
+    cargarSemana().then(() => {
+      buildHabits('m'); buildHabits('n');
+      updateProgress('m'); updateProgress('n');
+      updateSnaps(); updateAnclaUI();
+    }),
+    cargarCigarrillosHoy(),
+    cargarOlasHoy(),
+    cargarUltimoFumado(),
+    cargarPeriodos(),
+    cargarGastosHoy(),
+    cargarGastosSemana(),
+    nuCargarAlimentos().then(() => nuCargarDia()),
+    cargarCigarrillosSemana(),
+    cargarMomentos(fechaActiva),
+    RECUPERACION_ACTIVA ? cargarRecuperacion() : null
+  ]);
+  reintentarHabitosPendientes();   // si quedó algo sin guardar la última vez
   setSyncing(false);
   iniciarCrono();
   restoreTodayUI();
