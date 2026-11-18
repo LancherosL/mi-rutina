@@ -1666,6 +1666,62 @@ body.night .habito-count { color: var(--night-accent); }
     <div class="ancla-razon" id="ancla-razon">—</div>
   </div>
 
+  <!-- Consumo: justo después del ancla -->
+  <div class="log-card" id="card-fumado">
+    <div class="log-header">
+      <div class="ql-title" style="margin:0;">Consumo 🌬️</div>
+      <div class="log-total" id="cigarrillos-total">Hoy: nada registrado</div>
+    </div>
+    <div class="crono-box" id="crono-box">
+      <div class="crono-label">Tiempo sin consumo</div>
+      <div class="crono-time" id="crono-time">—</div>
+      <div class="crono-desde" id="crono-desde">Sin registros todavía</div>
+    </div>
+    <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo, pipa o vaporizador?</div>
+    <div class="nivel-pills" id="metodo-pills" style="margin-bottom:14px;">
+      <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
+      <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')">🌬️ Pipa</button>
+      <button class="nivel-pill" id="metodo-vaporizador" onclick="setMetodoFumado('vaporizador')">💨 Vaporizador</button>
+    </div>
+    <!-- Hora manual: para cuando se te pasó anotarlo en el momento -->
+    <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()">🕐 Fue a otra hora</button>
+    <div class="hora-row" id="hora-row">
+      <span class="hora-row-label">A las</span>
+      <input type="time" id="input-hora-fumado" onchange="onCambioHoraFumado()">
+      <button class="hora-row-reset" onclick="resetHoraFumado()">Ahora</button>
+    </div>
+
+    <div class="ql-title" style="margin-bottom:6px;">¿Cuántos en esta vez?</div>
+    <div class="log-quick-btns">
+      <button class="log-qbtn" onclick="registrarPausa(1)">1</button>
+      <button class="log-qbtn" onclick="registrarPausa(2)">2</button>
+      <button class="log-qbtn" onclick="registrarPausa(3)">3</button>
+      <button class="log-qbtn" onclick="registrarPausaCustom()">Otro</button>
+    </div>
+    <!-- Ganas que NO terminaron en consumo: un tap, y el detalle es opcional después -->
+    <button class="ola-btn" onclick="registrarOla()">🌊 Pasó la ola sin consumir</button>
+
+    <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
+    <div class="disparador-box" id="disparador-box">
+      <div id="disparador-preguntas">
+        <div class="disparador-pregunta">¿Qué había justo antes?</div>
+        <div class="disparador-hint">Puedes marcar uno del cuerpo y uno de la mente</div>
+        <div class="disparador-grupo-label">Del cuerpo</div>
+        <div class="disparador-pills" id="disparador-cuerpo"></div>
+        <div class="disparador-grupo-label">De la mente</div>
+        <div class="disparador-pills" id="disparador-mente"></div>
+      </div>
+      <div class="micro-accion" id="micro-accion">
+        <div class="micro-accion-texto" id="micro-accion-texto"></div>
+        <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
+      </div>
+      <!-- Fuerza (siempre visible), "afinar más" (lo vi venir, a la mano, qué buscaba, cuerpo) y cierre -->
+      <div id="afinar-capas"></div>
+    </div>
+
+    <div class="log-list" id="cigarrillos-list"></div>
+  </div>
+
   <div class="snapshot-row">
     <div class="snap-card c-sage" onclick="switchPanel('manana')">
       <div class="snap-label">Sueño</div>
@@ -1673,7 +1729,7 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="snap-sub" id="snap-sueno-sub">sin registro</div>
     </div>
     <div class="snap-card c-sky" onclick="scrollToFumado()">
-      <div class="snap-label">Fumado</div>
+      <div class="snap-label">Consumo</div>
       <div class="snap-value" id="snap-fumado"><span class="snap-empty">—</span></div>
       <div class="snap-sub" id="snap-fumado-sub">Registrar</div>
     </div>
@@ -1719,62 +1775,6 @@ body.night .habito-count { color: var(--night-accent); }
   <div class="gatos-card">
     <div class="ql-title">Mis gatos 🐱</div>
     <div id="gatos-list"></div>
-  </div>
-
-  <!-- Fumado -->
-  <div class="log-card" id="card-fumado">
-    <div class="log-header">
-      <div class="ql-title" style="margin:0;">Fumado 🌬️</div>
-      <div class="log-total" id="cigarrillos-total">Hoy: nada registrado</div>
-    </div>
-    <div class="crono-box" id="crono-box">
-      <div class="crono-label">Tiempo sin fumar</div>
-      <div class="crono-time" id="crono-time">—</div>
-      <div class="crono-desde" id="crono-desde">Sin registros todavía</div>
-    </div>
-    <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo, pipa o vaporizador?</div>
-    <div class="nivel-pills" id="metodo-pills" style="margin-bottom:14px;">
-      <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
-      <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')">🌬️ Pipa</button>
-      <button class="nivel-pill" id="metodo-vaporizador" onclick="setMetodoFumado('vaporizador')">💨 Vaporizador</button>
-    </div>
-    <!-- Hora manual: para cuando se te pasó anotarlo en el momento -->
-    <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()">🕐 Fue a otra hora</button>
-    <div class="hora-row" id="hora-row">
-      <span class="hora-row-label">A las</span>
-      <input type="time" id="input-hora-fumado" onchange="onCambioHoraFumado()">
-      <button class="hora-row-reset" onclick="resetHoraFumado()">Ahora</button>
-    </div>
-
-    <div class="ql-title" style="margin-bottom:6px;">¿Cuántos en esta vez?</div>
-    <div class="log-quick-btns">
-      <button class="log-qbtn" onclick="registrarPausa(1)">1</button>
-      <button class="log-qbtn" onclick="registrarPausa(2)">2</button>
-      <button class="log-qbtn" onclick="registrarPausa(3)">3</button>
-      <button class="log-qbtn" onclick="registrarPausaCustom()">Otro</button>
-    </div>
-    <!-- Ganas que NO terminaron en consumo: un tap, y el detalle es opcional después -->
-    <button class="ola-btn" onclick="registrarOla()">🌊 Pasó la ola sin fumar</button>
-
-    <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
-    <div class="disparador-box" id="disparador-box">
-      <div id="disparador-preguntas">
-        <div class="disparador-pregunta">¿Qué había justo antes?</div>
-        <div class="disparador-hint">Puedes marcar uno del cuerpo y uno de la mente</div>
-        <div class="disparador-grupo-label">Del cuerpo</div>
-        <div class="disparador-pills" id="disparador-cuerpo"></div>
-        <div class="disparador-grupo-label">De la mente</div>
-        <div class="disparador-pills" id="disparador-mente"></div>
-      </div>
-      <div class="micro-accion" id="micro-accion">
-        <div class="micro-accion-texto" id="micro-accion-texto"></div>
-        <div class="micro-accion-por-que" id="micro-accion-por-que"></div>
-      </div>
-      <!-- Fuerza (siempre visible), "afinar más" (lo vi venir, a la mano, qué buscaba, cuerpo) y cierre -->
-      <div id="afinar-capas"></div>
-    </div>
-
-    <div class="log-list" id="cigarrillos-list"></div>
   </div>
 
   <!-- Gastos -->
@@ -2433,11 +2433,11 @@ const MOMENTOS = {
 // accion/porQue   = micro-intervención de Suzuki. Sólo donde hay una real.
 const DISPARADORES = [
   { id:'cansancio',    label:'😴 Cansancio',    grupo:'cuerpo',
-    accion:'10 minutos de caminata suben dopamina y noradrenalina más que la nicotina — y el efecto dura horas, no minutos.',
+    accion:'10 minutos de moverte (sentada también cuenta: brazos, torso) suben dopamina y noradrenalina, y el efecto en el ánimo dura horas.',
     porQue:'Suzuki: el movimiento breve funciona como fármaco biológico inmediato.' },
 
   { id:'hambre',       label:'🍽️ Hambre',       grupo:'cuerpo',
-    accion:'Tu cuerpo pedía glucosa, no nicotina. Come algo primero y vuelve a preguntarte.',
+    accion:'Tu cuerpo pedía energía: el hambre se siente parecido a la inquietud. Come algo primero y vuelve a preguntarte.',
     porQue:'Barrett: el cerebro confunde déficit metabólico con emoción todo el tiempo.' },
 
   { id:'sed',          label:'💧 Sed',          grupo:'cuerpo',
@@ -2465,7 +2465,7 @@ const DISPARADORES = [
     porQue:'Barrett: el etiquetado afectivo activa la prefrontal y reduce la reactividad.' },
 
   { id:'aburrimiento', label:'😑 Aburrimiento', grupo:'mente',
-    accion:'El aburrimiento es falta de estímulo, no de nicotina. Dos minutos de moverte cambian el estado.',
+    accion:'El aburrimiento es falta de estímulo, no de una sustancia. Dos minutos de moverte cambian el estado.',
     porQue:'Suzuki: el cambio fisiológico reinicia el estado mental.' },
 
   { id:'rabia',        label:'😤 Rabia',        grupo:'mente',
@@ -2614,8 +2614,8 @@ function tickCrono() {
   if(snapEl) snapEl.innerHTML = formatCronoCorto(msSeguro);
   if(snapSubEl) {
     snapSubEl.textContent = totalVeces
-      ? `sin fumar · ${totalUnidades} hoy`
-      : 'sin fumar';
+      ? `sin consumo · ${totalUnidades} hoy`
+      : 'sin consumo';
   }
 }
 
@@ -4355,7 +4355,7 @@ function experimentoSemana(total, conDisparador) {
       .find(d => d && d.accion && !(MOVIMIENTO_EN_PAUSA && /camin|moverte|movimiento/i.test(d.accion)));
     if(top) {
       const acc = top.accion.replace(/^antes del próximo:\s*/i, '');
-      return `cuando aparezca <b>${top.label.replace(/^\S+\s/,'').toLowerCase()}</b>, antes de fumar: ${acc.charAt(0).toLowerCase()+acc.slice(1)} Después anota la fuerza.`;
+      return `cuando aparezca <b>${top.label.replace(/^\S+\s/,'').toLowerCase()}</b>, antes de consumir: ${acc.charAt(0).toLowerCase()+acc.slice(1)} Después anota la fuerza.`;
     }
   }
   const franjas = {mañana:0, tarde:0, noche:0};
@@ -4404,7 +4404,7 @@ function insightSemana() {
   const v = Object.values(dias);
   // Cómo se dice cada dato en lenguaje tuyo: [cuando sube, cuando baja]
   const FRASE = {sueno:['dormiste más','dormiste menos'], energia:['tuviste más energía','tuviste menos energía'],
-                 fumado:['fumaste más','fumaste menos'], gasto:['gastaste más','gastaste menos']};
+                 fumado:['consumiste más','consumiste menos'], gasto:['gastaste más','gastaste menos']};
   const PARES = [['sueno','fumado'], ['energia','fumado'], ['sueno','energia'], ['fumado','gasto'], ['sueno','gasto']];
   let mejor = null;
   PARES.forEach(([a,b]) => {
@@ -4427,11 +4427,14 @@ function reflexionesSemana(ins) {
   const porDia = {}; weekDates.forEach(f => porDia[f]=0);
   cigarrillosSemana.forEach(x => { if(porDia[x.fecha]!==undefined) porDia[x.fecha]+=Number(x.cantidad||0); });
   const sinNada = weekDates.filter((f,i) => i<=todayIdx && porDia[f]===0).length;   // la misma cuenta que "días sin nada"
-  if(sinNada >= 1) out.push(`Hubo ${sinNada} día${sinNada===1?'':'s'} sin fumar. ¿Qué tenía${sinNada===1?'':'n'} de distinto: cómo dormiste, qué comiste, con quién estuviste?`);
-  else if(ins) out.push(`${ins.plano} ¿Qué crees que hay detrás, en cómo fue tu semana?`);
+  // Días sin consumo: qué había en el cuerpo y alrededor (presupuesto corporal + contexto, Barrett)
+  if(sinNada >= 1) out.push(`Hubo ${sinNada} día${sinNada===1?'':'s'} sin consumo. ¿Qué había en tu cuerpo (sueño, comida, dolor) y a tu alrededor (lugar, personas)? Eso es lo que se puede repetir.`);
+  // La emoción como señal del cuerpo, no como falla (función adaptativa)
+  else if(ins) out.push(`${ins.plano} Si fuera tu cuerpo avisándote algo, ¿qué te estaría pidiendo?`);
   const h = habitoEnFormacion(todayIdx);
-  if(h) out.push(`"${h}" es lo que más te costó esta semana. ¿Qué lo hizo difícil, y qué sería lo mínimo que sí podrías sostener?`);
-  if(!out.length) out.push('¿Qué de esta semana quieres que se repita la próxima, y qué lo haría más fácil?');
+  // Hábitos en formación: la señal de inicio pesa más que la fuerza de voluntad (Wood & Neal)
+  if(h) out.push(`"${h}" todavía se está formando. ¿Qué tendría que pasar justo antes para que salga casi solo?`);
+  if(!out.length) out.push('¿Qué de esta semana quieres que se repita la próxima, y qué señal concreta lo pondría en marcha?');
   return out.slice(0,2);
 }
 
@@ -4470,48 +4473,37 @@ function buildSemana() {
     if(dn>0) diasActivos++;
   }
 
-  // Mensaje basado en IDENTIDAD, no en tarea (PNL: presente, primera persona, identidad ya
-  // instalada; nunca meta pendiente ni felicitación externa). Rota cada semana calendario.
+  // Mensaje de la semana (rota cada semana calendario). Se apoya en:
+  // - Identidad (Oyserman; "votos de identidad"): cada repetición es evidencia de quién
+  //   eres, no un puntaje. Presente, primera persona implícita, sin felicitación externa.
+  // - PNL: presuposiciones ("lo que ya sabes hacer") y foco en el próximo paso concreto.
+  // - Dato real: cada frase usa tus días y el hábito que más sostuviste. Cero clichés.
+  // `top` = el hábito con más veces esta semana.
+  const topH = Object.entries(porH).sort((a,b)=>b[1].done-a[1].done)[0];
+  const top = topH && topH[1].done ? topH[0].toLowerCase() : 'lo que hiciste';
   const MSG_SEMANA = {
     alto: [
-      d=>`Esta semana fuiste alguien que se cuida ${d} de 7 días. Eso ya es quien eres.`,
-      d=>`${d} de 7 días te elegiste. Tu cerebro ya no lo llama esfuerzo, lo llama costumbre.`,
-      d=>`Apareciste ${d} días. Esto ya no es un intento, es tu forma de vivir.`,
-      d=>`${d} días sosteniendo. Lo que repites con cariño se vuelve carácter.`,
-      d=>`Tu semana tuvo ${d} días de presencia. Así se ve una vida que se cuida.`,
-      d=>`${d} de 7. No es disciplina de acero, es identidad ya instalada.`
+      d=>`${d} de 7 días. «${top}» ya no depende de acordarte: a esta frecuencia el cerebro lo vuelve automático.`,
+      d=>`${d} días con registro. Cada uno es evidencia de quién eres: alguien que se cuida a diario.`,
+      d=>`${d} de 7. Lo que hoy te cuesta poco, con esta repetición mañana te va a costar menos.`
     ],
     medio: [
-      d=>`Te mostraste ${d} días. No es perfección — es identidad construyéndose.`,
-      d=>`${d} días de 7. Tu cerebro está tomando nota, aunque no lo sientas todavía.`,
-      d=>`Apareciste ${d} veces esta semana. Cada una dejó huella, aunque no la veas.`,
-      d=>`${d} días. Lo importante no fue el número, fue que volviste después de no volver.`,
-      d=>`Estuviste ${d} días. Nadie construye nada apareciendo perfecto, solo apareciendo.`,
-      d=>`${d} de 7 días te acompañaste. Eso es más de lo que hacías antes.`
+      d=>`${d} de 7 días. Lo que más sostuviste fue «${top}»: ese es tu punto de apoyo para lo demás.`,
+      d=>`${d} días. Los que faltan te dicen dónde ajustar, no qué tan bien lo hiciste.`,
+      d=>`${d} de 7. Volver después de un día sin registro es justo la habilidad que se entrena aquí.`
     ],
     bajo: [
-      d=>`Apareciste ${d} días esta semana. Tu cerebro ya sabe que este sistema existe.`,
-      d=>`${d} días. Empezar de nuevo no borra lo anterior, lo continúa.`,
-      d=>`Estuviste ${d} veces. La constancia no empieza fuerte, empieza pequeña.`,
-      d=>`${d} días de presencia. El camino no se mide por semana, se mide por dirección.`,
-      d=>`${d} días. Los cimientos no se ven, pero sostienen todo lo que viene.`,
-      d=>`Apareciste ${d} veces. Suficiente para que el hábito no se apague.`
+      d=>`${d} días esta semana. «${top}» se mantuvo: la próxima semana empieza por ahí.`,
+      d=>`${d} días. Con poco también se ve un patrón: mira qué tenían en común esos días.`,
+      d=>`${d} de 7. Con un día más la próxima semana, la tendencia ya cambia de dirección.`
     ],
     uno: [
-      'Un día cuenta. Es más de lo que había antes.',
-      'Un día. Y ese día contiene la posibilidad de todos los demás.',
-      'Apareciste una vez. Tu cerebro registró que sigue siendo posible.',
-      'Un solo día sostiene la idea viva. Eso basta por ahora.',
-      'Una vez es una prueba: no se te olvidó quién quieres ser.',
-      'Un día. La semana no fue perfecta y aun así estuviste.'
+      'Un día con registro. Lo que hiciste ese día es lo que ya sabes hacer: repítelo una vez más.',
+      'Un día. Es el dato con el que arranca la próxima semana.'
     ],
     cero: [
-      'Esta semana el sistema te esperó. Sigue acá, sin reclamos.',
-      'Hubo semanas así antes y volviste. Esta no es diferente.',
-      'No apareciste y el mundo siguió. Empezar otra vez sigue disponible.',
-      'A veces la semana pide descanso, no rendimiento. Se vale.',
-      'Nada registrado no significa nada vivido. Mañana el sistema sigue acá.',
-      'Cero días no borra tu historia. Solo abre un capítulo nuevo.'
+      'Esta semana no hubo registro. Eso también es un dato: ¿qué estaba pasando?',
+      'Semana sin datos. El sistema no se reinicia: sigue donde lo dejaste, y retomar es un toque.'
     ]
   };
   // Índice que cambia cada semana calendario
@@ -4526,7 +4518,6 @@ function buildSemana() {
   else if(diasActivos>=2) { const b=MSG_SEMANA.bajo; msg=b[semanaIdx%b.length](diasActivos); }
   else if(diasActivos===1) { const b=MSG_SEMANA.uno; msg=b[semanaIdx%b.length]; }
   else { const b=MSG_SEMANA.cero; msg=b[semanaIdx%b.length]; }
-  
   const dato = mejorP > 0 ? `Tu día más completo: ${DAYS[mejorD].toLowerCase()}.` : '';
 
   const dots=Array.from({length:7},(_,d)=>{
@@ -4595,7 +4586,7 @@ function buildSemana() {
       </div>
     </div>
     <div class="resumen-card fumado-card">
-      <div class="res-title">Fumado de la semana 🌬️</div>
+      <div class="res-title">Consumo de la semana 🌬️</div>
       ${(() => {
         const totalSemana = cigarrillosSemana.reduce((s,x)=>s+Number(x.cantidad||0),0);
         const porDia = {}; weekDates.forEach(f=>porDia[f]=0);
@@ -4638,7 +4629,7 @@ function buildSemana() {
           // Sólo se dice algo cuando el dato lo sostiene
           let lectura = '';
           if(pctCuerpo >= 60) {
-            lectura = `${pctCuerpo}% de las veces el cuerpo pedía otra cosa — sueño, comida, movimiento. Eso no se resuelve fumando.`;
+            lectura = `${pctCuerpo}% de las veces la señal venía del cuerpo: sueño, comida, dolor o movimiento. Esa señal se calma mejor dándole al cuerpo justo eso.`;
           } else if(pctCuerpo <= 25) {
             lectura = `Casi siempre hubo una emoción detrás, no una necesidad física. Ahí es donde nombrar con precisión hace más diferencia.`;
           } else {

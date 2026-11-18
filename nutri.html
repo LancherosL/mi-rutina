@@ -1348,6 +1348,22 @@ function detonantes() {
 }
 
 // Baño de cada día cruzado con lo de ese día y los 2 anteriores
+// Eje intestino-cerebro: el estrés cambia el ritmo del intestino (cortisol y nervio vago;
+// el sistema nervioso entérico responde a las mismas señales que el ánimo). Se compara qué
+// tan seguido el baño salió distinto de lo normal (Bristol ≠ 4 o con molestia) en días
+// ansiosos/cargados/difíciles vs. días tranquilos. Sólo con ≥2 de cada lado y ≥5 en total.
+const EMOCION_CARGA = ['⚡ Ansiosa', '🌊 Cargada', '😔 Difícil'];
+function ejeIntestinoCerebro() {
+  const conTipo = banos.filter(b => b.bristol);
+  const emocionDe = f => (registros.find(r => r.fecha===f) || {}).emocion;
+  const raro = b => b.bristol !== 4 || (Array.isArray(b.molestias) && b.molestias.length > 0);
+  const carga = conTipo.filter(b => EMOCION_CARGA.includes(emocionDe(b.fecha)));
+  const calma = conTipo.filter(b => { const e = emocionDe(b.fecha); return e && !EMOCION_CARGA.includes(e); });
+  if(conTipo.length < 5 || carga.length < 2 || calma.length < 2) return null;
+  const pct = a => r0(a.filter(raro).length / a.length * 100);
+  return {carga: pct(carga), calma: pct(calma), nc: carga.length, nt: calma.length};
+}
+
 function banoCruce() {
   const conTipo = banos.filter(b => b.bristol);
   if(conTipo.length < 5) return null;
@@ -1408,7 +1424,11 @@ function pintarSemana() {
   h += cruce
     ? `<div class="fila"><span>Baño y fibra</span><span class="der">días de baño duro: ${cruce.duras} g de fibra (3 días)<br>baño normal: ${cruce.normales} g</span></div>`
     : `<div class="fila"><span>Baño y fibra</span><span class="der">aparece con 5 registros de baño con tipo</span></div>`;
-  h += `<div class="nota">Sólo se compara cuando hay datos suficientes de los dos lados.</div></div>`;
+  const eje = ejeIntestinoCerebro();
+  h += eje
+    ? `<div class="fila"><span>Baño y ánimo</span><span class="der">días ansiosa o cargada: ${eje.carga}% fuera de lo normal (${eje.nc})<br>días tranquilos: ${eje.calma}% (${eje.nt})</span></div>`
+    : `<div class="fila"><span>Baño y ánimo</span><span class="der">aparece con 5 registros de baño con tipo y emoción del día</span></div>`;
+  h += `<div class="nota">Sólo se compara cuando hay datos suficientes de los dos lados. Intestino y cerebro se hablan todo el tiempo: el ánimo cambia el ritmo del intestino y al revés.</div></div>`;
 
   document.getElementById('tab-semana').innerHTML = h;
 }
