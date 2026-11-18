@@ -18,8 +18,8 @@
   if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro';
   document.documentElement.dataset.tema = t; })();
 </script>
-<link rel="stylesheet" href="tierra.css?v=1">
-<script src="tierra.js?v=1"></script>
+<link rel="stylesheet" href="tierra.css?v=2">
+<script src="tierra.js?v=3"></script>
 <style>
 
 /* ═══ Nutri se une a Tierra · Calma · Directo v2 ═══
@@ -91,7 +91,7 @@ input, select { font-family:inherit; font-size:16px; color:inherit; }
 .tema-btn:active { transform:scale(.92); }
 
 /* Barra de abajo: la de tierra.css (.t-nav / .t-tab), igual en todas las apps */
-.panel { animation:t-aparece var(--t-pestana) var(--ease) both; }
+/* al cambiar de pestaña las secciones suben una tras otra: lo hace Tierra.entra() en verTab */
 
 /* Tarjetas táctiles */
 .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:var(--dentro-tarjeta); margin-bottom:var(--entre-tarjetas); box-shadow:var(--shadow);
@@ -1575,7 +1575,11 @@ function verTab(t) {
   tab = t;
   document.querySelectorAll('.t-tab').forEach(b => b.classList.toggle('on', b.dataset.tab===t));
   ['hoy','semana','despensa','perfil'].forEach(k => document.getElementById('tab-'+k).classList.toggle('oculto', k!==t));
-  if(t==='hoy' && perfil) pintarHoy();   // los anillos se vuelven a llenar al entrar
+  if(t==='hoy' && perfil) {              // los anillos y el número se vuelven a llenar desde cero al entrar
+    Object.keys(ultimosArcos).forEach(k => delete ultimosArcos[k]); ultimoNumero = 0;
+    pintarHoy();
+  }
+  Tierra.entra('tab-'+t);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
@@ -1719,6 +1723,10 @@ function iniciarRegistro() {
     if(hoy()!==todayStr) { location.reload(); return; }
     refrescarNutri().then(() => { pintarDespensa(); pintarPerfil(); });
   });
+  // Además se actualiza sola cada minuto y medio mientras está a la vista (no mientras escribes ni con un guardado pendiente)
+  Tierra.vivo(() => { if(!regTimer) return refrescarNutri(); }, 90000, {volver:false});
+  // Si publicas una versión nueva, se pone al día al volver, salvo con algo a medio anotar o sin guardar
+  Tierra.version(() => !!regTimer || Object.keys(regPend).length > 0 || !!banoAbierto || Object.keys(nuSel).length > 0 || nuDetGuardando > 0);
 }
 
 // ── ALGO DE MÁS (fuera de las comidas principales) ──

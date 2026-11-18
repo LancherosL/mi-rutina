@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Nova">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Nova</title>
-<link rel="stylesheet" href="tierra.css?v=1">
-<script src="tierra.js?v=1"></script>
+<link rel="stylesheet" href="tierra.css?v=2">
+<script src="tierra.js?v=3"></script>
 <style>
 
 /* Estilo Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
@@ -267,6 +267,13 @@ body { background: var(--papel); color: var(--tinta); }
 /* ── Paso 6 · Nova: editorial y orgánica. Dos pasteles y, cada tres secciones, una sin fondo. ── */
 #vista-inicio > :nth-child(3n), #vista-sesion > :nth-child(3n), #vista-cierre > :nth-child(3n) { --pastel: transparent; }
 .card:where([style*="transparent"]) { background: transparent; }
+
+/* ── Paso 7 · lo dinámico ── */
+.check span { transition: background-color var(--t-toque) var(--ease), border-color var(--t-toque) var(--ease), color var(--t-toque) var(--ease); }
+.ej-nuevo .check span { animation: t-llena var(--t-aparece) var(--ease) backwards; }
+.ej-nuevo .check .t-emo, .ej-run.ok > .check .t-emo { animation: t-traza var(--t-aparece) var(--ease) 60ms backwards; }
+.pausa-btn, .btn-hecho { transition: transform var(--t-toque) var(--ease), opacity var(--t-toque) var(--ease), background-color var(--t-toque) var(--ease); }
+@media (prefers-reduced-motion: reduce) { .ej-nuevo .check span, .ej-nuevo .check .t-emo, .ej-run.ok > .check .t-emo { animation: none !important; } }
 </style>
 <link rel="apple-touch-icon" href="icono-nova.png">
 <link rel="icon" type="image/png" href="icono-nova.png">
@@ -510,6 +517,7 @@ let cierreModo = 'sesion'; // 'sesion' | 'video'
 let taichiUltimo = null;   // último Tai Chi marcado: {ejercicio, created_at}
 let pausasHoy = [];        // pausas marcadas hoy (nombres)
 let diasUsados = 0;        // días con fila en nova_sesiones
+let recien = null;         // lo que se acaba de marcar hecho: sólo para animarlo una vez al pintar
 
 // ═══ CARGA ═══
 async function init() {
@@ -520,13 +528,17 @@ async function init() {
   $('hito-fase').innerHTML = '<option value="">Sin cambio de fase</option>' +
     Object.entries(FASES).map(([k,v]) => `<option value="${k}">Paso a Fase ${k} · ${v}</option>`).join('');
   await cargar();
-  // Al volver a la app (p. ej. desde un video), releer sin recargar la página.
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !$('vista-inicio').classList.contains('oculto')) cargar();
-  });
+  // Se actualiza sola, sin recargar la página: al volver a la app (p. ej. desde un video) y cada minuto.
+  // No toca nada mientras escribes, con el formulario de hito abierto o con un guardado pendiente.
+  Tierra.vivo(() => {
+    if ($('vista-inicio').classList.contains('oculto') || pieTimer || $('hito-form').classList.contains('abierto')) return;
+    return cargar(true);
+  }, 60000);
+  // Si publicas una versión nueva, se pone al día al volver, salvo en medio de una sesión, un cierre o un hito
+  Tierra.version(() => $('vista-inicio').classList.contains('oculto') || !!pieTimer || $('hito-form').classList.contains('abierto'));
 }
 
-async function cargar() {
+async function cargar(silencioso) {
   try {
     const [r, ses, hs, tc, pz, rc] = await Promise.all([
       sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
@@ -553,6 +565,7 @@ async function cargar() {
     catalogo = await sb('nova_catalogo_ejercicios','GET',null,`?fase=eq.${encodeURIComponent(fase)}&order=orden.asc.nullslast`);
   } catch (e) {
     console.error(e);
+    if (silencioso) return;   // refresco de fondo: si no hay red, la pantalla se queda como está
     mostrarError('No pude conectar con la base. Revisa la conexión y recarga.');
   }
   pintarTodo();
@@ -709,7 +722,7 @@ function pintarSesion() {
     </div>
     ${bloqueProgreso()}
     <ul class="ej-lista">${plan.map((e,i) => `
-      <li class="ej${hechos.has(e.nombre) ? ' ok' : ''}">
+      <li class="ej${hechos.has(e.nombre) ? ' ok' : ''}${recien === 'e' + i ? ' ej-nuevo' : ''}">
         <button class="check" onclick="toggleEj(${i})" aria-label="Hecho"><span>✓</span></button>
         <div class="ej-cuerpo">
           <div class="ej-fila"><span class="ej-nombre">${esc(e.nombre)}</span><span class="ej-dosis">${esc(e.dosis||'')}</span></div>
@@ -765,6 +778,8 @@ function tarjetaTaichi() {
 // Guarda primero; lo reflexivo (cómo te sentiste, fatiga) se pregunta después y es saltable.
 async function hiceTaichi() {
   const { v } = videoDeHoy();
+  const btn = document.activeElement;   // el botón recién tocado: se apaga mientras guarda
+  if (btn && btn.classList) btn.classList.add('t-guardando');
   try {
     const s = await asegurarSesionHoy({estado:'hecha'});
     const filas = await sb('nova_ejercicios_sesion','POST', {
@@ -772,7 +787,7 @@ async function hiceTaichi() {
     }, '?on_conflict=sesion_id,ejercicio');
     taichiUltimo = filas?.[0] || {ejercicio: TAICHI_PREFIJO + v.clase, created_at: new Date().toISOString()};
     abrirCierre('video');
-  } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
+  } catch (e) { console.error(e); if (btn && btn.classList) btn.classList.remove('t-guardando'); mostrarError('No se guardó. Intenta otra vez.'); }
 }
 
 // ═══ PAUSA CORTA ═══
@@ -796,7 +811,7 @@ function lineaPausa() {
         <div class="pausa-tit">Pausa corta · ${esc(p.titulo)} ↗</div>
         <div class="pausa-sub">${esc(p.sub)} · sentada</div>
       </a>
-      ${hecha ? '<span class="pausa-ok">✓ hecha</span>'
+      ${hecha ? `<span class="pausa-ok${recien === 'pausa' ? ' t-hecho-nuevo' : ''}">✓ hecha</span>`
               : '<button class="pausa-btn" onclick="hicePausa()">Lo hice</button>'}
     </div>`;
 }
@@ -805,12 +820,14 @@ function lineaPausa() {
 async function hicePausa() {
   const p = pausaDeHoy();
   const nombre = PAUSA_PREFIJO + p.titulo;
+  const btn = document.activeElement;
+  if (btn && btn.classList) btn.classList.add('t-guardando');
   try {
     const s = sesionHoy?.id ? sesionHoy : await asegurarSesionHoy({});
     await sb('nova_ejercicios_sesion','POST', {sesion_id: s.id, ejercicio: nombre}, '?on_conflict=sesion_id,ejercicio');
     pausasHoy.push(nombre);
-    pintarSesion();
-  } catch (e) { console.error(e); mostrarError('No se guardó. Intenta otra vez.'); }
+    recien = 'pausa'; pintarSesion(); recien = null;
+  } catch (e) { console.error(e); if (btn && btn.classList) btn.classList.remove('t-guardando'); mostrarError('No se guardó. Intenta otra vez.'); }
 }
 
 // "3 de 8": sólo cuenta, sin "te faltan" ni mensaje final. A los DIAS_PREGUNTA_BARRA días
@@ -961,7 +978,7 @@ async function toggleEj(i) {
   const on = !hechos.has(e.nombre);
   on ? hechos.add(e.nombre) : hechos.delete(e.nombre);
   $('ejr-'+i)?.classList.toggle('ok', on);
-  pintarSesion();
+  recien = on ? 'e' + i : null; pintarSesion(); recien = null;
   if (PREVIA) return;
   try {
     const s = sesionHoy?.id ? sesionHoy : await asegurarSesionHoy({version});
@@ -1028,6 +1045,7 @@ function saltarCierre() { mostrarVista('vista-inicio'); pintarTodo(); }
 
 function mostrarVista(id) {
   ['vista-inicio','vista-sesion','vista-cierre'].forEach(v => $(v).classList.toggle('oculto', v !== id));
+  Tierra.entra(id);
 }
 
 // ═══ HITOS ═══

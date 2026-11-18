@@ -501,3 +501,38 @@ body { font-variant-numeric: lining-nums; -webkit-font-smoothing: antialiased; -
 .t-emo[data-e="☁"] { --i: var(--i-cloud); }
 .t-emo[data-e="☐"] { --i: var(--i-square); }
 .t-emo[data-e="😔"] { --i: var(--i-frown); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Paso 3 · lo dinámico (movimiento suave, sin rebote, sin confeti)
+   Toque 150 ms · aparición 250 ms. Todo se apaga con prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes t-entra  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes t-fundir { from { opacity: 0; } to { opacity: 1; } }
+@keyframes t-traza  { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes t-llena  { from { transform: scale(.86); } to { transform: none; } }
+
+/* Al cambiar de pantalla las secciones suben una tras otra (tierra.js pone .t-entra solo al navegar,
+   nunca al refrescar datos, para que no parpadee) */
+.t-entra > * { animation: t-entra var(--t-aparece) var(--ease) backwards; }
+.t-entra > :nth-child(2) { animation-delay: 40ms; }
+.t-entra > :nth-child(3) { animation-delay: 80ms; }
+.t-entra > :nth-child(4) { animation-delay: 120ms; }
+.t-entra > :nth-child(5) { animation-delay: 160ms; }
+.t-entra > :nth-child(6) { animation-delay: 200ms; }
+.t-entra > :nth-child(n+7) { animation-delay: 240ms; }
+
+/* Lo que se toca y no es botón (tarjetas, filas, encabezados plegables) se hunde un poco */
+:where([onclick]:not(button, a, input, select, textarea, label)) { transition: transform var(--t-toque) var(--ease); }
+.t-presion { transform: scale(.985); }
+
+/* Marcar algo como hecho: el círculo se llena y la palomita se traza */
+.t-hecho-nuevo { animation: t-llena var(--t-aparece) var(--ease) backwards; }
+.t-hecho-nuevo .t-emo, .t-hecho-nuevo.t-emo { animation: t-traza var(--t-aparece) var(--ease) 60ms backwards; }
+
+/* Botón guardando: baja un poco y no admite otro toque */
+.t-guardando { opacity: .7; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .t-entra > *, .t-hecho-nuevo, .t-hecho-nuevo .t-emo, .t-hecho-nuevo.t-emo { animation: none !important; }
+  .t-presion { transform: none; }
+}

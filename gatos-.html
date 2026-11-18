@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Mia y Dorito">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="tierra.css?v=1">
-<script src="tierra.js?v=1"></script>
+<link rel="stylesheet" href="tierra.css?v=2">
+<script src="tierra.js?v=3"></script>
 <style>
   /* Tierra · Calma · Directo v2: colores, letras, radios y sombras vienen de tierra.css */
   :root{--bg:var(--papel);--card:var(--tarjeta);--ink:var(--tinta);--line:var(--borde);--acc:var(--terra)}
@@ -266,7 +266,7 @@ function patron(gid){
   return `<b>${esc(G(gid).nombre)} lleva ${s.length} episodios en 3 semanas</b> (${top[1]} de ${esc(top[0])}${tc&&tc[1]>1?', '+tc[1]+' con '+esc(tc[0]):''}). Vale la pena mencionárselo a la vet.`;
 }
 
-function go(v){vista=v;form=null;folds={};render();window.scrollTo(0,0);}
+function go(v){vista=v;form=null;folds={};render();window.scrollTo(0,0);Tierra.entra('view');}
 window.go=go;
 window.fold=function(k){folds[k]=!folds[k];render();};
 
@@ -641,7 +641,19 @@ window.terminar=async function(id){if(!confirm('¿Marcar que se acabó hoy?'))re
 window.borrar=async function(t,id){if(!confirm('¿Eliminar este registro?'))return;
   try{await api(`${t}?id=eq.${id}`,{method:'DELETE'});await cargar();render();}catch(e){alert(friendlyError(e));}};
 
-(async function(){try{await cargar();render();}catch(e){document.getElementById('view').innerHTML='<div class="empty">No se pudo conectar. Revisa tu internet y recarga.</div>';}})();
+(async function(){try{await cargar();render();Tierra.entra('view');}catch(e){document.getElementById('view').innerHTML='<div class="empty">No se pudo conectar. Revisa tu internet y recarga.</div>';}})();
+
+/* Se actualiza sola, sin recargar: al volver a la app y cada minuto. Sólo repinta si algo cambió,
+   y nunca con un formulario abierto, una foto abierta o mientras escribes. */
+/* Si publicas una versión nueva, se pone al día al volver, salvo con un formulario o una foto abiertos */
+Tierra.version(()=>!!form||document.getElementById('lightbox').classList.contains('on'));
+const instantanea=()=>JSON.stringify([gatos,trat,vac,sint,gastos,log,pend,visitas,labs,docs,estados,salidas]);
+Tierra.vivo(async()=>{
+  if(form||document.getElementById('lightbox').classList.contains('on'))return;
+  const antes=instantanea();
+  await cargar();
+  if(instantanea()!==antes)render();
+},60000);
 </script>
 </body>
 </html>

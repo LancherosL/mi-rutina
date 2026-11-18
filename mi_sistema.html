@@ -12,8 +12,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Mi Sistema</title>
-<link rel="stylesheet" href="tierra.css?v=1">
-<script src="tierra.js?v=1"></script>
+<link rel="stylesheet" href="tierra.css?v=2">
+<script src="tierra.js?v=3"></script>
 <style>
 /* Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
    Los nombres de abajo son los de siempre, apuntan a los tokens para no tocar las 1.600 líneas de reglas.
@@ -158,7 +158,7 @@ body.night .nav-pill.on { background: var(--terra-claro); border-color: var(--te
 .icon-btn .t-ico { width: 24px; height: 24px; vertical-align: 0; }
 
 /* ── PANELS ── */
-.panel { display: none; padding: 0 20px 40px; animation: fadeUp .28s ease; }
+.panel { display: none; padding: 0 20px 40px; }   /* al cambiar de panel las secciones suben solas: Tierra.entra() en switchPanel */
 .panel.on { display: block; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
@@ -4892,6 +4892,7 @@ function switchPanel(panel) {
   document.getElementById(`panel-${panel}`).classList.add('on');
   document.querySelector(`.nav-pill.p-${panel}`).classList.add('on');
   if(panel==='semana') buildSemana();
+  Tierra.entra(`panel-${panel}`);
   if(panel==='noche') { document.body.classList.add('night'); document.getElementById('nightBtn').innerHTML='<i class="t-ico t-ico-luna"></i>'; }
   else { document.body.classList.remove('night'); document.getElementById('nightBtn').innerHTML='<i class="t-ico t-ico-sol"></i>'; }
 }
@@ -5038,6 +5039,8 @@ function verificarCambioDeDia() {
 }
 
 function iniciarAutoRefresco() {
+  // Si publicas una versión nueva, se pone al día al volver, salvo con algo escribiéndose o sin guardar
+  Tierra.version(() => usuarioEscribiendo || !!saveTimer || !!afinarTimer || Object.keys(afinarCambios).length > 0 || Object.keys(momentoTimers).length > 0);
   setInterval(() => {
     if(verificarCambioDeDia()) return;
     refrescoAutomatico();

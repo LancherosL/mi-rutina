@@ -14,8 +14,8 @@
 <title>Nuestra casa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="tierra.css?v=1" />
-<script src="tierra.js?v=1"></script>
+<link rel="stylesheet" href="tierra.css?v=2" />
+<script src="tierra.js?v=3"></script>
 <style>
   /* Tierra · Calma · Directo v2: los colores, letras, radios y sombras vienen de tierra.css.
      Casa conserva sus nombres de variable; solo apuntan a los tokens de la casa.
@@ -907,7 +907,8 @@ async function refrescar() {
   }
   if (S.codigo && S.yo) { try { await cargar(); } catch (e) { toast(t().sinRed); } }
   else if (S.codigo) { try { await probarCodigo(S.codigo); } catch (e) {} }
-  pintar();
+  pintar(); Tierra.entra('raiz');
+  Tierra.version();   // se pone al día al volver si publicas una versión nueva; nunca mientras escribes
   setInterval(() => { if (!document.hidden) refrescar(); }, REFRESCO_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
 })();
