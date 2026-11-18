@@ -19,6 +19,9 @@ GitHub Pages). Commits y push sólo cuando Laura lo pida.
 ```
 mi_sistema.html         Mi Sistema: hábitos, emociones, sueño, ciclo, consumo, gatos…
 nutri.html              Nutri: nutrición (en diseño)
+nova.html               Nova: movimiento, Tai Chi en silla
+gatos-.html             Mía y Dorito: salud de las gatas
+tierra.css              Aspecto compartido de todas las apps
 defile-v4-plus.html     Défile (francés)
 gatos-.html             Gatos
 mi_casa_2_2.html        Mi Casa
@@ -26,6 +29,23 @@ casa.html               Nuestra casa: limpieza compartida con el roommate (ES/FR
 manual-claude-v2.html   Manual para construir cosas con Claude
 sql/                    Migraciones (sólo esquema y datos genéricos)
 ```
+
+## Aspecto de todas las apps (desde el 18 nov 2026)
+
+Nova, Nutri, Mi Sistema, Casa y Mía y Dorito comparten **`tierra.css`** (en la raíz).
+Se enlaza con `<link rel="stylesheet" href="tierra.css?v=1">` y `<script src="tierra.js?v=1">` antes del
+`<style>` de cada app; ahí viven colores, letras, radios, sombras, botones, barra de abajo e iconos.
+
+- **Editar, no versionar:** cambios de aspecto van en `tierra.css` o en el CSS de la app. Nada de `tierra-v2.css`.
+- **Hecho a mano, sin tarjetas (regla del 18 nov 2026, ajustada):** nada de cajas blancas con borde y sombra. Las secciones son bloques planos en pastel suave, **máximo 2 pasteles por pantalla** y una de cada tres sin fondo (`--p1`, `--p2`; `--p3` y `--p4` repiten). Texto en tinta oscura, sin gris (`--muted` es café oscuro). Pasteles claros: `--p-terra`, `--p-salvia`, `--p-dorado`, `--p-rosa`. Lo que se toca va en `--capa`, los campos son rayas, las listas llevan raya discontinua (`--linea`), grano de papel de fondo. **Cada app tiene su formato:** Nova editorial y orgánica (esquinas desiguales, títulos cursivos con subrayado ondulado); Mi Sistema diario (igual, con dorado y rosa); Nutri fresca y directa (verde neón propio, menta y limón pálidos, tarjeta de Hoy en neón, barra flotante neón, títulos en negrita con punto neón); Casa tablero del hogar (franjas de borde a borde, rectas, títulos en negrita); Mía y Dorito bloques parejos de 30 px con un punto del color de cada gata. Modo noche: café cálido más claro (`--fondo-oscuro #5A4638`) con los mismos pasteles también más claros, nunca negro ni sombrío; Mi Sistema los vuelve a leer en `body.night`.
+- **Colores — una paleta por app:** **Nova** terra, **Nutri** verde neón (`#1FD47A`, texto oscuro encima; es su color, no se apaga a salvia), **Mi Sistema** marrón con dorado, **Casa** dorado, **Mía** salvia y **Dorito** terra. Se elige con `<html data-app="…">` (y `data-gato` en Mía y Dorito) y los tokens `--acento`, `--acento-oscuro`, `--acento-claro`, `--acento-suave`, `--acento-texto`, `--sobre-acento` y `--detalle` de `tierra.css`; `--terra` y sus variantes siguen a `--acento`. Salvia = hecho, alerta = solo "hace X días". Sin azul, lavanda ni violeta.
+- **Letras:** Cormorant Garamond 600 solo para saludo, nombre de app, títulos grandes y citas; DM Sans para todo lo demás (no Inter). Texto terra pequeño usa `--terra-texto`.
+- **Forma y jerarquía:** saludo y nombre de app 44 px (Cormorant), títulos de página 32 px, secciones planas (sin sombra), 24 px de margen lateral, 40 px entre secciones, botones 56 px con radio 16, toques de 44 px mínimo, un solo degradado (tarjeta de Nova).
+- **Iconos, cero emojis en pantalla:** `tierra.js` cambia cada emoji o símbolo por un icono de línea (trazos de Lucide, licencia ISC, dentro de `tierra.css`). El carácter original queda dentro, oculto, así que los datos guardados y la lógica no cambian. Iconos a mano: `<i class="t-ico t-ico-nombre"></i>`. Un emoji nuevo necesita su línea `.t-emo[data-e="…"]` en `tierra.css`; si no la tiene, no se ve.
+- **Marca de Nutri:** aguacate ilustrado (`aguacate.svg`). Iconos del iPhone: los de Laura, planos de un color por app (`icono-*.png`; Mía y Dorito usa `icono-180/192/512.png`).
+- **Sin gamificación:** ni rachas, fuegos, puntos, confeti ni celebraciones.
+- **Movimiento:** toque 150 ms, aparición 250 ms, pestañas 200 ms, sin rebote; respeta `prefers-reduced-motion`.
+- **Capturas de prueba (Playwright):** solo en `~/Library/Caches/playwright-mcp-output`, nunca dentro del repo (pueden mostrar datos de salud y el repo es público).
 
 ## Supabase (compartido)
 
@@ -151,15 +171,13 @@ Si alguna falla, rediseñar:
 App de nutrición. Mismo stack que Mi Sistema. Perfil, metas y contexto de salud:
 `nutri_perfil` y `contexto_privado`.
 
-**Identidad visual propia, distinta de Mi Sistema** (decisión de Laura, 22 oct 2026):
-paleta crema / verde fresco / naranja, tipografías Outfit + Plus Jakarta Sans, anillos
-animados en Hoy, barra de pestañas flotante abajo, modo oscuro propio (sigue al
-teléfono). No copiar tokens ni tipografía de `mi_sistema.html`.
-
-Excepción pedida por Laura: en Nutri sí hay micro-animaciones y confeti sutil al
-cumplir la proteína del día o cerrar el día en objetivo (una vez por día). El resto
-de reglas de Mi Sistema sigue aplicando (nada obligatorio, sin registro no se juzga,
-lenguaje de Laura).
+**Aspecto: Nutri es de la familia Tierra, pero con su propio color** (decisión de Laura, 18 nov 2026):
+usa `tierra.css`, DM Sans + Cormorant Garamond y la barra de abajo `.t-nav` (flotante y neón),
+y su verde neón (`--acento #1FD47A`, con texto oscuro encima) es su identidad; no se apaga a
+salvia. Las secciones van en menta y limón pálidos, la tarjeta de Hoy en neón con anillos en
+tinta y blanco. Se fueron Outfit / Plus Jakarta Sans y el confeti. Sin gamificación en ninguna
+app. El resto de reglas de Mi Sistema sigue aplicando (nada obligatorio, sin registro no se
+juzga, lenguaje de Laura).
 
 ## Reparto con Mi Sistema
 

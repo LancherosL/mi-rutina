@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-app="mi-sistema">
 <head>
 <script src="auth.js?v=1"></script>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#6B4630">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,37 +12,58 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Mi Sistema</title>
+<link rel="stylesheet" href="tierra.css?v=1">
+<script src="tierra.js?v=1"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
-
+/* Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
+   Los nombres de abajo son los de siempre, apuntan a los tokens para no tocar las 1.600 líneas de reglas.
+   Lavanda y azul ya no existen: las opciones elegidas van en terra. */
 :root {
-  --bg: #F2EDE4;
-  --card: #FAFAF7;
-  --ink: #1A1612;
-  --muted: #8C7E6E;
-  --terra: #B85C35;
-  --terra-soft: rgba(184,92,53,0.10);
-  --sage: #5C8A65;
-  --sage-soft: rgba(92,138,101,0.10);
-  --gold: #C49A3C;
-  --gold-soft: rgba(196,154,60,0.10);
-  --lavender: #7B6FA0;
-  --lavender-soft: rgba(123,111,160,0.10);
-  --sky: #4A7FA5;
-  --sky-soft: rgba(74,127,165,0.10);
-  --night-bg: #13191F;
-  --night-card: #1C2530;
-  --night-text: #DDD5C8;
-  --night-accent: #7BAEC8;
-  --line: rgba(26,22,18,0.08);
-  --r: 22px;
-  --r-sm: 14px;
+  --bg: var(--papel);
+  --card: var(--tarjeta);
+  --ink: var(--tinta);
+  /* --muted y --terra salen directo de tierra.css */
+  --terra-soft: var(--terra-suave);
+  --sage: var(--salvia);
+  --sage-soft: var(--salvia-suave);
+  --gold: var(--dorado);
+  --gold-soft: var(--dorado-suave);
+  --lavender: var(--terra);
+  --lavender-soft: var(--terra-suave);
+  --sky: var(--terra);
+  --sky-soft: var(--terra-suave);
+  --night-bg: var(--fondo-oscuro);
+  --night-card: var(--superficie);
+  --night-text: var(--texto-oscuro);
+  --night-accent: var(--terra-claro);
+  --line: var(--borde);
+  --r: var(--r-tarjeta);
+  --r-sm: var(--r-boton);
+}
+
+/* Noche: mismos tonos, más claros para leerse. Nunca azul, nunca negro puro. */
+body.night {
+  --sombra-banda: 0 14px 32px -14px rgba(0,0,0,.5); 
+  --terra-texto: var(--terra-claro);
+  --sombra-boton: 0 1px 2px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.12);
+  --tarjeta: var(--superficie); --beige: var(--superficie-2); --tinta: var(--texto-oscuro); --borde: var(--borde-oscuro);
+  --ink: var(--texto-oscuro);
+  --muted: var(--muted-oscuro);
+  --line: var(--borde-oscuro);
+  --terra: var(--terra-claro);
+  --terra-soft: rgba(208,122,78,.16);
+  --sage: var(--salvia-claro);
+  --gold: var(--dorado-claro);
+  --lavender: var(--terra-claro);
+  --lavender-soft: rgba(208,122,78,.16);
+  --sky: var(--terra-claro);
+  --sky-soft: rgba(208,122,78,.16);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-ui);
   background: var(--bg);
   color: var(--ink);
   min-height: 100vh;
@@ -61,18 +83,18 @@ body.night { background: var(--night-bg); color: var(--night-text); }
 .header-left {}
 
 .greeting {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: var(--fs-saludo);
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
 }
 
 .greeting strong { font-weight: 600; font-style: normal; }
 
 .date-line {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
   text-transform: uppercase;
@@ -95,7 +117,7 @@ body.night { background: var(--night-bg); color: var(--night-text); }
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin: 0 20px 14px;
   letter-spacing: 0.06em;
@@ -116,28 +138,34 @@ body.night { background: var(--night-bg); color: var(--night-text); }
 
 .nav-pill {
   flex-shrink: 0;
-  padding: 7px 16px;
-  border-radius: 20px;
-  border: 1.5px solid var(--line);
+  min-height: var(--alto-pildora);
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
   background: var(--card);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all .2s;
   color: var(--muted);
   white-space: nowrap;
 }
-body.night .nav-pill { background: var(--night-card); border-color: rgba(255,255,255,0.07); }
-.nav-pill.on { color: white; border-color: transparent; }
-.nav-pill.on.p-hoy { background: var(--terra); box-shadow: 0 4px 14px rgba(184,92,53,0.3); }
-.nav-pill.on.p-manana { background: var(--gold); box-shadow: 0 4px 14px rgba(196,154,60,0.3); }
-.nav-pill.on.p-noche { background: var(--night-bg); box-shadow: 0 4px 14px rgba(19,25,31,0.4); }
-.nav-pill.on.p-semana { background: var(--sage); box-shadow: 0 4px 14px rgba(92,138,101,0.3); }
+body.night .nav-pill { background: var(--night-card); border-color: var(--borde-oscuro); }
+.nav-pill { display: inline-flex; align-items: center; gap: 6px; }
+.nav-pill.on { background: var(--terra); border-color: var(--terra); color: #fff; }
+body.night .nav-pill.on { background: var(--terra-claro); border-color: var(--terra-claro); color: var(--fondo-oscuro); }
+.icon-btn { color: var(--muted); min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.icon-btn .t-ico { width: 24px; height: 24px; vertical-align: 0; }
 
 /* ── PANELS ── */
 .panel { display: none; padding: 0 20px 40px; animation: fadeUp .28s ease; }
 .panel.on { display: block; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* Tarjetas de Mi Sistema: borde fino de 1 px, igual que en las otras apps */
+.snap-card, .emotion-bar, .quick-log, .gatos-card, .log-card, .ciclo-card, .resumen-card { border: 1px solid var(--line); }
+body.night .snap-card, body.night .emotion-bar, body.night .quick-log, body.night .gatos-card,
+body.night .log-card, body.night .ciclo-card, body.night .resumen-card { border-color: var(--borde-oscuro); }
 
 /* ── HOY PANEL ── */
 
@@ -153,7 +181,7 @@ body.night .nav-pill { background: var(--night-card); border-color: rgba(255,255
   background: var(--card);
   border-radius: var(--r);
   padding: 14px 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -176,14 +204,14 @@ body.night .snap-card { background: var(--night-card); }
 .snap-card.c-sky::before { background: var(--sky); }
 
 .snap-label {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
   margin-bottom: 6px;
 }
 .snap-value {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 26px;
   font-weight: 600;
   line-height: 1;
@@ -193,7 +221,7 @@ body.night .snap-value { color: var(--night-text); }
 /* El cuadrito de fumado muestra un cronómetro: más chico para que quepa */
 #snap-fumado { font-size: 21px; font-variant-numeric: tabular-nums; }
 .snap-unit { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 2px; }
-.snap-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.snap-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .snap-empty { font-size: 20px; opacity: 0.3; }
 
 /* Emoción selector */
@@ -202,11 +230,11 @@ body.night .snap-value { color: var(--night-text); }
   border-radius: var(--r);
   padding: 16px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .emotion-bar { background: var(--night-card); }
 .emotion-title {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -263,7 +291,7 @@ body.night .granular-box { border-top-color: rgba(255,255,255,0.1); }
 }
 
 .granular-label {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -366,19 +394,19 @@ body.night .int-pill.selected { color: var(--night-accent); border-color: var(--
   animation: granularIn .3s ease;
 }
 .disparador-box.on { display: block; }
-body.night .disparador-box { background: rgba(123,174,200,0.10); }
+body.night .disparador-box { background: rgba(208,122,78,0.10); }
 
 .disparador-pregunta {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-size: 17px;
   font-style: italic;
   margin-bottom: 10px;
   line-height: 1.25;
 }
 
-.disparador-hint { font-size: 11px; color: var(--muted); margin: -4px 0 10px; }
+.disparador-hint { font-size: 12px; color: var(--muted); margin: -4px 0 10px; }
 .disparador-grupo-label {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -410,7 +438,7 @@ body.night .disparador-pill {
   background: none; border: none;
   color: var(--muted);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   padding: 8px 0 0;
   cursor: pointer;
   text-decoration: underline;
@@ -439,7 +467,7 @@ body.night .micro-accion { background: rgba(92,138,101,0.12); }
 body.night .micro-accion-texto { color: var(--night-text); }
 
 .micro-accion-por-que {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
   line-height: 1.4;
@@ -459,16 +487,16 @@ body.night .micro-accion-texto { color: var(--night-text); }
   background: var(--sky-soft);
   border-radius: var(--r-sm);
 }
-body.night .fumado-stat { background: rgba(123,174,200,0.10); }
+body.night .fumado-stat { background: rgba(208,122,78,0.10); }
 .fumado-num {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 26px;
   line-height: 1;
   color: var(--sky);
 }
 body.night .fumado-num { color: var(--night-accent); }
 .fumado-label {
-  font-size: 9.5px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
   letter-spacing: 0.04em;
@@ -493,7 +521,7 @@ body.night .fumado-sep { background: rgba(255,255,255,0.1); }
   border: none;
   color: var(--sage);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   padding: 10px 0 0;
   cursor: pointer;
@@ -506,7 +534,7 @@ body.night .fumado-sep { background: rgba(255,255,255,0.1); }
   background: none; border: none;
   color: var(--muted);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0 0 10px;
   cursor: pointer;
   text-decoration: underline;
@@ -524,7 +552,7 @@ body.night .fumado-sep { background: rgba(255,255,255,0.1); }
 }
 .hora-row.on { display: flex; }
 
-.hora-row-label { font-size: 11.5px; color: var(--muted); }
+.hora-row-label { font-size: 12px; color: var(--muted); }
 
 .hora-row input[type="time"] {
   flex: 1;
@@ -545,9 +573,9 @@ body.night .hora-row input[type="time"] {
 .hora-row-reset {
   background: none;
   border: none;
-  color: var(--terra);
+  color: var(--terra-texto);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -582,7 +610,7 @@ body.night .ola-btn { border-color: rgba(255,255,255,0.15); }
 
 /* Etiqueta del disparador dentro de la lista */
 .log-item-trigger {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -593,11 +621,11 @@ body.night .ola-btn { border-color: rgba(255,255,255,0.15); }
   border-radius: var(--r);
   padding: 16px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .quick-log { background: var(--night-card); }
 .ql-title {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -622,7 +650,7 @@ body.night .quick-log { background: var(--night-card); }
   border: 1.5px solid var(--line);
   background: transparent;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--muted);
   display: flex; align-items: center; justify-content: center;
@@ -669,7 +697,7 @@ body.night .nivel-pill { border-color: rgba(255,255,255,0.1); }
 /* Meal / plate tracker */
 
 .plate-btn.filled { color: var(--sage); }
-#plate-fill { transition: stroke-dashoffset .5s cubic-bezier(0.34,1.56,0.64,1), stroke .3s; }
+#plate-fill { transition: stroke-dashoffset .5s var(--ease), stroke .3s; }
 
 /* Mis gatos */
 .gatos-card {
@@ -677,7 +705,7 @@ body.night .nivel-pill { border-color: rgba(255,255,255,0.1); }
   border-radius: var(--r);
   padding: 16px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .gatos-card { background: var(--night-card); }
 .gato-row {
@@ -700,12 +728,12 @@ body.night .gato-row { border-bottom-color: rgba(255,255,255,0.06); }
   transition: all .2s;
 }
 body.night .gato-check { border-color: rgba(255,255,255,0.15); }
-.gato-row.done .gato-check { background: var(--lavender); border-color: var(--lavender); color: white; }
+.gato-row.done .gato-check { background: var(--sage); border-color: var(--sage); color: white; }
 .gato-emoji { font-size: 18px; }
 .gato-text { flex: 1; }
 .gato-name { font-size: 14px; font-weight: 600; }
-.gato-freq { font-size: 11px; color: var(--muted); letter-spacing: 0.01em; margin-top: 2px; line-height: 1.35; }
-.gato-row.done .gato-name { color: var(--lavender); }
+.gato-freq { font-size: 12px; color: var(--muted); letter-spacing: 0.01em; margin-top: 2px; line-height: 1.35; }
+.gato-row.done .gato-name { color: var(--sage); }
 
 /* Tarea que no toca hoy: visible pero atenuada y no marcable */
 .gato-row.en-espera {
@@ -721,7 +749,7 @@ body.night .gato-check { border-color: rgba(255,255,255,0.15); }
   border-radius: var(--r);
   padding: 16px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .log-card { background: var(--night-card); }
 .log-header {
@@ -730,7 +758,7 @@ body.night .log-card { background: var(--night-card); }
   align-items: center;
   margin-bottom: 12px;
 }
-.log-total { font-size: 12px; font-weight: 700; color: var(--terra); }
+.log-total { font-size: 12px; font-weight: 700; color: var(--terra-texto); }
 
 /* Fecha del gasto: por defecto hoy, se puede backdatear */
 .log-fecha-row {
@@ -756,17 +784,17 @@ body.night .log-fecha-input {
   color: var(--night-text);
   border-color: rgba(255,255,255,0.12);
 }
-.log-fecha-row.fecha-pasada { color: var(--terra); font-weight: 600; }
+.log-fecha-row.fecha-pasada { color: var(--terra-texto); font-weight: 600; }
 body.night .log-fecha-row.fecha-pasada { color: var(--night-accent); }
 .log-fecha-hoy {
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid var(--terra);
   background: transparent;
-  color: var(--terra);
+  color: var(--terra-texto);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -778,7 +806,7 @@ body.night .log-fecha-hoy { border-color: var(--night-accent); color: var(--nigh
   border-radius: var(--r);
   padding: 18px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .ciclo-card { background: var(--night-card); }
 .ciclo-top {
@@ -794,17 +822,17 @@ body.night .ciclo-card { background: var(--night-card); }
   padding: 12px 8px;
   text-align: center;
 }
-body.night .ciclo-dia-box { background: rgba(123,174,200,0.1); }
+body.night .ciclo-dia-box { background: rgba(208,122,78,0.1); }
 .ciclo-dia-num {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 32px;
   font-weight: 700;
-  color: var(--terra);
+  color: var(--terra-texto);
   line-height: 1;
 }
 body.night .ciclo-dia-num { color: var(--night-accent); }
 .ciclo-dia-label {
-  font-size: 8px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -812,13 +840,13 @@ body.night .ciclo-dia-num { color: var(--night-accent); }
   font-weight: 600;
 }
 .ciclo-fase-nombre {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-size: 24px;
   font-weight: 600;
   line-height: 1.1;
 }
 .ciclo-fase-sub {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -826,27 +854,24 @@ body.night .ciclo-dia-num { color: var(--night-accent); }
 .ciclo-barra-track {
   position: relative;
   display: flex;
-  height: 10px;
-  border-radius: 5px;
+  height: 8px;
+  border-radius: 999px;
   overflow: hidden;
-  background: var(--line);
+  background: var(--beige);
 }
-.ciclo-tramo { opacity: 0.35; transition: opacity .3s; }
-.ciclo-tramo.activa { opacity: 1; }
+.ciclo-relleno { height: 100%; background: var(--terra); border-radius: 999px; transition: width .6s var(--ease); }
 .ciclo-marcador {
   position: absolute;
-  top: -3px;
-  width: 3px;
-  height: 16px;
-  background: var(--ink);
-  border-radius: 2px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: #fff;
   transform: translateX(-50%);
 }
-body.night .ciclo-marcador { background: var(--night-text); }
 .ciclo-barra-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
 }
@@ -857,7 +882,7 @@ body.night .ciclo-marcador { background: var(--night-text); }
 }
 .ciclo-bloque:last-of-type { border-bottom: none; }
 .ciclo-bloque-titulo {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -872,7 +897,7 @@ body.night .ciclo-marcador { background: var(--night-text); }
 body.night .ciclo-bloque-texto { color: var(--night-text); }
 .ciclo-nutrientes {
   font-weight: 600;
-  color: var(--terra);
+  color: var(--terra-texto);
 }
 body.night .ciclo-nutrientes { color: var(--night-accent); }
 .ciclo-alimentos {
@@ -885,7 +910,7 @@ body.night .ciclo-nutrientes { color: var(--night-accent); }
 body.night .ciclo-alimentos { color: var(--night-text); }
 .ciclo-alimentos li { margin-bottom: 5px; }
 .ciclo-disclaimer {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   font-style: italic;
   text-align: center;
@@ -896,7 +921,7 @@ body.night .ciclo-alimentos { color: var(--night-text); }
   padding: 12px;
   border: 1px solid var(--terra);
   background: transparent;
-  color: var(--terra);
+  color: var(--terra-texto);
   border-radius: var(--r-sm);
   font-family: inherit;
   font-size: 13px;
@@ -907,7 +932,7 @@ body.night .ciclo-alimentos { color: var(--night-text); }
 .ciclo-btn:active { background: var(--terra-soft); }
 body.night .ciclo-btn { border-color: var(--night-accent); color: var(--night-accent); }
 .ciclo-ultimo {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   text-align: center;
   margin-top: 8px;
@@ -923,15 +948,15 @@ body.night .nutri-link { background:var(--night-card); color:var(--night-text); 
 
 /* Cronómetro de fumado */
 .crono-box {
-  background: linear-gradient(135deg, var(--sage-soft), rgba(184,92,53,0.06));
+  background: var(--sage-soft);
   border-radius: var(--r-sm);
   padding: 18px 14px;
   text-align: center;
   margin-bottom: 16px;
 }
-body.night .crono-box { background: linear-gradient(135deg, rgba(123,174,200,0.1), rgba(123,174,200,0.05)); }
+body.night .crono-box { background: rgba(208,122,78,0.1); }
 .crono-label {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -939,16 +964,16 @@ body.night .crono-box { background: linear-gradient(135deg, rgba(123,174,200,0.1
   margin-bottom: 8px;
 }
 .crono-time {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 38px;
   font-weight: 700;
-  color: var(--terra);
+  color: var(--terra-texto);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 body.night .crono-time { color: var(--night-accent); }
 .crono-desde {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 8px;
 }
@@ -962,7 +987,7 @@ body.night .crono-time { color: var(--night-accent); }
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   font-weight: 700;
-  color: var(--terra);
+  color: var(--terra-texto);
   cursor: pointer;
   transition: all .15s;
 }
@@ -972,7 +997,7 @@ body.night .log-qbtn { border-color: rgba(255,255,255,0.1); }
 .gasto-cats { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px; padding-bottom: 2px; scrollbar-width: none; }
 .gasto-cats::-webkit-scrollbar { display: none; }
 .gasto-cat { flex: none; font-size: 12.5px; padding: 6px 11px; border-radius: 16px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font-family: inherit; }
-.gasto-cat.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+.gasto-cat.on { background: var(--terra); border-color: var(--terra); color: #fff; }
 body.night .gasto-cat { color: var(--night-text); border-color: rgba(255,255,255,0.12); }
 .gasto-edit-cat { width: 100%; margin: 6px 0; font-size: 14px; padding: 6px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: inherit; }
 .log-form-row .ql-num-input { width: 90px; }
@@ -1025,7 +1050,7 @@ body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
   padding: 4px 6px;
   flex-shrink: 0;
 }
-.log-item-del:active { color: var(--terra); }
+.log-item-del:active { color: var(--terra-texto); }
 .log-empty { font-size: 12px; color: var(--muted); font-style: italic; padding: 6px 0; }
 
 /* Lectura visual */
@@ -1045,7 +1070,7 @@ body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
 }
 .lectura-book.on { background: var(--gold); }
 .lectura-nota {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   text-align: center;
   margin-top: 8px;
@@ -1058,8 +1083,8 @@ body.night .semana-dato { color: var(--night-text); }
 body.night .experimento { color: var(--night-text); }
 .insight-linea { font-size: 15px; line-height: 1.5; color: var(--ink); }
 body.night .insight-linea { color: var(--night-text); }
-.insight-r { font-size: 11px; color: var(--muted); white-space: nowrap; }
-.insight-nota { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; }
+.insight-r { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.insight-nota { font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic; }
 .reflexion { font-size: 14px; line-height: 1.55; color: var(--ink); padding: 10px 0; border-top: 1px solid var(--line); }
 .res-title + .reflexion { border-top: none; padding-top: 2px; }
 body.night .reflexion { color: var(--night-text); border-top-color: rgba(255,255,255,0.08); }
@@ -1083,11 +1108,11 @@ body.night .pregunta-dia-item { background: rgba(255,255,255,0.03); }
 }
 body.night .pregunta-dia-item.hoy {
   border-left-color: var(--night-accent);
-  background: rgba(123,174,200,0.1);
+  background: rgba(208,122,78,0.1);
 }
 .pregunta-dia-item.futura { opacity: 0.45; }
 .pregunta-dia-fecha {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -1095,7 +1120,7 @@ body.night .pregunta-dia-item.hoy {
   margin-bottom: 4px;
 }
 .pregunta-dia-texto {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-size: 15px;
   font-style: italic;
   line-height: 1.45;
@@ -1103,7 +1128,7 @@ body.night .pregunta-dia-item.hoy {
 }
 body.night .pregunta-dia-texto { color: var(--night-text); }
 .preguntas-nota {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   font-style: italic;
   text-align: center;
@@ -1112,7 +1137,7 @@ body.night .pregunta-dia-texto { color: var(--night-text); }
 
 /* Pregunta reflexiva: línea liviana, sin tarjeta ni botón — se marca en la lista de hábitos */
 .pregunta-inline {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-size: 17px;
   font-style: italic;
   font-weight: 400;
@@ -1125,11 +1150,11 @@ body.night .pregunta-inline { color: var(--night-text); }
 
 /* ── ANCLA DEL DÍA ── */
 .ancla-card {
-  background: linear-gradient(135deg, var(--terra) 0%, #9C4A28 100%);
+  background: var(--terra);
   border-radius: var(--r);
   padding: 18px;
   margin-bottom: 14px;
-  box-shadow: 0 6px 24px rgba(184,92,53,0.28);
+  box-shadow: var(--sombra-tarjeta);
   cursor: pointer;
   transition: transform .15s, box-shadow .3s;
   position: relative;
@@ -1137,14 +1162,14 @@ body.night .pregunta-inline { color: var(--night-text); }
 }
 .ancla-card:active { transform: scale(0.98); }
 .ancla-card.done {
-  background: linear-gradient(135deg, var(--sage) 0%, #47704F 100%);
-  box-shadow: 0 6px 24px rgba(92,138,101,0.28);
+  background: var(--sage);
+  box-shadow: var(--sombra-tarjeta);
 }
 .ancla-badge {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: rgba(255,255,255,0.75);
+  color: #fff;
   margin-bottom: 10px;
   font-weight: 600;
 }
@@ -1169,20 +1194,20 @@ body.night .pregunta-inline { color: var(--night-text); }
 .ancla-icon { font-size: 26px; }
 .ancla-text { flex: 1; }
 .ancla-titulo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 600;
   color: white;
   line-height: 1.1;
 }
 .ancla-estado {
-  font-size: 11px;
-  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+  color: #fff;
   margin-top: 3px;
 }
 .ancla-razon {
-  font-size: 11px;
-  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  color: #fff;
   font-style: italic;
   line-height: 1.5;
   padding-top: 10px;
@@ -1190,12 +1215,12 @@ body.night .pregunta-inline { color: var(--night-text); }
 }
 
 /* ── MICRO RECOMPENSA ── */
-@keyframes celebrate {
+@keyframes celebrate-sin-uso {
   0% { transform: scale(1); }
   40% { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
-.celebrating { animation: celebrate .45s cubic-bezier(0.34,1.56,0.64,1); }
+.celebrating { animation: none; }  /* sin celebraciones: el aviso en texto basta */
 
 .toast-reward {
   position: fixed;
@@ -1211,7 +1236,7 @@ body.night .pregunta-inline { color: var(--night-text); }
   box-shadow: 0 8px 30px rgba(0,0,0,0.25);
   opacity: 0;
   pointer-events: none;
-  transition: all .35s cubic-bezier(0.34,1.56,0.64,1);
+  transition: all .35s var(--ease);
   z-index: 999;
   max-width: 85%;
   text-align: center;
@@ -1240,19 +1265,21 @@ body.night .toast-reward { background: var(--night-text); color: var(--night-bg)
 .day-strip::-webkit-scrollbar { display: none; }
 .day-btn {
   flex-shrink: 0;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--line);
+  min-height: var(--alto-pildora);
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
   background: var(--card);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   color: var(--muted);
   transition: all .18s;
   font-family: 'DM Sans', sans-serif;
 }
 body.night .day-btn { background: var(--night-card); border-color: rgba(255,255,255,0.07); }
-.day-btn.on { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 4px 12px rgba(196,154,60,0.3); }
+.day-btn.on { background: var(--terra); border-color: var(--terra); color: #fff; }
+body.night .day-btn.on { background: var(--terra-claro); border-color: var(--terra-claro); color: var(--fondo-oscuro); }
 
 .habit-card {
   background: var(--card);
@@ -1274,24 +1301,24 @@ body.night .habit-card { background: var(--night-card); }
   transition: all .2s;
 }
 body.night .habit-check { border-color: rgba(255,255,255,0.15); }
-.habit-card.done .habit-check { background: var(--gold); border-color: var(--gold); color: white; }
-.habit-card.done { background: linear-gradient(135deg, rgba(196,154,60,0.06), var(--card)); }
-body.night .habit-card.done { background: linear-gradient(135deg, rgba(196,154,60,0.08), var(--night-card)); }
+.habit-card.done .habit-check { background: var(--sage); border-color: var(--sage); color: white; }
+.habit-card.done { background: rgba(196,154,60,0.06); }
+body.night .habit-card.done { background: rgba(196,154,60,0.08); }
 .habit-emoji { font-size: 20px; }
 .habit-text { flex: 1; }
 .habit-name { font-size: 15px; font-weight: 600; }
-.habit-status { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.habit-status { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .habit-card.done .habit-status { color: var(--gold); font-weight: 600; }
 
 .prog-section { margin-bottom: 14px; }
-.prog-header { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.prog-header { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
 .prog-track { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
-.prog-fill { height: 100%; border-radius: 3px; transition: width .4s cubic-bezier(0.34,1.56,0.64,1); }
+.prog-fill { height: 100%; border-radius: 3px; transition: width .4s var(--ease); }
 .prog-fill.morning { background: var(--gold); }
 .prog-fill.night-fill { background: var(--night-accent); }
 
 .section-label {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--muted);
@@ -1310,25 +1337,25 @@ body.night
   border-radius: var(--r);
   padding: 18px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: var(--sombra-tarjeta);
 }
 body.night .resumen-card { background: var(--night-card); }
 .res-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 18px;
   font-weight: 400;
   margin-bottom: 14px;
-  color: var(--terra);
+  color: var(--terra-texto);
 }
 body.night .res-title { color: var(--night-accent); }
 
 .bar-row { margin-bottom: 8px; }
-.bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
-.bar-pct { font-weight: 700; color: var(--terra); }
+.bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+.bar-pct { font-weight: 700; color: var(--terra-texto); }
 body.night .bar-pct { color: var(--night-accent); }
-.bar-track { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--terra); transition: width .6s ease; }
+.bar-track { height: 6px; border-radius: 999px; background: var(--beige); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 999px; background: var(--terra); transition: width .6s ease; }
 /* GASTOS - MEJORA VISUAL */
 .gastos-card .res-title {
   color: var(--gold);
@@ -1336,16 +1363,16 @@ body.night .bar-pct { color: var(--night-accent); }
 }
 body.night .gastos-card .res-title { color: var(--gold); }
 .gastos-total-box {
-  background: linear-gradient(135deg, rgba(199,168,113,0.15), rgba(199,168,113,0.08));
+  background: var(--gold-soft);
   border-radius: var(--r-sm);
   padding: 12px;
   text-align: center;
   margin-bottom: 12px;
   border: 1.5px solid var(--gold);
 }
-body.night .gastos-total-box { background: linear-gradient(135deg, rgba(199,168,113,0.12), rgba(199,168,113,0.06)); }
+body.night .gastos-total-box { background: var(--gold-soft); }
 .gastos-total-label {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -1353,14 +1380,14 @@ body.night .gastos-total-box { background: linear-gradient(135deg, rgba(199,168,
   margin-bottom: 3px;
 }
 .gastos-total-amount {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 28px;
   font-weight: 700;
   color: var(--gold);
   line-height: 1;
 }
 .gastos-subhead {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -1387,7 +1414,7 @@ body.night .gastos-total-box { background: linear-gradient(135deg, rgba(199,168,
   transition: background .15s;
 }
 .log-item-tocable:active { background: var(--terra-soft); }
-body.night .log-item-tocable:active { background: rgba(123,174,200,0.1); }
+body.night .log-item-tocable:active { background: rgba(208,122,78,0.1); }
 .log-item-editar {
   font-size: 12px;
   color: var(--muted);
@@ -1400,7 +1427,7 @@ body.night .log-item-tocable:active { background: rgba(123,174,200,0.1); }
   padding: 8px;
   margin: 2px -6px;
 }
-body.night .gasto-editando { background: rgba(123,174,200,0.08); }
+body.night .gasto-editando { background: rgba(208,122,78,0.08); }
 .gasto-edit-row {
   display: flex;
   gap: 6px;
@@ -1431,7 +1458,7 @@ body.night .gasto-edit-monto, body.night .gasto-edit-nota {
 }
 .gasto-edit-acciones button {
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   padding: 6px 11px;
   border-radius: 20px;
@@ -1439,16 +1466,16 @@ body.night .gasto-edit-monto, body.night .gasto-edit-nota {
   cursor: pointer;
 }
 .gasto-edit-guardar { background: var(--terra); color: #fff; }
-.gasto-edit-borrar { background: transparent; color: var(--terra); border: 1px solid var(--terra) !important; }
+.gasto-edit-borrar { background: transparent; color: var(--terra-texto); border: 1px solid var(--terra) !important; }
 .gasto-edit-cancelar { background: transparent; color: var(--muted); }
 body.night .gasto-edit-guardar { background: var(--night-accent); }
 body.night .gasto-edit-borrar { color: var(--night-accent); border-color: var(--night-accent) !important; }
-body.night .bar-fill { background: var(--night-accent); }
+body.night .bar-fill { background: var(--terra); }
 
 .w-dot.full { background: var(--terra); }
 .w-dot.partial { background: rgba(184,92,53,0.35); }
 body.night .w-dot.full { background: var(--night-accent); }
-body.night .w-dot.partial { background: rgba(123,174,200,0.35); }
+body.night .w-dot.partial { background: rgba(208,122,78,0.35); }
 
 /* SEMANA - DISEÑO NUEVO */
 .semana-header {
@@ -1456,26 +1483,26 @@ body.night .w-dot.partial { background: rgba(123,174,200,0.35); }
 }
 .semana-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 .big-stat {
-  background: linear-gradient(135deg, var(--terra-soft), rgba(184,92,53,0.08));
+  background: var(--terra-soft);
   border-radius: var(--r-sm);
   padding: 16px 12px;
   text-align: center;
 }
-body.night .big-stat { background: linear-gradient(135deg, rgba(123,174,200,0.1), rgba(123,174,200,0.08)); }
+body.night .big-stat { background: rgba(208,122,78,0.1); }
 .big-num {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 36px;
   font-weight: 700;
-  color: var(--terra);
+  color: var(--ink);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
-body.night .big-num { color: var(--night-accent); }
 .big-label {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1484,10 +1511,10 @@ body.night .big-num { color: var(--night-accent); }
 }
 
 .mensaje-grande {
-  background: linear-gradient(135deg, var(--terra-soft), var(--sage-soft));
+  background: var(--terra-soft);
   border-radius: var(--r);
   padding: 18px;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-display);
   font-style: italic;
   font-size: 16px;
   line-height: 1.7;
@@ -1498,7 +1525,7 @@ body.night .big-num { color: var(--night-accent); }
   border-left: 4px solid var(--terra);
 }
 body.night .mensaje-grande { 
-  background: linear-gradient(135deg, rgba(123,174,200,0.1), rgba(184,92,53,0.08));
+  background: rgba(208,122,78,0.1);
   color: var(--night-text);
   border-left-color: var(--night-accent);
 }
@@ -1523,13 +1550,13 @@ body.night .mensaje-grande {
 }
 body.night .week-cell { background: var(--night-card); }
 .week-cell.full {
-  background: linear-gradient(135deg, var(--terra-soft), rgba(184,92,53,0.1));
+  background: var(--terra-soft);
   border-color: var(--terra);
   border-width: 2px;
   font-weight: 600;
 }
 body.night .week-cell.full {
-  background: linear-gradient(135deg, rgba(123,174,200,0.15), rgba(123,174,200,0.08));
+  background: rgba(208,122,78,0.15);
   border-color: var(--night-accent);
 }
 .week-cell.partial {
@@ -1537,11 +1564,11 @@ body.night .week-cell.full {
   border-color: rgba(184,92,53,0.3);
 }
 body.night .week-cell.partial {
-  background: rgba(123,174,200,0.08);
-  border-color: rgba(123,174,200,0.3);
+  background: rgba(208,122,78,0.08);
+  border-color: rgba(208,122,78,0.3);
 }
 .week-day {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -1551,7 +1578,7 @@ body.night .week-cell.partial {
 .week-indicator {
   font-size: 18px;
   line-height: 1;
-  color: var(--terra);
+  color: var(--terra-texto);
   height: 20px;
   display: flex;
   align-items: center;
@@ -1590,28 +1617,28 @@ body.night .week-indicator { color: var(--night-accent); }
   align-items: baseline;
 }
 .habito-nombre {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.02em;
   font-weight: 500;
 }
 .habito-count {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-ui); font-variant-numeric: tabular-nums;
   font-size: 15px;
   font-weight: 600;
-  color: var(--terra);
+  color: var(--terra-texto);
   line-height: 1;
 }
 body.night .habito-count { color: var(--night-accent); }
 .habito-bar-track {
   height: 6px;
-  border-radius: 3px;
-  background: var(--line);
+  border-radius: 999px;
+  background: var(--beige);
   overflow: hidden;
 }
 .habito-bar-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 999px;
   transition: width .6s ease;
 }
 
@@ -1623,8 +1650,137 @@ body.night .habito-count { color: var(--night-accent); }
 
 .nu-item.estimado { background: var(--terra-soft); }
 
+/* ── Paso 2 · Noche: botones sin color propio leen claro, y lo elegido se lee sobre terra claro ── */
+:where(body.night) button { color: var(--night-text); }
+body.night :is(.emo-pill.selected, .mom-pill.selected, .disparador-pill.selected, .ql-star.on, .nivel-pill.selected,
+  .gato-row.done .gato-check, .gasto-cat.on, .habit-card.done .habit-check, .gasto-edit-guardar, .log-add-btn, .day-btn.on, .nav-pill.on) { color: var(--fondo-oscuro); }
+body.night .ancla-card { background: var(--terra-oscuro); }
+body.night .ancla-card.done { background: var(--salvia-oscuro); }
+.gasto-cat { min-height: var(--alto-pildora); font-size: 15px; padding: 0 14px; border-radius: 999px; font-weight: 600; }
+
+/* ── Paso 2 · Impeccable: toque mínimo de 44 px en lo que se toca ── */
+.nivel-pill, .emo-pill, .mom-pill, .granular-pill, .int-pill, .emo-mas, .ola-btn, .hora-toggle, .capa-link, .micro-accion-listo {
+  min-height: var(--alto-pildora); display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+.ola-btn { display: flex; width: 100%; }
+.int-pill { min-width: var(--alto-pildora); }
+.ql-star { min-width: var(--alto-pildora); min-height: var(--alto-pildora); font-size: 16px; }
+.ql-num-input, .log-fecha-input, .log-nota-input { min-height: var(--alto-pildora); font-size: 16px; }
+.log-add-btn { min-width: var(--alto-pildora); min-height: var(--alto-pildora); }
+
+/* ── Paso 3 · jerarquía y acabado ── */
+.header { padding: 32px var(--lateral) 18px; }
+.greeting { font-size: var(--fs-saludo); line-height: 1.02; letter-spacing: -0.03em; }
+.date-line { font-size: 12px; margin-top: 10px; }
+.nav { padding: 0 var(--lateral) 22px; gap: 8px; }
+.panel { padding: 0 var(--lateral) 64px; }
+.snapshot-row { gap: 14px; margin-bottom: var(--entre-tarjetas); }
+.snap-card, .emotion-bar, .quick-log, .gatos-card, .log-card, .ciclo-card, .resumen-card { padding: 24px; margin-bottom: var(--entre-tarjetas); box-shadow: var(--brillo), var(--sombra-tarjeta); border-color: rgba(33,26,19,.06); }
+.snap-card { padding: 20px; }
+.snap-value { font-size: 30px; letter-spacing: -0.02em; }
+.ancla-card { padding: 28px 24px; box-shadow: var(--sombra-boton); margin-bottom: 20px; }
+.ancla-titulo { font-size: 30px; letter-spacing: -0.015em; }
+.res-title { font-size: 26px; }
+.big-num { font-size: 38px; white-space: nowrap; }
+body.night .snap-card, body.night .emotion-bar, body.night .quick-log, body.night .gatos-card, body.night .log-card, body.night .ciclo-card, body.night .resumen-card { box-shadow: 0 0 0 1px rgba(255,255,255,.03), 0 12px 32px rgba(0,0,0,.35); }
+.header { align-items: flex-start; }
+.header-left { min-width: 0; flex: 1; }
+.header-right { flex-direction: column; align-items: flex-end; gap: 0; margin-top: 2px; }
+.header-right .sync-bar { order: 2; font-size: 12px; }
+.date-line { letter-spacing: 0.08em; }
+.ancla-icon { font-size: 34px; color: #fff; display: flex; align-items: center; }
+.ancla-icon .t-emo { width: 1.1em; height: 1.1em; }
+.nivel-pill, .emo-pill, .mom-pill, .granular-pill, .ola-btn, .hora-toggle, .capa-link { gap: 0.45em; }
+#metodo-pills { flex-wrap: wrap; }
+
+/* ── Paso 4 · paleta por app: Mi Sistema = marrón con dorado ── */
+:root { --detalle: #A67C2E; }
+body.night { --detalle: var(--dorado-claro); }
+.header { margin: 0; padding: calc(32px + env(safe-area-inset-top)) var(--lateral) 30px; background: var(--acento); border-radius: 0 0 32px 32px;
+  box-shadow: 0 3px 0 #C9A24B, var(--sombra-banda); margin-bottom: 22px; }
+body.night .header { background: var(--acento-oscuro); }
+.header .greeting { color: #FFFDF9; }
+.header .date-line { color: rgba(255,253,249,.92); }
+.header-right .sync-bar, .header-right #syncLabel { color: rgba(255,253,249,.92); }
+.header .icon-btn { color: #FFFDF9; }
+.nav { padding-top: 0; }
+.ancla-badge { color: #EBCF86; }
+.bar-fill, .habito-bar-fill { background: var(--detalle); }
+.ciclo-relleno { background: var(--detalle); }
+.habito-count, .ciclo-dia-num { color: var(--detalle); }
+body.night .bar-fill { background: var(--detalle); }
+
+/* ── Paso 5 · hecho a mano: secciones planas en pastel, sin tarjetas ── */
+.panel > :nth-child(4n+1) { --pastel: var(--p1); --forma: var(--forma-1); }
+.panel > :nth-child(4n+2) { --pastel: var(--p2); --forma: var(--forma-2); }
+.panel > :nth-child(4n+3) { --pastel: var(--p3); --forma: var(--forma-3); }
+.panel > :nth-child(4n+4) { --pastel: var(--p4); --forma: var(--forma-4); }
+
+.snapshot-row > :nth-child(2n+1) { --pastel: var(--p3); --forma: var(--forma-3); }
+.snapshot-row > :nth-child(2n) { --pastel: var(--p4); --forma: var(--forma-4); }
+body { background: var(--papel); color: var(--tinta); }
+.panel, .header, .nav { position: relative; z-index: 1; }
+.snap-card, .emotion-bar, .quick-log, .gatos-card, .log-card, .ciclo-card, .resumen-card, .habit-card,
+body.night .snap-card,
+body.night .emotion-bar,
+body.night .quick-log,
+body.night .gatos-card,
+body.night .log-card,
+body.night .ciclo-card,
+body.night .resumen-card,
+body.night .habit-card { background: var(--pastel, var(--p1)); border: 0; box-shadow: none; border-radius: var(--forma, var(--forma-1)); padding: 28px 24px; margin-bottom: 18px; color: var(--tinta); }
+.snap-card, body.night .snap-card { padding: 22px 20px; }
+.snap-card::before { display: none; }
+.ancla-card { border-radius: var(--forma-2); box-shadow: none; padding: 30px 26px; }
+.header { border-radius: 0 0 58% 42% / 0 0 26px 36px; box-shadow: 0 3px 0 #C9A24B; }
+.emotion-title, .ql-title, .res-title, .granular-title { font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 24px; line-height: 1.12; letter-spacing: -.01em; text-transform: none; color: var(--tinta);
+  padding-bottom: 14px; margin-bottom: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='10' viewBox='0 0 72 10'%3E%3Cpath d='M2 6 C8 1 14 1 20 5 S32 9 38 5 S50 1 56 5 S66 8 70 4' fill='none' stroke='%23211A13' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 72px 10px no-repeat; }
+body.night :is(.emotion-title, .ql-title, .res-title) { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='10' viewBox='0 0 72 10'%3E%3Cpath d='M2 6 C8 1 14 1 20 5 S32 9 38 5 S50 1 56 5 S66 8 70 4' fill='none' stroke='%23FAEFDF' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E"); }
+
+.snap-label, .snap-sub, .snap-unit, .date-line, .sync-bar { color: var(--tinta); opacity: .86; }
+.header .date-line, .header .sync-bar { color: rgba(255,253,249,.96); opacity: 1; }
+.nav-pill, .emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .ola-btn, .ql-star, .gasto-cat, .emo-mas, .micro-accion-listo,
+body.night .nav-pill,
+body.night .emo-pill,
+body.night .mom-pill,
+body.night .granular-pill,
+body.night .int-pill,
+body.night .nivel-pill,
+body.night .day-btn,
+body.night .disparador-pill,
+body.night .ola-btn,
+body.night .ql-star,
+body.night .gasto-cat,
+body.night .emo-mas,
+body.night .micro-accion-listo { background: var(--capa); border: 0; box-shadow: none; color: var(--tinta); }
+.nav-pill.on, body.night .nav-pill.on { background: var(--acento); color: #fff; }
+body.night .nav-pill.on { background: var(--acento-claro); color: var(--fondo-oscuro); }
+.day-btn.on, .gasto-cat.on { background: var(--acento); color: #fff; }
+.ql-num-input, .log-fecha-input, .log-nota-input, .hora-row input[type="time"], .gasto-edit-monto, .gasto-edit-nota, .gasto-edit-cat,
+body.night .ql-num-input,
+body.night .log-fecha-input,
+body.night .log-nota-input,
+body.night .hora-row input[type="time"],
+body.night .gasto-edit-monto,
+body.night .gasto-edit-nota,
+body.night .gasto-edit-cat { background: transparent; border: 0; border-bottom: 2px solid var(--linea); border-radius: 0; color: var(--tinta); }
+.crono-box, .big-stat, .week-cell, .fumado-stat, .gastos-total-box, .ciclo-dia-box, .disparador-box, .micro-accion, .mensaje-grande, .granular-box { background: var(--capa); border-radius: 24px 28px 22px 30px / 28px 22px 30px 24px; border-color: transparent; box-shadow: none; color: var(--tinta); }
+body.night :is(.crono-box, .big-stat, .week-cell, .fumado-stat, .gastos-total-box, .ciclo-dia-box, .disparador-box, .micro-accion, .mensaje-grande, .granular-box) { background: var(--capa); }
+.log-item, .gato-row, .ciclo-bloque { border-bottom: 2px dashed var(--linea); }
+.log-item:last-child, .gato-row:last-child { border-bottom: 0; }
+.ancla-icon { color: #fff; }
+body.night .res-title, body.night .emotion-title, body.night .ql-title { color: var(--night-text); }
+
+/* ── Paso 6 · Mi Sistema: diario. Dos pasteles y un respiro sin fondo cada tres. ── */
+.panel > :nth-child(3n) { --pastel: transparent; }
+.snapshot-row > :nth-child(n) { --pastel: var(--p2); }
+.snapshot-row > :nth-child(2n+1) { --pastel: var(--p1); }
+/* Noche: marrón cálido más claro para el encabezado y el ancla (no sombrío) */
+body.night .header { background: #7B5B45; }
+body.night .ancla-card { background: #765641; }
+body.night .ancla-card.done { background: #5F7A63; }
 </style>
-<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="icono-mi-sistema.png">
+<link rel="icon" type="image/png" href="icono-mi-sistema.png">
 </head>
 <body>
 
@@ -1638,15 +1794,15 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="sync-dot" id="syncDot"></div>
       <span id="syncLabel">—</span>
     </div>
-    <button class="icon-btn" onclick="toggleNight()" id="nightBtn">☀️</button>
+    <button class="icon-btn" onclick="toggleNight()" id="nightBtn" aria-label="Cambiar entre día y noche"><i class="t-ico t-ico-sol"></i></button>
   </div>
 </div>
 
 <div class="nav">
-  <button class="nav-pill p-hoy on" onclick="switchPanel('hoy')">🌿 Hoy</button>
-  <button class="nav-pill p-manana" onclick="switchPanel('manana')">☀️ Mañana</button>
-  <button class="nav-pill p-noche" onclick="switchPanel('noche')">🌙 Noche</button>
-  <button class="nav-pill p-semana" onclick="switchPanel('semana')">📊 Semana</button>
+  <button class="nav-pill p-hoy on" onclick="switchPanel('hoy')"><i class="t-ico t-ico-hoja"></i> Hoy</button>
+  <button class="nav-pill p-manana" onclick="switchPanel('manana')"><i class="t-ico t-ico-sol"></i> Mañana</button>
+  <button class="nav-pill p-noche" onclick="switchPanel('noche')"><i class="t-ico t-ico-luna"></i> Noche</button>
+  <button class="nav-pill p-semana" onclick="switchPanel('semana')"><i class="t-ico t-ico-barras"></i> Semana</button>
 </div>
 
 <!-- ── HOY ── -->
@@ -1679,12 +1835,12 @@ body.night .habito-count { color: var(--night-accent); }
     </div>
     <div class="ql-title" style="margin-bottom:6px;">¿Cigarrillo, pipa o vaporizador?</div>
     <div class="nivel-pills" id="metodo-pills" style="margin-bottom:14px;">
-      <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')">🚬 Cigarrillo</button>
-      <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')">🌬️ Pipa</button>
-      <button class="nivel-pill" id="metodo-vaporizador" onclick="setMetodoFumado('vaporizador')">💨 Vaporizador</button>
+      <button class="nivel-pill selected" id="metodo-cigarro" onclick="setMetodoFumado('cigarro')"><i class="t-ico t-ico-cigarro"></i> Cigarrillo</button>
+      <button class="nivel-pill" id="metodo-pipa" onclick="setMetodoFumado('pipa')"><i class="t-ico t-ico-pipa"></i> Pipa</button>
+      <button class="nivel-pill" id="metodo-vaporizador" onclick="setMetodoFumado('vaporizador')"><i class="t-ico t-ico-vapor"></i> Vaporizador</button>
     </div>
     <!-- Hora manual: para cuando se te pasó anotarlo en el momento -->
-    <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()">🕐 Fue a otra hora</button>
+    <button class="hora-toggle" id="hora-toggle" onclick="toggleHoraManual()"><i class="t-ico t-ico-reloj"></i> Fue a otra hora</button>
     <div class="hora-row" id="hora-row">
       <span class="hora-row-label">A las</span>
       <input type="time" id="input-hora-fumado" onchange="onCambioHoraFumado()">
@@ -1699,7 +1855,7 @@ body.night .habito-count { color: var(--night-accent); }
       <button class="log-qbtn" onclick="registrarPausaCustom()">Otro</button>
     </div>
     <!-- Ganas que NO terminaron en consumo: un tap, y el detalle es opcional después -->
-    <button class="ola-btn" onclick="registrarOla()">🌊 Pasó la ola sin consumir</button>
+    <button class="ola-btn" onclick="registrarOla()"><i class="t-ico t-ico-ola"></i> Pasó la ola sin consumir</button>
 
     <!-- Disparador (Barrett): aparece post-registro, cuando la sensación aún está fresca -->
     <div class="disparador-box" id="disparador-box">
@@ -1814,8 +1970,8 @@ body.night .habito-count { color: var(--night-accent); }
 
     <div class="ciclo-info" id="ciclo-info"></div>
 
-    <button class="ciclo-btn" onclick="registrarPeriodo()">🩸 Hoy empezó mi periodo</button>
-    <button class="ciclo-btn ciclo-btn-terminar" id="ciclo-btn-fin" style="display:none;" onclick="terminarPeriodo()">🩸 Hoy terminó mi periodo</button>
+    <button class="ciclo-btn" onclick="registrarPeriodo()"><i class="t-ico t-ico-gota"></i> Hoy empezó mi periodo</button>
+    <button class="ciclo-btn ciclo-btn-terminar" id="ciclo-btn-fin" style="display:none;" onclick="terminarPeriodo()"><i class="t-ico t-ico-gota"></i> Hoy terminó mi periodo</button>
     <div class="ciclo-ultimo" id="ciclo-ultimo"></div>
   </div>
 
@@ -1882,9 +2038,9 @@ body.night .habito-count { color: var(--night-accent); }
       <div class="ql-icon">🏃</div>
       <div class="ql-label">¿Te moviste?</div>
       <div class="ql-stars" id="stars-movimiento">
-        <button class="ql-star" onclick="setStars('movimiento',1)" style="width:36px;font-size:10px;">No</button>
-        <button class="ql-star" onclick="setStars('movimiento',2)" style="width:46px;font-size:10px;">Un poco</button>
-        <button class="ql-star" onclick="setStars('movimiento',3)" style="width:36px;font-size:10px;">Sí</button>
+        <button class="ql-star" onclick="setStars('movimiento',1)" style="width:36px;font-size: 12px;">No</button>
+        <button class="ql-star" onclick="setStars('movimiento',2)" style="width:46px;font-size: 12px;">Un poco</button>
+        <button class="ql-star" onclick="setStars('movimiento',3)" style="width:36px;font-size: 12px;">Sí</button>
       </div>
     </div>
     <div class="ql-row">
@@ -1981,7 +2137,9 @@ function gatoEstaDebido(i) {
 }
 
 function formatFechaCorta(fechaStr) {
+  if(!fechaStr) return '—';   // sin fecha no se escribe "NaN undefined"
   const d=new Date(fechaStr+'T12:00:00');
+  if(isNaN(d)) return '—';
   const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return `${d.getDate()} ${meses[d.getMonth()]}`;
 }
@@ -2168,7 +2326,7 @@ function setGreeting() {
   const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const now=new Date();
   document.getElementById('dateLine').textContent=`${days[now.getDay()]} ${now.getDate()} de ${months[now.getMonth()]}`;
-  if(h>=19||h<6) document.body.classList.add('night'), document.getElementById('nightBtn').textContent='🌙';
+  if(h>=19||h<6) document.body.classList.add('night'), document.getElementById('nightBtn').innerHTML='<i class="t-ico t-ico-luna"></i>';
 }
 
 // ── SYNC ──
@@ -2181,9 +2339,9 @@ function setSyncError() {
   const dot=document.getElementById('syncDot');
   const label=document.getElementById('syncLabel');
   dot.className='sync-dot';
-  dot.style.background='#C0392B';
+  dot.style.background='var(--alerta)';
   label.textContent='sin conexión ⚠️';
-  label.style.color='#C0392B';
+  label.style.color='var(--alerta)';
 }
 
 function clearSyncError() {
@@ -3016,7 +3174,7 @@ function buildCigarrillos() {
             <span class="log-item-detalle">🌊 pasó la ola</span>
             ${etiquetas}
           </div>
-          <button class="log-item-del" onclick="borrarOla('${x.id}')">✕</button>
+          <button class="log-item-del" aria-label="Borrar" onclick="borrarOla('${x.id}')">✕</button>
         </div>`;
         return `
         <div class="log-item">
@@ -3025,7 +3183,7 @@ function buildCigarrillos() {
             <span class="log-item-detalle">${METODO_LABEL[x.metodo] || '🚬 cigarrillo'} · ${x.cantidad}</span>
             ${etiquetas}
           </div>
-          <button class="log-item-del" onclick="borrarCigarrillo('${x.id}')">✕</button>
+          <button class="log-item-del" aria-label="Borrar" onclick="borrarCigarrillo('${x.id}')">✕</button>
         </div>`;
       }).join('');
     }
@@ -3183,7 +3341,7 @@ function buildGastos() {
         <span class="log-item-hora">${formatHora12(x.hora)||'—'}</span>
         <span class="log-item-detalle">$${formatMonto(x.monto)}${x.nota?' · '+escapeHtml(x.nota):''}</span>
       </div>
-      <button class="log-item-del" onclick="borrarGasto('${x.id}')">✕</button>
+      <button class="log-item-del" aria-label="Borrar" onclick="borrarGasto('${x.id}')">✕</button>
     </div>`).join('');
 }
 
@@ -4100,23 +4258,14 @@ function buildCiclo() {
   const info = FASES_INFO[c.fase];
   numEl.textContent = c.dia;
   nombreEl.innerHTML = `${info.emoji} ${c.fase}`;
-  nombreEl.style.color = info.color;
+  nombreEl.style.color = 'var(--ink)';
   subEl.textContent = c.faltan <= 1 ? 'Tu periodo podría llegar hoy' : `Próximo periodo en ~${c.faltan} días`;
 
-  // Barra con las 4 fases proporcionales y un marcador en el día de hoy
-  const tramos = [
-    {n:'Menstrual', ini:1, fin:c.duracionMenstrual},
-    {n:'Folicular', ini:c.duracionMenstrual+1, fin:c.diaOvulacion-2},
-    {n:'Ovulatoria', ini:c.diaOvulacion-1, fin:c.diaOvulacion+1},
-    {n:'Lútea', ini:c.diaOvulacion+2, fin:c.longitud}
-  ];
+  // Una sola barra: pista beige, relleno terra hasta el día de hoy y un marcador blanco de 2 px
+  const avance = Math.min(100, c.dia/c.longitud*100);
   barraEl.innerHTML = `
     <div class="ciclo-barra-track">
-      ${tramos.map(t=>{
-        const ancho = Math.max(0,(t.fin-t.ini+1))/c.longitud*100;
-        const activa = t.n===c.fase;
-        return `<div class="ciclo-tramo ${activa?'activa':''}" style="width:${ancho}%;background:${FASES_INFO[t.n].color};"></div>`;
-      }).join('')}
+      <div class="ciclo-relleno" style="width:${avance}%"></div>
       <div class="ciclo-marcador" style="left:${Math.min(100,(c.dia-0.5)/c.longitud*100)}%"></div>
     </div>
     <div class="ciclo-barra-labels">
@@ -4253,7 +4402,7 @@ function updateSnaps() {
   const tot=HABITS.m.length+HABITS.n.length;
   const done=tm+tn;
   document.getElementById('snap-habitos').innerHTML=`${done}<span class="snap-unit">/${tot}</span>`;
-  document.getElementById('snap-habitos-sub').textContent=done===tot?'¡Todos! 🎉':'completados';
+  document.getElementById('snap-habitos-sub').textContent=done===tot?'todos':'completados';
 }
 
 async function toggleHabitQuick(panel,day,idx,mostrado) {
@@ -4454,11 +4603,6 @@ function buildSemana() {
     });
   });
   const pct=total?Math.round(hecho/total*100):0;
-  let racha=0;
-  for(let d=todayIdx;d>=0;d--){
-    const ok=state.m[d]&&state.m[d].every(Boolean)&&state.n[d]&&state.n[d].every(Boolean);
-    if(ok) racha++; else break;
-  }
   let mejorD=0,mejorP=0;
   for(let d=0;d<7;d++){
     const tot2=HABITS.m.length+HABITS.n.length;
@@ -4535,12 +4679,8 @@ function buildSemana() {
       <div class="semana-header">
         <div class="semana-stats">
           <div class="big-stat">
-            <div class="big-num">${diasActivos}</div>
-            <div class="big-label">apariciones</div>
-          </div>
-          <div class="big-stat">
-            <div class="big-num" style="color:var(--gold);">🔥${racha}</div>
-            <div class="big-label">racha</div>
+            <div class="big-num">${diasActivos} de 7</div>
+            <div class="big-label">días que te mostraste</div>
           </div>
           <div class="big-stat">
             <div class="big-num">${hecho}</div>
@@ -4553,7 +4693,7 @@ function buildSemana() {
       ${dato ? `<div class="semana-dato">${dato}</div>` : ''}
 
       <div class="semana-calendar">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;font-weight:600;">Tu semana día a día</div>
+        <div style="font-size: 12px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;font-weight:600;">Tu semana día a día</div>
         <div class="week-grid">
           ${dots.map((cls,i)=>`
             <div class="week-cell ${cls}" title="${DAYS[i]}">
@@ -4564,11 +4704,10 @@ function buildSemana() {
       </div>
 
       <div class="habitos-semana">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;font-weight:600;">Qué hiciste más · veces de las posibles</div>
+        <div style="font-size: 12px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;font-weight:600;">Qué hiciste más · veces de las posibles</div>
         <div class="habito-bars">
           ${Object.entries(porH).sort((a,b)=>b[1].done-a[1].done).map(([name,{done,icon,oportunidades}],idx)=>{
-            const colores=['var(--terra)','var(--sage)','var(--sky)','var(--gold)','var(--lavender)'];
-            const color=colores[idx%colores.length];
+            const color='var(--detalle)';
             const pct=Math.round(done/(oportunidades||7)*100);
             return `
             <div class="habito-row">
@@ -4599,7 +4738,7 @@ function buildSemana() {
         const barras = weekDates.map((f,i)=>`
           <div class="bar-row fumado-bar-row">
             <div class="bar-label"><span>${DAYS[i].slice(0,3)}${f===todayStr?' · hoy':''}</span><span class="bar-pct fumado-bar-pct">${porDia[f]||'—'}</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(porDia[f]/maxDia*100)}%;background:var(--sky);"></div></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(porDia[f]/maxDia*100)}%;background:var(--detalle);"></div></div>
           </div>`).join('');
 
         // Qué había detrás: lo que realmente importa mirar (Barrett)
@@ -4638,7 +4777,7 @@ function buildSemana() {
 
           bloqueDisparadores = `
             <div class="fumado-sep"></div>
-            <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;font-weight:600;">Qué había detrás</div>
+            <div style="font-size: 12px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:10px;font-weight:600;">Qué había detrás</div>
             ${filas}
             <div class="fumado-lectura">${lectura}</div>`;
         } else if(conDisparador.length > 0) {
@@ -4753,13 +4892,13 @@ function switchPanel(panel) {
   document.getElementById(`panel-${panel}`).classList.add('on');
   document.querySelector(`.nav-pill.p-${panel}`).classList.add('on');
   if(panel==='semana') buildSemana();
-  if(panel==='noche') { document.body.classList.add('night'); document.getElementById('nightBtn').textContent='🌙'; }
-  else { document.body.classList.remove('night'); document.getElementById('nightBtn').textContent='☀️'; }
+  if(panel==='noche') { document.body.classList.add('night'); document.getElementById('nightBtn').innerHTML='<i class="t-ico t-ico-luna"></i>'; }
+  else { document.body.classList.remove('night'); document.getElementById('nightBtn').innerHTML='<i class="t-ico t-ico-sol"></i>'; }
 }
 
 function toggleNight() {
   const n=document.body.classList.toggle('night');
-  document.getElementById('nightBtn').textContent=n?'🌙':'☀️';
+  document.getElementById('nightBtn').innerHTML=n?'<i class="t-ico t-ico-luna"></i>':'<i class="t-ico t-ico-sol"></i>';
 }
 
 // ── AUTO PANEL SEGÚN HORA ──
