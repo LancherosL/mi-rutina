@@ -67,6 +67,13 @@ button.dato { border:1.5px solid var(--line); }
 .escala { display:grid; grid-template-columns:repeat(6,1fr); gap:15px 8px; }
 .escala button { height:52px; border-radius:14px; background:var(--bg); font-size:17px; font-weight:600; font-variant-numeric:tabular-nums; }
 .escala button.sel { background:var(--terra); color:#fff; }
+.pie-fila { margin-top:14px; }
+.pie-fila:first-of-type { margin-top:4px; }
+.pie-sub { font-size:13px; color:var(--muted); margin-bottom:8px; }
+.pie-pills { display:flex; flex-wrap:wrap; gap:8px; }
+.pie-pill { font-size:15px; padding:9px 14px; border-radius:20px; background:var(--bg); }
+.pie-pill.sel { background:var(--sage); color:#fff; }
+.pie-nota { width:100%; margin-top:14px; font-size:16px; padding:11px 14px; border-radius:14px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-family:inherit; }
 .escala-ext { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:10px; }
 .link { font-size:15px; color:var(--muted); text-decoration:underline; text-underline-offset:3px; padding:10px 0; }
 
@@ -202,6 +209,16 @@ button.dato { border:1.5px solid var(--line); }
       <div class="escala-ext"><span>Nada</span><span>Molesta</span><span>Lo peor</span></div>
     </div>
 
+    <!-- El resto del pie (antes en Mi Sistema): aparece después del dolor, todo saltable.
+         Se cierra al responder movilidad y ánimo, o con "Listo"; queda en el chip del pie. -->
+    <div class="card oculto" id="card-pie">
+      <div class="label">Mi pie hoy</div>
+      <div class="pie-fila"><div class="pie-sub">Movilidad</div><div class="pie-pills" id="pie-movilidad"></div></div>
+      <div class="pie-fila"><div class="pie-sub">Ánimo</div><div class="pie-pills" id="pie-animo"></div></div>
+      <input class="pie-nota" id="pie-nota" placeholder="Algo que quieras anotar (opcional)" onchange="setPieNota(this.value)">
+      <button class="link" onclick="cerrarPie()">Listo ✓</button>
+    </div>
+
     <div class="card" id="card-sesion">
       <div class="label" id="sesion-label">Sesión de hoy</div>
       <div id="sesion-cuerpo"></div>
@@ -288,6 +305,11 @@ const FASES = {
 
 // Umbrales de ReX. Se ajustan aquí.
 const SUENO_POCO_H = 5.5;  // < → versión suave
+// Mi pie (antes en Mi Sistema). Palabras editables; se guardan en la tabla `recuperacion`.
+const PIE_VOCAB = {
+  movilidad: ['igual', 'peor', 'un poco mejor'],
+  animo:     ['miedo', 'agobio', 'cansancio', 'nervios']
+};
 const SUENO_MALA = 2;      // calidad ≤ → versión suave
 const ENERGIA_BAJA = 2;    // ≤ → versión suave
 
@@ -410,13 +432,15 @@ async function init() {
 
 async function cargar() {
   try {
-    const [r, ses, hs, tc, pz] = await Promise.all([
+    const [r, ses, hs, tc, pz, rc] = await Promise.all([
       sb('registro_diario','GET',null,`?fecha=eq.${hoy}&select=fecha,energia,sueno_horas,sueno_calidad,emocion,emocion_fina,ciclo_fase`),
       sb('nova_sesiones','GET',null,`?fecha=in.(${ayer},${hoy})`),
       sb('nova_hitos','GET',null,'?order=fecha.asc.nullslast,created_at.asc'),
       sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(TAICHI_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=1`),
-      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(PAUSA_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=10`)
+      sb('nova_ejercicios_sesion','GET',null,`?ejercicio=like.${encodeURIComponent(PAUSA_PREFIJO)}*&select=ejercicio,created_at&order=created_at.desc&limit=10`),
+      sb('recuperacion','GET',null,`?fecha=eq.${hoy}&select=movilidad,animo,nota_libre`)
     ]);
+    if (!pieTimer) { const p = rc?.[0] || {}; pie = {movilidad:p.movilidad||'', animo:p.animo||'', nota_libre:p.nota_libre||''}; }
     taichiUltimo = tc?.[0] || null;
     pausasHoy = (pz || []).filter(p => fechaLocal(new Date(p.created_at)) === hoy).map(p => p.ejercicio);
     const [dias, ejHoy] = await Promise.all([
@@ -485,7 +509,7 @@ function textoRex() {
 function datosRex() {
   const out = [];
   const n = dolorNum();
-  if (n !== null) out.push({t:`🦶 pie ${n}/10`, fn:'cambiarDolor()'});
+  if (n !== null) out.push({t:['🦶 pie '+n+'/10', pie.movilidad, pie.animo].filter(Boolean).join(' · '), fn:'cambiarDolor()'});
   if (reg?.sueno_horas != null) {
     let s = `😴 ${horasTexto(+reg.sueno_horas)}`;
     if (reg.sueno_calidad != null && reg.sueno_calidad <= SUENO_MALA) s += ', no muy bien';
@@ -509,6 +533,7 @@ function pintarTodo() {
   // Pregunta del pie: sólo si falta y el día no está cerrado. Respondida, desaparece.
   $('card-dolor').classList.toggle('oculto', dolorNum() !== null || PREVIA || !!sesionHoy?.estado);
   pintarEscala('escala-dolor', dolorNum());
+  pintarPie();
   pintarSesion();
   pintarTimeline();
 }
@@ -765,9 +790,48 @@ async function setDolor(v) {
   } catch (e) { console.error(e); mostrarError('No se guardó el dolor. Intenta otra vez.'); }
 }
 function cambiarDolor() {
+  pieAbierto = true; pintarPie();
   $('card-dolor').classList.remove('oculto');
   $('card-dolor').scrollIntoView({block:'center', behavior:'smooth'});
 }
+
+// ═══ MI PIE: movilidad, ánimo y nota (tabla recuperacion) ═══
+let pie = {movilidad:'', animo:'', nota_libre:''};
+let pieTimer = null;
+let pieAbierto = (() => { try { return localStorage.getItem('nova_pie_cerrado') !== hoy; } catch(e) { return true; } })();
+
+function pintarPie() {
+  const visible = pieAbierto && !PREVIA && !sesionHoy?.estado && dolorNum() !== null;
+  $('card-pie').classList.toggle('oculto', !visible);
+  Object.keys(PIE_VOCAB).forEach(campo => {
+    $('pie-'+campo).innerHTML = PIE_VOCAB[campo].map(v =>
+      `<button class="pie-pill${pie[campo]===v?' sel':''}" data-v="${esc(v)}" onclick="setPie('${campo}',this.dataset.v)">${esc(v)}</button>`).join('');
+  });
+  if (document.activeElement !== $('pie-nota')) $('pie-nota').value = pie.nota_libre || '';
+}
+
+function setPie(campo, v) {
+  pie[campo] = pie[campo] === v ? '' : v;   // tocar de nuevo lo quita
+  pintarPie(); guardarPie();
+  // Con las dos respondidas, la tarjeta se va sola (salvo que estés escribiendo la nota)
+  if (pie.movilidad && pie.animo) setTimeout(() => { if (document.activeElement !== $('pie-nota')) cerrarPie(); }, 1200);
+}
+function setPieNota(v) { pie.nota_libre = v; guardarPie(); }
+function cerrarPie() {
+  pieAbierto = false;
+  try { localStorage.setItem('nova_pie_cerrado', hoy); } catch(e) {}
+  guardarPieYa(); pintarTodo();
+}
+function guardarPie() { clearTimeout(pieTimer); pieTimer = setTimeout(guardarPieYa, 800); }
+async function guardarPieYa() {
+  if (!pieTimer) return;
+  clearTimeout(pieTimer); pieTimer = null;
+  try {
+    await sb('recuperacion','POST',{fecha:hoy, movilidad:pie.movilidad||null, animo:pie.animo||null, nota_libre:pie.nota_libre||null},'?on_conflict=fecha');
+  } catch (e) { console.error(e); mostrarError('No se guardó lo del pie. Intenta otra vez.'); }
+}
+window.addEventListener('pagehide', guardarPieYa);
+document.addEventListener('visibilitychange', () => { if (document.hidden) guardarPieYa(); });
 
 // ═══ DESCANSO ═══
 async function descansar() {

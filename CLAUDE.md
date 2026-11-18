@@ -36,7 +36,12 @@ sql/                    Migraciones (sólo esquema y datos genéricos)
   `continuidad_mi_sistema`. Léelo antes de tocar la base de datos, el guardado o algo
   que ya se haya intentado.
 - Tablas de Nutri: prefijo `nutri_`, más `comidas_items`, `comidas_digestion`, `banos`.
-  Nutri **lee** las de Mi Sistema; no registra comidas.
+- Quién escribe qué (desde el 17 nov 2026), para que nadie pise a nadie:
+  - **Nutri** registra comidas, "Algo de más", digestión y baño. En `registro_diario`
+    escribe sólo `comidas`, `comidas_texto`, `comidas_omitidas`, `comidas_hora`, `extras`.
+  - **Mi Sistema** no escribe esos campos ni el sueño; sólo los lee.
+  - **Sueño** (`sueno_horas`, `sueno_calidad`, `sueno_detalle`): lo escribe el chat de sueño.
+  - **Mi pie** (`recuperacion`: movilidad, ánimo, nota) y el dolor (`nova_sesiones.dolor_pie`): Nova.
 - No crear ni modificar tablas sin OK explícito.
 
 ## Reglas comunes

@@ -231,7 +231,7 @@ body.night .emotion-bar { background: var(--night-card); }
   color: var(--muted);
   font-weight: 500;
 }
-.emo-pill, .mom-pill, .recup-pill {
+.emo-pill, .mom-pill {
   padding: 6px 12px;
   border-radius: 20px;
   border: 1.5px solid var(--line);
@@ -241,8 +241,8 @@ body.night .emotion-bar { background: var(--night-card); }
   transition: all .18s;
   font-family: 'DM Sans', sans-serif;
 }
-body.night .emo-pill, body.night .mom-pill, body.night .recup-pill { border-color: rgba(255,255,255,0.1); }
-.emo-pill.selected, .mom-pill.selected, .recup-pill.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
+body.night .emo-pill, body.night .mom-pill { border-color: rgba(255,255,255,0.1); }
+.emo-pill.selected, .mom-pill.selected.selected { background: var(--lavender); border-color: var(--lavender); color: white; }
 
 /* ── GRANULARIDAD EMOCIONAL (Barrett) ── */
 /* Segunda capa: aparece sólo después de elegir una emoción.
@@ -969,6 +969,12 @@ body.night .crono-time { color: var(--night-accent); }
 .log-qbtn:active { transform: scale(0.95); background: var(--terra-soft); }
 body.night .log-qbtn { border-color: rgba(255,255,255,0.1); }
 .log-form-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.gasto-cats { display: flex; gap: 6px; overflow-x: auto; margin: 0 0 10px; padding-bottom: 2px; scrollbar-width: none; }
+.gasto-cats::-webkit-scrollbar { display: none; }
+.gasto-cat { flex: none; font-size: 12.5px; padding: 6px 11px; border-radius: 16px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); font-family: inherit; }
+.gasto-cat.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+body.night .gasto-cat { color: var(--night-text); border-color: rgba(255,255,255,0.12); }
+.gasto-edit-cat { width: 100%; margin: 6px 0; font-size: 14px; padding: 6px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: inherit; }
 .log-form-row .ql-num-input { width: 90px; }
 .log-form-row .log-nota-input {
   flex: 1;
@@ -1044,6 +1050,19 @@ body.night .log-item { border-bottom-color: rgba(255,255,255,0.06); }
   text-align: center;
   margin-top: 8px;
 }
+
+/* Resumen semanal: dato, experimento, insight y reflexiones (una línea cada uno) */
+.semana-dato { font-size: 14px; color: var(--ink); margin: 14px 0 16px; }
+body.night .semana-dato { color: var(--night-text); }
+.experimento { font-size: 13px; line-height: 1.5; color: var(--ink); }
+body.night .experimento { color: var(--night-text); }
+.insight-linea { font-size: 15px; line-height: 1.5; color: var(--ink); }
+body.night .insight-linea { color: var(--night-text); }
+.insight-r { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.insight-nota { font-size: 11px; color: var(--muted); margin-top: 8px; font-style: italic; }
+.reflexion { font-size: 14px; line-height: 1.55; color: var(--ink); padding: 10px 0; border-top: 1px solid var(--line); }
+.res-title + .reflexion { border-top: none; padding-top: 2px; }
+body.night .reflexion { color: var(--night-text); border-top-color: rgba(255,255,255,0.08); }
 
 /* Preguntas de la semana */
 .preguntas-semana {
@@ -1284,20 +1303,7 @@ body.night .habit-card.done { background: linear-gradient(135deg, rgba(196,154,6
 .section-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 
 /* ── RECUPERACIÓN (temporal) ── */
-.recuperacion-card {
-  background: var(--card);
-  border-radius: var(--r);
-  padding: 16px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-body.night .recuperacion-card { background: var(--night-card); }
-.recup-fila { padding: 12px 0; border-top: 1px solid var(--line); }
-.recuperacion-card .ql-title + .recup-fila { border-top: none; padding-top: 4px; }
-body.night .recup-fila { border-top-color: rgba(255,255,255,0.08); }
-.recup-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
-.recuperacion-card .recup-nota-fila { margin: 4px 0 0; }
-
+body.night 
 /* ── SEMANA PANEL ── */
 .resumen-card {
   background: var(--card);
@@ -1709,23 +1715,6 @@ body.night .habito-count { color: var(--night-accent); }
     <span class="nutri-link-ir">Nutri →</span>
   </a>
 
-  <!-- RECUPERACIÓN — temporal, se controla con RECUPERACION_ACTIVA. Oculta por defecto.
-       Una sola tarjeta, mismo estilo que Mis comidas / Mis gatos. Los ids no cambian. -->
-  <div class="recuperacion-card" id="recuperacion-card" style="display:none;">
-    <div class="ql-title">Mi pie 🦶</div>
-    <div class="recup-fila">
-      <div class="recup-label">Movilidad</div>
-      <div class="emotion-pills" id="recup-pills-movilidad"></div>
-    </div>
-    <div class="recup-fila">
-      <div class="recup-label">Ánimo</div>
-      <div class="emotion-pills" id="recup-pills-animo"></div>
-    </div>
-    <div class="log-form-row recup-nota-fila">
-      <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
-    </div>
-  </div>
-
   <!-- Mis gatos -->
   <div class="gatos-card">
     <div class="ql-title">Mis gatos 🐱</div>
@@ -1799,6 +1788,7 @@ body.night .habito-count { color: var(--night-accent); }
       <input type="date" id="input-gasto-fecha" class="log-fecha-input" onchange="onCambioFechaGasto()">
       <button class="log-fecha-hoy" id="btn-gasto-hoy" onclick="resetGastoFechaHoy()" style="display:none;">Volver a hoy</button>
     </div>
+    <div class="gasto-cats" id="gasto-cats"></div>
     <div class="log-form-row">
       <input class="ql-num-input" type="number" id="input-gasto-monto" placeholder="$" step="0.01" inputmode="decimal">
       <input class="log-nota-input" type="text" id="input-gasto-nota" placeholder="¿en qué? (opcional)" onkeydown="if(event.key==='Enter')registrarGasto()">
@@ -1943,6 +1933,7 @@ const MOVIMIENTO_EN_PAUSA = true;
 const HABITS_TODOS = {
   m:[
     {icon:'🛏️',name:'Tiendo mi cama'},
+    {icon:'🚿',name:'Me ducho'},
     {icon:'💧',name:'Lavo mi cara'},
     {icon:'🦷',name:'Cepillo mis dientes'},
     {icon:'📖',name:'Leo 15 minutos'},
@@ -2056,6 +2047,18 @@ const ANCLAS = [
 // cerebral resolutivo (causalidad, contrafactuales, analogías, multi-perspectiva,
 // enseñanza, cuantificación). El pensamiento resolutivo activa más regiones a la vez
 // —corteza prefrontal, hipocampo, redes asociativas— que solo recordar cómo te sentiste.
+// PREGUNTAS PARA UN HÁBITO EN FORMACIÓN (noche, un día sí y uno no).
+// Se elige el hábito que menos pasó en los días anteriores de la semana. Base:
+// intenciones de implementación ("cuando X, yo Y" duplica la probabilidad de hacerlo,
+// Gollwitzer), anclar a algo que ya haces, y bajar la fricción. {h} = el hábito.
+const PREGUNTAS_HABITO = [
+  '¿Qué fue distinto los días en que "{h}" sí pasó?',
+  'Mañana, ¿dónde y a qué hora va "{h}"? Escríbelo así: "cuando ___, yo ___".',
+  '¿Qué se atravesó con "{h}" esta semana? ¿Qué vas a hacer la próxima vez que aparezca eso?',
+  '¿A qué cosa que ya haces todos los días puedes pegarle "{h}"?',
+  'Si "{h}" costara la mitad de esfuerzo, ¿cómo se vería mañana?'
+];
+
 const PREGUNTAS = [
   // — Identidad y procesamiento emocional (base) —
   '¿Qué patrón tuyo notaste hoy que ya conoces?',
@@ -2382,16 +2385,10 @@ async function sbLog(tabla, method, body=null, params='') {
 // Para cambiar una palabra, se edita esta lista. Nada más.
 // ═══════════════════════════════════════════════════════════════════
 
-// RECUPERACIÓN — sección temporal (contexto en Supabase, contexto_privado).
-// Cuando termine la recuperación: cambiar esto a false. La tarjeta desaparece
-// sola, sin borrar la tabla `recuperacion` ni los datos ya guardados.
-const RECUPERACION_ACTIVA = true;
-// El dolor ya no se anota aquí: vive en Nova (nova_sesiones.dolor_pie). La columna
-// `recuperacion.dolor` queda con lo ya guardado y no se vuelve a escribir.
-const RECUPERACION_VOCAB = {
-  movilidad: ['igual', 'peor', 'un poco mejor'],
-  animo:     ['miedo', 'agobio', 'cansancio', 'nervios']
-};
+// "Mi pie" (movilidad, ánimo, nota) vive en Nova desde el 17 nov 2026.
+
+// Categorías de gastos: un toque opcional antes del "+". Editables; se guardan tal cual.
+const GASTO_CATEGORIAS = ['🛒 Mercado', '🍽️ Comer afuera', '🚇 Transporte', '🏠 Casa', '🐱 Gatos', '💊 Salud', '🎁 Gusto', '📦 Otro'];
 
 // Granularidad emocional (Barrett): la emoción gruesa abre opciones finas.
 // El objetivo no es clasificar bien — es que el cerebro tenga a mano una
@@ -3089,6 +3086,13 @@ function resetGastoFechaHoy() {
   onCambioFechaGasto();
 }
 
+let gastoCategoria = null;   // la elegida para el próximo "+"; se suelta al guardar
+function pintarGastoCats() {
+  const el = document.getElementById('gasto-cats'); if(!el) return;
+  el.innerHTML = GASTO_CATEGORIAS.map(k => `<button class="gasto-cat${k===gastoCategoria?' on':''}" data-k="${k}" onclick="elegirGastoCat(this.dataset.k)">${k}</button>`).join('');
+}
+function elegirGastoCat(k) { gastoCategoria = gastoCategoria===k ? null : k; pintarGastoCats(); }
+
 async function registrarGasto() {
   const inputMonto = document.getElementById('input-gasto-monto');
   const inputNota = document.getElementById('input-gasto-nota');
@@ -3098,7 +3102,7 @@ async function registrarGasto() {
   const nota = (inputNota.value||'').trim();
   const fecha = (inputFecha && inputFecha.value) ? inputFecha.value : fechaDeAhora();
   setSyncing(true);
-  const nuevo = {fecha, hora:horaActualHHMM(), monto, nota: nota||null};
+  const nuevo = {fecha, hora:horaActualHHMM(), monto, nota: nota||null, categoria: gastoCategoria};
   try {
     const r = await sbLog('gastos','POST',nuevo);
     const guardado = (Array.isArray(r)&&r[0]) ? r[0] : nuevo;
@@ -3113,7 +3117,7 @@ async function registrarGasto() {
     }
     buildGastos();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
-    inputMonto.value=''; inputNota.value='';
+    inputMonto.value=''; inputNota.value=''; gastoCategoria = null; pintarGastoCats();
     inputMonto.focus();
     if(fecha !== todayStr) mostrarRecompensa(`💰 Agregado a ${formatFechaCorta(fecha)}`);
     setSyncing(false); clearSyncError();
@@ -3146,10 +3150,12 @@ async function guardarEdicionGasto(id) {
   const monto = parseFloat(montoEl.value);
   if(isNaN(monto) || monto<=0) return;
   const nota = (notaEl.value||'').trim();
+  const catEl = document.getElementById(`edit-cat-${id}`);
+  const categoria = catEl && catEl.value ? catEl.value : null;
   setSyncing(true);
   try {
-    await sbLog('gastos','PATCH',{monto, nota: nota||null},`?id=eq.${id}`);
-    const actualizar = arr => { const x=arr.find(g=>g.id===id); if(x){x.monto=monto;x.nota=nota||null;} };
+    await sbLog('gastos','PATCH',{monto, nota: nota||null, categoria},`?id=eq.${id}`);
+    const actualizar = arr => { const x=arr.find(g=>g.id===id); if(x){x.monto=monto;x.nota=nota||null;x.categoria=categoria;} };
     actualizar(gastosHoy); actualizar(gastosSemana);
     gastoEditando = null;
     buildGastos();
@@ -3653,71 +3659,6 @@ async function cargarMomentos(fecha) {
   }
 }
 
-// ── RECUPERACIÓN (temporal) ──
-// Un registro diario, siempre para hoy — no se navega por día como Mañana/Noche.
-// Todo opcional: dolor, movilidad, ánimo (pills de un solo tap, tocar de nuevo
-// deselecciona) y una nota libre. Se guarda con debounce, igual que el resto.
-let recuperacionHoy = {};
-let recuperacionTimer = null;
-
-function construirRecuperacion() {
-  Object.keys(RECUPERACION_VOCAB).forEach(campo => {
-    const cont = document.getElementById('recup-pills-'+campo);
-    if(!cont) return;
-    cont.innerHTML = RECUPERACION_VOCAB[campo].map(v =>
-      `<button class="recup-pill" data-v="${v}" onclick="setRecuperacion('${campo}',this.dataset.v)">${v}</button>`).join('');
-  });
-}
-
-function pintarRecuperacion() {
-  Object.keys(RECUPERACION_VOCAB).forEach(campo => {
-    document.querySelectorAll(`#recup-pills-${campo} .recup-pill`).forEach(p=>{
-      p.classList.toggle('selected', p.dataset.v === recuperacionHoy[campo]);
-    });
-  });
-  const notaEl = document.getElementById('recup-nota');
-  if(notaEl && document.activeElement !== notaEl) notaEl.value = recuperacionHoy.nota_libre || '';
-}
-
-function setRecuperacion(campo, valor) {
-  recuperacionHoy[campo] = recuperacionHoy[campo] === valor ? '' : valor;   // tocar de nuevo lo quita
-  pintarRecuperacion();
-  guardarRecuperacion();
-}
-
-function saveRecuperacionNota() {
-  recuperacionHoy.nota_libre = document.getElementById('recup-nota').value;
-  guardarRecuperacion();
-}
-
-function guardarRecuperacion() {
-  clearTimeout(recuperacionTimer);
-  recuperacionTimer = setTimeout(guardarRecuperacionAhora, 800);
-}
-
-async function guardarRecuperacionAhora() {
-  recuperacionTimer = null;
-  setSyncing(true);
-  try {
-    await sbLog('recuperacion','POST',{
-      fecha: fechaDeAhora(),
-      movilidad: recuperacionHoy.movilidad || null,
-      animo: recuperacionHoy.animo || null,
-      nota_libre: recuperacionHoy.nota_libre || null
-    },'?on_conflict=fecha');
-    setSyncing(false); clearSyncError();
-  } catch(e){ console.error('Error guardando recuperación:',e); setSyncError(); }
-}
-
-async function cargarRecuperacion() {
-  try {
-    const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
-    const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
-    recuperacionHoy = {movilidad:r.movilidad||'', animo:r.animo||'', nota_libre:r.nota_libre||''};
-    pintarRecuperacion();
-  } catch(e){ console.error('Error cargando recuperación:', e); }
-}
-
 let starState={agua:0,energia:0,sueno:0,movimiento:0};
 
 function setStars(key,val) {
@@ -3994,9 +3935,29 @@ function preguntaParaFecha(fechaStr) {
   return PREGUNTAS[dayOfYear % PREGUNTAS.length];
 }
 
+// El hábito que menos pasó antes del día que estás viendo (desde el miércoles,
+// para que haya con qué comparar). Los que ya pasan 80% o más no cuentan: se están quedando.
+function habitoEnFormacion(day) {
+  if(day < 2) return null;
+  const cuenta = {};
+  ['m','n'].forEach(p => HABITS[p].forEach((h,i) => {
+    const c = cuenta[h.name] || (cuenta[h.name] = {hecho:0, total:0});
+    for(let d=0; d<day; d++){ c.total++; if(state[p][d] && state[p][d][i]) c.hecho++; }
+  }));
+  const lista = Object.entries(cuenta).map(([n,c]) => ({n, r: c.hecho/c.total})).filter(x => x.r < 0.8);
+  if(!lista.length) return null;
+  return lista.sort((a,b) => a.r-b.r)[0].n;
+}
+
 function setPreguntaDia() {
   const el = document.getElementById('pregunta-dia');
-  if(el) el.textContent = preguntaParaFecha(fechaActiva);
+  if(!el) return;
+  const d = new Date(fechaActiva+'T12:00:00');
+  const dia = Math.floor((d - new Date(d.getFullYear(),0,0)) / 86400000);
+  const h = dia % 2 === 0 ? habitoEnFormacion(currentDay.n) : null;
+  el.textContent = h
+    ? PREGUNTAS_HABITO[Math.floor(dia/2) % PREGUNTAS_HABITO.length].replace('{h}', h.toLowerCase())
+    : preguntaParaFecha(fechaActiva);
 }
 
 // ── CICLO MENSTRUAL ──
@@ -4381,7 +4342,101 @@ function updateProgress(panel) {
 }
 
 // ── SEMANA ──
+// Experimento de la semana: una sola cosa para probar, salida de los datos de la semana.
+// Prioridad: el disparador que más se repite (si tiene micro-acción); si no, la franja del día
+// donde más pasa. Con el pie en recuperación no se propone caminar (MOVIMIENTO_EN_PAUSA).
+function experimentoSemana(total, conDisparador) {
+  if(total < 3) return '';
+  if(conDisparador.length >= 3) {
+    const conteo = {};
+    conDisparador.forEach(x => idsDisparador(x).forEach(id => { conteo[id] = (conteo[id]||0)+1; }));
+    const top = Object.entries(conteo).sort((a,b)=>b[1]-a[1])
+      .map(([id]) => DISPARADORES.find(d => d.id===id))
+      .find(d => d && d.accion && !(MOVIMIENTO_EN_PAUSA && /camin|moverte|movimiento/i.test(d.accion)));
+    if(top) {
+      const acc = top.accion.replace(/^antes del próximo:\s*/i, '');
+      return `cuando aparezca <b>${top.label.replace(/^\S+\s/,'').toLowerCase()}</b>, antes de fumar: ${acc.charAt(0).toLowerCase()+acc.slice(1)} Después anota la fuerza.`;
+    }
+  }
+  const franjas = {mañana:0, tarde:0, noche:0};
+  cigarrillosSemana.forEach(x => { const h = parseInt(String(x.hora||'').slice(0,2),10); if(isNaN(h)) return;
+    franjas[h<12?'mañana':h<18?'tarde':'noche'] += Number(x.cantidad||0); });
+  const [franja, n] = Object.entries(franjas).sort((a,b)=>b[1]-a[1])[0];
+  if(!n) return '';
+  const accion = MOVIMIENTO_EN_PAUSA
+    ? '60 segundos de respiración de doble inhalación (dos cortas por la nariz, una larga por la boca)'
+    : '10 minutos de caminar';
+  return `${Math.round(n/total*100)}% fue en la ${franja}. En esa franja, antes del primero: ${accion}, y anota si la fuerza bajó.`;
+}
+
+// Insight: una sola correlación de los últimos 28 días, sólo si el dato la sostiene
+// (al menos 10 días con los dos datos y |r| ≥ 0,3). Si no, no se muestra nada.
+let datosInsight = null;
+async function cargarDatosInsight() {
+  const d = new Date(todayStr+'T12:00:00'); d.setDate(d.getDate()-27);
+  const desde = getLocalDate(d);
+  try {
+    const [rd, cg, gs] = await Promise.all([
+      sbRegistro('GET', null, `?fecha=gte.${desde}&select=fecha,sueno_horas,energia,emocion`),
+      sbLog('cigarrillos','GET',null,`?fecha=gte.${desde}&select=fecha,cantidad`),
+      sbLog('gastos','GET',null,`?fecha=gte.${desde}&select=fecha,monto`)
+    ]);
+    datosInsight = {rd: Array.isArray(rd)?rd:[], cg: Array.isArray(cg)?cg:[], gs: Array.isArray(gs)?gs:[]};
+  } catch(e) { console.error('Error cargando datos del insight:', e); }
+}
+
+function pearson(pares) {
+  const n = pares.length; if(n < 2) return 0;
+  const mx = pares.reduce((s,p)=>s+p[0],0)/n, my = pares.reduce((s,p)=>s+p[1],0)/n;
+  let a=0, b=0, c2=0;
+  pares.forEach(([x,y]) => { a += (x-mx)*(y-my); b += (x-mx)**2; c2 += (y-my)**2; });
+  return (b && c2) ? a/Math.sqrt(b*c2) : 0;
+}
+
+function insightSemana() {
+  if(!datosInsight) return null;
+  // Un día cuenta si tiene registro (emoción, energía o sueño): ahí "0 fumado" sí es un dato
+  const dias = {};
+  datosInsight.rd.forEach(r => { if(r.emocion || r.energia!=null || r.sueno_horas!=null)
+    dias[r.fecha] = {sueno: r.sueno_horas!=null ? Number(r.sueno_horas) : null, energia: r.energia!=null ? Number(r.energia) : null, fumado:0, gasto:0}; });
+  datosInsight.cg.forEach(x => { if(dias[x.fecha]) dias[x.fecha].fumado += Number(x.cantidad||0); });
+  datosInsight.gs.forEach(x => { if(dias[x.fecha]) dias[x.fecha].gasto += Number(x.monto||0); });
+  const v = Object.values(dias);
+  // Cómo se dice cada dato en lenguaje tuyo: [cuando sube, cuando baja]
+  const FRASE = {sueno:['dormiste más','dormiste menos'], energia:['tuviste más energía','tuviste menos energía'],
+                 fumado:['fumaste más','fumaste menos'], gasto:['gastaste más','gastaste menos']};
+  const PARES = [['sueno','fumado'], ['energia','fumado'], ['sueno','energia'], ['fumado','gasto'], ['sueno','gasto']];
+  let mejor = null;
+  PARES.forEach(([a,b]) => {
+    const pares = v.filter(d => d[a]!=null && d[b]!=null).map(d => [d[a], d[b]]);
+    if(pares.length < 10) return;
+    const r = pearson(pares);
+    if(Math.abs(r) < 0.3 || (mejor && Math.abs(r) <= Math.abs(mejor.r))) return;
+    // Sueño y energía se cuentan desde el lado bajo; fumado y gasto, desde el alto
+    const ladoA = (a==='sueno' || a==='energia') ? -1 : 1;
+    const ladoB = ladoA * Math.sign(r);
+    const plano = `Los días que ${FRASE[a][ladoA>0?0:1]}, ${FRASE[b][ladoB>0?0:1]}.`;
+    mejor = {r, n: pares.length, plano, texto: `${plano} <span class="insight-r">r = ${r.toFixed(2).replace('.',',')}</span>`};
+  });
+  return mejor;
+}
+
+// Reflexiones: una o dos, armadas con lo que pasó esta semana (no una lista fija).
+function reflexionesSemana(ins) {
+  const out = [];
+  const porDia = {}; weekDates.forEach(f => porDia[f]=0);
+  cigarrillosSemana.forEach(x => { if(porDia[x.fecha]!==undefined) porDia[x.fecha]+=Number(x.cantidad||0); });
+  const sinNada = weekDates.filter((f,i) => i<=todayIdx && porDia[f]===0).length;   // la misma cuenta que "días sin nada"
+  if(sinNada >= 1) out.push(`Hubo ${sinNada} día${sinNada===1?'':'s'} sin fumar. ¿Qué tenía${sinNada===1?'':'n'} de distinto: cómo dormiste, qué comiste, con quién estuviste?`);
+  else if(ins) out.push(`${ins.plano} ¿Qué crees que hay detrás, en cómo fue tu semana?`);
+  const h = habitoEnFormacion(todayIdx);
+  if(h) out.push(`"${h}" es lo que más te costó esta semana. ¿Qué lo hizo difícil, y qué sería lo mínimo que sí podrías sostener?`);
+  if(!out.length) out.push('¿Qué de esta semana quieres que se repita la próxima, y qué lo haría más fácil?');
+  return out.slice(0,2);
+}
+
 function buildSemana() {
+  if(!datosInsight) cargarDatosInsight().then(() => { if(document.getElementById('panel-semana').classList.contains('on')) buildSemana(); });
   const c=document.getElementById('semana-content');
   let total=0, hecho=0;
   const porH={};
@@ -4415,7 +4470,8 @@ function buildSemana() {
     if(dn>0) diasActivos++;
   }
 
-  // Mensaje basado en IDENTIDAD, no en tarea. Rota cada semana.
+  // Mensaje basado en IDENTIDAD, no en tarea (PNL: presente, primera persona, identidad ya
+  // instalada; nunca meta pendiente ni felicitación externa). Rota cada semana calendario.
   const MSG_SEMANA = {
     alto: [
       d=>`Esta semana fuiste alguien que se cuida ${d} de 7 días. Eso ya es quien eres.`,
@@ -4471,6 +4527,8 @@ function buildSemana() {
   else if(diasActivos===1) { const b=MSG_SEMANA.uno; msg=b[semanaIdx%b.length]; }
   else { const b=MSG_SEMANA.cero; msg=b[semanaIdx%b.length]; }
   
+  const dato = mejorP > 0 ? `Tu día más completo: ${DAYS[mejorD].toLowerCase()}.` : '';
+
   const dots=Array.from({length:7},(_,d)=>{
     const tot2=HABITS.m.length+HABITS.n.length;
     const dn=(state.m[d]||[]).filter(Boolean).length+(state.n[d]||[]).filter(Boolean).length;
@@ -4501,6 +4559,7 @@ function buildSemana() {
       </div>
 
       <div class="mensaje-grande">"${msg}"</div>
+      ${dato ? `<div class="semana-dato">${dato}</div>` : ''}
 
       <div class="semana-calendar">
         <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;font-weight:600;">Tu semana día a día</div>
@@ -4514,7 +4573,7 @@ function buildSemana() {
       </div>
 
       <div class="habitos-semana">
-        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;font-weight:600;">Qué hiciste más</div>
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;font-weight:600;">Qué hiciste más · veces de las posibles</div>
         <div class="habito-bars">
           ${Object.entries(porH).sort((a,b)=>b[1].done-a[1].done).map(([name,{done,icon,oportunidades}],idx)=>{
             const colores=['var(--terra)','var(--sage)','var(--sky)','var(--gold)','var(--lavender)'];
@@ -4526,7 +4585,7 @@ function buildSemana() {
               <div class="habito-body">
                 <div class="habito-meta">
                   <span class="habito-nombre">${name}</span>
-                  <span class="habito-count">${done}</span>
+                  <span class="habito-count">${done} de ${oportunidades}</span>
                 </div>
                 <div class="habito-bar-track"><div class="habito-bar-fill" style="width:${pct}%;background:${color};"></div></div>
               </div>
@@ -4597,6 +4656,7 @@ function buildSemana() {
             <div class="fumado-lectura">Llevas ${conDisparador.length} registro${conDisparador.length===1?'':'s'} con disparador. Desde 3 se empieza a ver el patrón.</div>`;
         }
 
+        const experimento = experimentoSemana(totalSemana, conDisparador);
         return `
           <div class="fumado-stats">
             <div class="fumado-stat">
@@ -4613,7 +4673,8 @@ function buildSemana() {
             </div>
           </div>
           ${barras}
-          ${bloqueDisparadores}`;
+          ${bloqueDisparadores}
+          ${experimento ? `<div class="fumado-sep"></div><div class="experimento"><b>Experimento de esta semana</b> · ${experimento}</div>` : ''}`;
       })()}
     </div>
     <div class="resumen-card gastos-card">
@@ -4628,6 +4689,16 @@ function buildSemana() {
             <div class="bar-label"><span>${DAYS[i].slice(0,3)}${f===todayStr?' · hoy':''}</span><span class="bar-pct gastos-bar-pct">$${formatMonto(porDia[f])}</span></div>
             <div class="bar-track"><div class="bar-fill" style="width:${Math.round(porDia[f]/maxDia*100)}%;background:var(--gold);"></div></div>
           </div>`).join('');
+        const cats = {};
+        gastosSemana.forEach(x => { const k = x.categoria || 'Sin categoría'; cats[k] = (cats[k]||0) + Number(x.monto||0); });
+        const ordenCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+        const maxCat = Math.max(1, ...ordenCats.map(e=>e[1]));
+        // Sólo aparece si al menos un gasto tiene categoría
+        const porCategoria = gastosSemana.some(x=>x.categoria) ? `<div class="gastos-subhead">Por categoría</div>` + ordenCats.map(([k,v])=>`
+          <div class="bar-row gastos-bar-row">
+            <div class="bar-label"><span>${escapeHtml(k)}</span><span class="bar-pct gastos-bar-pct">$${formatMonto(v)}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxCat*100)}%;background:var(--terra);"></div></div>
+          </div>`).join('') : '';
         const lista = gastosSemana.length
           ? `<div class="log-list">${gastosSemana.map(x=>{
               const editando = gastoEditando === x.id;
@@ -4639,6 +4710,10 @@ function buildSemana() {
                       <input class="gasto-edit-monto" type="number" step="0.01" id="edit-monto-${x.id}" value="${x.monto}">
                       <input class="gasto-edit-nota" type="text" id="edit-nota-${x.id}" value="${x.nota?escapeHtml(x.nota):''}" placeholder="¿en qué?">
                     </div>
+                    <select class="gasto-edit-cat" id="edit-cat-${x.id}">
+                      <option value="">Sin categoría</option>
+                      ${GASTO_CATEGORIAS.map(k=>`<option${k===x.categoria?' selected':''}>${k}</option>`).join('')}
+                    </select>
                     <div class="gasto-edit-acciones">
                       <button class="gasto-edit-guardar" onclick="guardarEdicionGasto('${x.id}')">Guardar</button>
                       <button class="gasto-edit-borrar" onclick="borrarGastoSemana('${x.id}')">Eliminar</button>
@@ -4650,7 +4725,7 @@ function buildSemana() {
               <div class="log-item log-item-tocable" onclick="abrirEdicionGasto('${x.id}')">
                 <div class="log-item-info">
                   <span class="log-item-hora">${formatFechaCorta(x.fecha)}${x.hora?' · '+formatHora12(x.hora):''}</span>
-                  <span class="log-item-detalle">$${formatMonto(x.monto)}${x.nota?' · '+escapeHtml(x.nota):''}</span>
+                  <span class="log-item-detalle">$${formatMonto(x.monto)}${x.categoria?' · '+x.categoria.split(' ')[0]:''}${x.nota?' · '+escapeHtml(x.nota):''}</span>
                 </div>
                 <span class="log-item-editar">✎</span>
               </div>`;
@@ -4661,6 +4736,7 @@ function buildSemana() {
             <div class="gastos-total-label">Total esta semana</div>
             <div class="gastos-total-amount">$${formatMonto(totalSemana)}</div>
           </div>
+          ${porCategoria}
           <div class="gastos-subhead">Por día</div>
           ${barras}
           <div class="gastos-subhead">¿En qué gasté?</div>
@@ -4668,21 +4744,15 @@ function buildSemana() {
       })()}
     </div>
 
-    <div class="resumen-card">
-      <div class="res-title">Preguntas de la semana 📓</div>
-      <div class="preguntas-semana">
-        ${weekDates.map((f,i)=>{
-          const esHoy = f===todayStr;
-          const futura = f>todayStr;
-          return `
-          <div class="pregunta-dia-item ${esHoy?'hoy':''} ${futura?'futura':''}">
-            <div class="pregunta-dia-fecha">${DAYS[i]}${esHoy?' · hoy':''}</div>
-            <div class="pregunta-dia-texto">${preguntaParaFecha(f)}</div>
-          </div>`;
-        }).join('')}
-      </div>
-      <div class="preguntas-nota">Puedes volver a cualquiera cuando quieras. Ninguna vence.</div>
-    </div>`;
+    ${(() => {
+      const ins = insightSemana();
+      const refl = reflexionesSemana(ins);
+      return (ins ? `<div class="resumen-card"><div class="res-title">Lo que se mueve junto 🔗</div>
+          <div class="insight-linea">${ins.texto}</div>
+          <div class="insight-nota">Últimos ${ins.n} días. Ir juntos no quiere decir que uno cause el otro: es una pista para mirar.</div></div>` : '')
+        + (refl.length ? `<div class="resumen-card"><div class="res-title">Para escribir esta semana 📓</div>
+          ${refl.map(r => `<div class="reflexion">${r}</div>`).join('')}</div>` : '');
+    })()}`;
 }
 
 // ── NAV ──
@@ -4797,13 +4867,6 @@ async function refrescoAutomatico() {
     await cargarUltimaVezGatos();
     await cargarUltimaVezHabitos();
     if(await cargarMomentos(fechaActiva)) pintarMomentos();
-    if(RECUPERACION_ACTIVA && !recuperacionTimer) {
-      const filas = await sbLog('recuperacion','GET',null,`?fecha=eq.${todayStr}`);
-      const r = Array.isArray(filas) && filas[0] ? filas[0] : {};
-      const merge = (c) => { if(!recuperacionHoy[c] && r[c]) recuperacionHoy[c]=r[c]; };
-      merge('movilidad'); merge('animo'); merge('nota_libre');
-      pintarRecuperacion();
-    }
 
     const despues = JSON.stringify({r: registroCache[fechaActiva], s: state.m[todayIdx], n: state.n[todayIdx]});
 
@@ -4874,10 +4937,6 @@ function forzarGuardadoPendiente() {
     saveTimer=null;
     guardarRegistroDiario(fechaActiva);
   }
-  if(recuperacionTimer) {
-    clearTimeout(recuperacionTimer);
-    guardarRecuperacionAhora();
-  }
   if(afinarTimer || Object.keys(afinarCambios).length) vaciarAfinar();
   Object.keys(momentoTimers).forEach(k => {
     clearTimeout(momentoTimers[k]);
@@ -4898,14 +4957,11 @@ async function init() {
   construirEmocionesHoy();
   construirMomentos();
   try { const mg = localStorage.getItem('metodo_fumado'); if(METODO_LABEL[mg]) setMetodoFumado(mg); } catch(e){}
-  if(RECUPERACION_ACTIVA) {
-    document.getElementById('recuperacion-card').style.display = 'block';
-    construirRecuperacion();
-  }
   restoreTodayUI();
   buildAncla();
   updateSnaps();
   // Se fija una sola vez al cargar: no se toca de nuevo salvo que la usuaria lo cambie a mano
+  pintarGastoCats();
   const gastoFechaEl = document.getElementById('input-gasto-fecha');
   if(gastoFechaEl) { gastoFechaEl.value = todayStr; gastoFechaEl.max = todayStr; onCambioFechaGasto(); }
   setSyncing(true);
@@ -4929,8 +4985,7 @@ async function init() {
     cargarGastosSemana(),
     vaciarColaComidasVieja(),
     cargarCigarrillosSemana(),
-    cargarMomentos(fechaActiva),
-    RECUPERACION_ACTIVA ? cargarRecuperacion() : null
+    cargarMomentos(fechaActiva)
   ]);
   reintentarHabitosPendientes();   // si quedó algo sin guardar la última vez
   setSyncing(false);
