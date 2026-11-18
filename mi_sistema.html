@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" data-app="mi-sistema">
+<html lang="es" data-app="mi-sistema" data-fluido>
 <head>
 <script src="auth.js?v=1"></script>
 <meta charset="UTF-8">
 <meta name="theme-color" content="#6B4630">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mi Sistema">
@@ -12,8 +12,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Mi Sistema</title>
-<link rel="stylesheet" href="tierra.css?v=2">
-<script src="tierra.js?v=3"></script>
+<link rel="stylesheet" href="tierra.css?v=4">
+<script src="tierra.js?v=6"></script>
 <style>
 /* Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
    Los nombres de abajo son los de siempre, apuntan a los tokens para no tocar las 1.600 líneas de reglas.
@@ -1778,6 +1778,99 @@ body.night .res-title, body.night .emotion-title, body.night .ql-title { color: 
 body.night .header { background: #7B5B45; }
 body.night .ancla-card { background: #765641; }
 body.night .ancla-card.done { background: #5F7A63; }
+
+/* ═══ Paso 8 · Mi Sistema fluida: de diario. Café con dorado, borde rasgado como hoja de cuaderno,
+   manchas muy lentas. Una tira de franjas a todo lo ancho, sin tarjetas. ═══ */
+:root {
+  --f1: rgba(239,216,152,.62); --f2: rgba(237,214,208,.70); --f3: rgba(201,162,75,.30); --f4: rgba(181,138,108,.26);
+  --f-dur-a: 58s; --f-dur-b: 84s; --d-x: 4%; --d-y: 3%; --d-rot: 5deg; --d-esc: 1.08;
+  --onda: 24px;
+}
+body { --banda-a: var(--p-dorado); --banda-b: var(--p-rosa); --banda-x: var(--acento); }   /* en body: de noche toman los pasteles de noche */
+html:has(body.night) { --bg-fluido: var(--fondo-oscuro); --f1: rgba(138,114,64,.5); --f2: rgba(130,97,93,.5); --f3: rgba(201,162,75,.22); --f4: rgba(181,138,108,.2); }
+.panel { padding: 0 0 72px; }
+.panel > :not([data-b]) { padding-inline: var(--pad); }
+
+/* Cabecera: franja café, manchas lentas por dentro, borde rasgado abajo. Aquí el saludo es el título. */
+.header { position: relative; isolation: isolate; overflow: hidden; margin: 0; display: block;
+  padding: calc(34px + env(safe-area-inset-top)) var(--pad) calc(var(--onda) + 22px); background: var(--acento); color: #fff; box-shadow: none; border-radius: 0;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat; }
+.header::before { content: ''; position: absolute; inset: -40%; z-index: -1; will-change: transform;
+  background: radial-gradient(34% 40% at 24% 46%, #4E3322, transparent 70%), radial-gradient(38% 44% at 80% 64%, #8A6A40, transparent 72%);
+  animation: ms-papel 36s ease-in-out infinite alternate; }
+@keyframes ms-papel { from { transform: translate3d(-6%, -4%, 0) rotate(0deg); } to { transform: translate3d(6%, 5%, 0) rotate(10deg); } }
+body.night .header { background: #7B5B45; }
+.greeting { font-size: 52px; line-height: 1; color: #fff; }
+.header .date-line { font-size: 14px; letter-spacing: .04em; text-transform: none; margin-top: 10px; }
+.header-right { position: static; display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 12px 0 0; }
+.header .sync-bar { margin: 0; color: rgba(255,253,249,.96); }
+.icon-btn { margin-right: -10px; }
+.icon-btn { color: #fff; border-radius: 0; }
+
+body.night { --tinta: var(--texto-oscuro); --linea: rgba(255,245,230,.36); }   /* de noche, la tinta es crema */
+
+/* Pestañas: palabras sueltas, la actual subrayada en dorado */
+.nav { padding: 20px var(--pad) 8px; gap: 4px 14px; }
+.nav-pill { gap: 5px; font-size: 15px; }
+.nav-pill, body.night .nav-pill { background: none; border: 0; border-bottom: 2px dashed var(--linea); border-radius: 0; box-shadow: none; padding: 0 2px; color: var(--tinta); min-height: 44px; }
+.nav-pill.on, body.night .nav-pill.on { background: none; color: var(--tinta); font-weight: 700; border-bottom: 3px solid var(--acento-claro); }
+
+/* Ancla: la franja fuerte del día */
+.ancla-card { color: #fff; }
+.ancla-card.done[data-b] { background: var(--salvia) !important; }
+.ancla-card :is(.ancla-titulo, .ancla-estado, .ancla-razon, .ancla-icon, .ancla-badge) { color: #fff; }
+
+/* Resumen del día: cuatro cifras sueltas en dos columnas, sin cajitas */
+.snapshot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 20px; }
+.snap-card, body.night .snap-card { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; }
+
+/* Lo que antes eran cajitas, píldoras y rectángulos */
+.crono-box, .big-stat, .week-cell, .fumado-stat, .gastos-total-box, .ciclo-dia-box, .disparador-box, .micro-accion, .mensaje-grande, .granular-box,
+body.night :is(.crono-box, .big-stat, .week-cell, .fumado-stat, .gastos-total-box, .ciclo-dia-box, .disparador-box, .micro-accion, .mensaje-grande, .granular-box) { background: none; border: 0; border-radius: 0; box-shadow: none; padding-inline: 0; }
+.nutri-link { background: none; border: 0; border-radius: 0; box-shadow: none; }
+.habit-card, body.night .habit-card { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; margin: 0; border-top: 2px dashed var(--linea); }
+.habit-card:first-child { border-top: 0; }
+.habit-card:active { transform: none; }
+.pregunta-inline { background: none; border-radius: 0; box-shadow: none; border: 0; }
+.emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .ola-btn, .ql-star, .gasto-cat, .emo-mas, .micro-accion-listo, .hora-toggle,
+body.night :is(.emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .ola-btn, .ql-star, .gasto-cat, .emo-mas, .micro-accion-listo) { background: none !important; border: 0; border-radius: 0; box-shadow: none; color: var(--tinta);
+  border-bottom: 2px dashed var(--linea); padding-inline: 2px; min-height: 44px; }
+.emo-pill.on, .mom-pill.on, .granular-pill.on, .int-pill.on, .nivel-pill.on, .day-btn.on, .disparador-pill.on, .gasto-cat.on, .ql-star.on, .emo-pill.sel, .mom-pill.sel, .granular-pill.sel, .nivel-pill.sel,
+body.night :is(.emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .gasto-cat).on { background: none !important; color: var(--tinta) !important; font-weight: 700; border-bottom: 3px solid var(--acento); box-shadow: none; }
+.ciclo-btn, .log-add-btn { border-radius: 0; box-shadow: none; }
+.ciclo-btn { background: none; border: 0; border-bottom: 3px solid var(--acento); color: var(--tinta); padding-inline: 2px; }
+.log-add-btn { background: var(--acento); color: #fff; }
+.snap-card :active, .habit-card:active { transform: none; }
+.ciclo-relleno, .prog-track, .prog-fill { border-radius: 0; }
+
+/* Títulos de franja: más grandes */
+.emotion-title, .ql-title, .res-title, .granular-title { font-size: 30px; margin-bottom: 18px; }
+
+
+.log-qbtn { background: none !important; border: 0; border-bottom: 2px solid var(--acento); border-radius: 0; box-shadow: none; color: var(--tinta); }
+.log-nota-input, .log-fecha-input, .ql-num-input { background: transparent !important; border: 0 !important; border-bottom: 2px solid var(--linea) !important; border-radius: 0 !important; }
+.lectura-book, .habito-bar-track, .bar-track, .habito-bar-fill, .bar-fill { border-radius: 0; }
+.nivel-pill { min-width: 44px; }
+
+.toast-reward { border-radius: 0; box-shadow: none; }
+
+/* Elegido: tinta (crema de noche), en negrita y subrayado; gana a los estilos viejos de noche */
+:is(.nav-pill, .emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .gasto-cat, .ql-star, .emo-mas):is(.on, .sel, .selected),
+body.night :is(.nav-pill, .emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .day-btn, .disparador-pill, .gasto-cat, .ql-star, .emo-mas):is(.on, .sel, .selected) {
+  background: none !important; color: var(--tinta) !important; font-weight: 700; box-shadow: none; border-bottom: 3px solid var(--acento-claro); }
+
+
+.header-right { flex-direction: row; }
+.header-right .sync-bar { order: 1; }
+.header-right .icon-btn { order: 2; }
+.hora-row, .hora-row.on { background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding-inline: 0 !important; }
+.ciclo-barra, .ciclo-barra-track, .ciclo-barra-fill { border-radius: 0; }
+
+@media (prefers-reduced-motion: reduce) { .header::before { animation: none !important; } }
+
+/* Campos a 16 px: así el iPhone no hace zoom solo al tocarlos y se puede hacer zoom con los dedos */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
 </style>
 <link rel="apple-touch-icon" href="icono-mi-sistema.png">
 <link rel="icon" type="image/png" href="icono-mi-sistema.png">
@@ -5038,6 +5131,7 @@ function verificarCambioDeDia() {
   return false;
 }
 
+Tierra.fluir({ en: '#panel-hoy, #panel-manana, #panel-noche, #panel-semana, #semana-content', hijos: '.ancla-card, .log-card, .snapshot-row, .emotion-bar, .gatos-card, .ciclo-card, .quick-log, .prog-section, .pregunta-inline, .nutri-link, .resumen-card, #habits-m, #habits-n', ritmo: ['', 'a', 'b'], fuerte: '.ancla-card' });
 function iniciarAutoRefresco() {
   // Si publicas una versión nueva, se pone al día al volver, salvo con algo escribiéndose o sin guardar
   Tierra.version(() => usuarioEscribiendo || !!saveTimer || !!afinarTimer || Object.keys(afinarCambios).length > 0 || Object.keys(momentoTimers).length > 0);

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" data-app="nutri">
+<html lang="es" data-app="nutri" data-fluido>
 <head>
 <script src="auth.js?v=1"></script>
 <meta charset="UTF-8">
 <meta name="theme-color" content="#1FD47A">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nutri">
@@ -18,8 +18,8 @@
   if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro';
   document.documentElement.dataset.tema = t; })();
 </script>
-<link rel="stylesheet" href="tierra.css?v=2">
-<script src="tierra.js?v=3"></script>
+<link rel="stylesheet" href="tierra.css?v=4">
+<script src="tierra.js?v=6"></script>
 <style>
 
 /* ═══ Nutri se une a Tierra · Calma · Directo v2 ═══
@@ -545,6 +545,89 @@ html[data-tema="oscuro"] #registro .meal-progress, html[data-tema="oscuro"] #reg
 .t-nav .t-tab.on { background: var(--sobre-acento); color: var(--acento); }
 .t-nav .t-tab.on::after { display: none; }
 .wrap { padding-bottom: calc(var(--alto-nav) + 40px + env(safe-area-inset-bottom)); }
+
+/* ═══ Paso 8 · Nutri fluida: una tira de franjas a todo lo ancho, sin tarjetas. Fresca y directa:
+   neón, borde en diagonal, manchas que se mueven más vivas. Menta y limón pálidos para las secciones. ═══ */
+:root {
+  --banda-a: var(--p-menta); --banda-b: var(--p-limon); --banda-x: var(--acento);
+  --f1: rgba(31,212,122,.34); --f2: rgba(245,240,203,.95); --f3: rgba(31,212,122,.26); --f4: rgba(227,244,232,.95);
+  --f-dur-a: 24s; --f-dur-b: 36s; --d-x: 9%; --d-y: 6%; --d-rot: 16deg; --d-esc: 1.22;
+  --onda: 28px;
+}
+html[data-tema="oscuro"] {
+  --f1: rgba(31,212,122,.24); --f2: rgba(134,128,63,.5); --f3: rgba(31,212,122,.18); --f4: rgba(91,122,100,.55);
+  --bg-fluido: var(--fondo-oscuro);
+}
+.wrap { max-width: none; padding-inline: 0; padding-bottom: calc(var(--alto-nav) + 40px + env(safe-area-inset-bottom)); }
+#registro > :not([data-b]), #hoy-cont > :not([data-b]), #tab-semana > :not([data-b]), #tab-despensa > :not([data-b]), #tab-perfil > :not([data-b]), #desp-listas > :not([data-b]) { padding-inline: var(--pad); }
+.panel { padding: 0; }
+#tab-hoy { margin-top: calc(-1 * var(--onda) - 2px); }   /* la franja neón de Hoy encaja con el borde de la cabecera */
+.header { z-index: 0; }
+
+/* Arriba: la franja neón con manchas que derivan por dentro, corte en diagonal */
+.header { position: relative; isolation: isolate; overflow: hidden; margin: 0; padding: calc(30px + env(safe-area-inset-top)) var(--pad) calc(var(--onda) + 26px);
+  background: var(--acento); border-radius: 0; box-shadow: none; align-items: center;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat; }
+.header::before, .heroe::before { content: ''; position: absolute; inset: -40%; z-index: -1; will-change: transform;
+  background: radial-gradient(34% 40% at 22% 40%, #4BF09A, transparent 70%), radial-gradient(38% 44% at 82% 66%, #0FA95E, transparent 72%);
+  animation: nutri-fluye 18s ease-in-out infinite alternate; }
+.heroe { isolation: isolate; overflow: hidden; }
+.heroe::before { animation-duration: 22s; animation-direction: alternate-reverse; }
+@keyframes nutri-fluye { from { transform: translate3d(-8%, -5%, 0) rotate(0deg); } to { transform: translate3d(9%, 6%, 0) rotate(18deg); } }
+:root[data-tema="oscuro"] .header { background: var(--acento-oscuro); }
+.marca-aguacate { height: 56px; padding: 0; background: none; border-radius: 0; box-shadow: none; }
+.header .titulo { font-family: var(--font-ui); font-size: 20px; font-weight: 700; color: var(--sobre-acento); }
+.header .fecha { font-size: 15px; color: var(--sobre-acento); margin-top: 2px; }
+.tema-btn { background: none; border: 0; border-radius: 0; box-shadow: none; color: var(--sobre-acento); }
+
+/* Títulos de franja: sans en negrita, grandes, con su punto neón */
+.label { font-family: var(--font-ui); font-style: normal; font-weight: 700; font-size: 28px; line-height: 1.1; letter-spacing: -.02em; background: none; padding-bottom: 0; margin-bottom: 20px; display: flex; align-items: center; text-wrap: balance; }
+.label::before { width: 12px; height: 12px; box-shadow: none; margin-right: 12px; }
+#registro .ql-title { font-size: 22px; letter-spacing: -.015em; }
+.card:active { transform: none; }
+.ahora { border-left: 0; }
+
+/* Lo que antes eran cajitas */
+.mini { background: none; border-radius: 0; box-shadow: none; padding: 12px 0; }
+.meta-c { background: none; border-radius: 0; padding: 8px 0; }
+.busca { background: none; border-radius: 0; padding: 0; border-bottom: 2px solid var(--linea); }
+.scan { background: none; border-radius: 0; box-shadow: none; width: 44px; height: 44px; }
+.sug button, .seg button, #registro .nu-chip, #registro .nu-dig-btn { background: none !important; border: 0; border-radius: 0; box-shadow: none; padding: 0 2px; color: var(--tinta);
+  border-bottom: 2px dashed var(--linea); min-height: 44px; }
+.sug, .seg { gap: 4px 20px; }
+.sug button.off { background: none !important; opacity: .7; }
+.seg button.on, .sug button.tomado, #registro .nu-chip.on, #registro .nu-dig-btn.on { background: none !important; color: var(--tinta); font-weight: 700; border-bottom: 3px solid var(--tinta); box-shadow: none; }
+.item .tag, .item .tag.alerta { background: none; border-radius: 0; padding: 0; margin-left: 8px; color: var(--tinta); opacity: .86; }
+.item .accion { background: none; border-radius: 0; padding: 0 2px; color: var(--tinta); border-bottom: 2px solid var(--acento); min-height: 44px; }
+#registro .nu-picker, #registro .nu-panel { background: none; border-radius: 0; padding: 12px 0 0; border-top: 2px dashed var(--linea); }
+.reg-fecha-row input[type=date], #registro .meal-input, .busca input { background: transparent; border: 0; border-bottom: 2px solid var(--linea); border-radius: 0; }
+.busca input { border-bottom: 0; }
+.col .barra-v { border-radius: 0; }
+
+/* Acciones: cuadradas, neón con tinta; las principales, filas de borde a borde */
+.boton, #registro .nu-confirmar, #registro .log-add-btn, #registro .extras-add { background: var(--acento); color: var(--sobre-acento); border-radius: 0; box-shadow: none; font-weight: 700; }
+.boton { display: flex; justify-content: space-between; width: calc(100% + 2 * var(--pad)); margin-inline: calc(-1 * var(--pad)); padding: 0 var(--pad); min-height: 64px; }
+#registro .nu-confirmar { width: calc(100% + 2 * var(--pad)); margin-inline: calc(-1 * var(--pad)); }
+.boton:active { background: var(--acento-oscuro); transform: none; }
+
+/* Barra de abajo: franja neón de borde a borde; la pestaña activa, en tinta */
+.t-nav { left: 0; right: auto; transform: none; bottom: 0; width: 100%; height: calc(66px + env(safe-area-inset-bottom)); padding: 0 var(--pad) env(safe-area-inset-bottom); border-radius: 0; box-shadow: none; background: var(--acento); }
+.t-nav .t-tab { border-radius: 0; margin: 0; }
+.t-nav .t-tab.on { background: var(--sobre-acento); color: var(--acento); }
+.toast { border-radius: 0; box-shadow: none; }
+
+
+/* toques de 44 px */
+.seg button { min-width: 44px; }
+.campo input, .campo select, .busca input { min-height: 44px; }
+.item .x { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.link { min-height: 44px; display: inline-flex; align-items: center; }
+
+@media (prefers-reduced-motion: reduce) { .header::before, .heroe::before { animation: none !important; } }
+
+/* Campos a 16 px: así el iPhone no hace zoom solo al tocarlos y se puede hacer zoom con los dedos */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
 </style>
 </head>
 <body>
@@ -2711,6 +2794,7 @@ async function init() {
 
 
 init();
+Tierra.fluir({ en: '#hoy-cont, #registro, #tab-semana, #tab-despensa, #desp-listas, #tab-perfil', hijos: '.card, .meal-card, .log-card', ritmo: ['', 'a', 'b'], fuerte: '.heroe' });
 </script>
 </body>
 </html>

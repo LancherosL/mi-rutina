@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-app="gatos">
+<html lang="es" data-app="gatos" data-fluido>
 <head>
 <script src="auth.js?v=1"></script>
 <meta charset="UTF-8">
@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="Mia y Dorito">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="tierra.css?v=2">
-<script src="tierra.js?v=3"></script>
+<link rel="stylesheet" href="tierra.css?v=4">
+<script src="tierra.js?v=6"></script>
 <style>
   /* Tierra · Calma · Directo v2: colores, letras, radios y sombras vienen de tierra.css */
   :root{--bg:var(--papel);--card:var(--tarjeta);--ink:var(--tinta);--line:var(--borde);--acc:var(--terra)}
@@ -173,6 +173,57 @@ h2 { font-family: var(--font-display); font-style: italic; font-weight: 600; fon
   h2 { font-family: var(--font-ui); font-style: normal; font-weight: 700; font-size: 20px; letter-spacing: -0.01em; background: none; padding: 0 0 0 22px; margin-bottom: 14px; position: relative; }
   h2::before { content: ""; position: absolute; left: 0; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--acento); }
   .banda { border-radius: 0 0 36px 36px; }
+
+/* ═══ Paso 8 · Mía y Dorito fluida: tranquila y suave. Franjas de borde de nubecitas, manchas que flotan;
+   cada gata con su color (Mía salvia y rosa, Dorito terra y dorado). Cada tramo empieza en su título. ═══ */
+:root {
+  --banda-a: var(--p1); --banda-b: var(--p2);
+  --f1: rgba(221,232,217,.95); --f2: rgba(237,216,210,.85); --f3: rgba(200,218,196,.7); --f4: rgba(243,223,210,.8);
+  --f-dur-a: 40s; --f-dur-b: 70s; --d-x: 6%; --d-y: 5%; --d-rot: 6deg; --d-esc: 1.1;
+  --onda: 26px;
+}
+html[data-gato="dorito"] { --f1: rgba(243,223,210,.95); --f2: rgba(242,231,200,.9); --f3: rgba(232,176,142,.45); --f4: rgba(239,216,152,.5); }
+.wrap { max-width: none; padding-inline: 0; padding-bottom: 24px; }
+#view > :not([data-b]) { padding-inline: var(--pad); }
+#view { margin-top: calc(-1 * var(--onda) - 2px); }
+
+/* Cabecera del gato: franja con manchas por dentro y borde de nubecitas */
+.banda { position: relative; isolation: isolate; overflow: hidden; margin: 0; padding: calc(40px + env(safe-area-inset-top)) var(--pad) calc(var(--onda) + 30px); border-radius: 0; box-shadow: none;
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat; }
+.banda::before { content: ''; position: absolute; inset: -40%; z-index: -1; will-change: transform;
+  background: radial-gradient(34% 40% at 24% 46%, var(--acento-oscuro), transparent 70%), radial-gradient(36% 42% at 80% 62%, var(--acento-claro), transparent 72%);
+  animation: gato-flota 30s ease-in-out infinite alternate; }
+@keyframes gato-flota { from { transform: translate3d(-6%, -4%, 0) rotate(0deg); } to { transform: translate3d(6%, 5%, 0) rotate(10deg); } }
+.banda .in { max-width: none; margin: 0; }
+.banda h1 { font-size: 56px; line-height: 1; }
+.banda .kick { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+
+/* Títulos: el título de cada tramo, con el punto del color de la gata */
+.t-sec h2 { font-size: 28px; margin: 0 0 18px; padding-left: 26px; text-wrap: balance; }
+.t-sec h2::before { width: 14px; height: 14px; margin-top: -7px; }
+
+/* Lo que antes eran tarjetas, ahora filas con raya */
+.box, .pend, .chk, .fold, .panel, .aviso, .box.pausado { background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+.box, .pend, .chk, .fold { border-top: 2px dashed var(--linea) !important; padding-block: 16px !important; }
+.fold { padding-block: 0 !important; }
+.fold .hd { padding: 16px 0; }
+.fold .bd { padding: 0 0 16px; }
+.aviso { border-top: 2px dashed var(--linea) !important; padding-top: 16px !important; }
+
+/* Botones: palabras con raya; las acciones, cuadradas */
+.go, .chip { background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding: 0 2px; min-width: 44px; color: var(--tinta); border-bottom: 2px solid var(--acento) !important; }
+.chip { border-bottom: 2px dashed var(--linea) !important; }
+.chip.on { background: none !important; color: var(--tinta); font-weight: 700; border-bottom: 3px solid var(--acento) !important; }
+.fab, .save { background: var(--acento); color: #fff; border-radius: 0; box-shadow: none; }
+.go:active, .fab:active, .save:active { transform: none; opacity: .86; }
+
+/* Barra de abajo: franja pareja de borde a borde */
+.t-nav { left: 0; right: 0; width: 100%; border-radius: 0; box-shadow: none; padding-inline: var(--pad); }
+
+.stat { flex-wrap: wrap; gap: 14px 26px; }
+.stat > div { min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .banda::before { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -300,6 +351,7 @@ function render(){
     hd.innerHTML=`<div class="banda"><div class="in"><div class="kick">${t[0].charAt(0).toUpperCase()+t[0].slice(1)}</div><h1>${t[1]}</h1></div></div>`;
   }
   document.getElementById('view').innerHTML=g?vGato(g):(vista==='inicio'?vInicio():vGastos());
+  Tierra.secciones('view','H2');
   pintarNav();tickStopwatch();
 }
 
@@ -645,6 +697,7 @@ window.borrar=async function(t,id){if(!confirm('¿Eliminar este registro?'))retu
 
 /* Se actualiza sola, sin recargar: al volver a la app y cada minuto. Sólo repinta si algo cambió,
    y nunca con un formulario abierto, una foto abierta o mientras escribes. */
+Tierra.fluir({en:'#view',hijos:'.t-sec',ritmo:['a','','b']});
 /* Si publicas una versión nueva, se pone al día al volver, salvo con un formulario o una foto abiertos */
 Tierra.version(()=>!!form||document.getElementById('lightbox').classList.contains('on'));
 const instantanea=()=>JSON.stringify([gatos,trat,vac,sint,gastos,log,pend,visitas,labs,docs,estados,salidas]);

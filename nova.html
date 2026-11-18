@@ -4,290 +4,275 @@
 <script src="auth.js?v=1"></script>
 <meta charset="UTF-8">
 <meta name="theme-color" content="#B85C35">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nova">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Nova</title>
-<link rel="stylesheet" href="tierra.css?v=2">
-<script src="tierra.js?v=3"></script>
+<link rel="stylesheet" href="tierra.css?v=4">
+<script src="tierra.js?v=6"></script>
 <style>
-
-/* Estilo Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
-   Un acento por pantalla: terra = hacer (botón principal) · salvia = hecho. Nada de lavanda ni azul. */
+/* ═══════════════════════════════════════════════════════════════════════
+   Nova · una sola página que fluye, de arriba a abajo.
+   Sin tarjetas: ni rectángulos redondeados, ni bordes, ni sombras, ni cajas dentro de cajas.
+   Las secciones se separan solo por aire y por color de fondo, a todo lo ancho, con el borde ondulado.
+   Fondo vivo: manchas de tierra que derivan despacio (compositor: solo transform). Se detiene con
+   prefers-reduced-motion. Colores, letras e iconos vienen de tierra.css.
+   ═══════════════════════════════════════════════════════════════════════ */
 :root {
-  --bg: var(--papel);
-  --card: var(--tarjeta);
+  color-scheme: light;
   --ink: var(--tinta);
-  --line: var(--borde);
-  --terra-soft: var(--terra-suave);
   --sage: var(--salvia);
-  --sage-soft: var(--salvia-suave);
-  --r: var(--r-tarjeta);
-  --r-sm: var(--r-boton);
-  --sombra: var(--sombra-tarjeta);
+  --pad: max(var(--lateral), calc((100vw - 560px) / 2));   /* margen lateral; en pantallas grandes centra el texto */
+  --onda: 26px;                                            /* alto del borde ondulado */
+
+  /* Bordes ondulados (alfa para máscara). Arriba y abajo de una misma frontera encajan exacto. */
+  --onda-sup-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cpath d='M0 14 C60 2 120 2 170 11 C220 20 280 24 340 12 C400 0 390 6 400 9 L400 26 L0 26 Z'/%3E%3C/svg%3E");
+  --onda-inf-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cpath d='M0 0 L400 0 L400 9 C390 6 400 0 340 12 C280 24 220 20 170 11 C120 2 60 2 0 14 Z'/%3E%3C/svg%3E");
+  --onda-sup-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cg transform='translate(400 0) scale(-1 1)'%3E%3Cpath d='M0 14 C60 2 120 2 170 11 C220 20 280 24 340 12 C400 0 390 6 400 9 L400 26 L0 26 Z'/%3E%3C/g%3E%3C/svg%3E");
+  --onda-inf-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cg transform='translate(400 0) scale(-1 1)'%3E%3Cpath d='M0 0 L400 0 L400 9 C390 6 400 0 340 12 C280 24 220 20 170 11 C120 2 60 2 0 14 Z'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:var(--font-ui); font-size:17px; line-height:1.5; background:var(--bg); color:var(--ink); min-height:100vh; }
-button { font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; }
-input, select { font-family:inherit; font-size:17px; color:var(--ink); }
-
-.wrap { max-width:480px; margin:0 auto; padding:20px var(--lateral) 60px; }
-@media (min-width:768px) { .wrap { max-width:720px; } }
-
-.header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; }
-.titulo { font-family:var(--font-display); font-size:var(--fs-nombre-app); font-weight:600; line-height:1.1; letter-spacing:-0.02em; }
-.fecha { font-size:14px; color:var(--muted); }
-.fase-chip { font-size:14px; font-weight:600; color:var(--salvia-oscuro); background:var(--sage-soft); padding:7px 12px; border-radius:20px; white-space:nowrap; }
-
-.card { background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:var(--dentro-tarjeta); margin-bottom:var(--entre-tarjetas); box-shadow:var(--sombra); }
-.label { font-size:12px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
-
-/* Hero: lo de hoy, listo */
-.hero { border-radius:var(--r); padding:24px var(--dentro-tarjeta) 20px; margin-bottom:var(--entre-tarjetas); color:#fff; box-shadow:var(--sombra);
-  background:linear-gradient(135deg, #B85C35, #6B7A4E); }
-.hero-hola { font-family:var(--font-display); font-size:var(--fs-saludo); font-weight:600; line-height:1.06; letter-spacing:-0.02em; }
-.hero-txt { font-size:17px; line-height:1.45; margin-top:8px; }
-.hero-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
-.hero-chip { font-size:14px; font-weight:600; background:rgba(255,255,255,.2); padding:5px 11px; border-radius:20px; }
-.hero-ayer { font-size:15px; margin-top:14px; }
-.hero-btn { width:100%; min-height:56px; margin-top:16px; border-radius:var(--r-sm); background:#fff; color:var(--terra-texto); font-size:17px; font-weight:600; padding:0 12px; }
-
-/* ReX */
-.rex { display:flex; gap:14px; align-items:flex-start; }
-.rex-avatar { flex:0 0 44px; height:44px; border-radius:50%; background:var(--terra); color:#fff;
-  display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:600; font-size:23px; }
-.rex-texto { font-family:var(--font-display); font-size:22px; line-height:1.3; padding-top:5px; }
-.rex-datos { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
-.dato { font-size:14px; color:var(--ink); background:var(--bg); padding:6px 12px; border-radius:999px; }
-button.dato { border:1.5px solid var(--line); }
-
-/* Escalas 0-10: dos filas (0-5, 6-10), botones grandes */
-.escala { display:grid; grid-template-columns:repeat(6,1fr); gap:15px 8px; }
-.escala button { height:52px; border-radius:14px; background:var(--bg); font-size:17px; font-weight:600; font-variant-numeric:tabular-nums; }
-.escala button.sel { background:var(--terra); color:#fff; }
-.pie-fila { margin-top:14px; }
-.pie-fila:first-of-type { margin-top:4px; }
-.pie-sub { font-size:14px; color:var(--muted); margin-bottom:8px; }
-.pie-pills { display:flex; flex-wrap:wrap; gap:8px; }
-.pie-pill { font-size:15px; font-weight:600; min-height:44px; display:inline-flex; align-items:center; padding:0 16px; border-radius:999px; background:var(--bg); border:1px solid var(--line); }
-.pie-pill.sel { background:var(--sage); border-color:var(--sage); color:#fff; }
-.pie-nota { width:100%; margin-top:14px; font-size:16px; padding:11px 14px; border-radius:14px; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-family:inherit; }
-.escala-ext { display:flex; justify-content:space-between; font-size:14px; color:var(--muted); margin-top:10px; }
-.link { font-size:16px; font-weight:600; color:var(--terra-texto); text-decoration:none; padding:10px 0; min-height:44px; }
-
-/* Sesión */
-.sesion-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
-.sesion-nombre { font-family:var(--font-display); font-size:28px; font-weight:600; line-height:1.15; }
-.sesion-min { font-size:15px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
-.progreso { margin:6px 0 4px; }
-.progreso-barra { height:6px; border-radius:6px; background:var(--terra-soft); overflow:hidden; }
-.progreso-barra span { display:block; height:100%; background:var(--terra); border-radius:6px; }
-.progreso-txt { font-size:14px; color:var(--muted); margin-top:6px; font-variant-numeric:tabular-nums; }
-.pregunta { font-size:15px; margin-top:10px; padding:12px 14px; border-radius:var(--r-sm); background:var(--bg); }
-.pregunta-bot { display:flex; gap:8px; margin-top:8px; }
-.pregunta-bot button { min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:15px; font-weight:600; }
-.ej-lista { list-style:none; }
-.ej { display:flex; align-items:flex-start; gap:6px; padding:12px 0; border-top:1px solid var(--line); }
-.ej:first-child { border-top:none; }
-.ej-cuerpo { flex:1; min-width:0; padding-top:2px; }
-.ej-fila { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
-.ej-nombre { font-size:17px; font-weight:600; line-height:1.3; }
-.ej-dosis { color:var(--terra-texto); font-size:15px; font-weight:600; text-align:right; }
-.ej-desc { font-size:14px; color:var(--muted); line-height:1.45; margin-top:2px; }
-.ej.ok .ej-nombre, .ej-run.ok .ej-run-nombre { color:var(--muted); text-decoration:line-through; text-decoration-color:rgba(110,96,82,.5); }
-/* Check: círculo de 32 px dentro de un área tocable de 48 px */
-.check { flex:0 0 48px; height:48px; margin:-8px 0 -8px -8px; display:flex; align-items:center; justify-content:center; }
-.check span { width:32px; height:32px; border-radius:50%; border:2px solid var(--line); background:var(--card);
-  display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:transparent; }
-.ok > .check span { background:var(--sage); border-color:var(--sage); color:#fff; }
-
-.botones { display:flex; gap:10px; margin-top:16px; }
-.btn { flex:1; min-height:56px; border-radius:var(--r-sm); font-size:17px; font-weight:600; padding:0 12px;
-  display:flex; align-items:center; justify-content:center; text-decoration:none; }
-.btn-1 { background:var(--terra); color:#fff; }
-.btn-1:active { background:var(--terra-oscuro); }
-.btn-2 { background:var(--card); color:var(--ink); border:1.5px solid var(--tinta-20); }
-.btn-hecho { background:var(--sage); color:#fff; }
-.btn-hecho:active { background:var(--salvia-oscuro); }
-.btn:disabled { opacity:.4; }
-.aviso { font-size:14px; color:var(--muted); margin-top:10px; }
-.hecho-resumen { font-size:17px; line-height:1.5; }
-
-/* Vista sesión en curso */
-.ej-run { display:flex; gap:6px; padding:14px 0; border-top:1px solid var(--line); }
-.ej-run:first-child { border-top:none; }
-.ej-run-nombre { font-weight:600; font-size:17px; }
-.ej-run-dosis { font-size:15px; color:var(--terra-texto); font-weight:600; margin-left:6px; }
-.ej-run-desc { font-size:15px; line-height:1.5; margin-top:3px; }
-.ej-run-ojo { font-size:14px; color:var(--terra-texto); margin-top:4px; }
-
-.senti { display:flex; gap:10px; }
-.senti button { flex:1; height:56px; border-radius:var(--r-sm); background:var(--bg); font-size:26px; }
-.senti button.sel { background:var(--sage-soft); outline:2px solid var(--sage); }
-.nota-input { width:100%; border:1.5px solid var(--line); background:var(--bg); border-radius:var(--r-sm); padding:14px; margin-top:16px; }
-.sub { font-size:15px; color:var(--muted); margin:18px 0 10px; }
-
-/* Recuperación */
-.tl { list-style:none; position:relative; padding-left:24px; }
-.tl::before { content:''; position:absolute; left:6px; top:10px; bottom:10px; width:2px; background:var(--line); }
-.tl li { position:relative; padding:6px 0 12px; }
-.tl li::before { content:''; position:absolute; left:-24px; top:11px; width:14px; height:14px; border-radius:50%; background:var(--ink); box-sizing:border-box; }
-.tl li.previsto::before { background:var(--card); border:2px solid var(--muted); }
-.tl li.fase::before { background:var(--sage); }
-.tl li.mas::before { background:var(--card); border:2px solid var(--line); }
-.tl-fecha { font-size:12px; font-weight:600; color:var(--muted); }
-.tl-desc { font-size:15px; }
-.tl li.previsto .tl-desc { color:var(--muted); }
-.tl-pend { font-size:15px; color:var(--muted); text-align:left; padding:2px 0; }
-.tl-accion { font-size:14px; font-weight:600; color:var(--terra-texto); margin-left:8px; }
-.hito-form { display:none; margin-top:12px; }
-.hito-form.abierto { display:block; }
-.hito-form input, .hito-form select { width:100%; border:1.5px solid var(--line); background:var(--bg); border-radius:var(--r-sm); padding:13px; margin-bottom:10px; }
-.fila { display:flex; gap:8px; }
-
-/* Tai Chi en silla: un video al día. Imagen = frame limpio del video, nunca la miniatura publicitaria */
-.tc { margin-top:18px; border-radius:var(--r-foto); background:var(--bg); overflow:hidden; }
-/* El frame de YouTube viene 4:3 con franjas negras; 112% las saca del cuadro. */
-.tc-img { position:relative; display:block; aspect-ratio:16/10; background-size:112% auto, cover; background-position:center; background-repeat:no-repeat; }
-.tc-hoy { position:absolute; left:12px; top:12px; font-size:12px; font-weight:700; letter-spacing:1.2px; color:#fff;
-  background:rgba(33,26,19,.78); padding:5px 10px; border-radius:20px; }
-.tc-play { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); width:56px; height:56px; border-radius:50%;
-  background:var(--terra); color:#fff; font-size:22px; display:flex; align-items:center; justify-content:center; padding-left:4px; box-shadow:0 4px 12px rgba(33,26,19,.28); }
-.tc-min { position:absolute; right:12px; bottom:12px; font-size:12px; font-weight:600; color:#fff; background:rgba(33,26,19,.72);
-  padding:4px 8px; border-radius:8px; }
-.tc-info { padding:16px; }
-.tc-titulo { font-family:var(--font-display); font-size:24px; font-weight:600; line-height:1.2; }
-.tc-sub { display:inline-block; font-size:14px; font-weight:600; color:var(--salvia-oscuro); background:var(--sage-soft); padding:5px 11px; border-radius:20px; margin-top:8px; }
-.tc-clase { font-size:14px; color:var(--muted); margin-top:8px; }
-.tc .btn { width:100%; margin-top:12px; }
-.tc-hecho { font-size:17px; font-weight:600; color:var(--sage); margin-top:12px; }
-
-/* Pausa corta (Instagram): una línea, no sesión principal */
-.pausa { display:flex; align-items:center; gap:12px; margin-top:12px; padding:14px 16px; border-radius:var(--r-sm); background:var(--bg); }
-.pausa-txt { flex:1; color:inherit; text-decoration:none; min-width:0; }
-.pausa-tit { font-size:15px; font-weight:600; }
-.pausa-sub { font-size:14px; color:var(--muted); margin-top:2px; }
-.pausa-btn { flex:0 0 auto; min-height:44px; padding:0 16px; border-radius:22px; background:var(--sage); color:#fff; font-size:15px; font-weight:600; }
-.pausa-ok { flex:0 0 auto; font-size:15px; font-weight:600; color:var(--sage); }
-
-.error { font-size:15px; color:var(--terra-texto); margin-top:8px; }
+html { background: var(--papel); }
+html { overflow-x:clip; }
+body { font-family:var(--font-ui); font-size:17px; line-height:1.5; color:var(--ink); min-height:100vh; overflow-x:clip; }
+button { font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; touch-action:manipulation; }
+input, select { font-family:inherit; font-size:17px; color:var(--ink); touch-action:manipulation; }
+h1, h2 { text-wrap: balance; font-weight: inherit; }
 .oculto { display:none !important; }
 
-/* ── Paso 3 · jerarquía y acabado: títulos grandes, más aire, tarjetas con luz y sombra fina ── */
-.wrap { padding-top: 36px; padding-bottom: 104px; }
-.header { margin-bottom: 32px; align-items: flex-end; }
-.titulo { font-size: var(--fs-nombre-app); line-height: 1; letter-spacing: -0.025em; }
-.fecha { font-size: 15px; margin-top: 6px; }
-.fase-chip { padding: 8px 14px; font-size: 14px; }
-.card, .hero { box-shadow: var(--brillo), var(--sombra); border-color: rgba(33,26,19,.06); margin-bottom: var(--entre-tarjetas); }
-.card { padding: 28px var(--dentro-tarjeta); }
-.hero { padding: 36px 28px 28px; }
-.hero-hola { font-size: 46px; line-height: 1.02; letter-spacing: -0.03em; }
-.hero-txt { font-size: 19px; line-height: 1.45; margin-top: 12px; }
-.rex { gap: 16px; }
-.rex-avatar { flex-basis: 48px; height: 48px; font-size: 26px; box-shadow: var(--sombra-boton); }
-.rex-texto { font-size: 28px; line-height: 1.2; letter-spacing: -0.01em; padding-top: 4px; }
-.label { margin-bottom: 18px; }
-.sesion-nombre { font-size: 34px; letter-spacing: -0.02em; }
-.tc-titulo { font-size: 30px; letter-spacing: -0.015em; }
-.tc-info { padding: 20px; }
-.tc-img { aspect-ratio: 16/9.5; }
-.escala button { height: 56px; border-radius: 16px; background: var(--beige); box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
-.escala button.sel, .pie-pill.sel { box-shadow: var(--sombra-boton); }
-.btn-1 { box-shadow: var(--sombra-boton); }
-.btn-hecho { box-shadow: 0 1px 2px rgba(33,26,19,.18), 0 6px 14px -4px rgba(62,98,71,.45), inset 0 1px 0 rgba(255,255,255,.2); }
-.btn-2 { box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
-.ej { padding: 16px 0; }
-.ej-nombre { font-size: 18px; }
-.header { display: block; }
-.header .fase-chip { display: inline-block; margin-top: 16px; }
-.rex-texto { font-size: 26px; }
-.pausa-tit .t-emo { margin-left: 4px; }
+/* ── Fondo vivo: dos capas de manchas que se mueven en sentidos distintos, muy despacio ── */
+body::before, body::after { content:''; position:fixed; inset:-25%; z-index:-1; pointer-events:none; will-change:transform; }
+body::before {
+  background:
+    radial-gradient(44% 34% at 18% 22%, rgba(232,176,142,.62), transparent 70%),
+    radial-gradient(38% 36% at 86% 34%, rgba(239,216,152,.60), transparent 70%);
+  animation: nova-deriva-a 44s ease-in-out infinite alternate;
+}
+body::after {
+  background:
+    radial-gradient(46% 38% at 64% 84%, rgba(178,203,172,.56), transparent 70%),
+    radial-gradient(34% 30% at 10% 74%, rgba(236,196,184,.50), transparent 70%);
+  animation: nova-deriva-b 61s ease-in-out infinite alternate;
+}
+@keyframes nova-deriva-a { from { transform: translate3d(-4%, -3%, 0) rotate(0deg) scale(1); } to { transform: translate3d(5%, 4%, 0) rotate(9deg) scale(1.14); } }
+@keyframes nova-deriva-b { from { transform: translate3d(4%, 3%, 0) rotate(0deg) scale(1.12); } to { transform: translate3d(-5%, -4%, 0) rotate(-10deg) scale(1); } }
 
-/* ── Paso 4 · paleta por app: Nova = terra. Encabezado de color, botones y acentos en el color de la app ── */
-.wrap { padding-top: 0; }
-.header { margin: 0 calc(-1 * var(--lateral)) 32px; padding: calc(44px + env(safe-area-inset-top)) var(--lateral) 32px; background: var(--acento);
-  border-radius: 0 0 32px 32px; box-shadow: var(--sombra-banda); }
-.header .titulo { color: var(--sobre-acento); }
-.header .fecha { color: rgba(255,253,249,.96); }
-.header .fase-chip { background: rgba(70,32,16,.34); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,253,249,.22); }
+.wrap { position:relative; padding: 0 0 calc(88px + env(safe-area-inset-bottom)); }
 
-/* ── Paso 5 · hecho a mano: secciones planas en pastel, sin tarjetas ── */
-#vista-inicio > :nth-child(4n+1),
-#vista-sesion > :nth-child(4n+1),
-#vista-cierre > :nth-child(4n+1) { --pastel: var(--p1); --forma: var(--forma-1); }
-#vista-inicio > :nth-child(4n+2),
-#vista-sesion > :nth-child(4n+2),
-#vista-cierre > :nth-child(4n+2) { --pastel: var(--p2); --forma: var(--forma-2); }
-#vista-inicio > :nth-child(4n+3),
-#vista-sesion > :nth-child(4n+3),
-#vista-cierre > :nth-child(4n+3) { --pastel: var(--p3); --forma: var(--forma-3); }
-#vista-inicio > :nth-child(4n+4),
-#vista-sesion > :nth-child(4n+4),
-#vista-cierre > :nth-child(4n+4) { --pastel: var(--p4); --forma: var(--forma-4); }
+/* ── Arriba: la franja de Nova (terra, con manchas que derivan dentro) ── */
+.header, .hero { position:relative; isolation:isolate; overflow:hidden; color:#fff; background:var(--acento); }
+.header::before, .hero::before { content:''; position:absolute; inset:-40%; z-index:-1; will-change:transform; }
+.header::before {
+  background:
+    radial-gradient(34% 40% at 24% 46%, #9A4A28, transparent 70%),
+    radial-gradient(38% 44% at 80% 64%, #6B7A4E, transparent 72%);
+  animation: nova-deriva-c 28s ease-in-out infinite alternate;
+}
+.hero::before {
+  background:
+    radial-gradient(36% 42% at 78% 30%, #6B7A4E, transparent 72%),
+    radial-gradient(34% 40% at 18% 78%, #9A4A28, transparent 70%);
+  animation: nova-deriva-d 34s ease-in-out infinite alternate;
+}
+@keyframes nova-deriva-c { from { transform: translate3d(-6%, -4%, 0) rotate(0deg); } to { transform: translate3d(7%, 5%, 0) rotate(14deg); } }
+@keyframes nova-deriva-d { from { transform: translate3d(5%, 4%, 0) rotate(0deg); } to { transform: translate3d(-7%, -5%, 0) rotate(-12deg); } }
 
-body { background: var(--papel); color: var(--tinta); }
-.wrap { position: relative; z-index: 1; }
-.card { background: var(--pastel, var(--p1)); border: 0; box-shadow: none; border-radius: var(--forma, var(--forma-1)); padding: 30px 26px; margin-bottom: 18px; color: var(--tinta); }
-.hero { background: var(--acento); border-radius: var(--forma-2); box-shadow: none; padding: 34px 28px 28px; }
-.label { font-family: var(--font-display); font-style: italic; font-weight: 600; font-size: 26px; line-height: 1.12; letter-spacing: -.01em; text-transform: none; color: var(--tinta);
-  padding-bottom: 14px; margin-bottom: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='10' viewBox='0 0 72 10'%3E%3Cpath d='M2 6 C8 1 14 1 20 5 S32 9 38 5 S50 1 56 5 S66 8 70 4' fill='none' stroke='%23211A13' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 72px 10px no-repeat; }
+.header {
+  padding: calc(40px + env(safe-area-inset-top)) var(--pad) calc(var(--onda) + 12px);
+  -webkit-mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat;
+          mask: linear-gradient(#000, #000) top / 100% calc(100% - var(--onda) + 1px) no-repeat, var(--onda-inf-a) bottom / 100% var(--onda) no-repeat;
+}
+/* "Nova" es la etiqueta chiquita de arriba; el título de la página es "Hola, Laura" (abajo) */
+.titulo { font-family:var(--font-ui); font-size:18px; font-weight:700; line-height:1.2; letter-spacing:.01em; color:#fff; }
+.fecha { font-size:15px; margin-top:4px; color:rgba(255,253,249,.96); }
+.fase-chip { font-size:15px; font-weight:600; color:#fff; margin-top:2px; white-space:normal; }
 
-.sesion-nombre, .tc-titulo { color: var(--tinta); }
-.header { border-radius: 0 0 58% 42% / 0 0 26px 36px; box-shadow: none; }
-/* sobre el pastel: lo que se toca va en una capa clara, los campos son rayas */
-.escala button, .pie-pill, .senti button, .dato, .pregunta-bot button, .btn-2 { background: var(--capa); border: 0; box-shadow: none; color: var(--tinta); }
-.escala button { border-radius: var(--forma-boton); }
-.escala button.sel { background: var(--acento); color: #fff; }
-.pie-pill.sel { background: var(--salvia); color: #fff; }
-.senti button.sel { background: var(--capa); outline-color: var(--acento); }
-.pie-nota, .nota-input, .hito-form input, .hito-form select { background: transparent; border: 0; border-bottom: 2px solid var(--linea); border-radius: 0; padding-left: 2px; }
-.pregunta, .pausa { background: var(--capa); border-radius: 24px 28px 22px 30px / 28px 22px 30px 24px; }
-.tc { background: transparent; border-radius: 0; margin-top: 20px; }
-.tc-img { border-radius: 22px 28px 20px 30px / 26px 20px 30px 22px; }
-.tc-info { padding: 20px 0 0; }
-.btn { border-radius: var(--forma-boton); }
-.btn-1, .btn-hecho { box-shadow: none; }
-.btn:active { transform: translateY(2px); }
-.btn-2 { box-shadow: inset 0 0 0 2px var(--tinta); background: transparent; }
-.fase-chip { color: #fff; }
-.ej, .ej-run, .tl li { border-top: 2px dashed var(--linea); }
-.ej:first-child, .ej-run:first-child { border-top: 0; }
-.link { color: var(--tinta); text-decoration: underline; text-decoration-color: var(--acento); text-decoration-thickness: 2px; text-underline-offset: 5px; }
-.hero-txt, .hero-hola { color: #fff; }
-.fecha, .sub, .aviso, .pie-sub, .escala-ext, .progreso-txt, .tl-fecha, .tl-desc, .ej-desc, .sesion-min, .tc-clase, .pausa-sub { color: var(--tinta); opacity: .86; }
-.rex-avatar { box-shadow: none; }
-.tc-sub { background: var(--capa); color: var(--tinta); }
-.card { padding: 30px 22px; }
-.escala { gap: 12px 4px; }
+/* Hoy, listo: sigue a la franja de arriba como una segunda ola */
+.hero {
+  margin-top: calc(-1 * var(--onda) - 2px);
+  padding: calc(var(--onda) + 72px) var(--pad) calc(var(--onda) + 40px);
+  background: linear-gradient(160deg, var(--acento), #8A6A40 60%, #6B7A4E);
+  -webkit-mask: var(--onda-sup-a) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--onda-inf-b) bottom / 100% var(--onda) no-repeat;
+          mask: var(--onda-sup-a) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--onda-inf-b) bottom / 100% var(--onda) no-repeat;
+}
+.hero-hola { font-family:var(--font-display); font-size:68px; font-weight:600; line-height:.96; letter-spacing:-.03em; color:#fff; }
+.hero-txt { font-size:19px; line-height:1.45; margin-top:18px; color:#fff; max-width:34ch; }
+.hero-chips { display:flex; flex-wrap:wrap; gap:6px 22px; margin-top:18px; }
+.hero-chip { position:relative; padding-left:16px; font-size:16px; font-weight:600; color:#fff; }
+.hero-chip::before { content:''; position:absolute; left:0; top:.62em; width:7px; height:7px; border-radius:50%; background:rgba(255,253,249,.8); }
+.hero-ayer { font-size:16px; margin-top:16px; color:#fff; }
 
-/* ── Paso 6 · Nova: editorial y orgánica. Dos pasteles y, cada tres secciones, una sin fondo. ── */
-#vista-inicio > :nth-child(3n), #vista-sesion > :nth-child(3n), #vista-cierre > :nth-child(3n) { --pastel: transparent; }
-.card:where([style*="transparent"]) { background: transparent; }
+/* ── Tramos: cada sección es una franja a todo lo ancho. Borde ondulado, sin caja. ── */
+.tramo {
+  --m-sup: var(--onda-sup-a); --m-inf: var(--onda-inf-b);
+  position:relative; padding: 40px var(--pad); color:var(--ink);
+  -webkit-mask: var(--m-sup) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--m-inf) bottom / 100% var(--onda) no-repeat;
+          mask: var(--m-sup) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--m-inf) bottom / 100% var(--onda) no-repeat;
+}
+.tramo:nth-child(even of .tramo:not(.oculto)) { --m-sup: var(--onda-sup-b); --m-inf: var(--onda-inf-a); }
 
-/* ── Paso 7 · lo dinámico ── */
-.check span { transition: background-color var(--t-toque) var(--ease), border-color var(--t-toque) var(--ease), color var(--t-toque) var(--ease); }
+/* Ritmo: sin color, terra pastel, dorado pastel, y otra vez. Lo oculto no cuenta. */
+#vista-inicio > :nth-child(3n+2 of .tramo:not(.oculto)) { background: var(--p-terra); padding-block: calc(var(--onda) + 40px); }
+#vista-inicio > :nth-child(3n of .tramo:not(.oculto)),
+#vista-sesion > .tramo, #vista-cierre > .tramo { background: var(--p-dorado); padding-block: calc(var(--onda) + 40px); margin-top: calc(-1 * var(--onda) - 2px); }
+
+.label { font-family:var(--font-display); font-style:italic; font-weight:600; font-size:36px; line-height:1.06; letter-spacing:-.015em; color:var(--ink);
+  padding-bottom:16px; margin-bottom:18px; text-transform:none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='10' viewBox='0 0 72 10'%3E%3Cpath d='M2 6 C8 1 14 1 20 5 S32 9 38 5 S50 1 56 5 S66 8 70 4' fill='none' stroke='%23211A13' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 72px 10px no-repeat; }
+
+/* ReX: la voz de Nova, sin caja */
+.rex { display:flex; gap:16px; align-items:flex-start; }
+.rex-avatar { flex:0 0 46px; height:46px; border-radius:50%; background:var(--acento); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:600; font-size:26px; }
+.rex-texto { font-family:var(--font-display); font-size:29px; line-height:1.18; letter-spacing:-.01em; padding-top:2px; }
+.rex-datos { margin-top:16px; display:flex; flex-wrap:wrap; gap:4px 22px; }
+.dato { font-size:15px; color:var(--ink); padding:0; background:none; border:0; border-bottom:2px dashed var(--linea); min-height:30px; display:inline-flex; align-items:center; }
+button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:var(--acento); }
+
+/* Escalas 0–10: números sueltos; el elegido se subraya */
+.escala { display:grid; grid-template-columns:repeat(6, 1fr); gap:2px 0; }
+.escala button { position:relative; height:52px; background:none; border:0; border-radius:0; font-size:23px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); }
+.escala button::after { content:''; position:absolute; left:calc(50% - 14px); bottom:7px; width:28px; height:3px; background:var(--acento); transform:scaleX(0); transition:transform var(--t-toque) var(--ease); }
+.escala button.sel { color:var(--acento-texto); }
+.escala button.sel::after { transform:scaleX(1); }
+.escala-ext { display:flex; justify-content:space-between; font-size:15px; margin-top:8px; color:var(--ink); opacity:.86; }
+
+.pie-fila { margin-top:20px; }
+.pie-fila:first-of-type { margin-top:4px; }
+.pie-sub, .sub, .aviso, .progreso-txt, .tl-fecha, .tl-desc, .ej-desc, .sesion-min, .tc-clase, .pausa-sub { color:var(--ink); opacity:.86; }
+.pie-sub { font-size:15px; margin-bottom:6px; }
+.pie-pills { display:flex; flex-wrap:wrap; gap:2px 22px; }
+.pie-pill { display:inline-flex; align-items:center; min-height:44px; padding:0 2px; font-size:17px; font-weight:600; background:none; border:0; border-radius:0; border-bottom:2px dashed var(--linea); color:var(--ink); }
+.pie-pill.sel { border-bottom:3px solid var(--acento); color:var(--acento-texto); }
+.pie-nota, .nota-input, .hito-form input, .hito-form select { width:100%; font-size:17px; background:transparent; border:0; border-bottom:2px solid var(--linea); border-radius:0; padding:12px 2px; color:var(--ink); appearance:none; -webkit-appearance:none; }
+.pie-nota { margin-top:18px; }
+.nota-input { margin-top:22px; }
+.hito-form input, .hito-form select { margin-bottom:10px; }
+.pie-nota:focus-visible, .nota-input:focus-visible, .hito-form input:focus-visible, .hito-form select:focus-visible { outline:3px solid var(--acento); outline-offset:2px; border-bottom-color:var(--acento); }
+.link { display:inline-flex; align-items:center; font-size:17px; font-weight:600; min-height:44px; min-width:44px; padding:0; color:var(--ink); text-decoration:underline; text-decoration-color:var(--acento); text-decoration-thickness:2px; text-underline-offset:5px; }
+
+/* Sesión */
+.sesion-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:6px; }
+.sesion-nombre { font-family:var(--font-display); font-size:36px; font-weight:600; line-height:1.08; letter-spacing:-.02em; }
+.sesion-min { font-size:16px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.progreso { margin:14px 0 6px; }
+.progreso-barra { height:4px; background:var(--linea); }
+.progreso-barra span { display:block; height:100%; background:var(--acento); }
+.progreso-txt { font-size:15px; margin-top:8px; font-variant-numeric:tabular-nums; }
+.pregunta { font-size:16px; margin-top:20px; padding-top:18px; border-top:2px dashed var(--linea); }
+.pregunta-bot { display:flex; gap:22px; margin-top:6px; }
+.pregunta-bot button { min-height:44px; padding:0; font-size:16px; font-weight:600; text-decoration:underline; text-decoration-color:var(--acento); text-decoration-thickness:2px; text-underline-offset:5px; }
+.ej-lista { list-style:none; margin-top:8px; }
+.ej, .ej-run { display:flex; align-items:flex-start; gap:6px; padding:18px 0; border-top:2px dashed var(--linea); }
+.ej:first-child, .ej-run:first-child { border-top:0; }
+.ej-cuerpo { flex:1; min-width:0; padding-top:2px; }
+.ej-fila { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+.ej-nombre, .ej-run-nombre { font-size:18px; font-weight:600; line-height:1.3; }
+.ej-dosis, .ej-run-dosis { color:var(--acento-texto); font-size:15px; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
+.ej-run-dosis { margin-left:6px; }
+.ej-desc { font-size:15px; line-height:1.45; margin-top:3px; }
+.ej-run-desc { font-size:16px; line-height:1.5; margin-top:3px; }
+.ej-run-ojo { font-size:15px; color:var(--acento-texto); margin-top:4px; }
+.ej.ok .ej-nombre, .ej-run.ok .ej-run-nombre { opacity:.6; text-decoration:line-through; text-decoration-color:var(--linea); }
+/* Check: círculo de 32 px dentro de un área tocable de 48 px */
+.check { flex:0 0 48px; height:48px; margin:-8px 0 -8px -8px; display:flex; align-items:center; justify-content:center; }
+.check span { width:32px; height:32px; border-radius:50%; border:2px solid rgba(33,26,19,.55); background:transparent; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:transparent;
+  transition: background-color var(--t-toque) var(--ease), border-color var(--t-toque) var(--ease), color var(--t-toque) var(--ease); }
+.ok > .check span { background:var(--sage); border-color:var(--sage); color:#fff; }
 .ej-nuevo .check span { animation: t-llena var(--t-aparece) var(--ease) backwards; }
 .ej-nuevo .check .t-emo, .ej-run.ok > .check .t-emo { animation: t-traza var(--t-aparece) var(--ease) 60ms backwards; }
-.pausa-btn, .btn-hecho { transition: transform var(--t-toque) var(--ease), opacity var(--t-toque) var(--ease), background-color var(--t-toque) var(--ease); }
-@media (prefers-reduced-motion: reduce) { .ej-nuevo .check span, .ej-nuevo .check .t-emo, .ej-run.ok > .check .t-emo { animation: none !important; } }
+
+/* Acciones: filas a todo lo ancho, sin esquinas redondeadas */
+.botones { display:flex; flex-direction:column; margin-top:30px; }
+.btn, .hero-btn {
+  display:flex; align-items:center; justify-content:flex-start; gap:12px;
+  width:calc(100% + 2 * var(--pad)); margin-inline:calc(-1 * var(--pad)); padding:0 var(--pad);
+  min-height:64px; border-radius:0; font-size:18px; font-weight:600; line-height:1.25; text-align:left; text-decoration:none;
+  transition: opacity var(--t-toque) var(--ease);
+}
+.btn::after, .hero-btn::after { content:''; flex:none; margin-left:auto; width:22px; height:22px; background:currentColor; -webkit-mask:var(--i-arrow-right) center / contain no-repeat; mask:var(--i-arrow-right) center / contain no-repeat; }
+.btn:active, .hero-btn:active { transform:none; opacity:.86; }
+.btn-1 { background:var(--acento); color:#fff; }
+.btn-hecho { background:var(--sage); color:#fff; }
+.btn-2 { background:transparent; color:var(--ink); border-top:2px dashed var(--linea); }
+.btn-2::after { display:none; }
+.btn:disabled { opacity:.4; }
+.btn:focus-visible, .hero-btn:focus-visible { outline:3px solid var(--tinta); outline-offset:-8px; }
+.hero-btn { margin-top:30px; background:#FFFDF9; color:var(--acento-oscuro); }
+@media (hover:hover) and (pointer:fine) { .btn:hover, .hero-btn:hover { opacity:.94; } }
+.aviso { font-size:15px; margin-top:12px; }
+.hecho-resumen { font-size:18px; line-height:1.5; }
+
+.senti { display:flex; }
+.senti button { position:relative; flex:1; height:64px; font-size:30px; background:none; border:0; border-radius:0; color:var(--ink); }
+.senti button::after { content:''; position:absolute; left:calc(50% - 16px); bottom:6px; width:32px; height:3px; background:var(--acento); transform:scaleX(0); transition:transform var(--t-toque) var(--ease); }
+.senti button.sel { color:var(--acento-texto); }
+.senti button.sel::after { transform:scaleX(1); }
+.sub { font-size:16px; margin:26px 0 10px; }
+
+/* Recuperación: línea de tiempo suelta */
+.tl { list-style:none; position:relative; padding-left:26px; }
+.tl::before { content:''; position:absolute; left:6px; top:12px; bottom:12px; width:2px; background:var(--linea); }
+.tl li { position:relative; padding:8px 0 14px; border-top:0; }
+.tl li::before { content:''; position:absolute; left:-26px; top:14px; width:14px; height:14px; border-radius:50%; background:var(--ink); }
+.tl li.previsto::before { background:transparent; border:2px solid var(--ink); }
+.tl li.fase::before { background:var(--sage); }
+.tl li.mas::before { background:transparent; border:2px solid var(--linea); }
+.tl-fecha { font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+.tl-desc { font-size:16px; }
+.tl li.previsto .tl-desc { opacity:.74; }
+.tl-pend { display:flex; align-items:center; min-height:44px; font-size:16px; text-align:left; padding:2px 0; }
+.tl-accion { font-size:15px; font-weight:600; color:var(--acento-texto); margin-left:8px; }
+.hito-form { display:none; margin-top:14px; }
+.hito-form.abierto { display:block; }
+.fila { display:flex; gap:18px; }
+
+/* Tai Chi en silla: el video llega de borde a borde. Imagen = frame limpio del video. */
+.tc { margin: 26px calc(-1 * var(--pad)) 0; }
+.tc-img { position:relative; display:block; aspect-ratio:16/10; background-size:112% auto, cover; background-position:center; background-repeat:no-repeat; }
+.tc-img::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(33,26,19,.55), transparent 34%, transparent 62%, rgba(33,26,19,.6)); }
+.tc-hoy, .tc-min, .tc-play { z-index:1; }
+.tc-hoy { position:absolute; left:var(--pad); top:16px; font-size:13px; font-weight:700; letter-spacing:1.2px; color:#fff; }
+.tc-min { position:absolute; right:var(--pad); bottom:16px; font-size:14px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; }
+.tc-play { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); width:56px; height:56px; border-radius:50%; background:var(--acento); color:#fff; font-size:22px; display:flex; align-items:center; justify-content:center; padding-left:4px; }
+.tc-info { padding: 22px var(--pad) 0; }
+.tc-titulo { font-family:var(--font-display); font-size:32px; font-weight:600; line-height:1.15; letter-spacing:-.015em; }
+.tc-sub { display:block; font-size:15px; font-weight:600; margin-top:8px; color:var(--ink); }
+.tc-clase { font-size:15px; margin-top:6px; }
+.tc .btn { margin-top:20px; }
+.tc-hecho { font-size:18px; font-weight:600; color:var(--salvia-oscuro); margin-top:14px; }
+
+/* Pausa corta: una línea con raya arriba */
+.pausa { display:flex; align-items:center; gap:16px; margin-top:30px; padding-top:20px; border-top:2px dashed var(--linea); }
+.pausa-txt { flex:1; color:inherit; text-decoration:none; min-width:0; }
+.pausa-tit { font-size:16px; font-weight:600; }
+.pausa-sub { font-size:15px; margin-top:2px; }
+.pausa-btn { flex:0 0 auto; min-height:44px; padding:0 2px; font-size:17px; font-weight:600; border-radius:0; border-bottom:3px solid var(--acento); color:var(--ink); }
+.pausa-ok { flex:0 0 auto; font-size:16px; font-weight:600; color:var(--salvia-oscuro); }
+.pausa-tit .t-emo { margin-left:4px; }
+
+.error { font-size:16px; padding:0 var(--pad); margin-top:18px; color:var(--acento-texto); }
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .header::before, .hero::before { animation: none !important; }
+  .ej-nuevo .check span, .ej-nuevo .check .t-emo, .ej-run.ok > .check .t-emo { animation: none !important; }
+}
 </style>
 <link rel="apple-touch-icon" href="icono-nova.png">
 <link rel="icon" type="image/png" href="icono-nova.png">
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
 
-  <div class="header">
+  <header class="header">
     <div>
-      <div class="titulo">Nova</div>
+      <h1 class="titulo">Nova</h1>
       <div class="fecha" id="fecha"></div>
     </div>
     <div class="fase-chip" id="fase-chip">Fase …</div>
-  </div>
+  </header>
 
   <!-- ═══ PANTALLA PRINCIPAL ═══ -->
   <div id="vista-inicio">
@@ -295,9 +280,9 @@ body { background: var(--papel); color: var(--tinta); }
     <!-- Hero: sólo mientras hay algo por hacer hoy -->
     <div class="hero oculto" id="hero"></div>
 
-    <div class="card">
+    <div class="tramo">
       <div class="rex">
-        <div class="rex-avatar" aria-label="ReX">R</div>
+        <div class="rex-avatar" aria-hidden="true">R</div>
         <div>
           <div class="rex-texto" id="rex-texto"><p>Leyendo cómo amaneciste…</p></div>
           <div class="rex-datos" id="rex-datos"></div>
@@ -306,36 +291,36 @@ body { background: var(--papel); color: var(--tinta); }
     </div>
 
     <!-- Dolor del pie: sólo si no hay dato de hoy. Respondido, desaparece y queda en un chip. -->
-    <div class="card oculto" id="card-dolor">
-      <div class="label">¿Cómo está el pie hoy?</div>
+    <div class="tramo oculto" id="card-dolor">
+      <h2 class="label">¿Cómo está el pie hoy?</h2>
       <div class="escala" id="escala-dolor"></div>
       <div class="escala-ext"><span>Nada</span><span>Molesta</span><span>Lo peor</span></div>
     </div>
 
     <!-- El resto del pie (antes en Mi Sistema): aparece después del dolor, todo saltable.
          Se cierra al responder movilidad y ánimo, o con "Listo"; queda en el chip del pie. -->
-    <div class="card oculto" id="card-pie">
-      <div class="label">Mi pie hoy</div>
+    <div class="tramo oculto" id="card-pie">
+      <h2 class="label">Mi pie hoy</h2>
       <div class="pie-fila"><div class="pie-sub">Movilidad</div><div class="pie-pills" id="pie-movilidad"></div></div>
       <div class="pie-fila"><div class="pie-sub">Ánimo</div><div class="pie-pills" id="pie-animo"></div></div>
-      <input class="pie-nota" id="pie-nota" placeholder="Algo que quieras anotar (opcional)" onchange="setPieNota(this.value)">
+      <input class="pie-nota" id="pie-nota" autocomplete="off" aria-label="Algo que quieras anotar" placeholder="Algo que quieras anotar (opcional)" onchange="setPieNota(this.value)">
       <button class="link" onclick="cerrarPie()">Listo ✓</button>
     </div>
 
-    <div class="card" id="card-sesion">
-      <div class="label" id="sesion-label">Sesión de hoy</div>
+    <div class="tramo" id="card-sesion">
+      <h2 class="label" id="sesion-label">Sesión de hoy</h2>
       <div id="sesion-cuerpo"></div>
     </div>
 
-    <div class="card">
-      <div class="label">Recuperación</div>
+    <div class="tramo">
+      <h2 class="label">Recuperación</h2>
       <ul class="tl" id="timeline"></ul>
       <button class="link" id="btn-hito" onclick="abrirHito()">+ anotar un hito</button>
       <div class="hito-form" id="hito-form">
-        <input id="hito-desc" placeholder="Qué pasó (ej. radiografía: consolidando bien)">
+        <input id="hito-desc" autocomplete="off" aria-label="Qué pasó" placeholder="Qué pasó (ej. radiografía: consolidando bien)">
         <div class="fila">
-          <input type="date" id="hito-fecha">
-          <select id="hito-fase"></select>
+          <input type="date" id="hito-fecha" aria-label="Fecha">
+          <select id="hito-fase" aria-label="Fase"></select>
         </div>
         <div class="botones" style="margin-top:4px">
           <button class="btn btn-2" onclick="cerrarHito()">Cancelar</button>
@@ -344,12 +329,12 @@ body { background: var(--papel); color: var(--tinta); }
       </div>
     </div>
 
-    <div class="error oculto" id="error"></div>
+    <div class="error oculto" id="error" role="status" aria-live="polite"></div>
   </div>
 
   <!-- ═══ SESIÓN EN CURSO ═══ -->
   <div id="vista-sesion" class="oculto">
-    <div class="card">
+    <div class="tramo">
       <div class="sesion-head">
         <div class="sesion-nombre" id="run-titulo">Sesión</div>
         <button class="link" onclick="salirSesion()">salir</button>
@@ -364,8 +349,8 @@ body { background: var(--papel); color: var(--tinta); }
 
   <!-- ═══ CIERRE ═══ -->
   <div id="vista-cierre" class="oculto">
-    <div class="card">
-      <div class="label">¿Cómo te sentiste?</div>
+    <div class="tramo">
+      <h2 class="label">¿Cómo te sentiste?</h2>
       <div class="senti" id="senti">
         <button data-v="bien" onclick="setSenti(this)">👍</button>
         <button data-v="regular" onclick="setSenti(this)">😐</button>
@@ -375,7 +360,7 @@ body { background: var(--papel); color: var(--tinta); }
       <div class="escala" id="escala-dolor-cierre"></div>
       <div class="sub">Fatiga ahora (0 = fresca, 10 = agotada)</div>
       <div class="escala" id="escala-fatiga"></div>
-      <input class="nota-input" id="cierre-nota" placeholder="Algo que quieras anotar (opcional)">
+      <input class="nota-input" id="cierre-nota" autocomplete="off" aria-label="Algo que quieras anotar" placeholder="Algo que quieras anotar (opcional)">
       <div class="botones">
         <button class="btn btn-1" id="btn-guardar-cierre" onclick="guardarCierre()">Guardar</button>
       </div>
@@ -383,7 +368,7 @@ body { background: var(--papel); color: var(--tinta); }
     </div>
   </div>
 
-</div>
+</main>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════

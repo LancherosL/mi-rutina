@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es" data-app="casa">
+<html lang="es" data-app="casa" data-fluido>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -14,8 +14,8 @@
 <title>Nuestra casa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="tierra.css?v=2" />
-<script src="tierra.js?v=3"></script>
+<link rel="stylesheet" href="tierra.css?v=4" />
+<script src="tierra.js?v=6"></script>
 <style>
   /* Tierra · Calma · Directo v2: los colores, letras, radios y sombras vienen de tierra.css.
      Casa conserva sus nombres de variable; solo apuntan a los tokens de la casa.
@@ -284,6 +284,65 @@
   .card, .task, .regform, .msgcard, .howto .card, .bac-next, .score .card, .daily-note, .entries li, .bac-list li, .supplies li { border-radius: 18px; }
   header.top { border-radius: 0 0 36px 36px; }
   nav.quick { margin: 24px 0 26px; }
+
+  /* ═══ Paso 8 · Casa fluida: tablero del hogar. Franjas rectas de borde a borde, títulos en negrita,
+     manchas que corren en horizontal. Sin tarjetas: las tareas son filas con raya. ═══ */
+  :root {
+    --onda: 0px; --banda-aire: 46px;
+    --banda-a: var(--p-dorado); --banda-b: var(--p-salvia);
+    --f1: rgba(239,216,152,.62); --f2: rgba(221,232,217,.80); --f3: rgba(201,162,75,.30); --f4: rgba(178,203,172,.40);
+    --f-dur-a: 36s; --f-dur-b: 52s; --d-x: 14%; --d-y: 1.5%; --d-rot: 0deg; --d-esc: 1.1;
+  }
+  @media (prefers-color-scheme: dark) { :root { --bg-fluido: var(--fondo-oscuro); --f1: rgba(138,114,64,.5); --f2: rgba(101,121,103,.5); --f3: rgba(201,162,75,.2); --f4: rgba(101,121,103,.3); } }
+  html[data-fluido] [data-b] { -webkit-mask: none !important; mask: none !important; }
+  .wrap { max-width: none; padding: 0 0 96px; }
+  #raiz > :not([data-b]):not(header.top) { padding-inline: var(--pad); }
+
+  /* Cabecera: franja dorada recta con manchas que corren por dentro */
+  header.top { position: relative; isolation: isolate; overflow: hidden; margin: 0; border-radius: 0; box-shadow: none; padding: calc(26px + env(safe-area-inset-top)) var(--pad) 40px; }
+  header.top::before { content: ''; position: absolute; inset: -30% -40%; z-index: -1; will-change: transform;
+    background: radial-gradient(30% 50% at 20% 50%, #6F5019, transparent 70%), radial-gradient(30% 50% at 78% 40%, #7A5A1E, transparent 72%);
+    animation: casa-corre 26s ease-in-out infinite alternate; }
+  @keyframes casa-corre { from { transform: translate3d(-9%, 0, 0); } to { transform: translate3d(9%, 0, 0); } }
+  h1 { font-family: var(--font-ui); font-weight: 800; letter-spacing: -.03em; }
+  .langtoggle, .langtoggle button:not([aria-pressed="true"]), .langtoggle button[aria-pressed="true"] { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; }
+  .langtoggle button { color: #fff; border-radius: 0; padding: 0 10px; border-bottom: 2px dashed rgba(255,253,249,.5); margin-left: 14px; }
+  .langtoggle button[aria-pressed="true"] { background: none; color: #fff; font-weight: 800; border-bottom: 3px solid #fff; }
+
+  /* De cajitas a filas */
+  .card, .regform, .msgcard, .howto .card, .bac-next, .score .card, .daily-note, .balance, .namebar.card { background: none !important; border: 0; border-radius: 0; box-shadow: none; padding: 0; }
+  .task, .entries li, .bac-list li, .supplies li { background: none; border: 0; border-radius: 0; box-shadow: none; border-top: 2px dashed var(--linea); padding: 16px 0; margin: 0; }
+  .task:first-child, .entries li:first-child, .bac-list li:first-child, .supplies li:first-child { border-top: 0; }
+  .task.hecha { outline: 0; opacity: .72; }
+  .msgcard pre, .cats-note { background: none; border-radius: 0; padding: 0; }
+  .namebar { padding: 0; margin-top: 22px; }
+  .namebar label, .namebar .hint { color: #fff; }
+  .namebar input { background: transparent; color: #fff; border: 0; border-bottom: 2px solid rgba(255,253,249,.65); border-radius: 0; box-shadow: none; }
+  .entrada .card { padding: 24px var(--pad); }
+
+  /* Chips y pestañas: palabras con raya; la elegida, en negrita y subrayada */
+  nav.quick { gap: 4px 20px; margin: 22px 0 6px; }
+  nav.quick a, .daychips button, .whochips button, .supplies .state button, .quickrow button { background: none; border: 0; border-radius: 0; box-shadow: none; color: var(--tinta);
+    border-bottom: 2px dashed var(--linea); padding: 0 2px; min-height: 44px; display: inline-flex; align-items: center; }
+  .daychips button[aria-pressed="true"], .whochips button[aria-pressed="true"], .supplies .state button.on { background: none; color: var(--tinta); font-weight: 800; border-bottom: 3px solid var(--acento); }
+
+  /* Acciones cuadradas */
+  .done-btn, .copy-btn, .quien-btns button { background: var(--acento); color: #fff; border: 0; border-radius: 0; box-shadow: none; }
+  .atras { background: none; box-shadow: none; border: 0; border-bottom: 2px solid var(--tinta); border-radius: 0; }
+  .done-btn:active, .copy-btn:active { transform: none; opacity: .86; }
+  .regform select, .regform input, .timerow input, .review .fecha input, .entrada input { background: transparent; border: 0; border-bottom: 2px solid var(--linea); border-radius: 0; }
+  .toast { border-radius: 0; box-shadow: none; }
+
+
+  header.top .langtoggle button, header.top .langtoggle button[aria-pressed] { background: none !important; color: #fff !important; box-shadow: none !important; }
+  /* etiquetas y toques */
+  .pill { background: none !important; border-radius: 0; padding: 0; border: 0; box-shadow: none; font-weight: 700; color: var(--tinta); }
+  .task-ico { background: none; border-radius: 0; box-shadow: none; }
+  .yo, nav.quick a, .daychips button, .whochips button, .supplies .state button, .quickrow button { min-width: 44px; min-height: 44px; }
+  .yo { display: inline-flex; align-items: center; }
+  .regform input, .regform select, .timerow input, .entrada input, .namebar input { min-height: 44px; }
+
+  @media (prefers-reduced-motion: reduce) { header.top::before { animation: none !important; } }
 </style>
 </head>
 <body>
@@ -909,6 +968,7 @@ async function refrescar() {
   else if (S.codigo) { try { await probarCodigo(S.codigo); } catch (e) {} }
   pintar(); Tierra.entra('raiz');
   Tierra.version();   // se pone al día al volver si publicas una versión nueva; nunca mientras escribes
+  Tierra.fluir({ en: '#raiz', hijos: 'section, .review', ritmo: ['a', '', 'b'] });
   setInterval(() => { if (!document.hidden) refrescar(); }, REFRESCO_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refrescar(); });
 })();

@@ -183,3 +183,68 @@
     window.addEventListener('pageshow', revisar);
   };
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Tierra.fluir({en, hijos, ritmo, fuerte}): reparte el color de las franjas de la página.
+     en      selector de los contenedores cuyas secciones forman la tira
+     hijos   selector de esas secciones (hijos directos del contenedor)
+     ritmo   colores en orden y que se repiten: ['', 'a', 'b'] = sin color, a, b
+     fuerte  selector de la sección fuerte (data-b="x"), si hay
+   Solo cuentan las secciones visibles, así que lo oculto no rompe el ritmo. Pone data-b, data-v (alterna
+   la forma del borde) y data-pega (la franja se encaja con la anterior). Se rehace sola al cambiar la pantalla.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var T = window.Tierra = window.Tierra || {};
+  function poner(el, k, v) { if (el.getAttribute(k) !== v) el.setAttribute(k, v); }
+  function quitar(el, k) { if (el.hasAttribute(k)) el.removeAttribute(k); }
+  T.fluir = function (cfg) {
+    var ritmo = cfg.ritmo || ['', 'a', 'b'], pend = false;
+    function aplicar() {
+      pend = false;
+      document.querySelectorAll(cfg.en).forEach(function (cont) {
+        var k = 0, antes = false;
+        Array.prototype.forEach.call(cont.children, function (el) {
+          if (!el.getClientRects().length) return;
+          if (!el.matches(cfg.hijos)) { antes = false; return; }
+          var b = (cfg.fuerte && el.matches(cfg.fuerte)) ? 'x' : ritmo[k % ritmo.length];
+          k++;
+          poner(el, 'data-b', b);
+          poner(el, 'data-v', k % 2 ? '0' : '1');
+          if (b && antes) poner(el, 'data-pega', ''); else quitar(el, 'data-pega');
+          antes = !!b;
+        });
+      });
+    }
+    function pronto() { if (!pend) { pend = true; requestAnimationFrame(aplicar); } }
+    // Solo importa lo que cambia una franja: atributos, o secciones/contenedores que entran o salen.
+    // El texto que se actualiza dentro de una franja (un cronómetro, un número) no hace nada.
+    function importa(m) {
+      if (m.type === 'attributes') return true;
+      if (m.target.nodeType === 1 && m.target.matches(cfg.en)) return true;
+      return Array.prototype.some.call(m.addedNodes, function (n) { return n.nodeType === 1 && (n.matches(cfg.hijos) || n.matches(cfg.en) || !!n.querySelector(cfg.en)); });
+    }
+    function arrancar() {
+      aplicar();
+      new MutationObserver(function (ms) { if (ms.some(importa)) pronto(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar); else arrancar();
+  };
+})();
+
+/* Tierra.secciones(id, tag): agrupa los hijos de un contenedor en <section class="t-sec">, una por cada tag
+   (por ejemplo cada h2) para que cada grupo sea una franja de la página. Lo anterior al primer tag forma la primera. */
+(function () {
+  'use strict';
+  var T = window.Tierra = window.Tierra || {};
+  T.secciones = function (id, tag) {
+    var cont = typeof id === 'string' ? document.getElementById(id) : id;
+    if (!cont) return;
+    var hijos = Array.prototype.slice.call(cont.children), sec = null;
+    if (!hijos.length || hijos.every(function (h) { return h.classList.contains('t-sec'); })) return;
+    hijos.forEach(function (h) {
+      if (!sec || h.tagName === tag) { sec = document.createElement('section'); sec.className = 't-sec'; cont.insertBefore(sec, h); }
+      sec.appendChild(h);
+    });
+  };
+})();
