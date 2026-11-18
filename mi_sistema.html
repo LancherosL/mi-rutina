@@ -12,8 +12,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Mi Sistema</title>
-<link rel="stylesheet" href="tierra.css?v=4">
-<script src="tierra.js?v=6"></script>
+<link rel="stylesheet" href="tierra.css?v=8">
+<script src="tierra.js?v=8"></script>
 <style>
 /* Tierra · Calma · Directo v2. Los colores, letras, radios y sombras vienen de tierra.css.
    Los nombres de abajo son los de siempre, apuntan a los tokens para no tocar las 1.600 líneas de reglas.
@@ -1801,7 +1801,7 @@ html:has(body.night) { --bg-fluido: var(--fondo-oscuro); --f1: rgba(138,114,64,.
   animation: ms-papel 36s ease-in-out infinite alternate; }
 @keyframes ms-papel { from { transform: translate3d(-6%, -4%, 0) rotate(0deg); } to { transform: translate3d(6%, 5%, 0) rotate(10deg); } }
 body.night .header { background: #7B5B45; }
-.greeting { font-size: 52px; line-height: 1; color: #fff; }
+.greeting { font-size: 36px; line-height: 1.04; color: #fff; }
 .header .date-line { font-size: 14px; letter-spacing: .04em; text-transform: none; margin-top: 10px; }
 .header-right { position: static; display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 12px 0 0; }
 .header .sync-bar { margin: 0; color: rgba(255,253,249,.96); }
@@ -1845,7 +1845,8 @@ body.night :is(.emo-pill, .mom-pill, .granular-pill, .int-pill, .nivel-pill, .da
 .ciclo-relleno, .prog-track, .prog-fill { border-radius: 0; }
 
 /* Títulos de franja: más grandes */
-.emotion-title, .ql-title, .res-title, .granular-title { font-size: 30px; margin-bottom: 18px; }
+.emotion-title, .ql-title, .res-title, .granular-title { font-size: 22px; margin-bottom: 14px; }
+.ancla-titulo { font-size: 22px; }
 
 
 .log-qbtn { background: none !important; border: 0; border-bottom: 2px solid var(--acento); border-radius: 0; box-shadow: none; color: var(--tinta); }
@@ -1868,6 +1869,21 @@ body.night :is(.nav-pill, .emo-pill, .mom-pill, .granular-pill, .int-pill, .nive
 .ciclo-barra, .ciclo-barra-track, .ciclo-barra-fill { border-radius: 0; }
 
 @media (prefers-reduced-motion: reduce) { .header::before { animation: none !important; } }
+
+/* Más compacto (18 nov 2026): letra 15 px y menús de palabras en filas pegadas, caben 4 por fila */
+body { font-size: 15px; line-height: 1.5; }
+.emotion-pills { gap: 0 14px; }
+.emo-pill, .mom-pill, .granular-pill, .nivel-pill, .int-pill, .disparador-pill, .gasto-cat, .day-btn { font-size: 15px; }
+.emo-pill, .mom-pill { padding-inline: 2px; }
+.emo-pill .t-emo, .mom-pill .t-emo, .emo-pill .t-ico, .mom-pill .t-ico { width: 1.05em; height: 1.05em; }
+.emotion-title, .ql-title, .res-title, .granular-title { margin-bottom: 8px; }
+.snapshot-row { gap: 18px 20px; }
+.snap-value { font-size: 28px; }
+.snap-label { font-size: 12px; }
+.snap-sub { font-size: 14px; }
+.snap-unit { font-size: 13px; }
+.emotion-energia-row { margin-top: 10px; padding-top: 10px; }
+.nav { padding-top: 14px; }
 
 /* Campos a 16 px: así el iPhone no hace zoom solo al tocarlos y se puede hacer zoom con los dedos */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]), select, textarea { font-size: 16px !important; }
@@ -4478,7 +4494,15 @@ function updateSnaps() {
   // Sueño
   const sh=todayData.sueno_horas;
   const snapS=document.getElementById('snap-sueno');
-  if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
+  if(sh) {
+    // 6.33 → "6 h 20"; menos de una hora → "5 min" (antes se veía 0.08 h)
+    const tot=Math.round(parseFloat(String(sh).replace(',','.'))*60);
+    if(isFinite(tot) && tot>0) {
+      const hh=Math.floor(tot/60), mm=tot%60;
+      snapS.innerHTML = hh ? `${hh}<span class="snap-unit">h</span> ${mm?`${mm}<span class="snap-unit">min</span>`:''}` : `${mm}<span class="snap-unit">min</span>`;
+    } else snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`;
+    document.getElementById('snap-sueno-sub').textContent='Anoche';
+  }
   else { snapS.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-sueno-sub').textContent='sin registro'; }
   
   // (Fumado se actualiza aparte, en buildCigarrillos())

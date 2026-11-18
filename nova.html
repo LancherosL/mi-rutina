@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="Nova">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Nova</title>
-<link rel="stylesheet" href="tierra.css?v=4">
-<script src="tierra.js?v=6"></script>
+<link rel="stylesheet" href="tierra.css?v=8">
+<script src="tierra.js?v=8"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
    Nova · una sola página que fluye, de arriba a abajo.
@@ -37,7 +37,7 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { background: var(--papel); }
 html { overflow-x:clip; }
-body { font-family:var(--font-ui); font-size:17px; line-height:1.5; color:var(--ink); min-height:100vh; overflow-x:clip; }
+body { font-family:var(--font-ui); font-size:15px; line-height:1.55; color:var(--ink); min-height:100vh; overflow-x:clip; }
 button { font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; touch-action:manipulation; }
 input, select { font-family:inherit; font-size:17px; color:var(--ink); touch-action:manipulation; }
 h1, h2 { text-wrap: balance; font-weight: inherit; }
@@ -93,13 +93,13 @@ body::after {
 /* Hoy, listo: sigue a la franja de arriba como una segunda ola */
 .hero {
   margin-top: calc(-1 * var(--onda) - 2px);
-  padding: calc(var(--onda) + 72px) var(--pad) calc(var(--onda) + 40px);
+  padding: calc(var(--onda) + 52px) var(--pad) calc(var(--onda) + 36px);
   background: linear-gradient(160deg, var(--acento), #8A6A40 60%, #6B7A4E);
   -webkit-mask: var(--onda-sup-a) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--onda-inf-b) bottom / 100% var(--onda) no-repeat;
           mask: var(--onda-sup-a) top / 100% var(--onda) no-repeat, linear-gradient(#000, #000) 0 calc(var(--onda) - 1px) / 100% calc(100% - 2 * var(--onda) + 2px) no-repeat, var(--onda-inf-b) bottom / 100% var(--onda) no-repeat;
 }
-.hero-hola { font-family:var(--font-display); font-size:68px; font-weight:600; line-height:.96; letter-spacing:-.03em; color:#fff; }
-.hero-txt { font-size:19px; line-height:1.45; margin-top:18px; color:#fff; max-width:34ch; }
+.hero-hola { font-family:var(--font-display); font-size:36px; font-weight:600; line-height:1.04; letter-spacing:-.025em; color:#fff; }
+.hero-txt { font-size:17px; line-height:1.5; margin-top:14px; color:#fff; max-width:34ch; }
 .hero-chips { display:flex; flex-wrap:wrap; gap:6px 22px; margin-top:18px; }
 .hero-chip { position:relative; padding-left:16px; font-size:16px; font-weight:600; color:#fff; }
 .hero-chip::before { content:''; position:absolute; left:0; top:.62em; width:7px; height:7px; border-radius:50%; background:rgba(255,253,249,.8); }
@@ -119,21 +119,21 @@ body::after {
 #vista-inicio > :nth-child(3n of .tramo:not(.oculto)),
 #vista-sesion > .tramo, #vista-cierre > .tramo { background: var(--p-dorado); padding-block: calc(var(--onda) + 40px); margin-top: calc(-1 * var(--onda) - 2px); }
 
-.label { font-family:var(--font-display); font-style:italic; font-weight:600; font-size:36px; line-height:1.06; letter-spacing:-.015em; color:var(--ink);
-  padding-bottom:16px; margin-bottom:18px; text-transform:none;
+.label { font-family:var(--font-display); font-style:italic; font-weight:600; font-size:22px; line-height:1.12; letter-spacing:-.015em; color:var(--ink);
+  padding-bottom:14px; margin-bottom:14px; text-transform:none;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='10' viewBox='0 0 72 10'%3E%3Cpath d='M2 6 C8 1 14 1 20 5 S32 9 38 5 S50 1 56 5 S66 8 70 4' fill='none' stroke='%23211A13' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") left bottom / 72px 10px no-repeat; }
 
 /* ReX: la voz de Nova, sin caja */
 .rex { display:flex; gap:16px; align-items:flex-start; }
 .rex-avatar { flex:0 0 46px; height:46px; border-radius:50%; background:var(--acento); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:600; font-size:26px; }
-.rex-texto { font-family:var(--font-display); font-size:29px; line-height:1.18; letter-spacing:-.01em; padding-top:2px; }
+.rex-texto { font-family:var(--font-display); font-size:22px; line-height:1.18; letter-spacing:-.01em; padding-top:2px; }
 .rex-datos { margin-top:16px; display:flex; flex-wrap:wrap; gap:4px 22px; }
 .dato { font-size:15px; color:var(--ink); padding:0; background:none; border:0; border-bottom:2px dashed var(--linea); min-height:30px; display:inline-flex; align-items:center; }
 button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:var(--acento); }
 
 /* Escalas 0–10: números sueltos; el elegido se subraya */
 .escala { display:grid; grid-template-columns:repeat(6, 1fr); gap:2px 0; }
-.escala button { position:relative; height:52px; background:none; border:0; border-radius:0; font-size:23px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); }
+.escala button { position:relative; height:48px; background:none; border:0; border-radius:0; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); }
 .escala button::after { content:''; position:absolute; left:calc(50% - 14px); bottom:7px; width:28px; height:3px; background:var(--acento); transform:scaleX(0); transition:transform var(--t-toque) var(--ease); }
 .escala button.sel { color:var(--acento-texto); }
 .escala button.sel::after { transform:scaleX(1); }
@@ -144,18 +144,18 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .pie-sub, .sub, .aviso, .progreso-txt, .tl-fecha, .tl-desc, .ej-desc, .sesion-min, .tc-clase, .pausa-sub { color:var(--ink); opacity:.86; }
 .pie-sub { font-size:15px; margin-bottom:6px; }
 .pie-pills { display:flex; flex-wrap:wrap; gap:2px 22px; }
-.pie-pill { display:inline-flex; align-items:center; min-height:44px; padding:0 2px; font-size:17px; font-weight:600; background:none; border:0; border-radius:0; border-bottom:2px dashed var(--linea); color:var(--ink); }
+.pie-pill { display:inline-flex; align-items:center; min-height:44px; padding:0 2px; font-size:16px; font-weight:600; background:none; border:0; border-radius:0; border-bottom:2px dashed var(--linea); color:var(--ink); }
 .pie-pill.sel { border-bottom:3px solid var(--acento); color:var(--acento-texto); }
 .pie-nota, .nota-input, .hito-form input, .hito-form select { width:100%; font-size:17px; background:transparent; border:0; border-bottom:2px solid var(--linea); border-radius:0; padding:12px 2px; color:var(--ink); appearance:none; -webkit-appearance:none; }
 .pie-nota { margin-top:18px; }
 .nota-input { margin-top:22px; }
 .hito-form input, .hito-form select { margin-bottom:10px; }
 .pie-nota:focus-visible, .nota-input:focus-visible, .hito-form input:focus-visible, .hito-form select:focus-visible { outline:3px solid var(--acento); outline-offset:2px; border-bottom-color:var(--acento); }
-.link { display:inline-flex; align-items:center; font-size:17px; font-weight:600; min-height:44px; min-width:44px; padding:0; color:var(--ink); text-decoration:underline; text-decoration-color:var(--acento); text-decoration-thickness:2px; text-underline-offset:5px; }
+.link { display:inline-flex; align-items:center; font-size:16px; font-weight:600; min-height:44px; min-width:44px; padding:0; color:var(--ink); text-decoration:underline; text-decoration-color:var(--acento); text-decoration-thickness:2px; text-underline-offset:5px; }
 
 /* Sesión */
 .sesion-head { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:6px; }
-.sesion-nombre { font-family:var(--font-display); font-size:36px; font-weight:600; line-height:1.08; letter-spacing:-.02em; }
+.sesion-nombre { font-family:var(--font-display); font-size:22px; font-weight:600; line-height:1.08; letter-spacing:-.02em; }
 .sesion-min { font-size:16px; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .progreso { margin:14px 0 6px; }
 .progreso-barra { height:4px; background:var(--linea); }
@@ -169,7 +169,7 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .ej:first-child, .ej-run:first-child { border-top:0; }
 .ej-cuerpo { flex:1; min-width:0; padding-top:2px; }
 .ej-fila { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-.ej-nombre, .ej-run-nombre { font-size:18px; font-weight:600; line-height:1.3; }
+.ej-nombre, .ej-run-nombre { font-size:16px; font-weight:600; line-height:1.3; }
 .ej-dosis, .ej-run-dosis { color:var(--acento-texto); font-size:15px; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
 .ej-run-dosis { margin-left:6px; }
 .ej-desc { font-size:15px; line-height:1.45; margin-top:3px; }
@@ -189,7 +189,7 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .btn, .hero-btn {
   display:flex; align-items:center; justify-content:flex-start; gap:12px;
   width:calc(100% + 2 * var(--pad)); margin-inline:calc(-1 * var(--pad)); padding:0 var(--pad);
-  min-height:64px; border-radius:0; font-size:18px; font-weight:600; line-height:1.25; text-align:left; text-decoration:none;
+  min-height:52px; border-radius:0; font-size:15px; font-weight:600; line-height:1.25; text-align:left; text-decoration:none;
   transition: opacity var(--t-toque) var(--ease);
 }
 .btn::after, .hero-btn::after { content:''; flex:none; margin-left:auto; width:22px; height:22px; background:currentColor; -webkit-mask:var(--i-arrow-right) center / contain no-repeat; mask:var(--i-arrow-right) center / contain no-repeat; }
@@ -200,7 +200,8 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .btn-2::after { display:none; }
 .btn:disabled { opacity:.4; }
 .btn:focus-visible, .hero-btn:focus-visible { outline:3px solid var(--tinta); outline-offset:-8px; }
-.hero-btn { margin-top:30px; background:#FFFDF9; color:var(--acento-oscuro); }
+.hero-btn { margin-top:26px; width:100%; margin-inline:0; padding:6px 0 10px; min-height:48px; background:none; color:#fff; font-size:16px; border-bottom:2px solid rgba(255,255,255,.88); text-wrap:balance; }
+.hero-btn:focus-visible { outline-offset:4px; outline-color:#fff; }
 @media (hover:hover) and (pointer:fine) { .btn:hover, .hero-btn:hover { opacity:.94; } }
 .aviso { font-size:15px; margin-top:12px; }
 .hecho-resumen { font-size:18px; line-height:1.5; }
@@ -238,7 +239,7 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .tc-min { position:absolute; right:var(--pad); bottom:16px; font-size:14px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; }
 .tc-play { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); width:56px; height:56px; border-radius:50%; background:var(--acento); color:#fff; font-size:22px; display:flex; align-items:center; justify-content:center; padding-left:4px; }
 .tc-info { padding: 22px var(--pad) 0; }
-.tc-titulo { font-family:var(--font-display); font-size:32px; font-weight:600; line-height:1.15; letter-spacing:-.015em; }
+.tc-titulo { font-family:var(--font-display); font-size:22px; font-weight:600; line-height:1.15; letter-spacing:-.015em; }
 .tc-sub { display:block; font-size:15px; font-weight:600; margin-top:8px; color:var(--ink); }
 .tc-clase { font-size:15px; margin-top:6px; }
 .tc .btn { margin-top:20px; }
@@ -249,7 +250,7 @@ button.dato { min-height:44px; border-bottom-style:solid; border-bottom-color:va
 .pausa-txt { flex:1; color:inherit; text-decoration:none; min-width:0; }
 .pausa-tit { font-size:16px; font-weight:600; }
 .pausa-sub { font-size:15px; margin-top:2px; }
-.pausa-btn { flex:0 0 auto; min-height:44px; padding:0 2px; font-size:17px; font-weight:600; border-radius:0; border-bottom:3px solid var(--acento); color:var(--ink); }
+.pausa-btn { flex:0 0 auto; min-height:44px; padding:0 2px; font-size:16px; font-weight:600; border-radius:0; border-bottom:3px solid var(--acento); color:var(--ink); }
 .pausa-ok { flex:0 0 auto; font-size:16px; font-weight:600; color:var(--salvia-oscuro); }
 .pausa-tit .t-emo { margin-left:4px; }
 
@@ -657,7 +658,7 @@ function pintarHero() {
     <div class="hero-txt">Tu momento de hoy ya está listo. Son ${min} minutos, sentada.</div>
     <div class="hero-chips">${chips.map(c => `<span class="hero-chip">${esc(c)}</span>`).join('')}</div>
     ${ayerTxt ? `<div class="hero-ayer">${esc(ayerTxt)}</div>` : ''}
-    <button class="hero-btn" onclick="empezarSesion()">Empezar: ${esc(p0.nombre.toLowerCase())}${p0.dosis && minutosDe(p0.dosis) ? ' · ' + esc(p0.dosis) : ''}</button>`;
+    <button class="hero-btn" onclick="empezarSesion()">Empezar: ${esc(p0.nombre.toLowerCase())}${p0.dosis && minutosDe(p0.dosis) ? '\u00a0·\u00a0' + esc(p0.dosis).replace(/ /g, '\u00a0') : ''}</button>`;
 }
 
 function construirEscala(id, fn) {

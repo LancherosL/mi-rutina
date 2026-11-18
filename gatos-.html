@@ -13,13 +13,13 @@
 <meta name="apple-mobile-web-app-title" content="Mia y Dorito">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="tierra.css?v=4">
-<script src="tierra.js?v=6"></script>
+<link rel="stylesheet" href="tierra.css?v=8">
+<script src="tierra.js?v=8"></script>
 <style>
   /* Tierra · Calma · Directo v2: colores, letras, radios y sombras vienen de tierra.css */
   :root{--bg:var(--papel);--card:var(--tarjeta);--ink:var(--tinta);--line:var(--borde);--acc:var(--terra)}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--alto-nav) + 24px + env(safe-area-inset-bottom))}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--alto-nav) + 24px + env(safe-area-inset-bottom))}
   .wrap{max-width:480px;margin:0 auto;padding:0 var(--lateral) 24px}
   @media(min-width:768px){.wrap,.banda .in{max-width:720px}}
   .top{padding:24px 0 6px}
@@ -196,11 +196,11 @@ html[data-gato="dorito"] { --f1: rgba(243,223,210,.95); --f2: rgba(242,231,200,.
   animation: gato-flota 30s ease-in-out infinite alternate; }
 @keyframes gato-flota { from { transform: translate3d(-6%, -4%, 0) rotate(0deg); } to { transform: translate3d(6%, 5%, 0) rotate(10deg); } }
 .banda .in { max-width: none; margin: 0; }
-.banda h1 { font-size: 56px; line-height: 1; }
+.banda h1 { font-size: 36px; line-height: 1.04; }
 .banda .kick { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
 
 /* Títulos: el título de cada tramo, con el punto del color de la gata */
-.t-sec h2 { font-size: 28px; margin: 0 0 18px; padding-left: 26px; text-wrap: balance; }
+.t-sec h2 { font-size: 22px; margin: 0 0 14px; padding-left: 26px; text-wrap: balance; }
 .t-sec h2::before { width: 14px; height: 14px; margin-top: -7px; }
 
 /* Lo que antes eran tarjetas, ahora filas con raya */

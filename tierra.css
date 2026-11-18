@@ -53,12 +53,12 @@
   --font-ui:      "DM Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
 
   /* Escala móvil, base 390 px */
-  --fs-nombre-app:   44px;   /* Nova, Nutri · Cormorant 600 */
-  --fs-saludo:       44px;   /* Hola, Laura. · Cormorant 600 · tracking -0.025em */
+  --fs-nombre-app:   36px;   /* Nova, Nutri · Cormorant 600 */
+  --fs-saludo:       36px;   /* Hola, Laura. · Cormorant 600 · tracking -0.025em */
   --fs-titulo-pag:   32px;   /* DM Sans 700 · tracking -0.02em */
   --fs-titulo-tarj:  22px;   /* DM Sans 600 · tracking -0.01em */
   --fs-etiqueta:     12px;   /* DM Sans 600 · MAYÚSCULAS · 1.2 px */
-  --fs-cuerpo:       17px;   /* 1.5 · DM Sans 400 */
+  --fs-cuerpo:       15px;   /* 1.5 · DM Sans 400 */
   --fs-dosis:        15px;   /* semibold terra */
   --fs-meta:         14px;   /* 20 px de alto de línea · muted */
   --fs-numero:       48px;   /* DM Sans 600 tabular */
@@ -81,7 +81,7 @@
   /* ── Toque ── */
   --alto-boton:   56px;
   --alto-pildora: 44px;
-  --alto-nav:     72px;
+  --alto-nav:     60px;
 
   /* ── Movimiento (Emil Kowalski: suave, corto, sin rebote) ── */
   --ease: cubic-bezier(.23, 1, .32, 1);
@@ -546,8 +546,8 @@ body { font-variant-numeric: lining-nums; -webkit-font-smoothing: antialiased; -
 :root {
   --onda: 26px;
   --pad: max(var(--lateral), calc((100vw - 560px) / 2));
-  --banda-aire: 40px;        /* aire dentro de una franja con color */
-  --banda-aire-liso: 36px;   /* aire de una sección sin color */
+  --banda-aire: 28px;        /* aire dentro de una franja con color */
+  --banda-aire-liso: 24px;   /* aire de una sección sin color */
   --onda-sup-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cpath d='M0 14 C60 2 120 2 170 11 C220 20 280 24 340 12 C400 0 390 6 400 9 L400 26 L0 26 Z'/%3E%3C/svg%3E");
   --onda-inf-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cpath d='M0 0 L400 0 L400 9 C390 6 400 0 340 12 C280 24 220 20 170 11 C120 2 60 2 0 14 Z'/%3E%3C/svg%3E");
   --onda-sup-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 26' preserveAspectRatio='none'%3E%3Cg transform='translate(400 0) scale(-1 1)'%3E%3Cpath d='M0 14 C60 2 120 2 170 11 C220 20 280 24 340 12 C400 0 390 6 400 9 L400 26 L0 26 Z'/%3E%3C/g%3E%3C/svg%3E");

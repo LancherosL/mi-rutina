@@ -14,8 +14,8 @@
 <title>Nuestra casa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="tierra.css?v=4" />
-<script src="tierra.js?v=6"></script>
+<link rel="stylesheet" href="tierra.css?v=8" />
+<script src="tierra.js?v=8"></script>
 <style>
   /* Tierra · Calma · Directo v2: los colores, letras, radios y sombras vienen de tierra.css.
      Casa conserva sus nombres de variable; solo apuntan a los tokens de la casa.
@@ -44,7 +44,7 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-behavior: smooth; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
   .wrap { max-width: 720px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top)) var(--lateral) 64px; }
   button { font: inherit; }
 
@@ -277,7 +277,7 @@
 
   /* ── Paso 6 · Casa: tablero del hogar. Franjas de borde a borde, rectas, con títulos en negrita. ── */
   #raiz > section:nth-of-type(3n) { --pastel: transparent; }
-  section { border-radius: 0; margin: 0 calc(-1 * var(--lateral)); padding: 44px var(--lateral) 40px; }
+  section { border-radius: 0; margin: 0 calc(-1 * var(--lateral)); padding: 32px var(--lateral) 28px; }
   .review { border-radius: 0; margin: 0 calc(-1 * var(--lateral)); padding: 36px var(--lateral); background: var(--p1); }
   h2 { font-family: var(--font-ui); font-style: normal; font-weight: 800; font-size: 1.75rem; letter-spacing: -0.025em; background: none; padding-bottom: 0; margin-bottom: 10px; align-items: flex-start; }
   h2 .n { width: 38px; height: 38px; flex-basis: 38px; border-radius: 50%; font-size: 1.1rem; margin-top: 2px; }
@@ -304,7 +304,11 @@
     background: radial-gradient(30% 50% at 20% 50%, #6F5019, transparent 70%), radial-gradient(30% 50% at 78% 40%, #7A5A1E, transparent 72%);
     animation: casa-corre 26s ease-in-out infinite alternate; }
   @keyframes casa-corre { from { transform: translate3d(-9%, 0, 0); } to { transform: translate3d(9%, 0, 0); } }
-  h1 { font-family: var(--font-ui); font-weight: 800; letter-spacing: -.03em; }
+  h1 { font-family: var(--font-ui); font-weight: 800; letter-spacing: -.03em; font-size: 36px; line-height: 1.05; }
+  h2 { font-size: 22px; }
+  .handnote { font-size: 1.25rem; }
+  .lede { font-size: 1rem; }
+  header.top .langtoggle, .langtoggle { background: none !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; }
   .langtoggle, .langtoggle button:not([aria-pressed="true"]), .langtoggle button[aria-pressed="true"] { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; }
   .langtoggle button { color: #fff; border-radius: 0; padding: 0 10px; border-bottom: 2px dashed rgba(255,253,249,.5); margin-left: 14px; }
   .langtoggle button[aria-pressed="true"] { background: none; color: #fff; font-weight: 800; border-bottom: 3px solid #fff; }

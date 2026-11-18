@@ -18,8 +18,8 @@
   if(!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro';
   document.documentElement.dataset.tema = t; })();
 </script>
-<link rel="stylesheet" href="tierra.css?v=4">
-<script src="tierra.js?v=6"></script>
+<link rel="stylesheet" href="tierra.css?v=8">
+<script src="tierra.js?v=8"></script>
 <style>
 
 /* ═══ Nutri se une a Tierra · Calma · Directo v2 ═══
@@ -72,7 +72,7 @@
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { background:var(--bg); }
-body { font-family:var(--text); background:var(--bg); color:var(--ink); min-height:100vh; transition:background .35s, color .35s; }
+body { font-family:var(--text); font-size:15px; background:var(--bg); color:var(--ink); min-height:100vh; transition:background .35s, color .35s; }
 button { font-family:inherit; color:inherit; border:none; background:none; cursor:pointer; }
 input, select { font-family:inherit; font-size:16px; color:inherit; }
 
@@ -582,7 +582,7 @@ html[data-tema="oscuro"] {
 .tema-btn { background: none; border: 0; border-radius: 0; box-shadow: none; color: var(--sobre-acento); }
 
 /* Títulos de franja: sans en negrita, grandes, con su punto neón */
-.label { font-family: var(--font-ui); font-style: normal; font-weight: 700; font-size: 28px; line-height: 1.1; letter-spacing: -.02em; background: none; padding-bottom: 0; margin-bottom: 20px; display: flex; align-items: center; text-wrap: balance; }
+.label { font-family: var(--font-ui); font-style: normal; font-weight: 700; font-size: 22px; line-height: 1.12; letter-spacing: -.02em; background: none; padding-bottom: 0; margin-bottom: 16px; display: flex; align-items: center; text-wrap: balance; }
 .label::before { width: 12px; height: 12px; box-shadow: none; margin-right: 12px; }
 #registro .ql-title { font-size: 22px; letter-spacing: -.015em; }
 .card:active { transform: none; }
@@ -607,16 +607,23 @@ html[data-tema="oscuro"] {
 
 /* Acciones: cuadradas, neón con tinta; las principales, filas de borde a borde */
 .boton, #registro .nu-confirmar, #registro .log-add-btn, #registro .extras-add { background: var(--acento); color: var(--sobre-acento); border-radius: 0; box-shadow: none; font-weight: 700; }
-.boton { display: flex; justify-content: space-between; width: calc(100% + 2 * var(--pad)); margin-inline: calc(-1 * var(--pad)); padding: 0 var(--pad); min-height: 64px; }
+.boton { display: flex; justify-content: space-between; width: calc(100% + 2 * var(--pad)); margin-inline: calc(-1 * var(--pad)); padding: 0 var(--pad); min-height: 56px; }
 #registro .nu-confirmar { width: calc(100% + 2 * var(--pad)); margin-inline: calc(-1 * var(--pad)); }
 .boton:active { background: var(--acento-oscuro); transform: none; }
 
 /* Barra de abajo: franja neón de borde a borde; la pestaña activa, en tinta */
-.t-nav { left: 0; right: auto; transform: none; bottom: 0; width: 100%; height: calc(66px + env(safe-area-inset-bottom)); padding: 0 var(--pad) env(safe-area-inset-bottom); border-radius: 0; box-shadow: none; background: var(--acento); }
+.t-nav { left: 0; right: auto; transform: none; bottom: 0; width: 100%; height: calc(56px + env(safe-area-inset-bottom)); padding: 0 var(--pad) env(safe-area-inset-bottom); border-radius: 0; box-shadow: none; background: var(--acento); }
 .t-nav .t-tab { border-radius: 0; margin: 0; }
 .t-nav .t-tab.on { background: var(--sobre-acento); color: var(--acento); }
 .toast { border-radius: 0; box-shadow: none; }
 
+
+/* Número grande del anillo a 56 px; el anillo crece para que quepan 4 cifras sin tocar el arco interior */
+.anillos { width: 200px; height: 200px; }
+.heroe-fila { gap: 12px; }
+.num-grande { font-size: 48px; letter-spacing: -.04em; }
+.num-sub { font-size: 14px; }
+.leyenda b { font-size: 22px; }
 
 /* toques de 44 px */
 .seg button { min-width: 44px; }
