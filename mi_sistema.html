@@ -649,7 +649,6 @@ body.night .ql-star { border-color: rgba(255,255,255,0.1); }
 .ql-num-input:focus { border-color: var(--terra); }
 body.night .ql-num-input { border-color: rgba(255,255,255,0.1); }
 
-
 /* Nivel pills (agua) */
 .nivel-pills { display: flex; gap: 6px; }
 .nivel-pill {
@@ -668,54 +667,9 @@ body.night .nivel-pill { border-color: rgba(255,255,255,0.1); }
 .nivel-pill.selected { background: var(--sky); border-color: var(--sky); color: white; }
 
 /* Meal / plate tracker */
-.meal-card {
-  background: var(--card);
-  border-radius: var(--r);
-  padding: 16px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-body.night .meal-card { background: var(--night-card); }
-.plate-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.plate-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--muted);
-  flex-shrink: 0;
-  padding: 0;
-  transition: transform .2s;
-}
-.plate-btn:active { transform: scale(0.9); }
+
 .plate-btn.filled { color: var(--sage); }
 #plate-fill { transition: stroke-dashoffset .5s cubic-bezier(0.34,1.56,0.64,1), stroke .3s; }
-.plate-text { flex: 1; }
-.plate-status {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-.meal-input {
-  width: 100%;
-  border: none;
-  border-bottom: 1.5px solid var(--line);
-  background: transparent;
-  padding: 6px 0;
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 15px;
-  color: inherit;
-  outline: none;
-  transition: border-color .2s;
-}
-.meal-input:focus { border-color: var(--sage); }
-body.night .meal-input { border-color: rgba(255,255,255,0.12); }
-.meal-input::placeholder { color: var(--muted); opacity: 0.7; }
 
 /* Mis gatos */
 .gatos-card {
@@ -960,62 +914,12 @@ body.night .ciclo-btn { border-color: var(--night-accent); color: var(--night-ac
 }
 .ciclo-btn-terminar { margin-top: 8px; }
 
-/* Algo de más (extras de comida) */
-.extras-block {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px dashed var(--line);
-}
-.extras-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.extras-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  font-weight: 600;
-}
-.extras-count {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gold);
-}
-.extras-input-row {
-  display: grid;
-  grid-template-columns: 1fr 44px;
-  gap: 8px;
-  align-items: center;
-}
-.extras-input { width: 100%; margin: 0; }
-.extras-add { background: var(--gold); }
-.extras-list { margin-top: 8px; }
-.extra-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 13px;
-}
-.extra-item:last-child { border-bottom: none; }
-.extra-hora {
-  font-size: 11px;
-  color: var(--muted);
-  min-width: 58px;
-}
-.extra-texto { flex: 1; color: var(--ink); }
-body.night .extra-texto { color: var(--night-text); }
-.extras-nota {
-  font-size: 10px;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: 10px;
-  text-align: center;
-}
+/* Línea a Nutri: reemplaza la tarjeta de comidas */
+.nutri-link { display:flex; align-items:center; gap:10px; background:var(--card); border-radius:var(--r-sm);
+  padding:14px 16px; margin:0 0 14px; text-decoration:none; color:var(--ink); }
+body.night .nutri-link { background:var(--night-card); color:var(--night-text); }
+.nutri-link-ico { font-size:20px; }
+.nutri-link-ir { margin-left:auto; font-size:13.5px; color:var(--sage); font-weight:600; white-space:nowrap; }
 
 /* Cronómetro de fumado */
 .crono-box {
@@ -1299,97 +1203,11 @@ body.night .pregunta-inline { color: var(--night-text); }
 }
 body.night .toast-reward { background: var(--night-text); color: var(--night-bg); }
 
-
-/* ── COMIDAS PROGRESIVAS ── */
-.meal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
-.meal-progress {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--sage);
-}
-
-.comida-item {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-  transition: opacity .4s, filter .4s;
-}
-.comida-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-body.night .comida-item { border-bottom-color: rgba(255,255,255,0.06); }
-
-.comida-item.bloqueada {
-  opacity: 0.4;
-  filter: grayscale(0.7);
-  pointer-events: none;
-}
-.comida-item.bloqueada .comida-texto { display: none; }
-
-.comida-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  transition: opacity .15s;
-}
-.comida-row:active { opacity: 0.6; }
-
-.comida-check {
-  width: 28px; height: 28px; border-radius: 50%;
-  border: 2px solid rgba(26,22,18,0.15);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: transparent; flex-shrink: 0;
-  transition: all .25s cubic-bezier(0.34,1.56,0.64,1);
-}
-body.night .comida-check { border-color: rgba(255,255,255,0.15); }
-.comida-item.hecha .comida-check {
-  background: var(--sage);
-  border-color: var(--sage);
-  color: white;
-}
-
-.comida-icon { font-size: 20px; }
-.comida-info { flex: 1; }
-.comida-nombre { font-size: 15px; font-weight: 600; }
-.comida-estado { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.comida-item.hecha .comida-estado { color: var(--sage); font-weight: 600; }
-.comida-lock { font-size: 14px; opacity: 0.5; }
-.comida-item:not(.bloqueada) .comida-lock { display: none; }
-
-.comida-skip {
-  background: none; border: none;
-  margin: 6px 0 0 40px; padding: 0;
-  color: var(--muted);
-  font-family: inherit;
-  font-size: 11px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-.comida-item.hecha .comida-skip { display: none; }
-.comida-item.omitida .comida-check { color: var(--muted); border-style: dashed; }
-.comida-item.omitida .comida-nombre,
-.comida-item.omitida .comida-estado { color: var(--muted); font-weight: 500; }
-.comida-item.omitida .comida-texto { display: none; }
-.comida-hora { text-decoration: underline dotted; text-underline-offset: 2px; cursor: pointer; }
-
-.comida-texto {
-  margin-top: 8px;
-  margin-left: 40px;
-  width: calc(100% - 40px);
-  font-size: 14px;
-}
-
 @keyframes unlock {
   0% { opacity: 0.4; filter: grayscale(0.7); transform: scale(0.98); }
   50% { transform: scale(1.02); }
   100% { opacity: 1; filter: grayscale(0); transform: scale(1); }
 }
-.comida-item.desbloqueando { animation: unlock .6s ease; }
 
 /* ── HÁBITOS PANEL ── */
 .day-strip {
@@ -1498,12 +1316,7 @@ body.night .resumen-card { background: var(--night-card); }
   color: var(--terra);
 }
 body.night .res-title { color: var(--night-accent); }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-.stat-box { background: var(--terra-soft); border-radius: var(--r-sm); padding: 12px; text-align: center; }
-body.night .stat-box { background: rgba(123,174,200,0.08); }
-.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 600; color: var(--terra); line-height: 1; }
-body.night .stat-num { color: var(--night-accent); }
-.stat-label { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
+
 .bar-row { margin-bottom: 8px; }
 .bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; }
 .bar-pct { font-weight: 700; color: var(--terra); }
@@ -1625,14 +1438,11 @@ body.night .gasto-edit-monto, body.night .gasto-edit-nota {
 body.night .gasto-edit-guardar { background: var(--night-accent); }
 body.night .gasto-edit-borrar { color: var(--night-accent); border-color: var(--night-accent) !important; }
 body.night .bar-fill { background: var(--night-accent); }
-.week-dots { display: flex; gap: 5px; margin: 10px 0 4px; }
-.w-dot { flex: 1; height: 7px; border-radius: 4px; background: var(--line); transition: background .3s; }
+
 .w-dot.full { background: var(--terra); }
 .w-dot.partial { background: rgba(184,92,53,0.35); }
 body.night .w-dot.full { background: var(--night-accent); }
 body.night .w-dot.partial { background: rgba(123,174,200,0.35); }
-.w-dot-labels { display: flex; gap: 5px; }
-.w-dot-label { flex: 1; text-align: center; font-size: 8px; color: var(--muted); text-transform: uppercase; }
 
 /* SEMANA - DISEÑO NUEVO */
 .semana-header {
@@ -1799,88 +1609,14 @@ body.night .habito-count { color: var(--night-accent); }
   transition: width .6s ease;
 }
 
-/* Salud semanal - ELIMINADO */
-.salud-grid { display: none; }
-.salud-box { display: none; }
-.salud-icon { display: none; }
-.salud-val { display: none; }
-.salud-label { display: none; }
-
-/* ── Registro estructurado de comidas, digestión y baño (lo lee Nutri) ── */
-.nu-input-row { display: flex; align-items: center; gap: 4px; }
-.comida-item .nu-input-row { margin: 8px 0 0 40px; }
-.nu-input-row .comida-texto { margin: 0; width: auto; flex: 1; min-width: 0; }
-.comida-item .nu-zona { margin-left: 40px; }
-.comida-item.bloqueada .nu-input-row, .comida-item.omitida .nu-input-row,
-.comida-item.bloqueada .nu-zona, .comida-item.omitida .nu-zona { display: none; }
-.nu-sug, .nu-items, .nu-sint { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.nu-chip {
-  border: 1px solid var(--line); background: transparent; border-radius: 999px;
-  padding: 5px 11px; font-family: 'DM Sans', sans-serif; font-size: 12px;
-  color: inherit; cursor: pointer;
-}
-.nu-chip.on { background: var(--sage-soft); border-color: var(--sage); color: var(--sage); }
-.nu-chip:active { transform: scale(.95); }
-.nu-picker { margin-top: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--sage-soft); }
-.nu-picker .nu-sug:first-of-type { margin-top: 4px; }
-.nu-picker-tit { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; }
-.nu-x { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; padding: 2px 4px; }
-.nu-item {
-  display: flex; align-items: center; gap: 2px; font-size: 11px;
-  background: var(--gold-soft); border-radius: 999px; padding: 4px 4px 4px 10px;
-}
-.nu-item .nu-x { font-size: 10px; }
-.nu-dig { display: flex; align-items: center; gap: 2px; margin-top: 8px; }
-.nu-dig-lbl { font-size: 11px; color: var(--muted); margin-right: 4px; }
-.nu-dig-btn {
-  background: none; border: 1px solid transparent; border-radius: 10px;
-  font-size: 15px; padding: 2px 5px; cursor: pointer; opacity: .45; line-height: 1.2;
-}
-.nu-dig-btn.on { opacity: 1; border-color: var(--line); background: var(--card); }
-.extra-item .nu-dig { margin-top: 0; }
-.extra-item .nu-dig-btn { font-size: 13px; padding: 1px 3px; }
-.nu-extra-sint { margin: 0 0 6px 66px; }
-.nu-extra-sint .nu-sint { margin-top: 0; }
-.nu-bano-add { height: 34px; }
-.nu-acciones { display: flex; gap: 14px; margin-top: 8px; }
-.comida-item .nu-acciones { margin-left: 40px; }
-.comida-item.bloqueada .nu-acciones, .comida-item.omitida .nu-acciones { display: none; }
-.nu-accion {
-  display: inline-flex; align-items: center; gap: 5px; background: none; border: none; padding: 2px 0;
-  font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); cursor: pointer;
-}
-.nu-accion.on { color: var(--terra); font-weight: 600; }
-.nu-accion:active { opacity: .6; }
 /* Comí afuera: se pliega y despliega en ~200 ms */
-.nu-afuera { display: grid; grid-template-rows: 0fr; opacity: 0; transform: translateY(-4px);
-  transition: grid-template-rows .2s ease, opacity .2s ease, transform .2s ease; }
+
 .nu-afuera.abierto { grid-template-rows: 1fr; opacity: 1; transform: none; }
-.nu-afuera-in { overflow: hidden; min-height: 0; }
+
 .nu-afuera:not(.abierto) .nu-afuera-in { visibility: hidden; transition: visibility 0s .2s; }
-.nu-panel { margin-top: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--terra-soft); font-size: 12px; }
-.nu-panel-tit { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
-.nu-panel-nota { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
-.nu-ing { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-top: 1px solid var(--line); }
-.nu-ing:first-of-type { border-top: none; }
-.nu-ing span { flex: 1; }
-.nu-ing.off span { text-decoration: line-through; color: var(--muted); }
-.nu-confirmar { margin-top: 8px; width: 100%; height: 36px; border: none; border-radius: 10px; background: var(--terra); color: #fff;
-  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
-.nu-campo { width: 100%; border: none; border-bottom: 1.5px solid var(--line); background: transparent; padding: 5px 0;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; color: inherit; outline: none; margin-bottom: 4px; }
-.nu-mini { font-size: 11px; color: var(--muted); margin-top: 6px; }
-.nu-ajuste { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--muted); }
-.nu-ajuste input { flex: 1; accent-color: var(--sage); }
+
 .nu-item.estimado { background: var(--terra-soft); }
-.nu-resumen { display: block; font-size: 12px; color: var(--muted); text-decoration: none; margin: -4px 0 10px; }
-.nu-resumen:empty { display: none; }
-.nu-resumen b { color: var(--ink); font-weight: 600; }
-body.night .nu-resumen b { color: var(--night-text); }
-.banos-list .extra-item { cursor: pointer; }
-.bano-panel { padding: 2px 0 10px 66px; }
-.bano-panel .nu-sint:first-child { margin-top: 0; }
-body.night .nu-chip { border-color: rgba(255,255,255,0.14); }
-body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,255,255,0.14); }
+
 </style>
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 </head>
@@ -1928,7 +1664,7 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
     <div class="snap-card c-sage" onclick="switchPanel('manana')">
       <div class="snap-label">Sueño</div>
       <div class="snap-value" id="snap-sueno"><span class="snap-empty">—</span></div>
-      <div class="snap-sub" id="snap-sueno-sub">Registra en Mañana</div>
+      <div class="snap-sub" id="snap-sueno-sub">sin registro</div>
     </div>
     <div class="snap-card c-sky" onclick="scrollToFumado()">
       <div class="snap-label">Fumado</div>
@@ -1967,97 +1703,11 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
     </div>
   </div>
 
-  <!-- Mis comidas -->
-  <div class="meal-card">
-    <div class="meal-header">
-      <div class="ql-title" style="margin:0;">Mis comidas 🍽️</div>
-      <div class="meal-progress" id="meal-progress">0 / 3</div>
-    </div>
-    <a class="nu-resumen" id="nu-resumen" href="nutri.html"></a>
-
-    <!-- Desayuno -->
-    <div class="comida-item" id="comida-0">
-      <div class="comida-row" onclick="toggleComida(0)">
-        <div class="comida-check">✓</div>
-        <div class="comida-icon">🌅</div>
-        <div class="comida-info">
-          <div class="comida-nombre">Desayuno</div>
-          <div class="comida-estado">Toca cuando desayunes</div>
-        </div>
-      </div>
-      <button class="comida-skip" id="skip-0" onclick="toggleOmitida(0)">No desayuné</button>
-      <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-0" oninput="saveComidaTexto(0);nuBuscar('0')" onfocus="nuPintarZona('0')" onblur="nuSoltar('0');nuTextoListo('0')" placeholder="¿Qué desayunaste? (o pega el menú)" onchange="saveComidaTexto(0)" autocomplete="off">
-      </div>
-      <div class="nu-acciones">
-        <button class="nu-accion" onclick="nuFoto('0')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
-        <button class="nu-accion" id="afuera-btn-0" onclick="nuAfuera('0')">🍴 <span>Comí afuera</span></button>
-      </div>
-      <div class="nu-zona" id="nu-0"></div>
-    </div>
-
-    <!-- Almuerzo -->
-    <div class="comida-item bloqueada" id="comida-1">
-      <div class="comida-row" onclick="toggleComida(1)">
-        <div class="comida-check">✓</div>
-        <div class="comida-icon">☀️</div>
-        <div class="comida-info">
-          <div class="comida-nombre">Almuerzo</div>
-          <div class="comida-estado">Se abre con el desayuno</div>
-        </div>
-        <div class="comida-lock">🔒</div>
-      </div>
-      <button class="comida-skip" id="skip-1" onclick="toggleOmitida(1)">No almorcé</button>
-      <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-1" oninput="saveComidaTexto(1);nuBuscar('1')" onfocus="nuPintarZona('1')" onblur="nuSoltar('1');nuTextoListo('1')" placeholder="¿Qué almorzaste? (o pega el menú)" onchange="saveComidaTexto(1)" autocomplete="off">
-      </div>
-      <div class="nu-acciones">
-        <button class="nu-accion" onclick="nuFoto('1')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
-        <button class="nu-accion" id="afuera-btn-1" onclick="nuAfuera('1')">🍴 <span>Comí afuera</span></button>
-      </div>
-      <div class="nu-zona" id="nu-1"></div>
-    </div>
-
-    <!-- Cena -->
-    <div class="comida-item bloqueada" id="comida-2">
-      <div class="comida-row" onclick="toggleComida(2)">
-        <div class="comida-check">✓</div>
-        <div class="comida-icon">🌙</div>
-        <div class="comida-info">
-          <div class="comida-nombre">Cena</div>
-          <div class="comida-estado">Se abre con el almuerzo</div>
-        </div>
-        <div class="comida-lock">🔒</div>
-      </div>
-      <button class="comida-skip" id="skip-2" onclick="toggleOmitida(2)">No cené</button>
-      <div class="nu-input-row">
-        <input class="meal-input comida-texto" type="text" id="texto-2" oninput="saveComidaTexto(2);nuBuscar('2')" onfocus="nuPintarZona('2')" onblur="nuSoltar('2');nuTextoListo('2')" placeholder="¿Qué cenaste? (o pega el menú)" onchange="saveComidaTexto(2)" autocomplete="off">
-      </div>
-      <div class="nu-acciones">
-        <button class="nu-accion" onclick="nuFoto('2')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
-        <button class="nu-accion" id="afuera-btn-2" onclick="nuAfuera('2')">🍴 <span>Comí afuera</span></button>
-      </div>
-      <div class="nu-zona" id="nu-2"></div>
-    </div>
-
-    <!-- Algo de más (fuera de las comidas principales) -->
-    <div class="extras-block">
-      <div class="extras-header">
-        <span class="extras-title">Algo de más 🍪</span>
-        <span class="extras-count" id="extras-count"></span>
-      </div>
-      <div class="extras-input-row">
-        <input class="meal-input extras-input" type="text" id="input-extra" placeholder="¿Qué comiste fuera de las comidas?" oninput="nuBuscar('extra')" onfocus="nuPintarZona('extra')" onblur="nuSoltar('extra')" onkeydown="if(event.key==='Enter')agregarExtra()" autocomplete="off">
-        <button class="log-add-btn extras-add" onclick="agregarExtra()">+</button>
-      </div>
-      <div class="nu-acciones">
-        <button class="nu-accion" onclick="nuFoto('extra')"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="14" r="7"/><circle cx="11" cy="14" r="3.5"/><path d="M19.5 2.5v3M18 4h3M21.5 8.5v2M20.5 9.5h2"/></svg><span>Fotografiar plato</span></button>
-      </div>
-      <div class="nu-zona" id="nu-extra"></div>
-      <div class="extras-list" id="extras-list"></div>
-      <div class="extras-nota">Sin juicio. Solo información sobre tus patrones 🌿</div>
-    </div>
-  </div>
+  <!-- Comidas, snacks y baño viven en Nutri (17 nov 2026). Aquí queda una sola línea. -->
+  <a class="nutri-link" href="nutri.html#registrar" aria-label="Registrar comidas, snacks y baño en Nutri">
+    <span class="nutri-link-ico">🥗</span>
+    <span class="nutri-link-ir">Nutri →</span>
+  </a>
 
   <!-- RECUPERACIÓN — temporal, se controla con RECUPERACION_ACTIVA. Oculta por defecto.
        Una sola tarjeta, mismo estilo que Mis comidas / Mis gatos. Los ids no cambian. -->
@@ -2074,17 +1724,6 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
     <div class="log-form-row recup-nota-fila">
       <input type="text" class="log-nota-input" id="recup-nota" placeholder="Algo que quieras anotar (opcional)" onchange="saveRecuperacionNota()">
     </div>
-  </div>
-
-  <input type="file" id="nu-plato-foto" accept="image/*" hidden onchange="nuPlatoElegido(this)">
-
-  <!-- Baño: una fila por vez en la tabla `banos` -->
-  <div class="log-card" id="card-banos">
-    <div class="log-header" style="margin-bottom:0;">
-      <div class="ql-title" style="margin:0;">Baño 🚽 <span class="extras-count" id="banos-count"></span></div>
-      <button class="log-add-btn nu-bano-add" onclick="registrarBano()" aria-label="Registrar una vez">+</button>
-    </div>
-    <div class="banos-list" id="banos-list"></div>
   </div>
 
   <!-- Mis gatos -->
@@ -2216,25 +1855,6 @@ body.night .nu-dig-btn.on { background: var(--night-bg); border-color: rgba(255,
     <div class="lectura-nota" id="lectura-nota"></div>
   </div>
 
-  <div class="section-label">Anoche dormí</div>
-  <div class="quick-log">
-    <div class="ql-row">
-      <div class="ql-icon">😴</div>
-      <div class="ql-label">Horas de sueño</div>
-      <input class="ql-num-input" type="number" id="input-sueno" placeholder="—" min="0" max="24" onchange="saveSueno()">
-    </div>
-    <div class="ql-row">
-      <div class="ql-icon">🛌</div>
-      <div class="ql-label">Calidad</div>
-      <div class="ql-stars" id="stars-sueno">
-        <button class="ql-star" onclick="setStars('sueno',1)">1</button>
-        <button class="ql-star" onclick="setStars('sueno',2)">2</button>
-        <button class="ql-star" onclick="setStars('sueno',3)">3</button>
-        <button class="ql-star" onclick="setStars('sueno',4)">4</button>
-        <button class="ql-star" onclick="setStars('sueno',5)">5</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ── NOCHE ── -->
@@ -2314,7 +1934,7 @@ const SHORT = ['L','M','X','J','V','S','D'];
 // Desaparecen del día y de todos los contadores (para que no se vean como algo que falta),
 // sin borrar nada de lo ya registrado. Para que vuelvan: dejar la lista vacía → []
 // Se identifican por NOMBRE, así que aplica a la mañana y a la noche.
-const HABITOS_EN_PAUSA = ['Tiendo mi cama', 'Alisto mi almuerzo', 'Lavo mis tápers'];
+const HABITOS_EN_PAUSA = ['Alisto mi almuerzo', 'Lavo mis tápers'];   // 'Tiendo mi cama' volvió el 17 nov
 
 // Pasos, "¿Te moviste?", kilómetros y bici (panel Noche) también en pausa: no puede caminar.
 // Solo se ocultan; los datos y su guardado siguen intactos. Para que vuelvan: false.
@@ -2428,7 +2048,6 @@ const ANCLAS = [
   {tipo:'habito', panel:'n', idx:2, texto:'Alisto mi almuerzo', icon:'🥗', razon:'Decidir hoy lo de mañana reduce la carga cognitiva del futuro'},
   {tipo:'gato', idx:1, texto:'Cepillo a mis gatos', icon:'🪮', razon:'El contacto con animales baja cortisol en minutos'},
   {tipo:'emocion', texto:'Nombro cómo me siento', icon:'🌊', razon:'Nombrar una emoción reduce su intensidad — "name it to tame it"'},
-  {tipo:'comida', idx:0, texto:'Desayuno', icon:'🌅', razon:'Comer en la primera hora estabiliza cortisol y regula el hambre del día'},
   {tipo:'habito', panel:'m', idx:1, texto:'Lavo mi cara', icon:'💧', razon:'El agua fría en la cara activa el nervio vago y calma el sistema'},
 ];
 
@@ -3676,15 +3295,11 @@ async function guardarRegistroDiario(fecha) {
   poner('lectura_min', 'lectura', v=>parseInt(v));
   poner('ciclo_dia', 'ciclo_dia', v=>parseInt(v));
   poner('ciclo_fase', 'fase');
-  poner('sueno_horas', 'sueno_horas', v=>parseFloat(v));
-  poner('sueno_calidad', 'sueno_calidad', v=>parseInt(v));
   if(d.bici !== undefined) payload.bici = !!d.bici;
-  if(d.extras !== undefined) payload.extras = Array.isArray(d.extras) ? d.extras : [];
-  if(d.comidas !== undefined) payload.comidas = d.comidas || {};
-  if(d.comidas_texto !== undefined) payload.comidas_texto = d.comidas_texto || {};
-  if(d.comidas_omitidas !== undefined) payload.comidas_omitidas = d.comidas_omitidas || {};
-  if(d.comidas_hora !== undefined) payload.comidas_hora = d.comidas_hora || {};
-  if(d.gatos !== undefined) payload.gatos = d.gatos || {};
+  // Comidas, snacks (extras) y sueño NO se mandan: los escriben Nutri y el chat de sueño.
+  // Si se mandaran desde aquí, la copia vieja de este teléfono pisaría lo nuevo.
+  // Un {} vacío es el contenedor que se crea al pintar, no algo que tocaste: no se manda
+  if(d.gatos && Object.keys(d.gatos).length) payload.gatos = d.gatos;
 
   // Si no hay nada más que la fecha, no hay nada que guardar
   if(Object.keys(payload).length <= 2) return;
@@ -3707,9 +3322,12 @@ async function cargarRegistroDesdeSupabase() {
     if(!data || !data.length) return;
 
     data.forEach(row => {
-      // Cachear datos de registro para esa fecha (si no hay ya algo local)
+      // Lo local gana sólo donde ya tiene algo; lo que falta se completa con la base.
+      // Antes, si este dispositivo ya tenía el día con contenedores vacíos ({gatos:{}},
+      // creados al pintar la pantalla), se saltaba la base entera: no se veía lo anotado
+      // en otro dispositivo y, al guardar, se mandaba gatos:{} y lo borraba.
       const existente = loadRegistroFecha(row.fecha);
-      if(!existente || Object.keys(existente).length===0){
+      {
         const d = {};
         if(row.emocion) d.emocion=row.emocion;
         if(row.emocion_fina) d.emocion_fina=row.emocion_fina;
@@ -3737,8 +3355,17 @@ async function cargarRegistroDesdeSupabase() {
         if(row.gatos) d.gatos=row.gatos;
         if(row.sueno_horas) d.sueno_horas=String(row.sueno_horas);
         if(row.sueno_calidad) d.sueno_calidad=row.sueno_calidad;
-        registroCache[row.fecha]=d;
-        localStorage.setItem('registro_'+row.fecha, JSON.stringify(d));
+        const vacio = v => v===undefined || v===null || v==='' ||
+          (typeof v==='object' && !Array.isArray(v) && Object.keys(v).length===0) || (Array.isArray(v) && !v.length);
+        // Sueño, comidas y snacks se escriben en otra parte: ahí siempre manda la base
+        const deFuera = ['sueno_horas','sueno_calidad','comidas','comidas_texto','comidas_omitidas','comidas_hora','extras'];
+        const local = existente || {};
+        Object.keys(d).forEach(k => {
+          if(k==='gatos' && !vacio(local.gatos)) local.gatos = Object.assign({}, d.gatos, local.gatos);
+          else if(deFuera.includes(k) || vacio(local[k])) local[k] = d[k];
+        });
+        registroCache[row.fecha]=local;
+        localStorage.setItem('registro_'+row.fecha, JSON.stringify(local));
       }
     });
   } catch(e){ console.error('Error cargando registro:',e); }
@@ -4098,14 +3725,8 @@ function setStars(key,val) {
   document.querySelectorAll(`#stars-${key} .ql-star`).forEach((s,i)=>{
     s.classList.toggle('on', i<val);
   });
-  if(key==='sueno') {
-    todayData.sueno_calidad=val;
-    saveTodayLocal();
-    updateSnaps();
-  } else {
-    todayData[key]=val;
-    saveTodayLocal();
-  }
+  todayData[key]=val;
+  saveTodayLocal();
 }
 
 function saveQuick() {
@@ -4137,849 +3758,18 @@ function toggleBici() {
   saveTodayLocal();
 }
 
-// ── ALGO DE MÁS (fuera de las comidas principales) ──
-function agregarExtra() {
-  const input=document.getElementById('input-extra');
-  const texto=(input.value||'').trim();
-  if(!texto) return;
-  if(!Array.isArray(todayData.extras)) todayData.extras=[];
-  const id = nuIdExtra();
-  todayData.extras.push({id, hora:horaActualHHMM(), texto});
-  input.value='';
-  delete nuSel.extra;
-  buildExtras();
-  saveTodayLocal();
-  input.focus();
-  nuAnalizarTexto('extra', id, texto);   // la IA lo convierte en números aprox
-}
-
-function borrarExtra(i) {
-  if(!Array.isArray(todayData.extras)) return;
-  const quitado = todayData.extras.splice(i,1)[0];
-  if(quitado && quitado.id) nuBorrarDeExtra(quitado.id);
-  buildExtras();
-  saveTodayLocal();
-}
-
-function buildExtras() {
-  const lista=document.getElementById('extras-list');
-  const contador=document.getElementById('extras-count');
-  if(!lista) return;
-  const extras=Array.isArray(todayData.extras)?todayData.extras:[];
-  if(contador) contador.textContent = extras.length ? `${extras.length}` : '';
-  nuPintarZona('extra');
-  if(!extras.length) { lista.innerHTML=''; return; }
-  lista.innerHTML=extras.map((x,i)=>{
-    const dig = x.id ? nuDigestionHtml('extra', x.id) : null;
-    return `
-    <div class="extra-item">
-      <span class="extra-hora">${formatHora12(x.hora)||''}</span>
-      <span class="extra-texto">${escapeHtml(x.texto||'')}${x.id ? nuHtmlExtraIA(x) : ''}</span>
-      ${dig ? dig.botones : ''}
-      <button class="log-del" onclick="borrarExtra(${i})">✕</button>
-    </div>${dig && dig.sintomas ? `<div class="nu-extra-sint">${dig.sintomas}</div>` : ''}`;
-  }).join('');
-}
-
-// ══ REGISTRO ESTRUCTURADO DE COMIDAS · DIGESTIÓN · BAÑO ══
-// Mi Sistema es el único lugar donde se registra; Nutri sólo lee. Todo es opcional:
-// el texto libre sigue igual (Nutri lo toma como "aprox"). Son filas aparte
-// (comidas_items, comidas_digestion, banos): no tocan registro_diario ni su helper.
-// Si no hay conexión, la fila queda en una cola local (`nu_cola`) y se manda después.
-
-// Palabras editables
-const NU_CANTIDADES = [0.5, 1, 1.5, 2, 3];
-const NU_TAMANOS = [{t:'pequeña', f:0.7}, {t:'mediana', f:1}, {t:'grande', f:1.35}];
-const COCINAS = ['colombiana', 'venezolana', 'latina', 'mexicana', 'italiana', 'asiática', 'quebequense', 'rápida', 'otra'];
-const OCASIONES = ['sola', 'con amigos', 'familia', 'trabajo', 'cita'];
-const DIGESTION = [{id:'bien',e:'👍'}, {id:'regular',e:'😐'}, {id:'mal',e:'👎'}];
-const DIGESTION_SINTOMAS = ['gases', 'inflamación', 'dolor', 'reflujo', 'acidez', 'náusea', 'urgencia'];
-const BANO_TIPOS = [{id:'dura',t:'dura',bristol:2}, {id:'normal',t:'normal',bristol:4}, {id:'blanda',t:'blanda',bristol:6}];
-const BANO_MOLESTIAS = [{id:'inflamacion',t:'inflamación'}, {id:'colico',t:'cólico'}, {id:'urgencia',t:'urgencia'}, {id:'incompleta',t:'sensación incompleta'}];
-
-let nuAlimentos = [];
-let nuPerfil = null;   // metas de Nutri, para la línea de "cómo vas"
-let nuPlatos = [];     // platos de restaurante (estimados por porción típica)
-let nuEnCasa = [];     // despensa de Nutri: lo que hay en casa (sólo se lee)
-let nuDet = [];        // comidas_detalle de la fecha activa (afuera, foto, análisis)
-let nuRevision = {};   // zona -> análisis de la foto esperando que lo confirmes
-let nuAnalizando = {}; // zona -> true mientras la IA mira la foto
-let nuAjuste = null;   // {id, base} del alimento al que le estás moviendo la cantidad
-let nuZonaFoto = null;
-let nuDetEnFila = {};     // clave de comida -> último guardado de su detalle (en fila)
-let nuDetGuardando = 0;   // guardados de detalle aún en camino: mientras haya, no se relee
-let nuLeyendoTexto = {};  // clave de comida -> true mientras la IA lee el texto
-let nuErrorTexto = {};    // clave de comida -> mensaje si la IA no pudo
-let nuItems = [];      // comidas_items de la fecha activa
-let nuDig = [];        // comidas_digestion de la fecha activa
-let banosDia = [];     // banos de la fecha activa
-let nuSel = {};        // zona ('0','1','2','extra') -> {a: alimento, u: índice de porción}
-let banoAbierto = null;
-
-const nuNorm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-const nuFmtCant = c => ({0.5:'½', 1.5:'1½'}[c] || String(c));
-const nuRed = (v,f) => (v==null ? null : Math.round(v*f*10)/10);
-const nuTmpId = () => 'tmp-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
-const nuIdExtra = () => 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const nuEsTmp = id => String(id||'').startsWith('tmp-');
-const nuInputId = z => z==='extra' ? 'input-extra' : `texto-${z}`;
-const nuClaveDig = (comida, ref) => `${comida}|${ref||''}`;
-const nuPorciones = a => (Array.isArray(a.porciones) && a.porciones.length) ? a.porciones : [{u:'100 g', g:100}];
-const nuHoraSiHoy = () => fechaActiva===fechaDeAhora() ? horaActualHHMM() : null;
-
-// ── Cola local ──
-function nuColaLeer() { try { return JSON.parse(localStorage.getItem('nu_cola')||'[]'); } catch(e){ return []; } }
-function nuColaGuardar(c) { try { localStorage.setItem('nu_cola', JSON.stringify(c)); } catch(e){} }
-
-async function nuVaciarCola() {
-  const cola = nuColaLeer();
-  if(!cola.length) return;
+// Comidas, snacks, digestión y baño se registran en Nutri desde el 17 nov 2026.
+// Si este ícono dejó filas sin enviar (sin conexión), se mandan una vez y se limpia.
+async function vaciarColaComidasVieja() {
+  let cola = [];
+  try { cola = JSON.parse(localStorage.getItem('nu_cola')||'[]'); } catch(e){ return; }
+  if(!Array.isArray(cola) || !cola.length) return;
   const quedan = [];
   for(const op of cola) {
     const body = Object.assign({}, op.body); delete body.id;
-    try { await sbLog(op.tabla, 'POST', body, op.params||''); }
-    catch(e) { quedan.push(op); }
+    try { await sbLog(op.tabla, 'POST', body, op.params||''); } catch(e) { quedan.push(op); }
   }
-  nuColaGuardar(quedan);
-}
-
-// Un upsert (on_conflict) reemplaza lo que hubiera pendiente en la cola para la misma
-// comida. Sin esto, un "afuera: sí" que falló se reenviaba después y pisaba el "no".
-function nuQuitarPendientesIguales(tabla, fila, params) {
-  if(!params.includes('on_conflict')) return;
-  const igual = b => b.fecha===fila.fecha && b.comida===fila.comida && (b.extra_ref||'')===(fila.extra_ref||'');
-  nuColaGuardar(nuColaLeer().filter(o => !(o.tabla===tabla && igual(o.body))));
-}
-
-async function nuInsertar(tabla, fila, params='') {
-  setSyncing(true);
-  nuQuitarPendientesIguales(tabla, fila, params);
-  try {
-    const r = await sbLog(tabla, 'POST', fila, params);
-    setSyncing(false); clearSyncError();
-    return (Array.isArray(r) && r[0]) ? r[0] : fila;
-  } catch(e) {
-    console.error(e); setSyncError();
-    const tmp = Object.assign({id: nuTmpId()}, fila);
-    const cola = nuColaLeer(); cola.push({tabla, params, body: tmp}); nuColaGuardar(cola);
-    return tmp;
-  }
-}
-
-async function nuActualizar(tabla, fila, cambios) {
-  if(nuEsTmp(fila.id)) {   // aún en la cola: se corrige ahí mismo
-    nuColaGuardar(nuColaLeer().map(o => o.body.id===fila.id ? Object.assign(o, {body: Object.assign(o.body, cambios)}) : o));
-    return;
-  }
-  setSyncing(true);
-  try { await sbLog(tabla, 'PATCH', cambios, `?id=eq.${fila.id}`); setSyncing(false); clearSyncError(); }
-  catch(e) { console.error(e); setSyncError(); }
-}
-
-async function nuBorrarFila(tabla, id) {
-  if(!id) return;
-  if(nuEsTmp(id)) { nuColaGuardar(nuColaLeer().filter(o => o.body.id!==id)); return; }
-  setSyncing(true);
-  try { await sbLog(tabla, 'DELETE', null, `?id=eq.${id}`); setSyncing(false); clearSyncError(); }
-  catch(e) { console.error(e); setSyncError(); }
-}
-
-// ── Carga ──
-async function nuCargarAlimentos() {
-  try { const c = JSON.parse(localStorage.getItem('nu_alimentos')||'null'); if(Array.isArray(c)) nuAlimentos = c; } catch(e){}
-  try {
-    const data = await sbLog('nutri_alimentos', 'GET', null, '?select=*&order=nombre.asc');
-    if(Array.isArray(data)) { nuAlimentos = data; nuGuardarCacheAlimentos(); }
-    const [p, pl, de] = await Promise.all([
-      sbLog('nutri_perfil', 'GET', null, '?id=eq.laura&select=kcal,proteina_g'),
-      sbLog('platos_restaurante', 'GET', null, '?select=*&order=nombre.asc'),
-      sbLog('nutri_despensa', 'GET', null, '?estado=eq.hay&select=alimento_id,nombre')
-    ]);
-    nuPerfil = (Array.isArray(p) && p[0]) || null;
-    nuPlatos = Array.isArray(pl) ? pl.map(nuPlatoComoAlimento) : [];
-    nuEnCasa = Array.isArray(de) ? de : [];
-  } catch(e) { console.error('Error cargando alimentos:', e); }
-}
-
-// Una línea neutra, sin colores de alerta: cuánto llevas, no cuánto te falta.
-function nuPintarResumen() {
-  const el = document.getElementById('nu-resumen');
-  if(!el) return;
-  const kc = nuItems.reduce((a,x) => a + (Number(x.kcal)||0), 0);
-  const pr = nuItems.reduce((a,x) => a + (Number(x.proteina)||0), 0);
-  el.innerHTML = (nuItems.length && nuPerfil)
-    ? `Llevas <b>${Math.round(kc)}</b> de ${nuPerfil.kcal} kcal · <b>${Math.round(pr)}</b> de ${nuPerfil.proteina_g} g de proteína · Nutri →`
-    : '';
-}
-function nuGuardarCacheAlimentos() { try { localStorage.setItem('nu_alimentos', JSON.stringify(nuAlimentos)); } catch(e){} }
-
-async function nuCargarDia(fecha=fechaActiva) {
-  await nuVaciarCola();
-  const pend = t => nuColaLeer().filter(o => o.tabla===t && o.body.fecha===fecha).map(o => o.body);
-  try {
-    const [it, dg, bn, dt] = await Promise.all([
-      sbLog('comidas_items', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`),
-      sbLog('comidas_digestion', 'GET', null, `?fecha=eq.${fecha}`),
-      sbLog('banos', 'GET', null, `?fecha=eq.${fecha}&order=created_at.asc`),
-      sbLog('comidas_detalle', 'GET', null, `?fecha=eq.${fecha}`)
-    ]);
-    if(fecha!==fechaActiva) return;
-    if(!nuDetGuardando) nuDet = (dt||[]).concat(pend('comidas_detalle'));
-    nuItems = (it||[]).concat(pend('comidas_items'));
-    nuDig = (dg||[]);
-    pend('comidas_digestion').forEach(d => { nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(d.comida,d.extra_ref)); nuDig.push(d); });
-    nuDigAplicarPendientes(fecha);
-    banosDia = (bn||[]).concat(pend('banos'));
-  } catch(e) {
-    console.error('Error cargando comidas/baño:', e);
-    if(fecha!==fechaActiva) return;
-    nuItems = pend('comidas_items'); nuDig = pend('comidas_digestion'); banosDia = pend('banos');
-    nuDigAplicarPendientes(fecha);
-  }
-  nuPintarTodo();
-}
-
-function nuPintarTodo() {
-  ['0','1','2'].forEach(nuPintarZona);
-  buildExtras();
-  buildBanos();
-}
-
-// ── Buscador ──
-const NU_NO_CLAVE = ['cocido','cocida','cocidos','cocidas','crudo','cruda','frito','frita','asado','asada','blanco','blanca','integral','natural','maduro','rojos','firme','entero','tierno','curado','fresco','peso','unidad','griego','negro','agua','aceite','escurrido','escurridas','calcio','tajadas','hojuelas','tajado','crema','oliva','vegetal','molida','lactosa'];
-
-// Raíz de una palabra: sin diminutivo (arepita→arep, cafecito→cafe) ni plural (huevos→huevo)
-function nuRaiz(w) {
-  const sinDim = w.replace(/(cit|it)(a|o)s?$/, '');
-  if(sinDim!==w && sinDim.length>=3) return sinDim;
-  return w.length>3 ? w.replace(/s$/, '') : w;
-}
-
-// Busca palabra por palabra contra la palabra principal de cada alimento
-// ("Arepita pequeña, dos huevos fritos" → Arepa, Huevo). La última palabra, si
-// todavía se está escribiendo, se busca como prefijo ("are" → Arepa).
-// No sugiere lo que ya está agregado en esa comida.
-function nuCoincidencias(texto, excluir=[]) {
-  const q = nuNorm(texto);
-  if(q.length<2) return {lista:[]};
-  const palabras = q.split(/[^a-zñ]+/).filter(Boolean);
-  const escribiendo = !/[\s,.;]$/.test(texto) ? palabras[palabras.length-1] : null;
-  // Palabras que cuentan: la primera del nombre siempre; las demás si no son descriptivas
-  // ("Pechuga de pollo cocida" → pechuga, pollo; "Atún en agua" → atun)
-  const clave = a => {
-    const ws = nuNorm(a.nombre).split(/[^a-zñ]+/).filter(Boolean);
-    return [ws[0], String(a.norm||'').split(' ')[0]].concat(ws.slice(1).filter(x => x.length>=4 && !NU_NO_CLAVE.includes(x)));
-  };
-  const lista = [];
-  palabras.forEach(w => {
-    const raiz = nuRaiz(w);
-    nuCatalogo().forEach(a => {
-      if(lista.includes(a) || excluir.includes(String(a.id))) return;
-      const ok = clave(a).some(k => k && (
-        (w===escribiendo && w.length>=2 && w.length<=3 && k.startsWith(w)) ||
-        (raiz.length>=3 && ((k.startsWith(raiz) && k.length-raiz.length<=1) || raiz.startsWith(k) && k.length>=4))
-      ));
-      if(ok) lista.push(a);
-    });
-  });
-  // Lo que tienes en casa va primero
-  // Si escribiste el nombre completo de algo (un plato de restaurante), va antes que sus partes
-  const completo = a => (String(a.norm||'').includes(' ') && q.includes(String(a.norm).split(' ').slice(0,3).join(' '))) ? 1 : 0;
-  lista.sort((x,y) => (nuEstaEnCasa(y) - nuEstaEnCasa(x)) || (completo(y) - completo(x)));
-  return {lista: lista.slice(0,6)};
-}
-
-const nuCatalogo = () => nuAlimentos.concat(nuPlatos);
-const nuEstaEnCasa = a => nuEnCasa.some(d => d.alimento_id && String(d.alimento_id)===String(a.id)) ? 1 : 0;
-
-// Un plato de restaurante se comporta como un alimento con porciones pequeña/mediana/grande.
-// Sus valores son estimados: se guardan con estimado=true y Nutri los marca "aprox".
-function nuPlatoComoAlimento(pl) {
-  const g = Number(pl.porcion_g) || 100, k = 100 / g;
-  return {
-    id: 'p:' + pl.id, nombre: pl.nombre, norm: pl.norm, categoria: 'plato_restaurante', estimado: true,
-    porciones: NU_TAMANOS.map(t => ({u: t.t, g: Math.round(g*t.f)})),
-    kcal: pl.calorias*k, proteina: pl.proteina*k, carbo: pl.carbohidratos*k, grasa: pl.grasa*k, fibra: pl.fibra*k,
-    calcio_mg: null, vitd_ui: null, lactosa: !!pl.lactosa, cafeina: false
-  };
-}
-
-function nuBuscar(zona) {
-  delete nuSel[zona];
-  nuPintarZona(zona);
-}
-
-function nuElegir(zona, id) {
-  const a = nuCatalogo().find(x => String(x.id)===String(id));
-  if(!a) return;
-  nuSel[zona] = {a, u: a.estimado ? 1 : 0};   // un plato arranca en "mediana"   // el texto que escribiste no se toca
-  nuPintarZona(zona);
-}
-
-// Al salir del campo, las sugerencias desaparecen: no quedan colgadas de una comida que ya pasó.
-function nuSoltar(zona) { setTimeout(() => nuPintarZona(zona), 250); }
-
-function nuUnidad(zona, k) { if(nuSel[zona]) { nuSel[zona].u = k; nuPintarZona(zona); } }
-function nuCancelar(zona) { delete nuSel[zona]; nuPintarZona(zona); }
-
-function nuPintarZona(zona) {
-  nuPintarResumen();
-  const el = document.getElementById(`nu-${zona}`);
-  if(!el) return;
-  let html = nuHtmlFoto(zona) + (zona!=='extra' ? nuHtmlAfuera(zona) : '');
-  const btn = document.getElementById(`afuera-btn-${zona}`);
-  if(btn) btn.classList.toggle('on', nuEsAfuera(zona));
-  const sel = nuSel[zona];
-  if(sel) {
-    const pors = nuPorciones(sel.a), u = pors[sel.u] || pors[0];
-    html += `<div class="nu-picker"><div class="nu-picker-tit"><span>${escapeHtml(sel.a.nombre)}</span><button class="nu-x" onclick="nuCancelar('${zona}')">✕</button></div>`;
-    if(pors.length>1) html += `<div class="nu-sug">${pors.map((p,k)=>`<button class="nu-chip${k===sel.u?' on':''}" onclick="nuUnidad('${zona}',${k})">${escapeHtml(p.u)}</button>`).join('')}</div>`;
-    html += `<div class="nu-sug">${NU_CANTIDADES.map(c=>`<button class="nu-chip" onclick="nuAgregar('${zona}',${c})">${nuFmtCant(c)}${pors.length>1?'':' '+escapeHtml(u.u)}</button>`).join('')}</div>`;
-    // Tamaño a ojo, si las porciones no son ya pequeña/mediana/grande
-    if(!sel.a.estimado) html += `<div class="nu-sug">${NU_TAMANOS.map(t=>`<button class="nu-chip" onclick="nuAgregar('${zona}',1,'${t.t}')">${t.t}</button>`).join('')}</div>`;
-    html += `</div>`;
-  } else {
-    const input = document.getElementById(nuInputId(zona));
-    if(input && document.activeElement===input) {
-      const ya = nuItems.filter(x => x.comida===zona && x.alimento_id).map(x => String(x.alimento_id));
-      let {lista} = nuCoincidencias(input.value, zona==='extra' ? [] : ya);
-      // Campo vacío en casa: lo que tienes en la despensa
-      if(!input.value.trim() && !nuEsAfuera(zona)) lista = nuAlimentos.filter(a => nuEstaEnCasa(a) && !ya.includes(String(a.id))).slice(0,6);
-      // onmousedown evita que el campo pierda el foco antes de que el toque llegue al chip
-      if(lista.length) html += `<div class="nu-sug">${lista.map(a=>`<button class="nu-chip" onmousedown="event.preventDefault()" onclick="nuElegir('${zona}','${a.id}')">${escapeHtml(a.nombre)}${a.estimado?' ~':''}${nuEstaEnCasa(a)?' · en casa':''}</button>`).join('')}</div>`;
-    }
-  }
-  if(zona!=='extra') {
-    const items = nuItems.filter(x => x.comida===zona);
-    html += nuHtmlTextoIA(zona, items);
-    if(items.length) html += `<div class="nu-items">${items.map(x=>`<span class="nu-item${x.estimado?' estimado':''}" onclick="nuAbrirAjuste('${x.id}')">${escapeHtml(x.nombre)}${x.origen==='texto'||x.origen==='foto'?'*':''} · ${(x.origen==='foto'||x.origen==='texto') ? Math.round(x.gramos||0)+' g' : nuFmtCant(Number(x.cantidad))+' '+escapeHtml(x.unidad||'')}<button class="nu-x" onclick="event.stopPropagation();nuBorrarItem('${x.id}')">✕</button></span>`).join('')}</div>`;
-    const aj = nuAjuste && items.find(x => String(x.id)===String(nuAjuste.id));
-    if(aj) html += `<div class="nu-ajuste"><span>menos</span><input type="range" min="50" max="150" step="10" value="${nuAjuste.pct}" oninput="nuMoverAjuste(this.value)" onchange="nuGuardarAjuste()"><span>más</span><span id="nu-ajuste-g">${Math.round(nuAjuste.base.gramos*nuAjuste.pct/100)} g</span></div>`;
-    // La digestión aparece sólo cuando ya comió: antes no hay nada que preguntar.
-    if((todayData.comidas||{})[zona] || items.length) {
-      const dig = nuDigestionHtml(zona, '');
-      html += `<div class="nu-dig"><span class="nu-dig-lbl">¿Cómo te cayó?</span>${dig.botones}</div>${dig.sintomas}`;
-    }
-  }
-  el.innerHTML = html;
-}
-
-async function nuAgregar(zona, cant, tamano) {
-  const sel = nuSel[zona];
-  if(!sel) return;
-  const a = sel.a, pors = nuPorciones(a);
-  let u = pors[sel.u] || pors[0];
-  // "pequeña / mediana / grande" sobre la porción elegida, cuando la cantidad es a ojo
-  if(tamano) { const t = NU_TAMANOS.find(x => x.t===tamano); u = {u: `${u.u} ${t.t}`, g: u.g*t.f}; cant = 1; }
-  const gramos = Math.round(cant*u.g*10)/10, f = gramos/100;
-  const fila = {
-    fecha: fechaActiva, comida: zona, extra_ref: null,
-    alimento_id: (a.id && !nuEsTmp(a.id) && !String(a.id).startsWith('p:')) ? a.id : null, codigo_barras: a.codigo_barras || null,
-    estimado: !!a.estimado, origen: a.estimado ? 'plato' : (a.codigo_barras ? 'empacado' : 'base'),
-    nombre: a.nombre, cantidad: cant, unidad: u.u, gramos,
-    kcal: nuRed(a.kcal,f), proteina: nuRed(a.proteina,f), carbo: nuRed(a.carbo,f), grasa: nuRed(a.grasa,f),
-    fibra: nuRed(a.fibra,f), calcio_mg: nuRed(a.calcio_mg,f), vitd_ui: nuRed(a.vitd_ui,f),
-    lactosa: !!a.lactosa, cafeina: !!a.cafeina
-  };
-  delete nuSel[zona];
-  if(zona==='extra') {
-    if(!Array.isArray(todayData.extras)) todayData.extras = [];
-    fila.extra_ref = nuIdExtra();
-    todayData.extras.push({id: fila.extra_ref, hora: horaActualHHMM(), texto: `${a.nombre} · ${nuFmtCant(cant)} ${u.u}`});
-    saveTodayLocal();
-    const inEx = document.getElementById('input-extra'); if(inEx) inEx.value = '';
-  } else if(!(todayData.comidas||{})[Number(zona)]) {
-    toggleComida(Number(zona));   // anotar lo que comiste también marca la comida
-  }
-  nuItems.push(fila);
-  zona==='extra' ? buildExtras() : nuPintarZona(zona);
-  Object.assign(fila, await nuInsertar('comidas_items', fila));
-  if(zona!=='extra') nuPintarZona(zona);
-}
-
-async function nuBorrarItem(id) {
-  const x = nuItems.find(y => String(y.id)===String(id));
-  if(!x) return;
-  nuItems = nuItems.filter(y => y!==x);
-  nuPintarZona(x.comida);
-  await nuBorrarFila('comidas_items', x.id);
-}
-
-async function nuBorrarDeExtra(ref) {
-  const items = nuItems.filter(x => x.extra_ref===ref);
-  const digs = nuDig.filter(x => x.comida==='extra' && x.extra_ref===ref);
-  nuItems = nuItems.filter(x => !items.includes(x));
-  nuDig = nuDig.filter(x => !digs.includes(x));
-  for(const x of items) await nuBorrarFila('comidas_items', x.id);
-  // Si había un guardado de digestión en espera para este extra, ya no aplica: se borra por clave
-  const kDig = fechaActiva+'|'+nuClaveDig('extra', ref);
-  clearTimeout(nuDigTimers[kDig]); delete nuDigTimers[kDig]; delete nuDigSucio[kDig];
-  nuDigSucio[kDig] = {fecha: fechaActiva, comida: 'extra', ref, fila: null, ver: 1};
-  nuDigVolcar(kDig);
-}
-
-// ── ✨ Texto libre → IA ──
-// Al terminar de escribir una comida (o al agregar algo en "Algo de más"), la IA lee el
-// texto y lo convierte en alimentos con gramos y nutrientes ESTIMADOS (origen 'texto').
-// Esos sí suman en Nutri, marcados con *. Si la comida ya tiene alimentos del buscador,
-// no se analiza el texto (sería contar dos veces).
-const nuTextoDe = (zona, ref) => zona==='extra'
-  ? ((todayData.extras||[]).find(e => e.id===ref) || {}).texto || ''
-  : ((todayData.comidas_texto||{})[zona] || '');
-const nuItemsDe = (zona, ref) => nuItems.filter(x => x.comida===zona && (zona!=='extra' || x.extra_ref===ref));
-const nuTieneManual = (zona, ref) => nuItemsDe(zona, ref).some(x => x.origen!=='texto');
-const nuYaLeido = (zona, ref, texto) => ((nuDetDe(zona, ref) || {}).texto_analizado || '') === texto.trim();
-
-function nuTextoListo(zona) {
-  // Espera a que el toque de un chip (si lo hubo) termine antes de decidir
-  setTimeout(() => {
-    const texto = nuTextoDe(zona, '').trim();
-    if(!texto) {   // borraste el texto: lo que la IA había leído de él también se va
-      const viejos = nuItemsDe(zona, '').filter(x => x.origen==='texto');
-      if(viejos.length) { nuItems = nuItems.filter(x => !viejos.includes(x)); nuPintarZona(zona); viejos.forEach(v => nuBorrarFila('comidas_items', v.id)); nuGuardarDetalle(zona, '', {texto_analizado: null, analisis_texto: null}); }
-      return;
-    }
-    if(texto.length < 3 || nuTieneManual(zona, '') || nuYaLeido(zona, '', texto)) return;
-    nuAnalizarTexto(zona, '', texto);
-  }, 400);
-}
-
-async function nuAnalizarTexto(zona, ref, texto) {
-  texto = String(texto || nuTextoDe(zona, ref)).trim();
-  if(texto.length < 3) return;
-  const k = nuClaveDig(zona, ref);
-  nuLeyendoTexto[k] = true; delete nuErrorTexto[k];
-  nuRepintarTexto(zona);
-  let datos = null;
-  try {
-    const r = await fetch(`${SUPABASE_URL}/functions/v1/analizar-plato`, {
-      method: 'POST', body: JSON.stringify({texto}),
-      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json'}
-    });
-    const j = await r.json().catch(() => ({}));
-    if(r.ok) datos = j;
-    else nuErrorTexto[k] = ({falta_llave: 'Falta la llave de la IA en Supabase', ocupado: 'IA ocupada, intenta luego', no_autorizado: 'Vuelve a entrar'})[j.error] || 'La IA no pudo leerlo';
-  } catch(e) { console.error(e); nuErrorTexto[k] = 'Sin conexión'; }
-  nuLeyendoTexto[k] = false;
-  // Si mientras tanto agregaste alimentos con el buscador o cambiaste el texto, no se usa
-  if(!datos || nuTieneManual(zona, ref) || nuTextoDe(zona, ref).trim()!==texto) { nuRepintarTexto(zona); return; }
-
-  // Reemplaza lo que la IA hubiera leído antes de esta misma comida
-  const viejos = nuItemsDe(zona, ref).filter(x => x.origen==='texto');
-  nuItems = nuItems.filter(x => !viejos.includes(x));
-  const n = v => (v==null || v==='' || isNaN(Number(v))) ? null : Math.round(Number(v)*10)/10;
-  const filas = (datos.ingredientes || []).map(x => ({
-    fecha: fechaActiva, comida: zona, extra_ref: zona==='extra' ? ref : null, alimento_id: null, codigo_barras: null,
-    nombre: x.nombre, cantidad: 1, unidad: 'texto', gramos: n(x.gramos),
-    kcal: n(x.kcal), proteina: n(x.proteina), carbo: n(x.carbo), grasa: n(x.grasa), fibra: n(x.fibra),
-    calcio_mg: null, vitd_ui: null, lactosa: !!x.lactosa, cafeina: false, estimado: true, origen: 'texto'
-  }));
-  filas.forEach(f => nuItems.push(f));
-  nuRepintarTexto(zona);
-  await nuGuardarDetalle(zona, ref, {texto_analizado: texto, analisis_texto: datos});
-  for(const v of viejos) await nuBorrarFila('comidas_items', v.id);
-  for(const f of filas) Object.assign(f, await nuInsertar('comidas_items', f));
-}
-
-function nuRepintarTexto(zona) { zona==='extra' ? buildExtras() : nuPintarZona(zona); }
-
-// Línea bajo una comida descrita en texto: leyendo / cuánto suma / ✨ calcular
-function nuHtmlTextoIA(zona, items) {
-  const k = nuClaveDig(zona, '');
-  if(nuLeyendoTexto[k]) return `<div class="nu-mini">✨ La IA está leyendo lo que escribiste…</div>`;
-  const texto = nuTextoDe(zona, '').trim();
-  if(!texto || items.some(x => x.origen!=='texto')) return '';
-  const ia = items.filter(x => x.origen==='texto');
-  if(ia.length) return '';   // ya se ven como alimentos con *
-  const err = nuErrorTexto[k] ? `${escapeHtml(nuErrorTexto[k])} · ` : '';
-  return `<div class="nu-mini">${err}<button class="nu-accion" onclick="nuAnalizarTexto('${zona}','')">✨ <span>Calcular con IA</span></button></div>`;
-}
-
-function nuHtmlExtraIA(x) {
-  const k = nuClaveDig('extra', x.id);
-  if(nuLeyendoTexto[k]) return ` <span class="nu-mini">· ✨ leyendo…</span>`;
-  const its = nuItemsDe('extra', x.id);
-  if(its.some(i => i.origen!=='texto')) return '';
-  if(its.length) return ` <span class="nu-mini">· ${Math.round(its.reduce((a,i) => a + (Number(i.kcal)||0), 0))}* kcal</span>`;
-  return ` <button class="nu-accion" onclick="nuAnalizarTexto('extra','${x.id}')">✨</button>`;
-}
-
-// ── 🍽️ Fotografiar plato: la IA mira la foto y precarga la comida ──
-// No es el escáner de códigos (ese vive en Nutri › Despensa). La foto va al bucket
-// privado "platos"; la función analizar-plato (Claude) devuelve ingredientes,
-// gramos y nutrientes estimados. Nada se guarda como comida hasta que confirmes.
-function nuFoto(zona) {
-  nuZonaFoto = zona;
-  const f = document.getElementById('nu-plato-foto');
-  if(f) { f.value = ''; f.click(); }
-}
-
-// Achica la foto (las del celular pesan varios MB) y la devuelve en JPEG
-async function nuAchicarFoto(file, lado=1280) {
-  const img = await new Promise((ok, mal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = mal; i.src = URL.createObjectURL(file); });
-  const k = Math.min(1, lado / Math.max(img.naturalWidth, img.naturalHeight));
-  const cv = document.createElement('canvas');
-  cv.width = Math.round(img.naturalWidth*k); cv.height = Math.round(img.naturalHeight*k);
-  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-  URL.revokeObjectURL(img.src);
-  const blob = await new Promise(ok => cv.toBlob(ok, 'image/jpeg', 0.85));
-  const b64 = cv.toDataURL('image/jpeg', 0.85).split(',')[1];
-  return {blob, b64};
-}
-
-async function nuPlatoElegido(input) {
-  const file = input.files && input.files[0];
-  const zona = nuZonaFoto;
-  if(!file || zona==null) return;
-  nuAnalizando[zona] = true; delete nuRevision[zona];
-  nuPintarZona(zona);
-  let foto;
-  try { foto = await nuAchicarFoto(file); }
-  catch(e) { console.error(e); nuAnalizando[zona] = false; nuRevision[zona] = {error: 'No pude abrir esa foto.'}; nuPintarZona(zona); return; }
-
-  // 1. Guardar la foto (si falla, igual se analiza)
-  let ruta = `${fechaActiva}/${zona}-${Date.now()}.jpg`;
-  try {
-    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/platos/${ruta}`, {
-      method: 'POST', body: foto.blob,
-      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'image/jpeg'}
-    });
-    if(!r.ok) ruta = null;
-  } catch(e) { console.error(e); ruta = null; }
-
-  // 2. Que la IA la mire
-  let datos = null, error = null;
-  try {
-    const r = await fetch(`${SUPABASE_URL}/functions/v1/analizar-plato`, {
-      method: 'POST', body: JSON.stringify({imagen: foto.b64, media_type: 'image/jpeg'}),
-      headers: {'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json'}
-    });
-    const j = await r.json().catch(() => ({}));
-    if(r.ok) datos = j;
-    else error = ({falta_llave: 'Falta conectar la llave de la IA en Supabase.', llave_invalida: 'La llave de la IA no funciona: revísala en Supabase.',
-                   ocupado: 'La IA está ocupada; intenta en un minuto.', no_autorizado: 'Tu sesión venció: vuelve a entrar.'})[j.error]
-            || 'No pude analizar la foto. Puedes escribir la comida.';
-  } catch(e) { console.error(e); error = 'Sin conexión: no pude analizar la foto.'; }
-
-  nuAnalizando[zona] = false;
-  const ref = zona==='extra' ? nuIdExtra() : '';
-  await nuGuardarDetalle(zona, ref, {foto_path: ruta, analisis: datos || {error}});
-  if(error) { nuRevision[zona] = {error}; nuPintarZona(zona); return; }
-  const ings = (datos.ingredientes||[]).map(x => Object.assign({on: true}, x));
-  if(!ings.length) { nuRevision[zona] = {error: datos.nota || 'No vi comida en la foto.'}; nuPintarZona(zona); return; }
-  nuRevision[zona] = {plato: datos.plato || 'Plato', confianza: datos.confianza || '', nota: datos.nota || '', ings, ref};
-  nuPintarZona(zona);
-}
-
-function nuHtmlFoto(zona) {
-  if(nuAnalizando[zona]) return `<div class="nu-panel">Mirando la foto…</div>`;
-  const r = nuRevision[zona];
-  if(!r) return '';
-  if(r.error) return `<div class="nu-panel"><div class="nu-panel-tit"><span>${escapeHtml(r.error)}</span><button class="nu-x" onclick="nuDescartarFoto('${zona}')">✕</button></div></div>`;
-  const tot = r.ings.filter(x => x.on).reduce((a,x) => a + (Number(x.kcal)||0), 0);
-  return `<div class="nu-panel">
-    <div class="nu-panel-tit"><span>${escapeHtml(r.plato)} · aprox ${Math.round(tot)} kcal</span><button class="nu-x" onclick="nuDescartarFoto('${zona}')">✕</button></div>
-    <div class="nu-panel-nota">Estimado por la foto${r.confianza ? ' · confianza '+escapeHtml(r.confianza) : ''}${r.nota ? '. '+escapeHtml(r.nota) : ''}. Toca lo que no comiste.</div>
-    ${r.ings.map((x,k) => `<div class="nu-ing${x.on?'':' off'}" onclick="nuToggleIng('${zona}',${k})"><span>${escapeHtml(x.nombre)}</span><b>${Math.round(x.gramos||0)} g</b></div>`).join('')}
-    <button class="nu-confirmar" onclick="nuConfirmarFoto('${zona}')">Confirmar</button>
-  </div>`;
-}
-
-function nuToggleIng(zona, k) { const r = nuRevision[zona]; if(r && r.ings[k]) { r.ings[k].on = !r.ings[k].on; nuPintarZona(zona); } }
-function nuDescartarFoto(zona) { delete nuRevision[zona]; nuPintarZona(zona); }
-
-async function nuConfirmarFoto(zona) {
-  const r = nuRevision[zona];
-  if(!r || !r.ings) return;
-  const elegidos = r.ings.filter(x => x.on);
-  delete nuRevision[zona];
-  if(!elegidos.length) { nuPintarZona(zona); return; }
-  if(zona==='extra') {
-    if(!Array.isArray(todayData.extras)) todayData.extras = [];
-    todayData.extras.push({id: r.ref, hora: horaActualHHMM(), texto: `${r.plato} (foto)`});
-    saveTodayLocal();
-  } else {
-    if(!(todayData.comidas||{})[Number(zona)]) toggleComida(Number(zona));
-    // Si no escribiste nada, el nombre del plato queda como descripción
-    const input = document.getElementById(nuInputId(zona));
-    if(input && !input.value.trim()) { input.value = r.plato; saveComidaTexto(Number(zona)); }
-  }
-  const n = v => (v==null || v==='' || isNaN(Number(v))) ? null : Math.round(Number(v)*10)/10;
-  const filas = elegidos.map(x => ({
-    fecha: fechaActiva, comida: zona, extra_ref: zona==='extra' ? r.ref : null, alimento_id: null, codigo_barras: null,
-    nombre: x.nombre, cantidad: 1, unidad: 'foto', gramos: n(x.gramos),
-    kcal: n(x.kcal), proteina: n(x.proteina), carbo: n(x.carbo), grasa: n(x.grasa), fibra: n(x.fibra),
-    calcio_mg: null, vitd_ui: null, lactosa: !!x.lactosa, cafeina: false, estimado: true, origen: 'foto'
-  }));
-  filas.forEach(f => nuItems.push(f));
-  zona==='extra' ? buildExtras() : nuPintarZona(zona);
-  for(const f of filas) Object.assign(f, await nuInsertar('comidas_items', f));
-  if(zona!=='extra') nuPintarZona(zona);
-}
-
-// ── 🍴 Comí afuera: restaurante, tipo de cocina y ocasión (todo opcional) ──
-const nuDetDe = (zona, ref='') => nuDet.find(d => d.comida===zona && (d.extra_ref||'')===(ref||''));
-const nuEsAfuera = zona => !!(nuDetDe(zona) || {}).afuera;
-
-async function nuGuardarDetalle(zona, ref, cambios) {
-  const previo = nuDetDe(zona, ref) || {};
-  const fila = {
-    fecha: fechaActiva, comida: zona, extra_ref: ref || '',
-    afuera: !!previo.afuera, restaurante: previo.restaurante || null, cocina: previo.cocina || null, ocasion: previo.ocasion || null,
-    foto_path: previo.foto_path || null, analisis: previo.analisis || null,
-    texto_analizado: previo.texto_analizado || null, analisis_texto: previo.analisis_texto || null,
-    ...cambios, actualizado: new Date().toISOString()
-  };
-  nuDet = nuDet.filter(d => d!==previo); nuDet.push(fila);
-  // En fila, uno tras otro, y cada envío manda el estado MÁS RECIENTE. Antes, dos toques
-  // seguidos (cocina y ocasión) salían a la vez y el viejo podía llegar último y pisar al nuevo.
-  const k = nuClaveDig(zona, ref);
-  nuDetGuardando++;
-  const envio = (nuDetEnFila[k] || Promise.resolve()).then(async () => {
-    const a = nuDetDe(zona, ref) || fila;
-    const cuerpo = {fecha: a.fecha, comida: a.comida, extra_ref: a.extra_ref || '', afuera: !!a.afuera,
-      restaurante: a.restaurante ?? null, cocina: a.cocina ?? null, ocasion: a.ocasion ?? null,
-      foto_path: a.foto_path ?? null, analisis: a.analisis ?? null,
-      texto_analizado: a.texto_analizado ?? null, analisis_texto: a.analisis_texto ?? null, actualizado: a.actualizado};
-    const r = await nuInsertar('comidas_detalle', cuerpo, '?on_conflict=fecha,comida,extra_ref');
-    if(r && r.id) a.id = r.id;
-  }).finally(() => { nuDetGuardando--; });
-  nuDetEnFila[k] = envio.catch(() => {});
-  return envio;
-}
-
-async function nuAfuera(zona) {
-  const abrir = !nuEsAfuera(zona);
-  // Desactivar = no comiste afuera: se borran restaurante, cocina y ocasión
-  const guardado = nuGuardarDetalle(zona, '', abrir ? {afuera: true} : {afuera: false, restaurante: null, cocina: null, ocasion: null});
-  const panel = document.getElementById(`afuera-${zona}`);
-  const btn = document.getElementById(`afuera-btn-${zona}`);
-  if(btn) btn.classList.toggle('on', abrir);
-  if(panel) {
-    if(!abrir) { panel.querySelectorAll('.nu-chip.on').forEach(c => c.classList.remove('on')); const r = panel.querySelector('.nu-campo'); if(r) r.value = ''; }
-    panel.classList.toggle('abierto', abrir);
-  } else nuPintarZona(zona);
-  await guardado;
-}
-
-function nuHtmlAfuera(zona) {
-  const d = nuDetDe(zona) || {};
-  return `<div class="nu-afuera${d.afuera ? ' abierto' : ''}" id="afuera-${zona}"><div class="nu-afuera-in"><div class="nu-panel">
-    <input class="nu-campo" type="text" placeholder="Restaurante" value="${escapeHtml(d.restaurante||'')}" onchange="nuDetCampo('${zona}','restaurante',this.value.trim()||null)">
-    <div class="nu-sug">${COCINAS.map(c=>`<button class="nu-chip${d.cocina===c?' on':''}" onclick="nuDetCampo('${zona}','cocina','${c}')">${c}</button>`).join('')}</div>
-    <div class="nu-sug">${OCASIONES.map(o=>`<button class="nu-chip${d.ocasion===o?' on':''}" onclick="nuDetCampo('${zona}','ocasion','${o}')">${o}</button>`).join('')}</div>
-    <div class="nu-mini">Si sabes qué traía, búscalo arriba en la descripción y agrégalo.</div>
-  </div></div></div>`;
-}
-
-async function nuDetCampo(zona, campo, valor) {
-  const d = nuDetDe(zona) || {};
-  if((campo==='cocina' || campo==='ocasion') && d[campo]===valor) valor = null;   // tocar otra vez lo quita
-  await nuGuardarDetalle(zona, '', {[campo]: valor});
-  nuPintarZona(zona);
-}
-
-// ── Menos / más: ajustar a ojo la cantidad de algo ya anotado ──
-function nuAbrirAjuste(id) {
-  const x = nuItems.find(y => String(y.id)===String(id));
-  if(!x) return;
-  nuAjuste = (nuAjuste && String(nuAjuste.id)===String(id)) ? null : {id: x.id, pct: 100, base: Object.assign({}, x)};
-  nuPintarZona(x.comida);
-}
-
-function nuMoverAjuste(v) {
-  if(!nuAjuste) return;
-  nuAjuste.pct = Number(v);
-  const el = document.getElementById('nu-ajuste-g');
-  if(el) el.textContent = `${Math.round(nuAjuste.base.gramos*nuAjuste.pct/100)} g`;
-}
-
-async function nuGuardarAjuste() {
-  if(!nuAjuste) return;
-  const x = nuItems.find(y => String(y.id)===String(nuAjuste.id));
-  if(!x) return;
-  const f = nuAjuste.pct/100, b = nuAjuste.base;
-  const esc = v => v==null ? null : Math.round(Number(v)*f*10)/10;
-  const cambios = {cantidad: esc(b.cantidad), gramos: esc(b.gramos), kcal: esc(b.kcal), proteina: esc(b.proteina), carbo: esc(b.carbo),
-                   grasa: esc(b.grasa), fibra: esc(b.fibra), calcio_mg: esc(b.calcio_mg), vitd_ui: esc(b.vitd_ui)};
-  Object.assign(x, cambios);
-  nuPintarResumen();
-  await nuActualizar('comidas_items', x, cambios);
-}
-
-// ── Digestión: 👍😐👎 y, si no fue bien, síntomas opcionales ──
-function nuDigestionHtml(comida, ref) {
-  const d = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  const r = d ? d.reaccion : null;
-  const botones = `<span class="nu-dig">${DIGESTION.map(o=>`<button class="nu-dig-btn${r===o.id?' on':''}" onclick="nuDigestion('${comida}','${ref}','${o.id}')">${o.e}</button>`).join('')}</span>`;
-  const s = (d && d.sintomas) || [];
-  // Los síntomas se ven sólo mientras los estás escogiendo; al guardar se esconden y queda la carita
-  const sintomas = (r && r!=='bien' && nuDigAbierto[fechaActiva+'|'+nuClaveDig(comida,ref)])
-    ? `<div class="nu-sint">${DIGESTION_SINTOMAS.map(t=>`<button class="nu-chip${s.includes(t)?' on':''}" onclick="nuSintoma('${comida}','${ref}','${t}')">${t}</button>`).join('')}</div>`
-    : '';
-  return {botones, sintomas};
-}
-
-function nuRepintarDig(comida) { comida==='extra' ? buildExtras() : nuPintarZona(comida); }
-
-// Cada toque sólo cambia la pantalla. La escritura sale UNA vez, cuando dejas de tocar
-// (o al salir de la app). Antes cada toque mandaba su propia escritura: varias en vuelo a
-// la vez podían llegar desordenadas y dejar en la base menos síntomas de los que veías,
-// y el refresco de 45 s traía de vuelta ese estado viejo.
-const NU_DIG_ESPERA = 1200;
-let nuDigSucio = {};   // fecha|comida|ref -> {fecha, comida, ref, fila|null, ver}: aún no está en la base
-let nuDigTimers = {};
-let nuDigCadena = {};  // un guardado a la vez por comida
-let nuDigAbierto = {}; // comidas cuyos síntomas se están escogiendo ahora (se cierran al guardar)
-
-function nuDigMarcar(fecha, comida, ref, fila) {
-  const k = fecha+'|'+nuClaveDig(comida, ref);
-  const ver = ((nuDigSucio[k]||{}).ver||0) + 1;
-  nuDigSucio[k] = {fecha, comida, ref: ref||'', fila, ver};
-  clearTimeout(nuDigTimers[k]);
-  nuDigTimers[k] = setTimeout(() => nuDigVolcar(k), NU_DIG_ESPERA);
-}
-
-function nuDigVolcar(k) {
-  clearTimeout(nuDigTimers[k]); delete nuDigTimers[k];
-  const cerrar = nuDigAbierto[k] && nuDigSucio[k];
-  delete nuDigAbierto[k];
-  if(cerrar && cerrar.fecha===fechaActiva) nuRepintarDig(cerrar.comida);
-  nuDigCadena[k] = (nuDigCadena[k] || Promise.resolve()).then(async () => {
-    const e = nuDigSucio[k];
-    if(!e) return;
-    try { await nuDigEscribir(e); }
-    finally { if(nuDigSucio[k] && nuDigSucio[k].ver===e.ver) delete nuDigSucio[k]; }
-  }).catch(err => console.error('Error guardando digestión:', err));
-  return nuDigCadena[k];
-}
-
-function nuDigVolcarTodo() { Object.keys(nuDigSucio).forEach(nuDigVolcar); }
-
-async function nuDigEscribir(e) {
-  const mismaClave = o => o.body.fecha===e.fecha && o.body.comida===e.comida && (o.body.extra_ref||'')===e.ref;
-  if(!e.fila) {   // reacción quitada
-    nuColaGuardar(nuColaLeer().filter(o => !(o.tabla==='comidas_digestion' && mismaClave(o))));
-    setSyncing(true);
-    try {
-      const r = await sbLog('comidas_digestion', 'DELETE', null,
-        `?fecha=eq.${e.fecha}&comida=eq.${encodeURIComponent(e.comida)}&extra_ref=eq.${encodeURIComponent(e.ref)}`);
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      setSyncing(false); clearSyncError();
-    } catch(err) { console.error(err); setSyncError(); }
-    return;
-  }
-  const f = e.fila;
-  const r = await nuInsertar('comidas_digestion',
-    {fecha: e.fecha, comida: e.comida, extra_ref: e.ref, reaccion: f.reaccion||null, sintomas: f.sintomas||[], hora: f.hora||null},
-    '?on_conflict=fecha,comida,extra_ref');
-  if(r && r.id) f.id = r.id;
-}
-
-// Lo que todavía no llegó a la base gana sobre lo que trae el servidor
-function nuDigAplicarPendientes(fecha) {
-  Object.values(nuDigSucio).filter(e => e.fecha===fecha).forEach(e => {
-    nuDig = nuDig.filter(x => nuClaveDig(x.comida,x.extra_ref)!==nuClaveDig(e.comida,e.ref));
-    if(e.fila) nuDig.push(e.fila);
-  });
-}
-
-function nuDigCambiar(comida, ref, cambios) {   // cambios === null quita la reacción
-  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  nuDig = nuDig.filter(x => x!==previo);
-  let fila = null;
-  if(cambios) {
-    fila = Object.assign({fecha: fechaActiva, comida, extra_ref: ref||'', reaccion: null, sintomas: []}, previo, cambios);
-    fila.hora = (previo && previo.hora) || nuHoraSiHoy();
-    nuDig.push(fila);
-  }
-  nuRepintarDig(comida);
-  nuDigMarcar(fechaActiva, comida, ref, fila);
-}
-
-function nuDigestion(comida, ref, reaccion) {
-  const previo = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  const kAbierto = fechaActiva+'|'+nuClaveDig(comida,ref);
-  if(previo && previo.reaccion===reaccion) { delete nuDigAbierto[kAbierto]; return nuDigCambiar(comida, ref, null); }   // tocar el mismo otra vez lo quita
-  if(reaccion==='bien') delete nuDigAbierto[kAbierto]; else nuDigAbierto[kAbierto] = true;
-  nuDigCambiar(comida, ref, {reaccion, sintomas: reaccion==='bien' ? [] : ((previo && previo.sintomas) || [])});
-}
-
-function nuSintoma(comida, ref, s) {
-  const d = nuDig.find(x => nuClaveDig(x.comida,x.extra_ref)===nuClaveDig(comida,ref));
-  if(!d) return;
-  const actual = d.sintomas || [];
-  nuDigCambiar(comida, ref, {sintomas: actual.includes(s) ? actual.filter(x => x!==s) : actual.concat(s)});
-}
-
-// ── 🚽 Baño: un tap = una vez, con hora. Tipo y molestias se afinan después, si quiere ──
-async function registrarBano() {
-  const fila = {fecha: fechaActiva, hora: nuHoraSiHoy(), tipo: null, bristol: null, molestias: []};
-  banosDia.push(fila);
-  banoAbierto = fila;
-  buildBanos();
-  Object.assign(fila, await nuInsertar('banos', fila));
-}
-
-function buildBanos() {
-  const lista = document.getElementById('banos-list');
-  const cont = document.getElementById('banos-count');
-  if(!lista) return;
-  if(cont) cont.textContent = banosDia.length ? `· ${banosDia.length}` : '';
-  banosDia.sort((a,b) => (a.hora||'').localeCompare(b.hora||''));   // si corriges una hora, la lista sigue en orden
-  lista.innerHTML = banosDia.map((b,i) => {
-    const tipo = BANO_TIPOS.find(t => t.id===b.tipo);
-    const mol = (b.molestias||[]).map(m => (BANO_MOLESTIAS.find(x => x.id===m) || {t:m}).t).join(', ');
-    let h = `<div class="extra-item" onclick="abrirBano(${i})">
-      <span class="extra-hora comida-hora" onclick="event.stopPropagation();editarHoraBano(${i})">${b.hora ? formatHora12(b.hora) : '—'}</span>
-      <span class="extra-texto">${tipo ? tipo.t : ''}${tipo && mol ? ' · ' : ''}${escapeHtml(mol)}</span>
-      <button class="log-del" onclick="event.stopPropagation();borrarBano(${i})">✕</button>
-    </div>`;
-    if(b===banoAbierto) h += `<div class="bano-panel">
-      <div class="nu-sint">${BANO_TIPOS.map(t=>`<button class="nu-chip${t.id===b.tipo?' on':''}" onclick="tipoBano(${i},'${t.id}')">${t.t}</button>`).join('')}</div>
-      <div class="nu-sint">${BANO_MOLESTIAS.map(m=>`<button class="nu-chip${(b.molestias||[]).includes(m.id)?' on':''}" onclick="molestiaBano(${i},'${m.id}')">${m.t}</button>`).join('')}</div>
-    </div>`;
-    return h;
-  }).join('');
-}
-
-// Corregir la hora de un baño, tocándola en la lista (mismo gesto que fumado y comidas)
-async function editarHoraBano(i) {
-  const b = banosDia[i]; if(!b) return;
-  const val = prompt('¿A qué hora fue? (formato 24h, ej. 14:30)', String(b.hora||'').slice(0,5));
-  if(val===null) return;
-  const limpio = val.trim();
-  if(!/^\d{1,2}:\d{2}$/.test(limpio)) { alert('Escribe la hora así: 14:30'); return; }
-  const [hh,mm] = limpio.split(':').map(n=>parseInt(n,10));
-  if(hh>23 || mm>59) { alert('Esa hora no existe.'); return; }
-  b.hora = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-  buildBanos();
-  await nuActualizar('banos', b, {hora: b.hora});
-}
-
-function abrirBano(i) { banoAbierto = banosDia[i]===banoAbierto ? null : banosDia[i]; buildBanos(); }
-
-async function tipoBano(i, id) {
-  const b = banosDia[i]; if(!b) return;
-  const t = b.tipo===id ? null : BANO_TIPOS.find(x => x.id===id);
-  b.tipo = t ? t.id : null; b.bristol = t ? t.bristol : null;
-  buildBanos();
-  await nuActualizar('banos', b, {tipo: b.tipo, bristol: b.bristol});
-}
-
-async function molestiaBano(i, id) {
-  const b = banosDia[i]; if(!b) return;
-  const m = b.molestias || [];
-  b.molestias = m.includes(id) ? m.filter(x => x!==id) : m.concat(id);
-  buildBanos();
-  await nuActualizar('banos', b, {molestias: b.molestias});
-}
-
-async function borrarBano(i) {
-  const b = banosDia.splice(i,1)[0]; if(!b) return;
-  if(b===banoAbierto) banoAbierto = null;
-  buildBanos();
-  await nuBorrarFila('banos', b.id);
+  try { quedan.length ? localStorage.setItem('nu_cola', JSON.stringify(quedan)) : localStorage.removeItem('nu_cola'); } catch(e){}
 }
 
 // ── ANCLA DEL DÍA ──
@@ -5008,7 +3798,6 @@ function anclaEstaHecha() {
   if(a.tipo==='habito') return state[a.panel][todayIdx] && state[a.panel][todayIdx][idxAncla(a)];
   if(a.tipo==='gato') return todayData.gatos && todayData.gatos[a.idx];
   if(a.tipo==='emocion') return !!todayData.emocion;
-  if(a.tipo==='comida') return todayData.comidas && todayData.comidas[a.idx];
   return false;
 }
 
@@ -5030,8 +3819,6 @@ async function toggleAncla() {
     await toggleHabitQuick(a.panel,todayIdx,idxAncla(a), document.getElementById('ancla-card').classList.contains('done'));
   } else if(a.tipo==='gato') {
     toggleGato(a.idx);
-  } else if(a.tipo==='comida') {
-    toggleComida(a.idx);
   } else if(a.tipo==='emocion') {
     document.querySelector('.emotion-bar').scrollIntoView({behavior:'smooth',block:'center'});
     return;
@@ -5210,151 +3997,6 @@ function preguntaParaFecha(fechaStr) {
 function setPreguntaDia() {
   const el = document.getElementById('pregunta-dia');
   if(el) el.textContent = preguntaParaFecha(fechaActiva);
-}
-
-// ── COMIDAS PROGRESIVAS ──
-// Cada comida tiene tres estados: sin responder, la comió (con la hora a la que la registró)
-// o "no la comí". Marcar que NO la comió también abre la siguiente: muchos días no desayuna
-// pero sí almuerza, y eso es un dato, no un hueco. Lo explícito se guarda aparte de lo
-// vacío: `comidas` (true = comió), `comidas_omitidas` (true = no la comió), `comidas_hora`.
-const COMIDAS = [
-  {nombre:'Desayuno', mensajeHecho:'Desayunaste ✓', mensajePendiente:'Toca cuando desayunes', botonOmitir:'No desayuné', mensajeOmitida:'No desayuné', verbo:'desayunaste'},
-  {nombre:'Almuerzo', mensajeHecho:'Almorzaste ✓', mensajePendiente:'Toca cuando almuerces', botonOmitir:'No almorcé', mensajeOmitida:'No almorcé', verbo:'almorzaste'},
-  {nombre:'Cena', mensajeHecho:'Cenaste ✓', mensajePendiente:'Toca cuando cenes', botonOmitir:'No cené', mensajeOmitida:'No cené', verbo:'cenaste'},
-];
-
-function asegurarComidas() {
-  if(!todayData.comidas) todayData.comidas={};
-  if(!todayData.comidas_omitidas) todayData.comidas_omitidas={};
-  if(!todayData.comidas_hora) todayData.comidas_hora={};
-}
-
-function toggleComida(i) {
-  asegurarComidas();
-  const activando=!todayData.comidas[i];
-  todayData.comidas[i]=activando;
-  if(activando) {
-    todayData.comidas_omitidas[i]=false;   // comer deshace "no la comí"
-    // La hora es la de este momento (la idea es registrar al terminar de comer). Solo si se
-    // está viendo el día de hoy: en un día pasado no se inventa una hora, se deja vacía.
-    todayData.comidas_hora[i] = (fechaActiva===fechaDeAhora()) ? horaActualHHMM() : '';
-  } else {
-    todayData.comidas_hora[i]='';
-  }
-  saveTodayLocal();
-  updateComidasUI(activando ? i : -1);
-  updateAnclaUI();
-
-  if(activando) {
-    if(i<2) {
-      mostrarRecompensa(`🍽️ ${COMIDAS[i].nombre} registrado. ${COMIDAS[i+1].nombre} desbloqueado`);
-    } else {
-      mostrarRecompensa('🌿 Tres comidas hoy. Eso es cuidarte de verdad');
-    }
-  }
-}
-
-// "No desayuné": queda explícito (no es un chulito vacío) y abre la siguiente comida.
-// Tocarlo otra vez ("Deshacer") lo quita.
-function toggleOmitida(i) {
-  asegurarComidas();
-  const omitiendo=!todayData.comidas_omitidas[i];
-  todayData.comidas_omitidas[i]=omitiendo;
-  if(omitiendo) { todayData.comidas[i]=false; todayData.comidas_hora[i]=''; }
-  saveTodayLocal();
-  updateComidasUI(omitiendo ? i : -1);
-  updateAnclaUI();
-}
-
-// Corregir la hora de una comida ya registrada, tocándola
-function editarHoraComida(i) {
-  asegurarComidas();
-  const val = prompt(`¿A qué hora ${COMIDAS[i].verbo}? (formato 24h, ej. 14:30)`, todayData.comidas_hora[i] || '');
-  if(val===null) return;
-  const limpio = val.trim();
-  if(!/^\d{1,2}:\d{2}$/.test(limpio)) { alert('Escribe la hora así: 14:30'); return; }
-  const [hh,mm] = limpio.split(':').map(n=>parseInt(n,10));
-  if(hh>23 || mm>59) { alert('Esa hora no existe.'); return; }
-  todayData.comidas_hora[i] = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-  saveTodayLocal();
-  updateComidasUI();
-}
-
-function updateComidasUI(recienDesbloqueada=-1) {
-  // Solo se LEE: crear los objetos al pintar haría que el siguiente guardado mande {} y
-  // pise lo que otro dispositivo ya guardó. Se crean únicamente cuando ella toca algo.
-  const comidas = todayData.comidas || {};
-  const omitidas = todayData.comidas_omitidas || {};
-  const horas = todayData.comidas_hora || {};
-  let hechas=0;
-
-  for(let i=0;i<3;i++){
-    const el=document.getElementById(`comida-${i}`);
-    if(!el) continue;
-    const hecha=!!comidas[i];
-    const omitida=!hecha && !!omitidas[i];
-    if(hecha) hechas++;
-
-    // Desbloqueada si es la primera, o si la anterior se comió o se marcó "no la comí"
-    const prev = i>0 && (comidas[i-1] || omitidas[i-1]);
-    const desbloqueada = i===0 || prev;
-
-    el.classList.toggle('hecha', hecha);
-    el.classList.toggle('omitida', omitida);
-    el.classList.toggle('bloqueada', !desbloqueada);
-
-    const check=el.querySelector('.comida-check');
-    if(check) check.textContent = omitida ? '–' : '✓';
-
-    const estado=el.querySelector('.comida-estado');
-    if(estado) {
-      if(hecha) {
-        const h = horas[i];
-        estado.innerHTML = COMIDAS[i].mensajeHecho + (h ? ` · <span class="comida-hora" onclick="event.stopPropagation();editarHoraComida(${i})">${formatHora12(h+':00')}</span>` : '');
-      }
-      else if(omitida) estado.textContent=COMIDAS[i].mensajeOmitida;
-      else if(desbloqueada) estado.textContent=COMIDAS[i].mensajePendiente;
-      else estado.textContent=`Se abre al registrar el ${COMIDAS[i-1].nombre.toLowerCase()} (o "${COMIDAS[i-1].botonOmitir}")`;
-    }
-
-    const skip=document.getElementById(`skip-${i}`);
-    if(skip) skip.textContent = omitida ? 'Deshacer' : COMIDAS[i].botonOmitir;
-
-    // Animación de desbloqueo
-    if(recienDesbloqueada>=0 && i===recienDesbloqueada+1 && desbloqueada) {
-      el.classList.add('desbloqueando');
-      setTimeout(()=>el.classList.remove('desbloqueando'),600);
-    }
-  }
-
-  const prog=document.getElementById('meal-progress');
-  if(prog) prog.textContent=`${hechas} / 3`;
-  ['0','1','2'].forEach(nuPintarZona);   // la digestión aparece al marcar la comida
-}
-
-function saveComidaTexto(i) {
-  if(!todayData.comidas_texto) todayData.comidas_texto={};
-  todayData.comidas_texto[i]=document.getElementById(`texto-${i}`).value;
-  saveTodayLocal();
-}
-
-function restoreComidas() {
-  if(!todayData.comidas_texto) todayData.comidas_texto={};
-  for(let i=0;i<3;i++){
-    const input=document.getElementById(`texto-${i}`);
-    if(!input) continue;
-    // Nunca dejar texto de otro día: si esta fecha no tiene nada, el campo queda vacío.
-    // Si el campo está enfocado (lo estás escribiendo), no se toca.
-    if(document.activeElement===input) continue;
-    input.value = todayData.comidas_texto[i] || '';
-  }
-  updateComidasUI();
-}
-
-function saveSueno() {
-  todayData.sueno_horas=document.getElementById('input-sueno').value;
-  saveTodayLocal();
-  updateSnaps();
 }
 
 // ── CICLO MENSTRUAL ──
@@ -5593,7 +4235,7 @@ function restoreTodayUI() {
     document.querySelectorAll('.emo-pill').forEach(p=>p.classList.remove('selected'));
     document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>p.classList.remove('selected'));
     document.querySelectorAll('.ql-star').forEach(s=>s.classList.remove('on'));
-    ['input-pasos','input-km','input-sueno','input-lectura'].forEach(limpiar);
+    ['input-pasos','input-km','input-lectura'].forEach(limpiar);
     starState={agua:0,energia:0,sueno:0,movimiento:0};
     const biciBtn=document.getElementById('bici-btn');
     if(biciBtn){ biciBtn.textContent='No'; biciBtn.classList.remove('selected'); }
@@ -5610,13 +4252,9 @@ function restoreTodayUI() {
       document.querySelectorAll('#nivel-agua .nivel-pill').forEach(p=>{if(p.textContent===todayData.agua)p.classList.add('selected');});
     }
     if(todayData.energia) setStars('energia',todayData.energia);
-    restoreComidas();
-    buildExtras();
-    if(todayData.sueno_calidad) setStars("sueno",todayData.sueno_calidad);
     if(todayData.movimiento) setStars('movimiento',todayData.movimiento);
     if(todayData.km) document.getElementById('input-km').value=todayData.km;
     if(todayData.bici && biciBtn){ biciBtn.textContent='🚲 Sí'; biciBtn.classList.add('selected'); }
-    if(todayData.sueno_horas) document.getElementById("input-sueno").value=todayData.sueno_horas;
     if(todayData.lectura) { const el=document.getElementById('input-lectura'); if(el && document.activeElement!==el) el.value=todayData.lectura; }
     buildLecturaVisual();
     // El día y la fase del ciclo se calculan solos para la fecha que se esté viendo
@@ -5638,7 +4276,7 @@ function updateSnaps() {
   const sh=todayData.sueno_horas;
   const snapS=document.getElementById('snap-sueno');
   if(sh) { snapS.innerHTML=`${sh}<span class="snap-unit">h</span>`; document.getElementById('snap-sueno-sub').textContent='Anoche'; }
-  else { snapS.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-sueno-sub').textContent='Registra en Mañana'; }
+  else { snapS.innerHTML='<span class="snap-empty">—</span>'; document.getElementById('snap-sueno-sub').textContent='sin registro'; }
   
   // (Fumado se actualiza aparte, en buildCigarrillos())
   
@@ -5696,8 +4334,6 @@ function selectDay(panel,idx) {
 
 function cambiarFechaActiva(fecha) {
   fechaActiva = fecha;
-  nuItems = []; nuDig = []; banosDia = []; banoAbierto = null; nuSel = {}; nuDet = []; nuRevision = {}; nuAjuste = null;
-  nuCargarDia(fecha);
   restoreTodayUI();
   cargarMomentos(fecha).then(cambio => { if(cambio && fechaActiva===fecha) pintarMomentos(); });
 }
@@ -6126,18 +4762,16 @@ async function refrescoAutomatico() {
         merge('ciclo_dia', row.ciclo_dia!=null?String(row.ciclo_dia):null);
         merge('fase', row.ciclo_fase);
         merge('lectura', row.lectura_min!=null?String(row.lectura_min):null);
-        merge('sueno_horas', row.sueno_horas!=null?String(row.sueno_horas):null);
-        merge('sueno_calidad', row.sueno_calidad!=null?row.sueno_calidad:null);
+        // Sueño, comidas y snacks se escriben en otra parte: aquí manda la base
+        if(row.sueno_horas!=null) local.sueno_horas = String(row.sueno_horas);
+        if(row.sueno_calidad!=null) local.sueno_calidad = row.sueno_calidad;
         if(local.bici===undefined) local.bici=!!row.bici;
-        // Extras: la lista más larga gana (no queremos perder lo agregado en otro dispositivo)
-        if(Array.isArray(row.extras) && (!Array.isArray(local.extras) || row.extras.length > local.extras.length)) {
-          local.extras = row.extras;
-        }
+        if(Array.isArray(row.extras)) local.extras = row.extras;
+        if(row.comidas) local.comidas = row.comidas;
+        if(row.comidas_texto) local.comidas_texto = row.comidas_texto;
+        if(row.comidas_omitidas) local.comidas_omitidas = row.comidas_omitidas;
+        if(row.comidas_hora) local.comidas_hora = row.comidas_hora;
         // Objetos: combinar, sin borrar marcas locales
-        if(row.comidas) local.comidas = Object.assign({}, row.comidas, local.comidas||{});
-        if(row.comidas_texto) local.comidas_texto = Object.assign({}, row.comidas_texto, local.comidas_texto||{});
-        if(row.comidas_omitidas) local.comidas_omitidas = Object.assign({}, row.comidas_omitidas, local.comidas_omitidas||{});
-        if(row.comidas_hora) local.comidas_hora = Object.assign({}, row.comidas_hora, local.comidas_hora||{});
         if(row.gatos) local.gatos = Object.assign({}, row.gatos, local.gatos||{});
 
         registroCache[row.fecha]=local;
@@ -6191,7 +4825,6 @@ async function refrescoAutomatico() {
     await cargarGastosHoy();
     await cargarGastosSemana();
     await cargarCigarrillosSemana();
-    await nuCargarDia();
     if(document.getElementById('panel-semana').classList.contains('on')) buildSemana();
   } catch(e){
     console.error('Error en refresco automático:', e);
@@ -6236,7 +4869,6 @@ function iniciarAutoRefresco() {
 // Esto evita perder datos cuando se cambia de pestaña, se apaga la pantalla,
 // o se cierra la app justo antes de que el temporizador normal dispare.
 function forzarGuardadoPendiente() {
-  nuDigVolcarTodo();
   if(saveTimer) {
     clearTimeout(saveTimer);
     saveTimer=null;
@@ -6295,7 +4927,7 @@ async function init() {
     cargarPeriodos(),
     cargarGastosHoy(),
     cargarGastosSemana(),
-    nuCargarAlimentos().then(() => nuCargarDia()),
+    vaciarColaComidasVieja(),
     cargarCigarrillosSemana(),
     cargarMomentos(fechaActiva),
     RECUPERACION_ACTIVA ? cargarRecuperacion() : null
