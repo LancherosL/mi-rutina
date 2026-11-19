@@ -612,9 +612,10 @@ html[data-tema="oscuro"] {
 .boton:active { background: var(--acento-oscuro); transform: none; }
 
 /* Barra de abajo: franja neón de borde a borde; la pestaña activa, en tinta */
-.t-nav { left: 0; right: auto; transform: none; bottom: 0; width: 100%; height: calc(56px + env(safe-area-inset-bottom)); padding: 0 var(--pad) env(safe-area-inset-bottom); border-radius: 0; box-shadow: none; background: var(--acento); }
-.t-nav .t-tab { border-radius: 0; margin: 0; }
+.t-nav { left: 0; right: auto; transform: none; bottom: 0; width: 100%; height: calc(48px + env(safe-area-inset-bottom)); padding: 0 var(--pad) env(safe-area-inset-bottom); border-radius: 0; box-shadow: none; background: var(--acento); }
+.t-nav .t-tab { border-radius: 0; margin: 0; gap: 2px; font-size: 11px; }
 .t-nav .t-tab.on { background: var(--sobre-acento); color: var(--acento); }
+.t-nav .t-tab svg, .t-nav .t-tab .t-ico { width: 20px; height: 20px; }
 .toast { border-radius: 0; box-shadow: none; }
 
 
